@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="container">
+        <h1 id="home-title">ExAC | Exome Aggregation Consortium</h1>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div id="home-searchbox">
+                    <form action="/awesome">
+                        <input name="query" class="form-control input-lg" type="text" placeholder="Search for a gene or variant"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

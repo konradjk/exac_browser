@@ -1,0 +1,23 @@
+#header {
+    background: #222;
+    padding: 10px 0;
+}
+
+#header-links {
+    float: right;
+    color: white;
+}
+
+#header-links a {
+    color: white;
+    font-weight: bold;
+}
+
+#home-title {
+    text-align: center;
+    padding: 30px;
+}
+
+#home-searchbox {
+    margin: 20px 0;
+}

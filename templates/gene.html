@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="container">
+        <h1>Gene: {{ gene.gene_name }}</h1>
+
+        <p>The gene object that we are displaying looks like this:</p>
+        <pre>{{ gene|pprint(True) }}</pre>
+    </div>
+{% endblock %}

@@ -1,0 +1,19 @@
+<!doctype html>
+<head>
+    <title>ExAC Browser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div id="header">
+    <div class="container">
+        <div id="header-links">
+            <a href="/">Home</a> |
+            <a href="/downloads">Downloads</a> |
+            <a href="/contact">Contact</a>
+        </div>
+    </div>
+</div>
+{% block body %}{% endblock %}
+</body>

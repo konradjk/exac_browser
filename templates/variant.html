@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="container">
+        <h1>Variant: {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
+        <hr/>
+
+        {% if variant.orig_alt_alleles|length > 1 %}
+            <p><span class="label label-info">Note:</span> This variant is multiallelic! The other alt alleles are:</p>
+            <ul>
+                {% for allele in variant.orig_alt_alleles %}
+                    {% if allele != variant.alt %}
+                        <li>
+                            <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ allele }}">{{ allele }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <hr/>
+        {% endif %}
+
+        <dl class="dl-horizontal">
+            <dt>Allele Frequency</dt>
+            <dd>{{ variant.allele_freq }}</dd>
+            <dt>Allele Count</dt>
+            <dd>{{ variant.allele_count }} / {{ variant.num_alleles }}</dd>
+        </dl>
+        <hr/>
+
+        <p>The variant object that we are displaying looks like this:</p>
+        <pre>{{ variant|pprint(True) }}</pre>
+    </div>
+{% endblock %}
