@@ -1,5 +1,4 @@
 
-pip install git+git://github.com/mitsuhiko/flask.git
 
 Installation
 =======
