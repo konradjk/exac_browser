@@ -71,6 +71,9 @@ You can run the development server with:
 And visit on your browser:
 
     http://localhost:5000
+    http://localhost:5000/gene/ENSG00000237683
+    http://localhost:5000/variant/20-76735-A-T
+
 
 For testing, you can open up an interactive shell with:
 
