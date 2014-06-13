@@ -21,8 +21,8 @@ app.config.update(dict(
     DEBUG = True,
     SECRET_KEY = 'development key',
 
-    SITES_VCF = os.path.join(os.path.dirname(__file__), 'exac_chr20.vcf.gz'), 
-    GENCODE_GTF = os.path.join(os.path.dirname(__file__), 'gencode.v19.annotation.gtf.gz'),
+    SITES_VCF = os.path.join(os.path.dirname(__file__), '../exac_chr20.vcf.gz'), 
+    GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.v19.annotation.gtf.gz'),
 
 ))
 
@@ -55,7 +55,10 @@ def load_db():
     progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
     for variant in get_variants_from_sites_vcf(sites_vcf):
         db.variants.insert(variant)
-        progress.update(sites_vcf.fileobj.tell())
+        try: 
+            progress.update(sites_vcf.fileobj.tell())
+        except IOError:  # this breaks on screwy zlib installations (ie. mac)
+            pass
 
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
@@ -63,8 +66,10 @@ def load_db():
     progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     for gene in get_genes_from_gencode_gtf(gtf_file):
         db.genes.insert(gene)
-        progress.update(gtf_file.fileobj.tell())
-
+        try: 
+            progress.update(gtf_file.fileobj.tell())
+        except IOError:  
+            pass
 
 def get_db():
     """

@@ -3,12 +3,22 @@
 Installation
 =======
 
-### Dependencies
+### Getting the code
+
+Create a directory to put all this stuff in. This will serve as the parent directory of the actual exac_browser repository 
+
+    mkdir exac
 
 First (as this can run in parallel), download the datasets that the browser uses:
 
     wget http://broadinstitute.org/~bthomas/gencode.v19.annotation.gtf.gz
     wget http://broadinstitute.org/~bthomas/exac_chr20.vcf.gz
+
+Now clone the repo: 
+
+    git clone https://github.com/brettpthomas/exac_browser.git
+
+### Dependencies
 
 Follow these instructions to get Python and Homebrew installed on your Mac:
 http://docs.python-guide.org/en/latest/starting/install/osx/
@@ -17,9 +27,13 @@ Install MongoDB:
 
     brew install mongodb
 
+Create a directory to hold your mongo database files: 
+
+    mkdir database
+
 In a separate tab, start the mongo database server:
 
-    mongod
+    mongod --dbpath database
 
 This local server needs to be running at all times when you are working on the site.
 You could do this in the background if you want or set up some startup service,
@@ -31,11 +45,6 @@ Finally, create a python virtual environment where the browser will live:
     source /path/to/env/bin/activate
 
 ### Installation
-
-First get the code:
-
-    git clone https://github.com/brettpthomas/exac_browser.git
-    cd exac_browser
 
 Install the python requirements:
 
