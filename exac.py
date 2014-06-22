@@ -94,10 +94,12 @@ def homepage():
     return render_template('homepage.html')
 
 
-@app.route('/awesome/<query>')
-def awesome(query):
+@app.route('/awesome')
+def awesome():
     db = get_db()
+    query = request.args.get('query')
     datatype, identifier = lookups.get_awesomebar_result(db, query)
+    print datatype, identifier
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
 
