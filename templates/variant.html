@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 {% block body %}
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="{{  url_for('static', filename='exac.js') }}"></script>
+    <script>
+        $(document).ready(map_initialize);
+    </script>
     <div class="container">
         <h1>Variant: {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
         <hr/>
@@ -18,14 +24,36 @@
             <hr/>
         {% endif %}
 
-        <dl class="dl-horizontal">
-            <dt>Allele Frequency</dt>
-            <dd>{{ variant.allele_freq }}</dd>
-            <dt>Allele Count</dt>
-            <dd>{{ variant.allele_count }} / {{ variant.num_alleles }}</dd>
-        </dl>
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="dl-horizontal">
+                    <dt>Allele Frequency</dt>
+                    <dd>{{ variant.allele_freq }}</dd>
+                    <dt>Allele Count</dt>
+                    <dd>{{ variant.allele_count }} / {{ variant.num_alleles }}</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="dl-horizontal">
+                    <dt>Site Quality</dt>
+                    <dd>{{ variant.site_quality }}</dd>
+                    <dt>Filter Status</dt>
+                    <dd>{{ variant.filter }}</dd>
+                </dl>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Annotations</h3>
+                This variant falls on {{ variant.vep_annotations|length }} transcripts.
+            </div>
+            <div class="col-md-6">
+                <h3>Map time</h3>
+                <div id="map_canvas" style="height: 300px; width: 550px"></div>
+            </div>
+        </div>
         <hr/>
-
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <p>The variant object that we are displaying looks like this:</p>
         <pre>{{ variant|pprint(True) }}</pre>
     </div>

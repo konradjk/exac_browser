@@ -13,6 +13,7 @@ def get_variants_from_sites_vcf(sites_vcf):
     """
     vep_field_names = None
     for line in sites_vcf:
+        line = line.strip('\n')
         if line.startswith('##INFO=<ID=CSQ'):
             vep_field_names = line.split('Format: ')[-1].strip('">').split('|')
         if line.startswith('#'):
@@ -21,7 +22,7 @@ def get_variants_from_sites_vcf(sites_vcf):
         # If we get here, it's a variant line
 
         # This elegant parsing code below is copied from https://github.com/konradjk/loftee
-        fields = line.strip('\n').split('\t')
+        fields = line.split('\t')
         info_field = dict([(x.split('=', 1)) for x in re.split(';(?=\w)', fields[7]) if x.find('=') > -1])
         if 'CSQ' not in info_field:
             info_field['CSQ'] = ''
@@ -38,11 +39,14 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant = {}
             variant['chrom'] = fields[0]
             variant['pos'] = int(fields[1])
+            variant['rsid'] = fields[2]
             variant['xpos'] = xbrowse.get_xpos(variant['chrom'], variant['pos'])
             variant['ref'] = fields[3]
             variant['alt'] = alt_allele
             variant['orig_alt_alleles'] = alt_alleles
-            variant['vep_annotations'] = annotations
+            variant['site_quality'] = float(fields[5])
+            variant['filter'] = fields[6]
+            variant['vep_annotations'] = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i]
             variant['allele_count'] = int(info_field['AC'].split(',')[i])
             variant['allele_freq'] = float(info_field['AF'].split(',')[i])
             variant['num_alleles'] = int(info_field['AN'])
