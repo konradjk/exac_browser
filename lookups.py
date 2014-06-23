@@ -39,6 +39,8 @@ def get_awesomebar_result(db, query):
     This could be important for performance later
 
     """
+
+    # Gene
     gene = db.genes.find_one({'gene_id': query})
     if gene:
         return 'gene', gene['gene_id']
@@ -46,6 +48,13 @@ def get_awesomebar_result(db, query):
     if gene:
         return 'gene', gene['gene_id']
 
+    # Variant
+    variant = db.variants.find_one({'rsid:' : query})
+    if variant:
+        return 'variant', variant
+
+    # Region
+    
 
 
 def get_genes_in_region(db, xstart, xstop):

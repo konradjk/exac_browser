@@ -99,9 +99,14 @@ def awesome():
     db = get_db()
     query = request.args.get('query')
     datatype, identifier = lookups.get_awesomebar_result(db, query)
-    print datatype, identifier
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
+    elif datatype == 'variant':
+        return redirect('/variant/{}'.format(identifier))
+    elif datatype == 'region':
+        raise NotImplementedError
+    else:
+        raise Exception
 
 
 @app.route('/variant/<variant_str>')
