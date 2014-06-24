@@ -45,15 +45,44 @@
         <div class="row">
             <div class="col-md-6">
                 <h3>Annotations</h3>
-                This variant falls on {{ variant.vep_annotations|length }} transcripts.
+                {% if variant.vep_annotations %}
+                    This variant falls on {{ variant.vep_annotations|length }} transcripts.
+                    <br/>
+                    <div class="panel-group" id="annotation_accordion">
+                        {% for annotation in variant.vep_annotations %}
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#annotation_accordion" href="#{{ annotation.Feature }}_{{ annotation.Allele }}">
+                                            {{ annotation.Feature }}
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="{{ annotation.Feature }}_{{ annotation.Allele }}" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        {% if annotation.LoF %}
+                                            {{ annotation.LoF }}
+                                        {% endif %}
+                                        <dl class="dl-horizontal" style="text-transform:capitalize;">
+                                            <dt>Consequence</dt>
+                                            <dd>{{ annotation.Consequence }}</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    No annotations were found for this variant.
+                {% endif %}
             </div>
             <div class="col-md-6">
-                <h3>Map time</h3>
+                <h3>Population Frequencies</h3>
                 <div id="map_canvas" style="height: 300px; width: 550px"></div>
             </div>
         </div>
         <hr/>
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/>
         <p>The variant object that we are displaying looks like this:</p>
         <pre>{{ variant|pprint(True) }}</pre>
     </div>

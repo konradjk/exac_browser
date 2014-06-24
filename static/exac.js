@@ -33,8 +33,6 @@ ChartMarker.prototype.draw = function() {
     var marker = this;
     var projection = this.getProjection();
     var position = projection.fromLatLngToDivPixel( this.get('position') );
-    console.log(this.get('width'));
-    console.log(position.x);
 
     this.$div.css({
         left: position.x,
