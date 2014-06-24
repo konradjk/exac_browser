@@ -44,19 +44,56 @@ ChartMarker.prototype.draw = function() {
     this.chart.draw( this.get('chartData'), this.get('chartOptions') );
 };
 function map_initialize() {
-    var latLng = new google.maps.LatLng( 40.708762, -74.006731 );
-    var center = new google.maps.LatLng(25, 140);
+    var center = new google.maps.LatLng(30, 140);
 
     var map = new google.maps.Map( $('#map_canvas')[0], {
         zoom: 1,
         center: center,
-        mapTypeId: google.maps.MapTypeId.SATELLITE
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        panControl: false,
+        zoomControl: false,
+        scrollwheel: false,
+        disableDoubleClickZoom: true,
+        mapTypeControl: false,
+        draggable: false,
+        streetViewControl: false
     });
 
+    var mapStyle = [
+        {
+            featureType: "administrative",
+            elementType: "geometry.fill",
+            stylers: [
+               { visibility: "off" }
+            ]
+        }, {
+            featureType: "administrative",
+            elementType: "geometry.stroke",
+            stylers: [
+                { visibility: "off" }
+            ]
+        }, {
+            featureType: "administrative",
+            elementType: "labels",
+            stylers: [
+                { visibility: "off" }
+            ]
+        }
+    ];
+    var styledMap = new google.maps.StyledMapType(mapStyle);
+    map.mapTypes.set('myCustomMap', styledMap);
+    map.setMapTypeId('myCustomMap');
+
+    redraw_map(map);
+    return map;
+};
+
+function redraw_map(map) {
+    var latLng = new google.maps.LatLng( 40.708762, -74.006731 );
     var data = google.visualization.arrayToDataTable([
         [ 'Allele', 'Count' ],
-        [ 'Ref', 100 ],
-        [ 'Alt', 200 ]
+        [ 'Ref', Math.random()*100 ],
+        [ 'Alt', Math.random()*100 ]
     ]);
 
     var options = {
