@@ -16,6 +16,30 @@
 
             </div>
         </div>
+        <div class="row">
+            {% if variants_in_gene %}
+                <table>
+                    <th>
+                        <td>Variant</td>
+                        <td>Allele Frequency</td>
+                    </th>
+                    {% for variant in variants_in_gene %}
+                        <tr>
+                            <td>
+                                {% if variant.rsid == '.' %}
+                                    {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+                                {% else %}
+                                    {{ variant.rsid }}
+                                {% endif %}
+                            </td>
+                            <td>{{ variant.allele_freq }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                No variants in this gene.
+            {% endif %}
+        </div>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
