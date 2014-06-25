@@ -1,4 +1,5 @@
 import re
+from xbrowse import get_xpos
 
 
 def get_gene(db, gene_id):
@@ -68,19 +69,31 @@ def get_awesomebar_result(db, query):
     
 
 
-def get_genes_in_region(db, xstart, xstop):
+def get_genes_in_region(db, chrom, start, stop):
     """
     Genes that overlap a region
     """
-    raise NotImplementedError
+    xstart = get_xpos(chrom, start)
+    xstop = get_xpos(chrom, stop)
+    genes = db.genes.find({
+        'xstart': {'$lte': xstop},
+        'xstop': {'$gte': xstart},
+    })
+    return list(genes)
 
 
-def get_variants_in_region(db, xstart, xstop):
+def get_variants_in_region(db, chrom, start, stop):
     """
     Variants that overlap a region
     Unclear if this will include CNVs
     """
-    raise NotImplementedError
+    xstart = get_xpos(chrom, start)
+    xstop = get_xpos(chrom, stop)
+    variants = db.variants.find({
+        'xstart': {'$lte': xstop},  # start of variant should be before (or equal to) end of region
+        'xstop': {'$gte': xstart},  # opposite of above
+    })
+    return list(variants)
 
 
 def get_variants_in_gene(db, gene_id):

@@ -42,6 +42,8 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['xpos'] = xbrowse.get_xpos(variant['chrom'], variant['pos'])
             variant['ref'] = fields[3]
             variant['alt'] = alt_allele
+            variant['xstart'] = variant['xpos']
+            variant['xstop'] = variant['xpos'] + len(variant['alt']) - len(variant['ref'])
             variant['variant_id'] = '{}-{}-{}-{}'.format(variant['chrom'], str(variant['pos']), variant['ref'], variant['alt'])
             variant['orig_alt_alleles'] = alt_alleles
             variant['site_quality'] = float(fields[5])

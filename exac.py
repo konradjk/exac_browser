@@ -45,17 +45,17 @@ def load_db():
 
     # Initialize database 
     # Don't need to explicitly create tables with mongo, just indices
-    db.variants.remove()
-    db.genes.remove()
-    db.transcripts.remove()
 
+    db.variants.remove()
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('trancripts')
 
+    db.genes.remove()
     db.genes.ensure_index('gene_id')
     db.genes.ensure_index('gene_name')
 
+    db.transcripts.remove()
     db.transcripts.ensure_index('transcript_id')
 
     # grab variants from sites VCF
@@ -157,6 +157,25 @@ def transcript_page(transcript_id):
     transcript = lookups.get_transcript(db, transcript_id)
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
     return render_template('transcript.html', transcript=transcript, variants_in_transcript=variants_in_transcript)
+
+
+@app.route('/region/<region_id>')
+def region_page(region_id):
+    db = get_db()
+    chrom, start, stop = region_id.split('-')
+    start = int(start)
+    stop = int(stop)
+    genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
+    variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
+    print variants_in_region
+    return render_template(
+        'region.html',
+        genes_in_region=genes_in_region,
+        variants_in_region=variants_in_region,
+        chrom=chrom,
+        start=start,
+        stop=stop,
+    )
 
 
 @app.route('/howtouse')
