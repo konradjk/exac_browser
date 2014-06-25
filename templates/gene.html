@@ -3,7 +3,7 @@
     <script>
         $(document).ready(function() {
             $("#gene_variants_table").tablesorter({widthFixed: true})
-{#                    .tablesorterPager({container: $("#pager")});#}
+                    .tablesorterPager({container: $("#pager")});
         });
     </script>
     <div class="container">
@@ -52,9 +52,13 @@
                     {% endfor %}
                     <tbody>
                 </table>
-{#                <div id="pager" class="pager">#}
-{#                <form>#}
-{#                </form>#}
+                <div id="pager" class="pager">
+                <form>
+                    <i class="fa fa-caret-square-o-left fa-2x first link"></i>
+                    <i class="fa fa-caret-left fa-2x prev link"></i>
+                    <i class="fa fa-caret-right fa-2x next link"></i>
+                    <i class="fa fa-caret-square-o-right fa-2x last link"></i>
+                </form>
 </div>
             {% else %}
                 No variants in this gene.

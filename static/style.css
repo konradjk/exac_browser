@@ -25,3 +25,7 @@
 .twitter-typeahead {
     width: 100%;
 }
+
+.link {
+    cursor: pointer;
+}
