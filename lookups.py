@@ -31,7 +31,7 @@ def get_awesomebar_suggestions(db, query):
 
 
 # 1:1-1000
-R1 = re.compile(r'^([\d|X|Y|M|MT]+):(\d+)-(\d+)$')
+R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
 
 def get_awesomebar_result(db, query):
     """

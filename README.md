@@ -9,10 +9,9 @@ Create a directory to put all this stuff in. This will serve as the parent direc
 
     mkdir exac
 
-First (as this can run in parallel), download the datasets that the browser uses:
+First (as this can run in parallel), get the datasets that the browser uses:
 
-    wget http://broadinstitute.org/~bthomas/gencode.v19.annotation.gtf.gz
-    wget http://broadinstitute.org/~bthomas/exac_chr20.vcf.gz
+    /humgen/atgu1/fs03/konradk/exac/exac_browser.tar.gz
 
 Now clone the repo: 
 

@@ -46,7 +46,7 @@ ChartMarker.prototype.draw = function() {
 function map_initialize() {
     var center = new google.maps.LatLng(30, 140);
 
-    var map = new google.maps.Map( $('#map_canvas')[0], {
+    var map = new google.maps.Map( $('#frequency_map_container')[0], {
         zoom: 1,
         center: center,
         mapTypeId: google.maps.MapTypeId.ROADMAP,

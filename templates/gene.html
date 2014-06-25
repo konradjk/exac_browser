@@ -1,8 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-    <script type="text/javascript" src="{{ url_for('static', filename='jquery.tablesorter.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='jquery.tablesorter.pager.js') }}"></script>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='theme.default.css') }}">
     <script>
         $(document).ready(function() {
             $("#gene_variants_table").tablesorter({widthFixed: true})
