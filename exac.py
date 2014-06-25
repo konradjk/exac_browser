@@ -2,7 +2,7 @@ import os
 import re
 import pymongo
 import gzip
-from parsing import get_variants_from_sites_vcf, get_genes_from_gencode_gtf
+from parsing import get_variants_from_sites_vcf, get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf
 import lookups
 import xbrowse
 import copy
@@ -45,11 +45,16 @@ def load_db():
     # Don't need to explicitly create tables with mongo, just indices
     db.variants.remove()
     db.genes.remove()
+    db.transcripts.remove()
+
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('trancripts')
+
     db.genes.ensure_index('gene_id')
     db.genes.ensure_index('gene_name')
+
+    db.transcripts.ensure_index('transcript_id')
 
     # grab variants from sites VCF
     sites_vcf = gzip.open(app.config['SITES_VCF'])
@@ -57,10 +62,7 @@ def load_db():
     progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
     for variant in get_variants_from_sites_vcf(sites_vcf):
         db.variants.insert(variant)
-        try: 
-            progress.update(sites_vcf.fileobj.tell())
-        except IOError:  # this breaks on screwy zlib installations (ie. mac)
-            pass
+        progress.update(sites_vcf.fileobj.tell())
 
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
@@ -68,10 +70,18 @@ def load_db():
     progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     for gene in get_genes_from_gencode_gtf(gtf_file):
         db.genes.insert(gene)
-        try: 
-            progress.update(gtf_file.fileobj.tell())
-        except IOError:  
-            pass
+        progress.update(gtf_file.fileobj.tell())
+    gtf_file.close()
+
+    # and now transcripts
+    gtf_file = gzip.open(app.config['GENCODE_GTF'])
+    size = os.path.getsize(app.config['GENCODE_GTF'])
+    progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
+    for transcript in get_transcripts_from_gencode_gtf(gtf_file):
+        db.transcripts.insert(transcript)
+        progress.update(gtf_file.fileobj.tell())
+    gtf_file.close()
+
 
 def get_db():
     """
@@ -130,6 +140,14 @@ def gene_page(gene_id):
     gene = lookups.get_gene(db, gene_id)
     variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
     return render_template('gene.html', gene=gene, variants_in_gene=variants_in_gene)
+
+
+@app.route('/transcript/<transcript_id>')
+def transcript_page(transcript_id):
+    db = get_db()
+    transcript = lookups.get_transcript(db, transcript_id)
+    variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+    return render_template('transcript.html', transcript=transcript, variants_in_transcript=variants_in_transcript)
 
 
 @app.route('/howtouse')

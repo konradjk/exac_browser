@@ -42,6 +42,7 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['xpos'] = xbrowse.get_xpos(variant['chrom'], variant['pos'])
             variant['ref'] = fields[3]
             variant['alt'] = alt_allele
+            variant['variant_id'] = '{}-{}-{}-{}'.format(variant['chrom'], str(variant['pos']), variant['ref'], variant['alt'])
             variant['orig_alt_alleles'] = alt_alleles
             variant['site_quality'] = float(fields[5])
             variant['filter'] = fields[6]
@@ -79,6 +80,40 @@ def get_genes_from_gencode_gtf(gtf_file):
         gene = {
             'gene_id': gene_id,
             'gene_name': info['gene_name'],
+            'chrom': chrom,
+            'start': start,
+            'stop': stop,
+            'xstart': xbrowse.get_xpos(chrom, start),
+            'xstop': xbrowse.get_xpos(chrom, stop),
+        }
+        yield gene
+
+
+def get_transcripts_from_gencode_gtf(gtf_file):
+    """
+    Parse gencode GTF file;
+    Returns iter of gene dicts
+    """
+    for line in gtf_file:
+        if line.startswith('#'):
+            continue
+        fields = line.strip('\n').split('\t')
+
+        # only look at ensembl genes. may want to change this
+        if fields[1] != 'ENSEMBL' and fields[2] != 'transcript':
+            continue
+
+        chrom = fields[0][3:]
+        start = int(fields[3]) + 1  # bed files are 0-indexed
+        stop = int(fields[4]) + 1
+        info = dict(x.strip().split() for x in fields[8].split(';') if x != '')
+        info = {k: v.strip('"') for k, v in info.items()}
+        transcript_id = info['transcript_id'].split('.')[0]
+        gene_id = info['gene_id'].split('.')[0]
+
+        gene = {
+            'transcript_id': transcript_id,
+            'gene_id': gene_id,
             'chrom': chrom,
             'start': start,
             'stop': stop,
