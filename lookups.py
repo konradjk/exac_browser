@@ -75,8 +75,9 @@ def get_awesomebar_result(db, query):
         return 'transcript', transcript['transcript_id']
 
     # Variant
-    variant = db.variants.find_one({'rsid:' : query})
+    variant = db.variants.find_one({'rsid' : query}) # TODO - https://github.com/brettpthomas/exac_browser/issues/19
     if variant:
+        # TODO - https://github.com/brettpthomas/exac_browser/issues/18
         return 'variant', variant
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
