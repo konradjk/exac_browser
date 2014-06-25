@@ -21,10 +21,7 @@ def get_awesomebar_suggestions(db, query):
     genes = db.genes.find({'gene_name': {
         '$regex': regex,
     }}).limit(20)
-    # re.compile('^' + re.escape(username) + '$', re.IGNORECASE)
-    # genes = db.genes.find({'gene_name': {'$regex': "{}".format(query), '$options': '-i'}}).limit(20)
     genes = list(genes)
-    import pprint;pprint.pprint(genes)
     if genes is None:
         genes = []
     return [gene['gene_name'] for gene in genes]
