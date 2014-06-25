@@ -167,7 +167,6 @@ def region_page(region_id):
     stop = int(stop)
     genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
     variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
-    print variants_in_region
     return render_template(
         'region.html',
         genes_in_region=genes_in_region,

@@ -64,6 +64,7 @@ def get_awesomebar_result(db, query):
     variant = db.variants.find_one({'rsid:' : query})
     if variant:
         return 'variant', variant
+    # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
     # Region
     
