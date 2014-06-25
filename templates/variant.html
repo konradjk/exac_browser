@@ -55,8 +55,14 @@
             <div class="col-md-6">
                 <h3>Annotations</h3>
                 {% if variant.vep_annotations %}
-                    This variant falls on {{ variant.vep_annotations|length }} transcripts.
-                    <br/>
+                    This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:
+                    {% for gene in variant.genes %}
+                        <ul>
+                            <li>
+                                <a href="/gene/{{ gene }}">{{ gene }}</a>
+                            </li>
+                        </ul>
+                    {% endfor %}
                     <div class="panel-group" id="annotation_accordion">
                         {% for annotation in variant.vep_annotations %}
                             <div class="panel panel-default">

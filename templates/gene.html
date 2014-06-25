@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
+    <script type="text/javascript" src="{{  url_for('static', filename='jquery.tablesorter.min.js') }}"></script>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='theme.default.css') }}">
+    <script>
+        $(document).ready(function() {
+            $("#gene_variants_table").tablesorter();
+        });
+    </script>
     <div class="container">
         <h1>Gene: {{ gene.gene_name }}</h1>
         <hr/>
@@ -7,9 +14,9 @@
             <div class="col-md-6">
                 <dl class="dl-horizontal">
                     <dt>Number of variants</dt>
-                    <dd>5</dd>
+                    <dd>{{ variants_in_gene|length }}</dd>
                     <dt>Number of LoF variants</dt>
-                    <dd>2</dd>
+                    <dd>{{ variants_in_gene|length }}</dd>
                 </dl>
             </div>
             <div class="col-md-6">
@@ -18,23 +25,33 @@
         </div>
         <div class="row">
             {% if variants_in_gene %}
-                <table>
-                    <th>
-                        <td>Variant</td>
-                        <td>Allele Frequency</td>
-                    </th>
+                <table id="gene_variants_table" class="tablesorter">
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>Position</th>
+                            <th>Allele Frequency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                     {% for variant in variants_in_gene %}
                         <tr>
                             <td>
                                 {% if variant.rsid == '.' %}
-                                    {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+                                    <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
+                                        {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+                                    </a>
                                 {% else %}
-                                    {{ variant.rsid }}
+                                    <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
+                                        {{ variant.rsid }}
+                                    </a>
                                 {% endif %}
                             </td>
+                            <td> {{ variant.pos }}</td>
                             <td>{{ variant.allele_freq }}</td>
                         </tr>
                     {% endfor %}
+                    <tbody>
                 </table>
             {% else %}
                 No variants in this gene.
