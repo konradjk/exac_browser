@@ -6,6 +6,14 @@ def get_gene(db, gene_id):
     return db.genes.find_one({'gene_id': gene_id})
 
 
+def get_gene_by_name(db, gene_name):
+    return db.genes.find_one({'gene_name': gene_name})
+
+
+def get_transcript(db, transcript_id):
+    return db.transcripts.find_one({'transcript_id': transcript_id})
+
+
 def get_variant(db, xpos, ref, alt):
     return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt})
 
@@ -54,12 +62,17 @@ def get_awesomebar_result(db, query):
     """
 
     # Gene
-    gene = db.genes.find_one({'gene_id': query})
+    gene = get_gene(db, query)
     if gene:
         return 'gene', gene['gene_id']
-    gene = db.genes.find_one({'gene_name': query})
+    gene = get_gene_by_name(db, query)
     if gene:
         return 'gene', gene['gene_id']
+
+    # Transcript
+    transcript = get_transcript(db, query)
+    if transcript:
+        return 'transcript', transcript['transcript_id']
 
     # Variant
     variant = db.variants.find_one({'rsid:' : query})
@@ -106,6 +119,12 @@ def get_variants_in_gene(db, gene_id):
     """
     """
     return list(db.variants.find({'genes': gene_id}))
+
+
+def get_transcripts_in_gene(db, gene_id):
+    """
+    """
+    return list(db.transcripts.find({'gene_id': gene_id}))
 
 
 def get_variants_in_transcript(db, transcript_id):

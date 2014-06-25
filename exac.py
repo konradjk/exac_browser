@@ -57,6 +57,7 @@ def load_db():
 
     db.transcripts.remove()
     db.transcripts.ensure_index('transcript_id')
+    db.transcripts.ensure_index('gene_id')
 
     # grab variants from sites VCF
     sites_vcf = gzip.open(app.config['SITES_VCF'])
@@ -122,6 +123,8 @@ def awesome():
     datatype, identifier = lookups.get_awesomebar_result(db, query)
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
+    elif datatype == 'transcript':
+        return redirect('/transcript/{}'.format(identifier))
     elif datatype == 'variant':
         return redirect('/variant/{}'.format(identifier))
     elif datatype == 'region':
@@ -148,7 +151,8 @@ def gene_page(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
     variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
-    return render_template('gene.html', gene=gene, variants_in_gene=variants_in_gene)
+    transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
+    return render_template('gene.html', gene=gene, variants_in_gene=variants_in_gene, transcripts_in_gene=transcripts_in_gene)
 
 
 @app.route('/transcript/<transcript_id>')

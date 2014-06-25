@@ -68,7 +68,6 @@ def get_genes_from_gencode_gtf(gtf_file):
             continue
         fields = line.strip('\n').split('\t')
 
-        # only look at ensembl genes. may want to change this
         if fields[2] != 'gene':
             continue
 
@@ -94,14 +93,13 @@ def get_genes_from_gencode_gtf(gtf_file):
 def get_transcripts_from_gencode_gtf(gtf_file):
     """
     Parse gencode GTF file;
-    Returns iter of gene dicts
+    Returns iter of transcript dicts
     """
     for line in gtf_file:
         if line.startswith('#'):
             continue
         fields = line.strip('\n').split('\t')
 
-        # only look at ensembl genes. may want to change this
         if fields[2] != 'transcript':
             continue
 
