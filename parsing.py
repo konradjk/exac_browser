@@ -49,6 +49,8 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['allele_count'] = int(info_field['AC'].split(',')[i])
             variant['allele_freq'] = float(info_field['AF'].split(',')[i])
             variant['num_alleles'] = int(info_field['AN'])
+            variant['genes'] = list({annotation['Gene'] for annotation in variant['vep_annotations']})
+            variant['transcripts'] = list({annotation['Feature'] for annotation in variant['vep_annotations']})
 
             yield variant
 

@@ -22,5 +22,8 @@
         <hr/>
         <p>The gene object that we are displaying looks like this:</p>
         <pre>{{ gene|pprint(True) }}</pre>
+        <hr/>
+        <p>It has these variants:</p>
+        <pre>{{ variants_in_gene|pprint(True) }}</pre>
     </div>
 {% endblock %}

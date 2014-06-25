@@ -21,7 +21,7 @@ app.config.update(dict(
     DEBUG = True,
     SECRET_KEY = 'development key',
 
-    SITES_VCF = os.path.join(os.path.dirname(__file__), '../exac_chr20.vcf.gz'), 
+    SITES_VCF = os.path.join(os.path.dirname(__file__), '../exac_anno.vep_0001.vep.vcf.gz'),
     GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.v19.annotation.gtf.gz'),
 
 ))
@@ -46,6 +46,8 @@ def load_db():
     db.variants.remove()
     db.genes.remove()
     db.variants.ensure_index('xpos')
+    db.variants.ensure_index('genes')
+    db.variants.ensure_index('trancripts')
     db.genes.ensure_index('gene_id')
     db.genes.ensure_index('gene_name')
 
@@ -126,7 +128,8 @@ def variant_page(variant_str):
 def gene_page(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
-    return render_template('gene.html', gene=gene)
+    variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+    return render_template('gene.html', gene=gene, variants_in_gene=variants_in_gene)
 
 
 @app.route('/howtouse')

@@ -70,3 +70,15 @@ def get_variants_in_region(db, xstart, xstop):
     Unclear if this will include CNVs
     """
     raise NotImplementedError
+
+
+def get_variants_in_gene(db, gene_id):
+    """
+    """
+    return list(db.variants.find({'genes': gene_id}))
+
+
+def get_variants_in_transcript(db, transcript_id):
+    """
+    """
+    return list(db.variants.find({'transcripts': transcript_id}))
