@@ -1,10 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
-    <script type="text/javascript" src="{{  url_for('static', filename='jquery.tablesorter.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.tablesorter.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery.tablesorter.pager.js') }}"></script>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='theme.default.css') }}">
     <script>
         $(document).ready(function() {
-            $("#gene_variants_table").tablesorter();
+            $("#gene_variants_table").tablesorter({widthFixed: true})
+{#                    .tablesorterPager({container: $("#pager")});#}
         });
     </script>
     <div class="container">
@@ -53,6 +55,10 @@
                     {% endfor %}
                     <tbody>
                 </table>
+{#                <div id="pager" class="pager">#}
+{#                <form>#}
+{#                </form>#}
+</div>
             {% else %}
                 No variants in this gene.
             {% endif %}
