@@ -125,7 +125,7 @@ def awesome():
     elif datatype == 'variant':
         return redirect('/variant/{}'.format(identifier))
     elif datatype == 'region':
-        raise NotImplementedError
+        return redirect('/region/{}'.format(identifier))
     else:
         raise Exception
 
