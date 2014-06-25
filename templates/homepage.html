@@ -6,11 +6,32 @@
             <div class="col-md-8 col-md-offset-2">
                 <div id="home-searchbox">
                     <form action="/awesome">
-                        <input name="query" class="form-control input-lg" type="text" placeholder="Search for a gene or variant"/>
+                        <input id="home-searchbox-input" name="query" class="form-control input-lg" type="text" placeholder="Search for a gene or variant"/>
                     </form>
                 </div>
             </div>
         </div>
-
     </div>
+
+    <script type="text/javascript">
+        $(function() {
+            var bestPictures = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              remote: '/autocomplete/%QUERY'
+            });
+
+            bestPictures.initialize();
+
+            $('#home-searchbox-input').typeahead(null, {
+                name: 'best-pictures',
+                displayKey: 'value',
+                source: bestPictures.ttAdapter(),
+                highlight: true,
+            });
+            $('#home-searchbox-input').bind('typeahead:selected', function(obj, datum) {
+                window.location.href = '/awesome?query=' + datum.value;
+            });
+        });
+    </script>
 {% endblock %}

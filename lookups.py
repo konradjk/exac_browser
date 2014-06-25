@@ -1,3 +1,4 @@
+import re
 
 
 def get_gene(db, gene_id):
@@ -13,9 +14,19 @@ def get_awesomebar_suggestions(db, query):
     This generates autocomplete suggestions when user
     query is the string that user types
     If it is the prefix for a gene, return list of gene names
-    QUESTION: should we autocomplete anything else?
     """
-    raise NotImplementedError
+    regex = re.compile('^' + re.escape(query), re.IGNORECASE)
+    print regex
+    genes = db.genes.find({'gene_name': {
+        '$regex': regex,
+    }}).limit(20)
+    # re.compile('^' + re.escape(username) + '$', re.IGNORECASE)
+    # genes = db.genes.find({'gene_name': {'$regex': "{}".format(query), '$options': '-i'}}).limit(20)
+    genes = list(genes)
+    import pprint;pprint.pprint(genes)
+    if genes is None:
+        genes = []
+    return [gene['gene_name'] for gene in genes]
 
 
 def get_awesomebar_result(db, query):

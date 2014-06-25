@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import pymongo
@@ -8,7 +9,8 @@ import xbrowse
 import copy
 #from xbrowse.annotation.vep_annotations import get_vep_annotations_from_vcf
 
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+from flask import Response
 
 
 app = Flask(__name__)
@@ -104,6 +106,13 @@ def get_db():
 def homepage():
     db = get_db()
     return render_template('homepage.html')
+
+
+@app.route('/autocomplete/<query>')
+def awesome_autocomplete(query):
+    db = get_db()
+    suggestions = lookups.get_awesomebar_suggestions(db, query)
+    return Response(json.dumps([{'value': s} for s in suggestions]),  mimetype='application/json')
 
 
 @app.route('/awesome')

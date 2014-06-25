@@ -21,3 +21,7 @@
 #home-searchbox {
     margin: 20px 0;
 }
+
+.twitter-typeahead {
+    width: 100%;
+}

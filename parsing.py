@@ -67,7 +67,7 @@ def get_genes_from_gencode_gtf(gtf_file):
         fields = line.strip('\n').split('\t')
 
         # only look at ensembl genes. may want to change this
-        if fields[1] != 'ENSEMBL' and fields[2] != 'gene':
+        if fields[2] != 'gene':
             continue
 
         chrom = fields[0][3:]
@@ -100,7 +100,7 @@ def get_transcripts_from_gencode_gtf(gtf_file):
         fields = line.strip('\n').split('\t')
 
         # only look at ensembl genes. may want to change this
-        if fields[1] != 'ENSEMBL' and fields[2] != 'transcript':
+        if fields[2] != 'transcript':
             continue
 
         chrom = fields[0][3:]
