@@ -2,7 +2,24 @@
 {% block body %}
     <div class="container">
         <h1>Gene: {{ gene.gene_name }}</h1>
+        <hr/>
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="dl-horizontal">
+                    <dt>Number of variants</dt>
+                    <dd>5</dd>
+                    <dt>Number of LoF variants</dt>
+                    <dd>2</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
 
+            </div>
+        </div>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+        <hr/>
         <p>The gene object that we are displaying looks like this:</p>
         <pre>{{ gene|pprint(True) }}</pre>
     </div>

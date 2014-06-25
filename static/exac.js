@@ -89,25 +89,29 @@ function map_initialize() {
 };
 
 function redraw_map(map) {
-    var latLng = new google.maps.LatLng( 40.708762, -74.006731 );
-    var data = google.visualization.arrayToDataTable([
-        [ 'Allele', 'Count' ],
-        [ 'Ref', Math.random()*100 ],
-        [ 'Alt', Math.random()*100 ]
-    ]);
-
     var options = {
         fontSize: 8,
         backgroundColor: 'transparent',
         legend: 'none'
     };
 
-    var marker = new ChartMarker({
-        map: map,
-        position: latLng,
-        width: '60px',
-        height: '60px',
-        chartData: data,
-        chartOptions: options
-    });
+
+//    $.each(all_data, function(data) {
+        var latLng = new google.maps.LatLng( 40.708762, -74.006731 );
+        var data = google.visualization.arrayToDataTable([
+            [ 'Allele', 'Count' ],
+            [ 'Ref', Math.random()*100 ],
+            [ 'Alt', Math.random()*100 ]
+        ]);
+
+        var marker = new ChartMarker({
+            map: map,
+            position: latLng,
+            width: '60px',
+            height: '60px',
+            chartData: data,
+            chartOptions: options
+        });
+//    });
+
 };

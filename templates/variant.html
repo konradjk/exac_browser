@@ -64,13 +64,20 @@
                                     <h4 class="panel-title">
                                         <a data-toggle="collapse" data-parent="#annotation_accordion" href="#{{ annotation.Feature }}_{{ annotation.Allele }}">
                                             {{ annotation.Feature }}
+                                            {% if annotation.SYMBOL %}
+                                                ({{ annotation.SYMBOL }})
+                                            {% endif %}
                                         </a>
                                     </h4>
                                 </div>
-                                <div id="{{ annotation.Feature }}_{{ annotation.Allele }}" class="panel-collapse collapse">
+                                {% if annotation.CANONICAL == "YES" %}
+                                    <div id="{{ annotation.Feature }}_{{ annotation.Allele }}" class="panel-collapse collapse in">
+                                {% else %}
+                                    <div id="{{ annotation.Feature }}_{{ annotation.Allele }}" class="panel-collapse collapse">
+                                {% endif %}
                                     <div class="panel-body">
                                         {% if annotation.LoF %}
-                                            {{ annotation.LoF }}
+                                            <span class="label label-danger">{{ annotation.LoF }}</span>
                                         {% endif %}
                                         <dl class="dl-horizontal" style="text-transform:capitalize;">
                                             <dt>Consequence</dt>
@@ -100,7 +107,6 @@
             </div>
         </div>
         <hr/>
-        <br/><br/><br/><br/>
         <p>The variant object that we are displaying looks like this:</p>
         <pre>{{ variant|pprint(True) }}</pre>
     </div>
