@@ -23,9 +23,9 @@ def get_variants_from_sites_vcf(sites_vcf):
 
         # This elegant parsing code below is copied from https://github.com/konradjk/loftee
         fields = line.split('\t')
-        info_field = dict([(x.split('=', 1)) for x in re.split(';(?=\w)', fields[7]) if x.find('=') > -1])
+        info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
         consequence_array = info_field['CSQ'].split(',') if 'CSQ' in info_field else []
-        annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array]
+        annotations = [dict(zip(vep_field_names, x.split('|'))) for x in info_field['CSQ'].split(',') if len(vep_field_names) == len(x.split('|'))]
 
         alt_alleles = fields[4].split(',')
 
