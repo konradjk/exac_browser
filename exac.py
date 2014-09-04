@@ -24,9 +24,9 @@ app.config.update(dict(
     DEBUG = True,
     SECRET_KEY = 'development key',
 
-    SITES_VCF = os.path.join(os.path.dirname(__file__), '../exac_anno.vep_0001.vep.vcf.gz'),
-    FULL_VCF = os.path.join(os.path.dirname(__file__), '../1kg_chr1_lim.vcf.gz'),
-    GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.v19.annotation.gtf.gz'),
+    SITES_VCF = os.path.join(os.path.dirname(__file__), '../sites_file.vcf.gz'),
+    FULL_VCF = os.path.join(os.path.dirname(__file__), '../genotype_data.vcf.gz'),
+    GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.gtf.gz'),
 
 ))
 

@@ -71,8 +71,11 @@ def get_genotype_data_from_full_vcf(full_vcf):
 
         alt_alleles = fields[4].split(',')
 
+        format_field = fields[8].split(':')
+
         # different variant for each alt allele
         for i, alt_allele in enumerate(alt_alleles):
+            format_data = [dict(zip(format_field, x.split(':'))) for x in fields[9:]]
 
             # todo: add a list of all GQ values so we can make a histogram 
             genotype_info_container = {
@@ -81,6 +84,7 @@ def get_genotype_data_from_full_vcf(full_vcf):
                 'alt': alt_allele,
                 'genotype_info': {
                     'something': 0.4,
+                    'genotype_qualities': ','.join([x['GQ'] for x in format_data if 'GQ' in x]),
                 }
             }
             yield genotype_info_container
@@ -95,6 +99,7 @@ def get_genes_from_gencode_gtf(gtf_file):
             continue
         fields = line.strip('\n').split('\t')
 
+        # This isn't required anymore, as we're currently reading in just a genes GTF, but could be useful later
         if fields[2] != 'gene':
             continue
 
