@@ -23,9 +23,10 @@ def get_variants_from_sites_vcf(sites_vcf):
 
         # This elegant parsing code below is copied from https://github.com/konradjk/loftee
         fields = line.split('\t')
-        info_field = dict([(x.split('=', 1)) for x in re.split(';(?=\w)', fields[7]) if x.find('=') > -1])
-        consequence_array = info_field['CSQ'].split(',') if 'CSQ' in info_field else []
-        annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array]
+        info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
+        if 'CSQ' not in info_field:
+            continue
+        annotations = [dict(zip(vep_field_names, x.split('|'))) for x in info_field['CSQ'].split(',') if len(vep_field_names) == len(x.split('|'))]
 
         alt_alleles = fields[4].split(',')
 
@@ -57,6 +58,26 @@ def get_variants_from_sites_vcf(sites_vcf):
 
             yield variant
 
+
+def get_genotype_data_from_full_vcf(full_vcf):
+    """
+
+    """
+    for line in full_vcf:
+        line = line.strip('\n')
+        if line.startswith('#'):
+            continue
+        fields = line.split('\t')
+        info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
+        genotype_info_container = {
+            'xpos': 0,
+            'ref': 'A',
+            'alt': 'T',
+            'genotype_info': {
+
+            }
+        }
+        yield genotype_info_container
 
 def get_genes_from_gencode_gtf(gtf_file):
     """

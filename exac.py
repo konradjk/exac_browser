@@ -3,7 +3,8 @@ import os
 import re
 import pymongo
 import gzip
-from parsing import get_variants_from_sites_vcf, get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf
+from parsing import get_variants_from_sites_vcf, get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, \
+    get_genotype_data_from_full_vcf
 import lookups
 import xbrowse
 import copy
@@ -65,6 +66,22 @@ def load_db():
     progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
     for variant in get_variants_from_sites_vcf(sites_vcf):
         db.variants.insert(variant)
+        progress.update(sites_vcf.fileobj.tell())
+
+    # parse full VCF and append other stuff to variants
+    full_vcf = gzip.open(app.config['FULL_VCF'])
+    size = os.path.getsize(app.config['FULL_VCF'])
+    progress = xbrowse.utils.get_progressbar(size, 'Parsing full VCF')
+    for genotype_info_container in get_genotype_data_from_full_vcf(full_vcf):
+
+        # not the most efficient, but let's keep it simple for now
+        variant = db.variants.find_one({
+            'xpos': genotype_info_container['xpos'],
+            'ref': genotype_info_container['ref'],
+            'alt': genotype_info_container['alt'],
+        })
+        variant['genotype_info'] = genotype_info_container['genotype_info']
+        db.variants.save(variant)
         progress.update(sites_vcf.fileobj.tell())
 
     # grab genes from GTF
