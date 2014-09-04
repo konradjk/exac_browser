@@ -15,6 +15,8 @@
                 $('#' + v + '_container').show();
             });
             $('#frequency_table').tablesorter();
+            var a = "{{variant.genotype_info.genotype_qualities}}";
+            draw_histogram(JSON.parse(a));
         });
     </script>
     <div class="container">
@@ -148,6 +150,8 @@
                         </tbody>
                     </table>
                 </div>
+                <h3>Quality Histogram</h3>
+                <div id="quality_histogram"></div>
             </div>
         </div>
         <hr/>

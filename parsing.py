@@ -84,7 +84,7 @@ def get_genotype_data_from_full_vcf(full_vcf):
                 'alt': alt_allele,
                 'genotype_info': {
                     'something': 0.4,
-                    'genotype_qualities': ','.join([x['GQ'] for x in format_data if 'GQ' in x]),
+                    'genotype_qualities': [int(x['GQ']) for x in format_data if 'GQ' in x],
                 }
             }
             yield genotype_info_container

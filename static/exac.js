@@ -43,6 +43,26 @@ ChartMarker.prototype.draw = function() {
     this.chart = new google.visualization.PieChart( this.$inner[0] );
     this.chart.draw( this.get('chartData'), this.get('chartOptions') );
 };
+
+
+function draw_histogram(data) {
+    var chart = new google.visualization.Histogram(document.getElementById('quality_histogram'));
+    var chart_data = new google.visualization.DataTable();
+    chart_data.addColumn('number', 'Quality');
+    console.log('Chart data: ', chart_data);
+    console.log('Data: ', data);
+    $.each(data, function(i, x) {
+        console.log('Data: ', x);
+        chart_data.addRow([x]);
+    })
+    console.log(chart_data);
+    var options = {
+      title: 'Quality score',
+      legend: { position: 'none' },
+    };
+    chart.draw(chart_data, options);
+}
+
 function map_initialize() {
     var center = new google.maps.LatLng(30, 140);
 
