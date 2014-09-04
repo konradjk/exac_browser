@@ -68,15 +68,22 @@ def get_genotype_data_from_full_vcf(full_vcf):
             continue
         fields = line.split('\t')
         info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
-        genotype_info_container = {
-            'xpos': 0,
-            'ref': 'A',
-            'alt': 'T',
-            'genotype_info': {
 
+        alt_alleles = fields[4].split(',')
+
+        # different variant for each alt allele
+        for i, alt_allele in enumerate(alt_alleles):
+
+            # todo: add a list of all GQ values so we can make a histogram 
+            genotype_info_container = {
+                'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
+                'ref': fields[3],
+                'alt': alt_allele,
+                'genotype_info': {
+                    'something': 0.4,
+                }
             }
-        }
-        yield genotype_info_container
+            yield genotype_info_container
 
 def get_genes_from_gencode_gtf(gtf_file):
     """

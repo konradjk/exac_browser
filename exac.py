@@ -25,6 +25,7 @@ app.config.update(dict(
     SECRET_KEY = 'development key',
 
     SITES_VCF = os.path.join(os.path.dirname(__file__), '../exac_anno.vep_0001.vep.vcf.gz'),
+    FULL_VCF = os.path.join(os.path.dirname(__file__), '../1kg_chr1_lim.vcf.gz'),
     GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.v19.annotation.gtf.gz'),
 
 ))
@@ -80,6 +81,9 @@ def load_db():
             'ref': genotype_info_container['ref'],
             'alt': genotype_info_container['alt'],
         })
+        if not variant:
+            continue  # :(
+            #raise Exception("I didn't find this variant: {}".format(genotype_info_container))
         variant['genotype_info'] = genotype_info_container['genotype_info']
         db.variants.save(variant)
         progress.update(sites_vcf.fileobj.tell())
