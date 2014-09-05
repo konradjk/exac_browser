@@ -45,23 +45,152 @@ ChartMarker.prototype.draw = function() {
 };
 
 
-function draw_histogram(data) {
-    var chart = new google.visualization.Histogram(document.getElementById('quality_histogram'));
-    var chart_data = new google.visualization.DataTable();
-    chart_data.addColumn('number', 'Quality');
-    console.log('Chart data: ', chart_data);
-    console.log('Data: ', data);
-    $.each(data, function(i, x) {
-        console.log('Data: ', x);
-        chart_data.addRow([x]);
-    })
-    console.log(chart_data);
-    var options = {
-      title: 'Quality score',
-      legend: { position: 'none' },
-    };
-    chart.draw(chart_data, options);
+function draw_histogram_d3(chart_data) {
+    var margin = {top: 10, right: 30, bottom: 30, left: 50},
+        width = 500 - margin.left - margin.right,
+        height = 250 - margin.top - margin.bottom;
+
+    var x = d3.scale.linear()
+        .domain([0, d3.max(chart_data)])
+        .range([0, width]);
+
+    // Generate a histogram using twenty uniformly-spaced bins.
+    var data = d3.layout.histogram()
+        .bins(x.ticks(20))
+        (chart_data);
+    console.log('Initial data: ', data);
+    var y = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) { return d.y; })])
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    var svg = d3.select('#quality_display_container').append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr('id', 'inner_graph')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var bar = svg.selectAll(".bar")
+        .data(data)
+      .enter().append("g")
+        .attr("class", "bar")
+        .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+    bar.append("rect")
+        .attr("x", 1)
+        .attr("width", x(data[0].dx) - 1)
+        .attr("height", function(d) { return height - y(d.y); });
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
 }
+
+
+function change_histogram(raw_chart_data, variant_only) {
+    var margin = {top: 10, right: 30, bottom: 30, left: 50},
+        width = 500 - margin.left - margin.right,
+        height = 250 - margin.top - margin.bottom;
+
+    var chart_data;
+    if (variant_only) {
+        chart_data = raw_chart_data;
+    } else {
+        chart_data = raw_chart_data;
+    }
+    var x = d3.scale.linear()
+        .domain([0, d3.max(chart_data)])
+        .range([0, width]);
+
+    // Generate a histogram using twenty uniformly-spaced bins.
+    var data = d3.layout.histogram()
+        .bins(x.ticks(20))
+        (chart_data);
+
+    console.log('Old data: ', d3.select('#quality_display_container').select('svg').select('#inner_graph').selectAll('rect').data());
+    console.log('New data:', data);
+    var y = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) { return d.y; })])
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    var svg = d3.select('#quality_display_container').select('svg').select('#inner_graph');
+    old_data_len = svg.selectAll('rect').data().length;
+
+    svg.select(".x.axis")
+        .transition()
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.select(".y.axis")
+        .transition()
+        .call(yAxis);
+
+    var bar = svg.selectAll(".bar")
+        .data(data)
+        .transition()
+        .duration(500)
+        .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+    var rects = svg.selectAll('rect')
+        .data(data)
+        .transition()
+        .duration(500)
+        .attr('x', 1)
+        .attr("width", x(data[0].dx) - 1)
+        .attr("height", function(d) {
+            return height - y(d.y);
+        });
+    if (old_data_len < data.length) {
+        for (var i = old_data_len; i < data.length; i++) {
+            console.log('Adding: ', i);
+            svg.selectAll('.bar').select('g')
+                .data([data[i]]).enter()
+                .append('g')
+                .attr('class', 'bar')
+                .append('rect')
+                .attr('fill', 'steelblue')
+                .transition()
+                .duration(500)
+                .attr('x', x(data[i].x) + 1)
+                .attr('y', y(data[i].y))
+                .attr('width', x(data[0].dx) - 1)
+                .attr("height", height - y(data[i].y));
+        }
+    } else if (old_data_len > data.length) {
+        for (var i = old_data_len-1; i >= data.length; i--) {
+            console.log('Removing: ', i);
+            svg.selectAll('.bar')
+                .data(data)
+                .exit()
+                .transition()
+                .duration(500)
+                .remove();
+        }
+    }
+    console.log('Final data: ', svg.selectAll('rect').data());
+}
+
 
 function map_initialize() {
     var center = new google.maps.LatLng(30, 140);

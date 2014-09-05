@@ -77,14 +77,15 @@ def get_genotype_data_from_full_vcf(full_vcf):
         for i, alt_allele in enumerate(alt_alleles):
             format_data = [dict(zip(format_field, x.split(':'))) for x in fields[9:]]
 
-            # todo: add a list of all GQ values so we can make a histogram 
             genotype_info_container = {
                 'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
                 'ref': fields[3],
                 'alt': alt_allele,
                 'genotype_info': {
                     'something': 0.4,
-                    'genotype_qualities': [int(x['GQ']) for x in format_data if 'GQ' in x],
+                    'genotype_qualities': [[x['GT'], int(x['GQ'])] for x in format_data if 'GQ' in x],
+                    # I don't love this: I thought DP had to be int (even if 0), but apparently we have '.'
+                    'genotype_depths': [int(x['DP']) if x['DP'].isdigit() else 0 for x in format_data if 'DP' in x],
                 }
             }
             yield genotype_info_container

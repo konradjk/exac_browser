@@ -1,7 +1,28 @@
 {% extends "layout.html" %}
 {% block body %}
+    <style>
+    .d3_graph {
+      font: 10px sans-serif;
+    }
+
+    .bar rect {
+      fill: steelblue;
+      shape-rendering: crispEdges;
+    }
+
+    .bar text {
+      fill: #fff;
+    }
+
+    .axis path, .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+    </style>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
     <script type="text/javascript" src="{{  url_for('static', filename='exac.js') }}"></script>
     <script>
         $(document).ready(function() {
@@ -15,8 +36,19 @@
                 $('#' + v + '_container').show();
             });
             $('#frequency_table').tablesorter();
-            var a = "{{variant.genotype_info.genotype_qualities}}";
-            draw_histogram(JSON.parse(a));
+
+            draw_histogram_d3(JSON.parse("{{variant.genotype_info.genotype_depths}}"));
+
+            $('.quality_display_buttons').change(function() {
+                var v = $(this).attr('id').replace('_button', '');
+                console.log(v);
+                var f = $('#quality_variant_sites_only_button').hasClass('active');
+                if (v == 'genotype_depths') {
+                    change_histogram(JSON.parse("{{variant.genotype_info.genotype_depths}}"), f);
+                } else {
+                    change_histogram(JSON.parse("{{variant.genotype_info.genotype_qualities}}"), f);
+                }
+            });
         });
     </script>
     <div class="container">
@@ -150,8 +182,19 @@
                         </tbody>
                     </table>
                 </div>
-                <h3>Quality Histogram</h3>
-                <div id="quality_histogram"></div>
+                <h3>Quality Metrics</h3>
+                <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">
+                    Variants only
+                </button>
+                <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
+                    <label class="btn btn-primary active">
+                        <input type="radio" class="quality_display_buttons" id="genotype_depths_button"> Depth
+                    </label>
+                    <label class="btn btn-primary">
+                        <input type="radio" class="quality_display_buttons" id="genotype_qualities_button"> Genotype Quality
+                    </label>
+                </span>
+                <div id="quality_display_container" class="d3_graph"></div>
             </div>
         </div>
         <hr/>
