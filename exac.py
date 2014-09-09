@@ -4,7 +4,7 @@ import re
 import pymongo
 import gzip
 from parsing import get_variants_from_sites_vcf, get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, \
-    get_genotype_data_from_full_vcf
+    get_genotype_data_from_full_vcf, get_base_coverage_from_file
 import lookups
 import xbrowse
 import copy
@@ -27,6 +27,9 @@ app.config.update(dict(
     SITES_VCF = os.path.join(os.path.dirname(__file__), '../sites_file.vcf.gz'),
     FULL_VCF = os.path.join(os.path.dirname(__file__), '../genotype_data.vcf.gz'),
     GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.gtf.gz'),
+    BASE_COVERAGE_FILES = [
+        os.path.join(os.path.dirname(__file__), '../coverage.txt.gz'),
+    ],
 
 ))
 
@@ -60,6 +63,15 @@ def load_db():
     db.transcripts.remove()
     db.transcripts.ensure_index('transcript_id')
     db.transcripts.ensure_index('gene_id')
+
+    db.base_coverage.remove()
+    db.base_coverage.ensure_index('xpos')
+
+    # load coverage first; variant info will depend on coverage
+    for filepath in app.config['BASE_COVERAGE_FILES']:
+        coverage_file = gzip.open(filepath)
+        for base_coverage in get_base_coverage_from_file(coverage_file):
+            pass
 
     # grab variants from sites VCF
     sites_vcf = gzip.open(app.config['SITES_VCF'])
