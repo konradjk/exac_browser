@@ -63,6 +63,8 @@ def get_variants_from_sites_vcf(sites_vcf):
         # different variant for each alt allele
         for i, alt_allele in enumerate(alt_alleles):
 
+            vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1 and ann['Feature'].startswith('ENST')]
+
             # Variant is just a dict
             # Make a copy of the info_field dict - so all the original data remains
             # Add some new keys that are allele-specific
@@ -79,12 +81,12 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['orig_alt_alleles'] = alt_alleles
             variant['site_quality'] = float(fields[5])
             variant['filter'] = fields[6]
-            variant['vep_annotations'] = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1]
+            variant['vep_annotations'] = vep_annotations
             variant['allele_count'] = int(info_field['AC'].split(',')[i])
             variant['allele_freq'] = float(info_field['AF'].split(',')[i])
             variant['num_alleles'] = int(info_field['AN'])
-            variant['genes'] = list({annotation['Gene'] for annotation in variant['vep_annotations']})
-            variant['transcripts'] = list({annotation['Feature'] for annotation in variant['vep_annotations']})
+            variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
+            variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
 
             yield variant
 
@@ -114,10 +116,10 @@ def get_genotype_data_from_full_vcf(full_vcf):
                 'alt': alt_allele,
                 'genotype_info': {
                     'something': 0.4,
-                    'genotype_qualities': [int(x['GQ']) for x in format_data if 'GQ' in x],
+                    'genotype_qualities': [int(x['GQ']) if 'GQ' in x else None for x in format_data],
                     # I don't love this: I thought DP had to be int (even if 0), but apparently we have '.'
-                    'genotype_depths': [int(x['DP']) if x['DP'].isdigit() else 0 for x in format_data if 'DP' in x],
-                    'genotypes': [re.split("/|\|", x['GT']) for x in format_data if 'GT' in x],
+                    'genotype_depths': [int(x['DP']) if 'DP' in x and x['DP'].isdigit() else 0 for x in format_data],
+                    'genotypes': [re.split("/|\|", x['GT']) if 'GT' in x else ['.', '.'] for x in format_data],
                 }
             }
             yield genotype_info_container

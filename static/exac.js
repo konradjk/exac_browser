@@ -100,18 +100,22 @@ function draw_histogram_d3(chart_data) {
 }
 
 
-function change_histogram(raw_chart_data, variant_only) {
+function change_histogram(raw_chart_data, plot_object, variant_only) {
     var margin = {top: 10, right: 30, bottom: 30, left: 50},
         width = 500 - margin.left - margin.right,
         height = 250 - margin.top - margin.bottom;
 
-    var chart_data;
-    console.log(variant_only);
+    var chart_data = [];
     if (variant_only) {
-        chart_data = raw_chart_data;
+        $.each(raw_chart_data[plot_object], function(i, x) {
+            if (!_.isEqual(raw_chart_data['genotypes'][i], ['0', '0']) && !_.isEqual(raw_chart_data['genotypes'][i], ['.', '.'])) {
+                chart_data.push(x);
+            }
+        });
     } else {
-        chart_data = raw_chart_data;
+        chart_data = raw_chart_data[plot_object];
     }
+    console.log(chart_data.length);
     var x = d3.scale.linear()
         .domain([0, d3.max(chart_data)])
         .range([0, width]);

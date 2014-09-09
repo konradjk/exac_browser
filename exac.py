@@ -13,7 +13,6 @@ import copy
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask import Response
 
-
 app = Flask(__name__)
 
 # Load default config and override config from an environment variable
@@ -177,11 +176,19 @@ def variant_page(variant_str):
         pos = int(pos)
     except ValueError:
         abort(404)
+
+    # pos, ref, alt = get_minimal_representation(pos, ref, alt)
     xpos = xbrowse.get_xpos(chrom, pos)
     variant = lookups.get_variant(db, xpos, ref, alt)
 
-    # TODO: this may be the wrong set of bases in some cases
-    # can fix this when we switch to minirep
+    if variant is None:
+        variant = {
+            'chrom' : chrom,
+            'pos' : pos,
+            'xpos' : xpos,
+            'ref' : ref,
+            'alt' : alt
+        }
     base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos+len(alt)-len(ref))
     return render_template('variant.html', variant=variant, base_coverage=base_coverage)
 

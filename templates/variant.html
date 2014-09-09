@@ -42,18 +42,18 @@
             });
             $('#frequency_table').tablesorter();
 
-            draw_histogram_d3(JSON.parse("{{variant.genotype_info.genotype_depths}}"));
-
-            $('.quality_display_buttons').change(function() {
-                var v = $(this).attr('id').replace('_button', '');
-                console.log(v);
-                var f = $('#quality_variant_sites_only_button').hasClass('active');
-                if (v == 'genotype_depths') {
-                    change_histogram(JSON.parse("{{variant.genotype_info.genotype_depths}}"), f);
-                } else {
-                    change_histogram(JSON.parse("{{variant.genotype_info.genotype_qualities}}"), f);
-                }
-            });
+            if (window.variant != null && 'genotype_info' in window.variant && 'genotype_depths' in window.variant.genotype_info) {
+                draw_histogram_d3(window.variant.genotype_info.genotype_depths);
+                $('.quality_display_buttons, #quality_variant_sites_only_button').change(function() {
+{#                    var v = $(this).attr('id').replace('_button', '');#}
+                    var v = $('.active.quality_display_buttons').attr('id').replace('_button', '');
+                    var f = $('#quality_variant_sites_only_button').hasClass('active');
+                    change_histogram(window.variant.genotype_info, v, f);
+                });
+            } else {
+                $('#quality_metrics_container').hide();
+                $('#frequency_info_container').hide();
+            }
         });
     </script>
     <div class="container">
@@ -144,62 +144,73 @@
                 {% endif %}
             </div>
             <div class="col-md-6">
-                <h3>Population Frequencies</h3>
-                <span class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary active frequency_type_buttons">
-                        <input type="radio" id="allele_frequencies_button"> Allele Frequencies
-                    </label>
-                    <label class="btn btn-primary frequency_type_buttons">
-                        <input type="radio" id="genotype_frequencies_button"> Genotype Frequencies
-                    </label>
-                </span>
-                <span class="btn-group" data-toggle="buttons" style="float: right;">
-                    <label class="btn btn-primary active">
-                        <input type="radio" class="frequency_display_buttons" id="frequency_map_button"> Map
-                    </label>
-                    <label class="btn btn-primary">
-                        <input type="radio" class="frequency_display_buttons" id="frequency_table_button"> Table
-                    </label>
-                </span>
-                <br/><br/>
-                <div id="frequency_map_container" class="frequency_displays" style="height: 300px; width: 550px">
+                <div id="frequency_info_container">
+                    <h3>Population Frequencies</h3>
+                    <span class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary active frequency_type_buttons">
+                            <input type="radio" id="allele_frequencies_button"> Allele Frequencies
+                        </label>
+                        <label class="btn btn-primary frequency_type_buttons">
+                            <input type="radio" id="genotype_frequencies_button"> Genotype Frequencies
+                        </label>
+                    </span>
+                    <span class="btn-group" data-toggle="buttons" style="float: right;">
+                        <label class="btn btn-primary active">
+                            <input type="radio" class="frequency_display_buttons" id="frequency_map_button"> Map
+                        </label>
+                        <label class="btn btn-primary">
+                            <input type="radio" class="frequency_display_buttons" id="frequency_table_button"> Table
+                        </label>
+                    </span>
+                    <br/><br/>
+                    <div id="frequency_map_container" class="frequency_displays" style="height: 300px; width: 550px">
+                    </div>
+                    <div id="frequency_table_container" class="frequency_displays" style="display: none;">
+                        <table id="frequency_table">
+                            <thead>
+                                <tr>
+                                    <th>Population</th>
+                                    <th>Allele Count</th>
+                                    <th>Allele Frequency</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>European</td>
+                                    <td>6</td>
+                                    <td>0.75</td>
+                                </tr>
+                                <tr>
+                                    <td>African</td>
+                                    <td>2</td>
+                                    <td>0.25</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div id="frequency_table_container" class="frequency_displays" style="display: none;">
-                    <table id="frequency_table">
-                        <thead>
-                            <tr>
-                                <th>Population</th>
-                                <th>Allele Count</th>
-                                <th>Allele Frequency</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>European</td>
-                                <td>6</td>
-                                <td>0.75</td>
-                            </tr>
-                            <tr>
-                                <td>African</td>
-                                <td>2</td>
-                                <td>0.25</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div id="quality_metrics_container">
+                    <h3>Quality Metrics</h3>
+                    <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">
+                        Variants only
+                    </button>
+                    <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
+    {#                    <label class="btn btn-primary active">#}
+    {#                        <input type="radio" class="quality_display_buttons" id="genotype_depths_button"> Depth#}
+    {#                    </label>#}
+    {#                    <label class="btn btn-primary">#}
+    {#                        <input type="radio" class="quality_display_buttons" id="genotype_qualities_button"> Genotype Quality#}
+    {#                    </label>#}
+                        <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button">
+                            <input type="radio"> Depth
+                        </button>
+                        <button class="btn btn-primary quality_display_buttons" id="genotype_qualities_button">
+                            <input type="radio" > Genotype Quality
+                        </button>
+
+                    </span>
+                    <div id="quality_display_container" class="d3_graph"></div>
                 </div>
-                <h3>Quality Metrics</h3>
-                <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">
-                    Variants only
-                </button>
-                <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
-                    <label class="btn btn-primary active">
-                        <input type="radio" class="quality_display_buttons" id="genotype_depths_button"> Depth
-                    </label>
-                    <label class="btn btn-primary">
-                        <input type="radio" class="quality_display_buttons" id="genotype_qualities_button"> Genotype Quality
-                    </label>
-                </span>
-                <div id="quality_display_container" class="d3_graph"></div>
             </div>
         </div>
         <hr/>
