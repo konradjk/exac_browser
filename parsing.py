@@ -24,7 +24,17 @@ def get_base_coverage_from_file(base_coverage_file):
         '100': 0.0,
     }
     """
-    pass
+    float_header_fields = ['mean', 'median', '1', '5', '10', '15', '20', '25', '30', '50', '100']
+    for line in base_coverage_file:
+        if line.startswith('#'):
+            continue
+        fields = line.strip('\n').split('\t')
+        d = {
+            'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
+        }
+        for i, k in enumerate(float_header_fields):
+            d[k] = float(fields[i+2])
+        yield d
 
 
 def get_variants_from_sites_vcf(sites_vcf):

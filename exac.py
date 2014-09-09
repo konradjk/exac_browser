@@ -69,9 +69,12 @@ def load_db():
 
     # load coverage first; variant info will depend on coverage
     for filepath in app.config['BASE_COVERAGE_FILES']:
+        size = os.path.getsize(filepath)
+        progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage: {}'.format(filepath))
         coverage_file = gzip.open(filepath)
         for base_coverage in get_base_coverage_from_file(coverage_file):
-            pass
+            progress.update(coverage_file.fileobj.tell())
+            db.base_coverage.insert(base_coverage)
 
     # grab variants from sites VCF
     sites_vcf = gzip.open(app.config['SITES_VCF'])
@@ -176,6 +179,10 @@ def variant_page(variant_str):
         abort(404)
     xpos = xbrowse.get_xpos(chrom, pos)
     variant = lookups.get_variant(db, xpos, ref, alt)
+
+    # TODO: this may be the wrong set of bases in some cases
+    # can fix this when we switch to minirep
+    variant['base_coverage'] = lookups.get_coverage_for_bases(db, xpos, xpos+len(alt)-len(ref))
     return render_template('variant.html', variant=variant)
 
 

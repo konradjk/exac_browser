@@ -15,7 +15,32 @@ def get_transcript(db, transcript_id):
 
 
 def get_variant(db, xpos, ref, alt):
-    return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt})
+    return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
+
+
+def get_coverage_for_bases(db, xstart, xstop=None):
+    """
+    Get the coverage for the list of bases given by xstart->xstop, inclusive
+    Returns list of coverage dicts
+    xstop can be None if just one base, but you'll still get back a list
+    """
+    if xstop is None:
+        xstop = xstart
+    coverages = {
+        doc['xpos']: doc for doc in db.base_coverage.find(
+            {'xpos': {'$gte': xstart, '$lte': xstop}},
+            fields={'_id': False}
+        )
+    }
+    ret = []
+    for i in range(xstart, xstop+1):
+        if i in coverages:
+            ret.append(coverages[i])
+        else:
+            ret.append({'xpos': i})
+    for item in ret:
+        item['has_coverage'] = 'mean' in item
+    return ret
 
 
 def get_awesomebar_suggestions(db, query):

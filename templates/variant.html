@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
+    <!-- Render context vars in JS here -->
+    <script type="text/javascript">
+        window.variant = {{ variant|tojson|safe }};
+    </script>
     <style>
     .d3_graph {
       font: 10px sans-serif;
