@@ -182,8 +182,8 @@ def variant_page(variant_str):
 
     # TODO: this may be the wrong set of bases in some cases
     # can fix this when we switch to minirep
-    variant['base_coverage'] = lookups.get_coverage_for_bases(db, xpos, xpos+len(alt)-len(ref))
-    return render_template('variant.html', variant=variant)
+    base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos+len(alt)-len(ref))
+    return render_template('variant.html', variant=variant, base_coverage=base_coverage)
 
 
 @app.route('/gene/<gene_id>')

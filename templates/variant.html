@@ -3,6 +3,7 @@
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
         window.variant = {{ variant|tojson|safe }};
+        window.base_coverage = {{ base_coverage|tojson|safe }};
     </script>
     <style>
     .d3_graph {
