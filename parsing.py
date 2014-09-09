@@ -72,10 +72,10 @@ def get_genotype_data_from_full_vcf(full_vcf):
         alt_alleles = fields[4].split(',')
 
         format_field = fields[8].split(':')
+        format_data = [dict(zip(format_field, x.split(':'))) for x in fields[9:]]
 
         # different variant for each alt allele
         for i, alt_allele in enumerate(alt_alleles):
-            format_data = [dict(zip(format_field, x.split(':'))) for x in fields[9:]]
 
             genotype_info_container = {
                 'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
@@ -83,9 +83,10 @@ def get_genotype_data_from_full_vcf(full_vcf):
                 'alt': alt_allele,
                 'genotype_info': {
                     'something': 0.4,
-                    'genotype_qualities': [[x['GT'], int(x['GQ'])] for x in format_data if 'GQ' in x],
+                    'genotype_qualities': [int(x['GQ']) for x in format_data if 'GQ' in x],
                     # I don't love this: I thought DP had to be int (even if 0), but apparently we have '.'
                     'genotype_depths': [int(x['DP']) if x['DP'].isdigit() else 0 for x in format_data if 'DP' in x],
+                    'genotypes': [re.split("/|\|", x['GT']) for x in format_data if 'GT' in x],
                 }
             }
             yield genotype_info_container

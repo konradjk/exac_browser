@@ -58,7 +58,7 @@ function draw_histogram_d3(chart_data) {
     var data = d3.layout.histogram()
         .bins(x.ticks(20))
         (chart_data);
-    console.log('Initial data: ', data);
+    //console.log('Initial data: ', data);
     var y = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.y; })])
         .range([height, 0]);
@@ -106,6 +106,7 @@ function change_histogram(raw_chart_data, variant_only) {
         height = 250 - margin.top - margin.bottom;
 
     var chart_data;
+    console.log(variant_only);
     if (variant_only) {
         chart_data = raw_chart_data;
     } else {
@@ -120,8 +121,8 @@ function change_histogram(raw_chart_data, variant_only) {
         .bins(x.ticks(20))
         (chart_data);
 
-    console.log('Old data: ', d3.select('#quality_display_container').select('svg').select('#inner_graph').selectAll('rect').data());
-    console.log('New data:', data);
+//    console.log('Old data: ', d3.select('#quality_display_container').select('svg').select('#inner_graph').selectAll('rect').data());
+//    console.log('New data:', data);
     var y = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.y; })])
         .range([height, 0]);
@@ -163,7 +164,7 @@ function change_histogram(raw_chart_data, variant_only) {
         });
     if (old_data_len < data.length) {
         for (var i = old_data_len; i < data.length; i++) {
-            console.log('Adding: ', i);
+//            console.log('Adding: ', i);
             svg.selectAll('.bar').select('g')
                 .data([data[i]]).enter()
                 .append('g')
@@ -179,7 +180,7 @@ function change_histogram(raw_chart_data, variant_only) {
         }
     } else if (old_data_len > data.length) {
         for (var i = old_data_len-1; i >= data.length; i--) {
-            console.log('Removing: ', i);
+//            console.log('Removing: ', i);
             svg.selectAll('.bar')
                 .data(data)
                 .exit()
@@ -188,7 +189,7 @@ function change_histogram(raw_chart_data, variant_only) {
                 .remove();
         }
     }
-    console.log('Final data: ', svg.selectAll('rect').data());
+    //console.log('Final data: ', svg.selectAll('rect').data());
 }
 
 
