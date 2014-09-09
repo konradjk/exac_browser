@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
+    <!-- Render context vars in JS here -->
+    <script type="text/javascript">
+        window.transcript = {{ transcript|tojson|safe }};
+    </script>
     <div class="container">
         <h1>Transcript: {{ transcript.transcript_id }}</h1>
     </div>

@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 {% block body %}
+    <!-- Render context vars in JS here -->
+    <script type="text/javascript">
+        window.gene = {{ gene|tojson|safe }};
+        window.variants_in_gene = {{ variants_in_gene|tojson|safe }};
+        window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
+    </script>
     <script>
         $(document).ready(function() {
             $("#variants_loading").hide();
