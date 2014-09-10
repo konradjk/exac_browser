@@ -5,6 +5,7 @@
         window.gene = {{ gene|tojson|safe }};
         window.variants_in_gene = {{ variants_in_gene|tojson|safe }};
         window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
+        window.mean_coverage = {{ mean_coverage|tojson|safe }};
     </script>
     <script>
         $(document).ready(function() {
@@ -12,6 +13,11 @@
             $("#variants_table_container").show();
             $("#gene_variants_table").tablesorter({widthFixed: true})
                     .tablesorterPager({container: $("#pager")});
+            if (window.mean_coverage != null) {
+                gene_coverage_chart(window.mean_coverage);
+            } else {
+                $('#coverage_container').hide();
+            }
         });
     </script>
     <div class="container">
@@ -36,6 +42,10 @@
                     {% endfor %}
                 </ul>
             </div>
+        </div>
+        <div class="row">
+            <h3>Coverage</h3>
+            <div id="coverage_container"></div>
         </div>
         <div class="row">
             {% if variants_in_gene %}
@@ -98,6 +108,9 @@
         <hr/>
         <p>It has these transcripts:</p>
         <pre>{{ transcripts_in_gene|pprint(True) }}</pre>
+        <hr/>
+        <p>The coverage looks like this:</p>
+        <pre>{{ overall_coverage|pprint(True) }}</pre>
         <hr/>
         <p>It has these variants:</p>
         <pre>{{ variants_in_gene|pprint(True) }}</pre>

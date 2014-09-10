@@ -3,15 +3,15 @@ from xbrowse import get_xpos
 
 
 def get_gene(db, gene_id):
-    return db.genes.find_one({'gene_id': gene_id})
+    return db.genes.find_one({'gene_id': gene_id}, fields={'_id': False})
 
 
 def get_gene_by_name(db, gene_name):
-    return db.genes.find_one({'gene_name': gene_name})
+    return db.genes.find_one({'gene_name': gene_name}, fields={'_id': False})
 
 
 def get_transcript(db, transcript_id):
-    return db.transcripts.find_one({'transcript_id': transcript_id})
+    return db.transcripts.find_one({'transcript_id': transcript_id}, fields={'_id': False})
 
 
 def get_variant(db, xpos, ref, alt):
@@ -144,16 +144,16 @@ def get_variants_in_region(db, chrom, start, stop):
 def get_variants_in_gene(db, gene_id):
     """
     """
-    return list(db.variants.find({'genes': gene_id}))
+    return list(db.variants.find({'genes': gene_id}, fields={'_id': False}))
 
 
 def get_transcripts_in_gene(db, gene_id):
     """
     """
-    return list(db.transcripts.find({'gene_id': gene_id}))
+    return list(db.transcripts.find({'gene_id': gene_id}, fields={'_id': False}))
 
 
 def get_variants_in_transcript(db, transcript_id):
     """
     """
-    return list(db.variants.find({'transcripts': transcript_id}))
+    return list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))

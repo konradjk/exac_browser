@@ -199,7 +199,16 @@ def gene_page(gene_id):
     gene = lookups.get_gene(db, gene_id)
     variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
     transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
-    return render_template('gene.html', gene=gene, variants_in_gene=variants_in_gene, transcripts_in_gene=transcripts_in_gene)
+    overall_coverage = lookups.get_coverage_for_bases(db, gene['xstart'], gene['xstop'])
+
+    mean_coverage = [x['mean'] for x in overall_coverage]
+    return render_template(
+        'gene.html',
+        gene=gene,
+        variants_in_gene=variants_in_gene,
+        transcripts_in_gene=transcripts_in_gene,
+        mean_coverage=mean_coverage
+    )
 
 
 @app.route('/transcript/<transcript_id>')

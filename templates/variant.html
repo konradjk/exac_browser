@@ -25,10 +25,6 @@
       shape-rendering: crispEdges;
     }
     </style>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
-    <script type="text/javascript" src="{{  url_for('static', filename='exac.js') }}"></script>
     <script>
         $(document).ready(function() {
             var map = map_initialize();
@@ -44,10 +40,15 @@
 
             if (window.variant != null && 'genotype_info' in window.variant && 'genotype_depths' in window.variant.genotype_info) {
                 draw_histogram_d3(window.variant.genotype_info.genotype_depths);
-                $('.quality_display_buttons, #quality_variant_sites_only_button').change(function() {
-{#                    var v = $(this).attr('id').replace('_button', '');#}
-                    var v = $('.active.quality_display_buttons').attr('id').replace('_button', '');
+                $('.quality_display_buttons').change(function() {
+                    var v = $(this).attr('id').replace('_button', '');
                     var f = $('#quality_variant_sites_only_button').hasClass('active');
+                    change_histogram(window.variant.genotype_info, v, f);
+                });
+                $('#quality_variant_sites_only_button').click(function() {
+                    var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
+                    // TODO: Fix to do this properly
+                    var f = !$(this).hasClass('active');
                     change_histogram(window.variant.genotype_info, v, f);
                 });
             } else {

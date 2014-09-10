@@ -115,7 +115,7 @@ function change_histogram(raw_chart_data, plot_object, variant_only) {
     } else {
         chart_data = raw_chart_data[plot_object];
     }
-    console.log(chart_data.length);
+    //console.log(chart_data.length);
     var x = d3.scale.linear()
         .domain([0, d3.max(chart_data)])
         .range([0, width]);
@@ -240,7 +240,7 @@ function map_initialize() {
 
     redraw_map(map);
     return map;
-};
+}
 
 function redraw_map(map) {
     var options = {
@@ -268,4 +268,53 @@ function redraw_map(map) {
         });
 //    });
 
-};
+}
+
+function gene_coverage_chart(data) {
+    var margin = {top: 10, right: 30, bottom: 30, left: 50},
+        width = 500 - margin.left - margin.right,
+        height = 250 - margin.top - margin.bottom;
+
+    var x = d3.scale.linear()
+        .domain([0, data.length])
+        .range([0, width]);
+
+    console.log('Data: ', data);
+    var y = d3.scale.linear()
+        .domain([0, d3.max(data)])
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    var svg = d3.select('#coverage_container').append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr('id', 'inner_graph')
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.selectAll("bar")
+      .data(data)
+      .enter().append("rect")
+      .style("fill", "steelblue")
+      .attr("x", function(d, i) { return x(i); })
+      .attr("width", 1)
+      .attr("y", function(d) { return y(d); })
+      .attr("height", function(d) { return height - y(d); });
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+}
