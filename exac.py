@@ -3,8 +3,9 @@ import os
 import re
 import pymongo
 import gzip
-from parsing import get_variants_from_sites_vcf, get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, \
-    get_genotype_data_from_full_vcf, get_base_coverage_from_file
+from parsing import get_variants_from_sites_vcf, get_genotype_data_from_full_vcf, \
+    get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
+    get_base_coverage_from_file
 import lookups
 import xbrowse
 import copy
@@ -26,6 +27,7 @@ app.config.update(dict(
     SITES_VCF = os.path.join(os.path.dirname(__file__), '../sites_file.vcf.gz'),
     FULL_VCF = os.path.join(os.path.dirname(__file__), '../genotype_data.vcf.gz'),
     GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.gtf.gz'),
+    FULL_GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../full_gencode.gtf.gz'),
     BASE_COVERAGE_FILES = [
         os.path.join(os.path.dirname(__file__), '../coverage.txt.gz'),
     ],
@@ -63,6 +65,10 @@ def load_db():
     db.transcripts.remove()
     db.transcripts.ensure_index('transcript_id')
     db.transcripts.ensure_index('gene_id')
+
+    db.exons.remove()
+    db.exons.ensure_index('exon_id')
+    db.exons.ensure_index('gene_id')
 
     db.base_coverage.remove()
     db.base_coverage.ensure_index('xpos')
@@ -113,14 +119,22 @@ def load_db():
     gtf_file.close()
 
     # and now transcripts
-    gtf_file = gzip.open(app.config['GENCODE_GTF'])
-    size = os.path.getsize(app.config['GENCODE_GTF'])
+    gtf_file = gzip.open(app.config['FULL_GENCODE_GTF'])
+    size = os.path.getsize(app.config['FULL_GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
     for transcript in get_transcripts_from_gencode_gtf(gtf_file):
         db.transcripts.insert(transcript)
         progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
 
+    # Building up gene definitions
+    gtf_file = gzip.open(app.config['FULL_GENCODE_GTF'])
+    size = os.path.getsize(app.config['FULL_GENCODE_GTF'])
+    progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
+    for exon in get_exons_from_gencode_gtf(gtf_file):
+        db.exons.insert(exon)
+        progress.update(gtf_file.fileobj.tell())
+    gtf_file.close()
 
 def get_db():
     """

@@ -39,14 +39,18 @@
                 </dl>
             </div>
             <div class="col-md-6">
-                <p>Transcripts:</p>
-                <ul>
-                    {% for transcript in transcripts_in_gene %}
-                        <li>
-                            <a href="/transcript/{{ transcript.transcript_id }}">{{ transcript.transcript_id }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <dl class="dl-horizontal">
+                    <dt>Transcripts:</dt>
+                    <dd>
+                        <ul>
+                            {% for transcript in transcripts_in_gene %}
+                                <li>
+                                    <a href="/transcript/{{ transcript.transcript_id }}">{{ transcript.transcript_id }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </dd>
+                </dl>
             </div>
         </div>
         <div class="row">
@@ -96,7 +100,7 @@
                                 <option selected="selected" value="10">10</option>
                                 <option value="20">20</option>
                                 <option value="30">30</option>
-                                <option  value="40">40</option>
+                                <option value="40">40</option>
                             </select>
                         </form>
                     </div>

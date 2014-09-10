@@ -188,3 +188,38 @@ def get_transcripts_from_gencode_gtf(gtf_file):
             'xstop': xbrowse.get_xpos(chrom, stop),
         }
         yield gene
+
+
+def get_exons_from_gencode_gtf(gtf_file):
+    """
+    Parse gencode GTF file;
+    Returns iter of transcript dicts
+    """
+    for line in gtf_file:
+        if line.startswith('#'):
+            continue
+        fields = line.strip('\n').split('\t')
+
+        if fields[2] != 'exon':
+            continue
+
+        chrom = fields[0][3:]
+        start = int(fields[3]) + 1  # bed files are 0-indexed
+        stop = int(fields[4]) + 1
+        info = dict(x.strip().split() for x in fields[8].split(';') if x != '')
+        info = {k: v.strip('"') for k, v in info.items()}
+        transcript_id = info['transcript_id'].split('.')[0]
+        exon_id = info['exon_id'].split('.')[0]
+        gene_id = info['gene_id'].split('.')[0]
+
+        gene = {
+            'exon_id': exon_id,
+            'transcript_id': transcript_id,
+            'gene_id': gene_id,
+            'chrom': chrom,
+            'start': start,
+            'stop': stop,
+            'xstart': xbrowse.get_xpos(chrom, start),
+            'xstop': xbrowse.get_xpos(chrom, stop),
+        }
+        yield gene
