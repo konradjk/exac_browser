@@ -270,16 +270,15 @@ function redraw_map(map) {
 
 }
 
-function gene_coverage_chart(data) {
+function gene_coverage_chart(data, left_bound, highlight) {
     var margin = {top: 10, right: 30, bottom: 30, left: 50},
-        width = 500 - margin.left - margin.right,
+        width = 1100 - margin.left - margin.right,
         height = 250 - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
-        .domain([0, data.length])
+        .domain([left_bound, left_bound+data.length])
         .range([0, width]);
 
-    console.log('Data: ', data);
     var y = d3.scale.linear()
         .domain([0, d3.max(data)])
         .range([height, 0]);
@@ -302,8 +301,14 @@ function gene_coverage_chart(data) {
     svg.selectAll("bar")
       .data(data)
       .enter().append("rect")
-      .style("fill", "steelblue")
-      .attr("x", function(d, i) { return x(i); })
+      .style("fill", function(d, i) {
+            if (highlight.indexOf(i + left_bound) > -1) {
+                return "red";
+            } else {
+                return "steelblue";
+            }
+      })
+      .attr("x", function(d, i) { return x(i+left_bound); })
       .attr("width", 1)
       .attr("y", function(d) { return y(d); })
       .attr("height", function(d) { return height - y(d); });

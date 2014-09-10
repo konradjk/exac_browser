@@ -18,6 +18,12 @@ def get_variant(db, xpos, ref, alt):
     return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
 
 
+def get_variant_by_rsid(db, rsid):
+    if not rsid.startswith('rs'):
+        return None
+    return list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
+
+
 def get_coverage_for_bases(db, xstart, xstop=None):
     """
     Get the coverage for the list of bases given by xstart->xstop, inclusive
@@ -100,16 +106,23 @@ def get_awesomebar_result(db, query):
         return 'transcript', transcript['transcript_id']
 
     # Variant
-    variant = db.variants.find_one({'rsid' : query}) # TODO - https://github.com/brettpthomas/exac_browser/issues/19
+    print query
+    variant = get_variant_by_rsid(db, query)
+    print variant
+    # TODO - https://github.com/brettpthomas/exac_browser/issues/19
     if variant:
-        # TODO - https://github.com/brettpthomas/exac_browser/issues/18
-        return 'variant', variant
+        if len(variant) == 1:
+            return 'variant', variant[0]['variant_id']
+        else:
+            return 'region', '%(chrom)s-%(pos)s-%(pos)s' % variant[0]
+    # variant = get_variant(db, )
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
     # Region
     m = R1.match(query)
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(3))
+    print "Didn't find anything"
 
     
 

@@ -52,6 +52,7 @@ def load_db():
 
     db.variants.remove()
     db.variants.ensure_index('xpos')
+    db.variants.ensure_index('rsid')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('trancripts')
 
@@ -201,11 +202,18 @@ def gene_page(gene_id):
     transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
     overall_coverage = lookups.get_coverage_for_bases(db, gene['xstart'], gene['xstop'])
 
-    mean_coverage = [x['mean'] for x in overall_coverage]
+    mean_coverage = [x['mean'] if x['has_coverage'] else 0 for x in overall_coverage]
+    lof_variants = [
+        x for x in variants_in_gene
+        if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Gene'] == gene_id])
+    ]
+
     return render_template(
         'gene.html',
         gene=gene,
-        variants_in_gene=variants_in_gene,
+        # variants_in_gene=variants_in_gene,
+        number_variants_in_gene=len(variants_in_gene),
+        lof_variants_in_gene=lof_variants,
         transcripts_in_gene=transcripts_in_gene,
         mean_coverage=mean_coverage
     )
