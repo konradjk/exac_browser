@@ -68,6 +68,7 @@ def get_awesomebar_suggestions(db, query):
 
 # 1:1-1000
 R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
+R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
 
 def get_awesomebar_result(db, query):
     """
@@ -91,6 +92,7 @@ def get_awesomebar_result(db, query):
     This could be important for performance later
 
     """
+    print query
 
     # Gene
     gene = get_gene(db, query)
@@ -106,9 +108,7 @@ def get_awesomebar_result(db, query):
         return 'transcript', transcript['transcript_id']
 
     # Variant
-    print query
     variant = get_variant_by_rsid(db, query)
-    print variant
     # TODO - https://github.com/brettpthomas/exac_browser/issues/19
     if variant:
         if len(variant) == 1:
@@ -122,6 +122,9 @@ def get_awesomebar_result(db, query):
     m = R1.match(query)
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(3))
+    m = R2.match(query)
+    if m:
+        return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(2))
     print "Didn't find anything"
 
     
