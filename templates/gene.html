@@ -20,7 +20,7 @@
             $("#gene_variants_table").tablesorter({widthFixed: true})
                     .tablesorterPager({container: $("#pager")});
             if (window.mean_coverage != null) {
-                gene_coverage_chart(window.mean_coverage, window.gene['start'], window.lof_positions);
+                gene_chart(window.mean_coverage, window.gene['start'], window.lof_positions);
             } else {
                 $('#coverage_container').hide();
             }

@@ -57,7 +57,7 @@ def load_db():
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('rsid')
     db.variants.ensure_index('genes')
-    db.variants.ensure_index('trancripts')
+    db.variants.ensure_index('transcripts')
 
     db.genes.remove()
     db.genes.ensure_index('gene_id')
@@ -69,6 +69,7 @@ def load_db():
 
     db.exons.remove()
     db.exons.ensure_index('exon_id')
+    db.exons.ensure_index('transcript_id')
     db.exons.ensure_index('gene_id')
 
     db.base_coverage.remove()
@@ -136,6 +137,7 @@ def load_db():
         db.exons.insert(exon)
         progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
+
 
 def get_db():
     """

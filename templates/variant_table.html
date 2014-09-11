@@ -14,6 +14,7 @@
             <tr>
                 <th>Variant</th>
                 <th>Position</th>
+                <th>Annotation</th>
                 <th>Allele Frequency</th>
             </tr>
         </thead>
@@ -32,6 +33,9 @@
                     {% endif %}
                 </td>
                 <td> {{ variant.pos }}</td>
+                <td>
+                    {{ variant.vep_annotations }}
+                </td>
                 <td>{{ variant.allele_freq }}</td>
             </tr>
         {% endfor %}

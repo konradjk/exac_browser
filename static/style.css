@@ -29,3 +29,7 @@
 .link {
     cursor: pointer;
 }
+
+.dl-horizontal dt {
+    white-space: normal;
+}

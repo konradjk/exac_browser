@@ -270,10 +270,13 @@ function redraw_map(map) {
 
 }
 
-function gene_coverage_chart(data, left_bound, highlight) {
+function gene_chart(data, left_bound, highlight) {
     var margin = {top: 10, right: 30, bottom: 30, left: 50},
-        width = 1100 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
+        margin_lower = {top: 5, right: margin.right, bottom: 5, left: margin.left},
+        width = 1100 - margin.left - margin.right;
+
+    var lower_graph_height = 50 - margin_lower.top - margin_lower.bottom,
+        graph_height = 300 - margin.top - margin.bottom - lower_graph_height - margin_lower.top - margin_lower.bottom;
 
     var x = d3.scale.linear()
         .domain([left_bound, left_bound+data.length])
@@ -281,7 +284,7 @@ function gene_coverage_chart(data, left_bound, highlight) {
 
     var y = d3.scale.linear()
         .domain([0, d3.max(data)])
-        .range([height, 0]);
+        .range([graph_height, 0]);
 
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -293,33 +296,84 @@ function gene_coverage_chart(data, left_bound, highlight) {
 
     var svg = d3.select('#coverage_container').append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("height", graph_height + margin.top + margin.bottom)
         .append("g")
         .attr('id', 'inner_graph')
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     svg.selectAll("bar")
-      .data(data)
-      .enter().append("rect")
-      .style("fill", function(d, i) {
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr('class', 'main_plot_bars')
+        .style("fill", function(d, i) {
             if (highlight.indexOf(i + left_bound) > -1) {
                 return "red";
             } else {
                 return "steelblue";
             }
-      })
-      .attr("x", function(d, i) { return x(i+left_bound); })
-      .attr("width", 1)
-      .attr("y", function(d) { return y(d); })
-      .attr("height", function(d) { return height - y(d); });
+        })
+        .attr("x", function(d, i) { return x(i+left_bound); })
+        .attr("width", 1)
+        .attr("y", function(d) { return y(d); })
+        .attr("height", function(d) { return graph_height - y(d); });
 
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + graph_height + ")")
         .call(xAxis);
 
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
+
+    var svg_outer = d3.select('#coverage_container').append("svg")
+        .attr("width", width + margin_lower.left + margin_lower.right)
+        .attr("height", lower_graph_height)
+        .append("g")
+        .attr('id', 'track')
+        .attr("transform", "translate(" + margin_lower.left + "," + 0 + ")");
+
+    var exon_color = "lightsteelblue";
+    svg_outer.append("line")
+        .attr("y1", lower_graph_height/2)
+        .attr("y2", lower_graph_height/2)
+        .attr("x1", 0)
+        .attr("x2", x(left_bound+data.length))
+        .attr("stroke-width", 10)
+        .attr("stroke", exon_color);
+
+    var exon_data = [x(left_bound), +x(left_bound+data.length/2)];
+    console.log("Exon data", exon_data);
+    svg_outer.selectAll("bar")
+        .data(exon_data)
+        .enter()
+        .append("rect")
+        .attr('class', 'track_bar')
+        .style("fill", exon_color)
+        .attr("x", function(d, i) { return d; })
+        .attr("y", 0)
+        .attr("rx", 6)
+        .attr("ry", 6)
+        .attr("width", function(d, i) { return 100; })
+        .attr("height", lower_graph_height);
+
+    var variant_data = [x(left_bound+50), +x(left_bound+data.length/2 + 50)];
+    console.log("Variant data", variant_data);
+
+    var variant_scale = d3.scale.linear()
+        .domain([0, d3.max(variant_data)])
+        .range([lower_graph_height/3, 2]);
+
+    svg_outer.selectAll("bar")
+        .data(variant_data)
+        .enter()
+        .append("circle")
+        .attr("class", "track_variant")
+        .style("fill", "darkred")
+        .style("opacity", 0.5)
+        .attr("r", function(d, i) { return variant_scale(d); })
+        .attr("cx", function(d, i) { return d; })
+        .attr("cy", lower_graph_height/2);
 
 }
