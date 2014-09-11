@@ -14,6 +14,7 @@ import copy
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask import Response
+from utils import add_transcript_coordinate_to_variants
 
 app = Flask(__name__)
 
@@ -252,7 +253,9 @@ def transcript_page(transcript_id):
     db = get_db()
     transcript = lookups.get_transcript(db, transcript_id)
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-    return render_template('transcript.html', transcript=transcript, variants_in_transcript=variants_in_transcript)
+    exons = lookups.get_exons_in_transcript(db, transcript_id)
+    add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+    return render_template('transcript.html', transcript=transcript, variants_in_transcript=variants_in_transcript, exons=exons)
 
 
 @app.route('/region/<region_id>')

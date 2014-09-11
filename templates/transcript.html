@@ -3,6 +3,7 @@
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
         window.transcript = {{ transcript|tojson|safe }};
+        window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
     </script>
     <div class="container">
         <h1>Transcript: {{ transcript.transcript_id }}</h1>
