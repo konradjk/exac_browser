@@ -175,3 +175,7 @@ def get_variants_in_transcript(db, transcript_id):
     """
     """
     return list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
+
+
+def get_exons_in_transcript(db, transcript_id):
+    return list(db.exons.find({'transcript_id': transcript_id}, fields={'_id': False}))

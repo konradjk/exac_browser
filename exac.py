@@ -14,6 +14,7 @@ import copy
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask import Response
+from utils import add_transcript_coordinate_to_variants
 
 app = Flask(__name__)
 
@@ -83,6 +84,7 @@ def load_db():
         for base_coverage in get_base_coverage_from_file(coverage_file):
             progress.update(coverage_file.fileobj.tell())
             db.base_coverage.insert(base_coverage)
+        progress.finish()
 
     # grab variants from sites VCF
     sites_vcf = gzip.open(app.config['SITES_VCF'])
@@ -91,6 +93,7 @@ def load_db():
     for variant in get_variants_from_sites_vcf(sites_vcf):
         db.variants.insert(variant)
         progress.update(sites_vcf.fileobj.tell())
+    progress.finish()
 
     # parse full VCF and append other stuff to variants
     full_vcf = gzip.open(app.config['FULL_VCF'])
@@ -110,6 +113,7 @@ def load_db():
         variant['genotype_info'] = genotype_info_container['genotype_info']
         db.variants.save(variant)
         progress.update(sites_vcf.fileobj.tell())
+    progress.finish()
 
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
@@ -118,6 +122,7 @@ def load_db():
     for gene in get_genes_from_gencode_gtf(gtf_file):
         db.genes.insert(gene)
         progress.update(gtf_file.fileobj.tell())
+    progress.finish()
     gtf_file.close()
 
     # and now transcripts
@@ -128,6 +133,7 @@ def load_db():
         db.transcripts.insert(transcript)
         progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
+    progress.finish()
 
     # Building up gene definitions
     gtf_file = gzip.open(app.config['FULL_GENCODE_GTF'])
@@ -137,6 +143,8 @@ def load_db():
         db.exons.insert(exon)
         progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
+    progress.finish()
+
 
 
 def get_db():
@@ -247,7 +255,9 @@ def transcript_page(transcript_id):
     db = get_db()
     transcript = lookups.get_transcript(db, transcript_id)
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-    return render_template('transcript.html', transcript=transcript, variants_in_transcript=variants_in_transcript)
+    exons = lookups.get_exons_in_transcript(db, transcript_id)
+    add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+    return render_template('transcript.html', transcript=transcript, variants_in_transcript=variants_in_transcript, exons=exons)
 
 
 @app.route('/region/<region_id>')
