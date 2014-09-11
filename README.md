@@ -12,7 +12,7 @@ Create a directory to put all this stuff in. This will serve as the parent direc
 
 First (as this can run in parallel), get the datasets that the browser uses:
 
-    scp tin:/humgen/atgu1/fs03/konradk/exac/exac_browser.tar.gz .
+    scp tin:/humgen/atgu1/fs03/konradk/exac_browser/exac_browser.tar.gz .
     tar zxvf exac_browser.tar.gz
 
 Now clone the repo: 
