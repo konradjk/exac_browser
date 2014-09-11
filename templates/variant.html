@@ -27,10 +27,12 @@
     </style>
     <script>
         $(document).ready(function() {
-            var map = map_initialize();
-            $('.frequency_type_buttons').click(function() {
-                redraw_map(map);
-            });
+            if (typeof google !== 'undefined') {
+                var map = map_initialize();
+                $('.frequency_type_buttons').click(function () {
+                    redraw_map(map);
+                });
+            }
             $('.frequency_display_buttons').change(function() {
                 $('.frequency_displays').hide();
                 var v = $(this).attr('id').replace('_button', '');
@@ -208,7 +210,6 @@
                         <button class="btn btn-primary quality_display_buttons" id="genotype_qualities_button">
                             <input type="radio" > Genotype Quality
                         </button>
-
                     </span>
                     <div id="quality_display_container" class="d3_graph"></div>
                 </div>

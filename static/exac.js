@@ -1,48 +1,50 @@
-google.load('visualization', '1.0', {'packages':['corechart']});
+if (typeof google !== 'undefined') {
+    google.load('visualization', '1.0', {'packages': ['corechart']});
 
-function ChartMarker( options ) {
-    this.setValues( options );
+    function ChartMarker(options) {
+        this.setValues(options);
 
-    this.$inner = $('<div>').css({
-        position: 'relative',
-        left: '-50%', top: '-50%',
-        width: options.width,
-        height: options.height,
-        fontSize: '1px',
-        lineHeight: '1px',
-        backgroundColor: 'transparent',
-        cursor: 'default'
-    });
-
-    this.$div = $('<div>')
-        .append( this.$inner )
-        .css({
-            position: 'absolute',
-            display: 'none'
+        this.$inner = $('<div>').css({
+            position: 'relative',
+            left: '-50%', top: '-50%',
+            width: options.width,
+            height: options.height,
+            fontSize: '1px',
+            lineHeight: '1px',
+            backgroundColor: 'transparent',
+            cursor: 'default'
         });
-};
-ChartMarker.prototype = new google.maps.OverlayView;
-ChartMarker.prototype.onAdd = function() {
-    $( this.getPanes().overlayMouseTarget ).append( this.$div );
-};
-ChartMarker.prototype.onRemove = function() {
-    this.$div.remove();
-};
 
-ChartMarker.prototype.draw = function() {
-    var marker = this;
-    var projection = this.getProjection();
-    var position = projection.fromLatLngToDivPixel( this.get('position') );
+        this.$div = $('<div>')
+            .append(this.$inner)
+            .css({
+                position: 'absolute',
+                display: 'none'
+            });
+    };
+    ChartMarker.prototype = new google.maps.OverlayView;
+    ChartMarker.prototype.onAdd = function () {
+        $(this.getPanes().overlayMouseTarget).append(this.$div);
+    };
+    ChartMarker.prototype.onRemove = function () {
+        this.$div.remove();
+    };
 
-    this.$div.css({
-        left: position.x,
-        top: position.y - 30,
-        display: 'block'
-    })
+    ChartMarker.prototype.draw = function () {
+        var marker = this;
+        var projection = this.getProjection();
+        var position = projection.fromLatLngToDivPixel(this.get('position'));
 
-    this.chart = new google.visualization.PieChart( this.$inner[0] );
-    this.chart.draw( this.get('chartData'), this.get('chartOptions') );
-};
+        this.$div.css({
+            left: position.x,
+            top: position.y - 30,
+            display: 'block'
+        })
+
+        this.chart = new google.visualization.PieChart(this.$inner[0]);
+        this.chart.draw(this.get('chartData'), this.get('chartOptions'));
+    };
+}
 
 
 function draw_histogram_d3(chart_data) {
@@ -197,65 +199,68 @@ function change_histogram(raw_chart_data, plot_object, variant_only) {
 }
 
 
-function map_initialize() {
-    var center = new google.maps.LatLng(30, 140);
+if (typeof google !== 'undefined') {
+    function map_initialize() {
+        var center = new google.maps.LatLng(30, 140);
 
-    var map = new google.maps.Map( $('#frequency_map_container')[0], {
-        zoom: 1,
-        center: center,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        panControl: false,
-        zoomControl: false,
-        scrollwheel: false,
-        disableDoubleClickZoom: true,
-        mapTypeControl: false,
-        draggable: false,
-        streetViewControl: false
-    });
+        var map = new google.maps.Map($('#frequency_map_container')[0], {
+            zoom: 1,
+            center: center,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            panControl: false,
+            zoomControl: false,
+            scrollwheel: false,
+            disableDoubleClickZoom: true,
+            mapTypeControl: false,
+            draggable: false,
+            streetViewControl: false
+        });
 
-    var mapStyle = [
-        {
-            featureType: "administrative",
-            elementType: "geometry.fill",
-            stylers: [
-               { visibility: "off" }
-            ]
-        }, {
-            featureType: "administrative",
-            elementType: "geometry.stroke",
-            stylers: [
-                { visibility: "off" }
-            ]
-        }, {
-            featureType: "administrative",
-            elementType: "labels",
-            stylers: [
-                { visibility: "off" }
-            ]
-        }
-    ];
-    var styledMap = new google.maps.StyledMapType(mapStyle);
-    map.mapTypes.set('myCustomMap', styledMap);
-    map.setMapTypeId('myCustomMap');
+        var mapStyle = [
+            {
+                featureType: "administrative",
+                elementType: "geometry.fill",
+                stylers: [
+                    { visibility: "off" }
+                ]
+            },
+            {
+                featureType: "administrative",
+                elementType: "geometry.stroke",
+                stylers: [
+                    { visibility: "off" }
+                ]
+            },
+            {
+                featureType: "administrative",
+                elementType: "labels",
+                stylers: [
+                    { visibility: "off" }
+                ]
+            }
+        ];
+        var styledMap = new google.maps.StyledMapType(mapStyle);
+        map.mapTypes.set('myCustomMap', styledMap);
+        map.setMapTypeId('myCustomMap');
 
-    redraw_map(map);
-    return map;
-}
+        redraw_map(map);
+        return map;
+    }
 
-function redraw_map(map) {
-    var options = {
-        fontSize: 8,
-        backgroundColor: 'transparent',
-        legend: 'none'
-    };
+    function redraw_map(map) {
+        var options = {
+            fontSize: 8,
+            backgroundColor: 'transparent',
+            legend: 'none'
+        };
 
 
 //    $.each(all_data, function(data) {
-        var latLng = new google.maps.LatLng( 40.708762, -74.006731 );
+        var latLng = new google.maps.LatLng(40.708762, -74.006731);
         var data = google.visualization.arrayToDataTable([
             [ 'Allele', 'Count' ],
-            [ 'Ref', Math.random()*100 ],
-            [ 'Alt', Math.random()*100 ]
+            [ 'Ref', Math.random() * 100 ],
+            [ 'Alt', Math.random() * 100 ]
         ]);
 
         var marker = new ChartMarker({
@@ -268,6 +273,7 @@ function redraw_map(map) {
         });
 //    });
 
+    }
 }
 
 function gene_chart(data, exon_data, variant_data) {
@@ -388,7 +394,10 @@ function gene_chart(data, exon_data, variant_data) {
 
     var variant_size_scale = d3.scale.log()
         .domain([d3.min(variant_data, function(d) { return d.allele_freq; }), d3.max(variant_data, function(d) { return d.allele_freq; })])
+        //Circle/Ellipse
         .range([lower_graph_height/3, 2]);
+        //Rectangle
+//        .range([lower_graph_height, 2]);
 
     svg_outer.selectAll("bar")
         .data(variant_data)
@@ -400,11 +409,13 @@ function gene_chart(data, exon_data, variant_data) {
         .attr("title", function(d) {
             return d.vep_annotations[0]['Consequence'];
         })
-        .append("circle")
+        //Circle
+//        .append("circle")
+        //Ellipse
+        .append("ellipse")
         .attr("class", "track_variant")
         .style("fill", "darkred")
         .style("opacity", 0.5)
-        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
         .attr("cx", function(d, i) {
             var tx_coord = d.transcript_coordinates[transcript];
             if (tx_coord == 0) {
@@ -414,7 +425,57 @@ function gene_chart(data, exon_data, variant_data) {
                 return exon_x_scale(tx_coord + variant_exon_number*padding);
             }
         })
-        .attr("cy", lower_graph_height/2);
+        .attr("cy", lower_graph_height/2)
+        //Circle
+//        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
+        //Ellipse
+        .attr("rx", 2)
+        .attr("ry", function(d, i) { return variant_size_scale(d.allele_freq); });
+        //Rectangle
+//        .append("rect")
+//        .attr("class", "track_variant")
+//        .style("fill", "darkred")
+//        .style("opacity", 0.5)
+//        .attr("x", function(d, i) {
+//            var tx_coord = d.transcript_coordinates[transcript];
+//            if (tx_coord == 0) {
+//                return -1000;
+//            } else {
+//                var variant_exon_number = d.vep_annotations[0]['EXON'].split('/')[0] - 1;
+//                return exon_x_scale(tx_coord + variant_exon_number*padding);
+//            }
+//        })
+//        .attr("y", function(d, i) { return lower_graph_height/2 - variant_size_scale(d.allele_freq)/2; } )
+//        .attr("width", 2)
+//        .attr("height", function(d, i) { return variant_size_scale(d.allele_freq); })
+//        .attr("rx", 6)
+//        .attr("ry", 6);
+}
+
+function change_variant_size(change_to) {
+    var svg_outer = d3.select('#gene_plot_container').select('g');
+
+    var variant_size_scale;
+    if (change_to == 'proportional') {
+        variant_size_scale = d3.scale.log()
+            .domain([d3.min(variant_data, function (d) {
+                return d.allele_freq;
+            }), d3.max(variant_data, function (d) {
+                return d.allele_freq;
+            })])
+            .range([lower_graph_height / 3, 2]);
+    } else {
+        variant_size_scale = d3.scale.log()
+            .domain([d3.min(variant_data, function (d) {
+                return d.allele_freq;
+            }), d3.max(variant_data, function (d) {
+                return d.allele_freq;
+            })])
+            .range([2, lower_graph_height / 3]);
+    }
+    svg_outer.selectAll("a")
+        .selectAll("ellipse")
+        .attr("ry", function(d, i) { return variant_size_scale(d.allele_freq); });
 }
 
 function gene_chart_separate(data, exon_data, variant_data) {

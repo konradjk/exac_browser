@@ -11,6 +11,10 @@
         $(document).ready(function() {
             if (window.mean_coverage != null) {
                 gene_chart(window.mean_coverage, window.exons, window.lof_variants);
+                $('.allele_frequency_display_buttons').change(function() {
+                    var v = $(this).attr('id').replace('_button', '');
+                    change_variant_size(v);
+                });
             } else {
                 $('#gene_plot_container').hide();
             }
@@ -21,6 +25,14 @@
         <div class="row">
             <h3>Plot</h3>
             <div id="gene_plot_container"></div>
+            <span class="btn-group" data-toggle="buttons" id="allele_frequency_display_group" style="float: right;">
+                <button class="btn btn-primary active allele_frequency_display_buttons" id="inverse_af_button">
+                    <input type="radio"> Inverse ~ AF
+                </button>
+                <button class="btn btn-primary allele_frequency_display_buttons" id="proportional_af_button">
+                    <input type="radio" > Proportional ~ AF
+                </button>
+            </span>
         </div>
     </div>
 {% endblock %}

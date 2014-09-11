@@ -8,10 +8,12 @@ Installation
 Create a directory to put all this stuff in. This will serve as the parent directory of the actual exac_browser repository 
 
     mkdir exac
+    cd exac
 
 First (as this can run in parallel), get the datasets that the browser uses:
 
-    /humgen/atgu1/fs03/konradk/exac/exac_browser.tar.gz
+    scp tin:/humgen/atgu1/fs03/konradk/exac/exac_browser.tar.gz .
+    tar zxvf exac_browser.tar.gz
 
 Now clone the repo: 
 
@@ -25,6 +27,8 @@ http://docs.python-guide.org/en/latest/starting/install/osx/
 Install MongoDB:
 
     brew install mongodb
+    # or
+    sudo port install mongodb
 
 Create a directory to hold your mongo database files: 
 
@@ -40,8 +44,9 @@ but I think it's easier just to open a tab you can monitor.
 
 Finally, create a python virtual environment where the browser will live:
 
-    virtualenv /path/to/env
-    source /path/to/env/bin/activate
+    mkdir exac_env
+    virtualenv exac_env
+    source exac_env/bin/activate
 
 ### Installation
 
