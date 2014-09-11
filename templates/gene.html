@@ -13,16 +13,16 @@
     <style>
 
     </style>
-        <script>
-            $(document).ready(function() {
+    <script>
+        $(document).ready(function() {
             $("#variants_loading").hide();
             $("#variants_table_container").show();
             $("#gene_variants_table").tablesorter({widthFixed: true})
                     .tablesorterPager({container: $("#pager")});
             if (window.mean_coverage != null) {
-                gene_chart(window.mean_coverage, window.gene['start'], window.lof_positions);
+                gene_chart(window.mean_coverage, window.gene['start'], window.lof_variants_in_gene);
             } else {
-                $('#coverage_container').hide();
+                $('#gene_plot_container').hide();
             }
         });
     </script>
@@ -56,8 +56,8 @@
             </div>
         </div>
         <div class="row">
-            <h3>Coverage</h3>
-            <div id="coverage_container"></div>
+            <h3>Gene Plot</h3>
+            <div id="gene_plot_container"></div>
         </div>
         <div class="row">
             {% if lof_variants_in_gene %}

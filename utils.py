@@ -44,3 +44,5 @@ def add_transcript_coordinate_to_variants(db, variant_list, transcript_id):
             if exon['start'] <= variant['pos'] <= exon['stop']:
                 variant['transcript_coordinates'][transcript_id] = exon_offsets[i] + variant['pos'] - exon['start']
 
+def xpos_to_pos(xpos):
+    return int(xpos % 1e9)

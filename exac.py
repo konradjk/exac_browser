@@ -10,6 +10,7 @@ import lookups
 import xbrowse
 import operator
 import copy
+from utils import xpos_to_pos
 #from xbrowse.annotation.vep_annotations import get_vep_annotations_from_vcf
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
@@ -256,8 +257,37 @@ def transcript_page(transcript_id):
     transcript = lookups.get_transcript(db, transcript_id)
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
     exons = lookups.get_exons_in_transcript(db, transcript_id)
+    exons = sorted(exons, key=lambda k: k['start'])
+    genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
+
+    # from collections import Counter
+    # print Counter(genomic_coord_to_exon.values())
+
+    overall_coverage = lookups.get_coverage_for_bases(db, transcript['xstart'], transcript['xstop'])
+
+    mean_coverage = [
+        (x['mean'] if x['has_coverage'] else 0, genomic_coord_to_exon[xpos_to_pos(x['xpos'])])
+        if xpos_to_pos(x['xpos']) in genomic_coord_to_exon else (0, -1)
+        for x in overall_coverage
+    ]
+    # print Counter([x[1] for x in mean_coverage])
+    #print mean_coverage
+    lof_variants = [
+        x for x in variants_in_transcript
+        if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
+    ]
+    composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+
     add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-    return render_template('transcript.html', transcript=transcript, variants_in_transcript=variants_in_transcript, exons=exons)
+    return render_template(
+        'transcript.html',
+        transcript=transcript,
+        variants_in_transcript=variants_in_transcript,
+        lof_variants=lof_variants,
+        composite_lof_frequency=composite_lof_frequency,
+        mean_coverage=mean_coverage,
+        exons=exons,
+    )
 
 
 @app.route('/region/<region_id>')

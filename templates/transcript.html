@@ -4,8 +4,23 @@
     <script type="text/javascript">
         window.transcript = {{ transcript|tojson|safe }};
         window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
+        window.mean_coverage = {{ mean_coverage|tojson|safe }};
+        window.lof_variants = {{ lof_variants|tojson|safe }};
+        window.exons = {{ exons|tojson|safe }};
+
+        $(document).ready(function() {
+            if (window.mean_coverage != null) {
+                gene_chart(window.mean_coverage, window.exons, window.lof_variants);
+            } else {
+                $('#gene_plot_container').hide();
+            }
+        });
     </script>
     <div class="container">
         <h1>Transcript: {{ transcript.transcript_id }}</h1>
+        <div class="row">
+            <h3>Plot</h3>
+            <div id="gene_plot_container"></div>
+        </div>
     </div>
 {% endblock %}
