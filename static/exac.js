@@ -452,11 +452,18 @@ function gene_chart(data, exon_data, variant_data) {
 //        .attr("ry", 6);
 }
 
-function change_variant_size(change_to) {
-    var svg_outer = d3.select('#gene_plot_container').select('g');
+function change_variant_size(variant_data, change_to) {
+    var margin = {top: 10, right: 30, bottom: 30, left: 50},
+        margin_lower = {top: 5, right: margin.right, bottom: 5, left: margin.left},
+        width = 1100 - margin.left - margin.right;
+
+    var lower_graph_height = 50 - margin_lower.top - margin_lower.bottom,
+        graph_height = 300 - margin.top - margin.bottom - lower_graph_height - margin_lower.top - margin_lower.bottom;
+
+    var svg_outer = d3.select('#gene_plot_container').select('#track');
 
     var variant_size_scale;
-    if (change_to == 'proportional') {
+    if (change_to == 'inverse_af') {
         variant_size_scale = d3.scale.log()
             .domain([d3.min(variant_data, function (d) {
                 return d.allele_freq;
