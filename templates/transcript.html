@@ -56,6 +56,17 @@
                     </button>
                 </span>
             </span>
+            <div class="row">
+                {% if lof_variants %}
+                    {% with %}
+                        {% set table_variants = lof_variants %}
+                        {% include 'variant_table.html' %}
+                    {% endwith %}
+                    </div>
+                {% else %}
+                    No variants in this gene.
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

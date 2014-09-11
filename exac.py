@@ -274,7 +274,7 @@ def transcript_page(transcript_id):
         {
             'exon_number': genomic_coord_to_exon[xpos_to_pos(x['xpos'])],
             'mean': x['mean'] if x['has_coverage'] else 0,
-            'covered_30': x['30'] if x['has_coverage'] else 0,
+            'covered_30': x['30']*91918 if x['has_coverage'] else 0,
         }
         if xpos_to_pos(x['xpos']) in genomic_coord_to_exon else null_coverage
         for x in overall_coverage

@@ -46,15 +46,15 @@ if (typeof google !== 'undefined') {
     };
 }
 
+quality_chart_margin = {top: 10, right: 30, bottom: 30, left: 50},
+    quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right,
+    quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
+
 
 function draw_histogram_d3(chart_data) {
-    var margin = {top: 10, right: 30, bottom: 30, left: 50},
-        width = 500 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
-
     var x = d3.scale.linear()
         .domain([0, d3.max(chart_data)])
-        .range([0, width]);
+        .range([0, quality_chart_width]);
 
     // Generate a histogram using twenty uniformly-spaced bins.
     var data = d3.layout.histogram()
@@ -63,7 +63,7 @@ function draw_histogram_d3(chart_data) {
     //console.log('Initial data: ', data);
     var y = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.y; })])
-        .range([height, 0]);
+        .range([quality_chart_height, 0]);
 
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -74,11 +74,11 @@ function draw_histogram_d3(chart_data) {
         .orient("left");
 
     var svg = d3.select('#quality_display_container').append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", quality_chart_width + quality_chart_margin.left + quality_chart_margin.right)
+        .attr("height", quality_chart_height + quality_chart_margin.top + quality_chart_margin.bottom)
       .append("g")
         .attr('id', 'inner_graph')
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + quality_chart_margin.left + "," + quality_chart_margin.top + ")");
 
     var bar = svg.selectAll(".bar")
         .data(data)
@@ -89,11 +89,11 @@ function draw_histogram_d3(chart_data) {
     bar.append("rect")
         .attr("x", 1)
         .attr("width", x(data[0].dx) - 1)
-        .attr("height", function(d) { return height - y(d.y); });
+        .attr("height", function(d) { return quality_chart_height - y(d.y); });
 
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + quality_chart_height + ")")
         .call(xAxis);
 
     svg.append("g")
@@ -103,10 +103,6 @@ function draw_histogram_d3(chart_data) {
 
 
 function change_histogram(raw_chart_data, plot_object, variant_only) {
-    var margin = {top: 10, right: 30, bottom: 30, left: 50},
-        width = 500 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
-
     var chart_data = [];
     if (variant_only) {
         $.each(raw_chart_data[plot_object], function(i, x) {
@@ -120,7 +116,7 @@ function change_histogram(raw_chart_data, plot_object, variant_only) {
     //console.log(chart_data.length);
     var x = d3.scale.linear()
         .domain([0, d3.max(chart_data)])
-        .range([0, width]);
+        .range([0, quality_chart_width]);
 
     // Generate a histogram using twenty uniformly-spaced bins.
     var data = d3.layout.histogram()
@@ -131,7 +127,7 @@ function change_histogram(raw_chart_data, plot_object, variant_only) {
 //    console.log('New data:', data);
     var y = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.y; })])
-        .range([height, 0]);
+        .range([quality_chart_height, 0]);
 
     var xAxis = d3.svg.axis()
         .scale(x)
@@ -146,7 +142,7 @@ function change_histogram(raw_chart_data, plot_object, variant_only) {
 
     svg.select(".x.axis")
         .transition()
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + quality_chart_height + ")")
         .call(xAxis);
 
     svg.select(".y.axis")
@@ -166,7 +162,7 @@ function change_histogram(raw_chart_data, plot_object, variant_only) {
         .attr('x', 1)
         .attr("width", x(data[0].dx) - 1)
         .attr("height", function(d) {
-            return height - y(d.y);
+            return quality_chart_height - y(d.y);
         });
     if (old_data_len < data.length) {
         for (var i = old_data_len; i < data.length; i++) {
@@ -182,7 +178,7 @@ function change_histogram(raw_chart_data, plot_object, variant_only) {
                 .attr('x', x(data[i].x) + 1)
                 .attr('y', y(data[i].y))
                 .attr('width', x(data[0].dx) - 1)
-                .attr("height", height - y(data[i].y));
+                .attr("height", quality_chart_height - y(data[i].y));
         }
     } else if (old_data_len > data.length) {
         for (var i = old_data_len-1; i >= data.length; i--) {
@@ -275,14 +271,14 @@ if (typeof google !== 'undefined') {
 
     }
 }
+gene_chart_margin = {top: 10, right: 30, bottom: 30, left: 80},
+    gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
+    gene_chart_width = 1100 - gene_chart_margin.left - gene_chart_margin.right;
+
+lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
+    gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
 
 function gene_chart(data, exon_data, variant_data) {
-    var margin = {top: 10, right: 30, bottom: 30, left: 50},
-        margin_lower = {top: 5, right: margin.right, bottom: 5, left: margin.left},
-        width = 1100 - margin.left - margin.right;
-
-    var lower_graph_height = 50 - margin_lower.top - margin_lower.bottom,
-        graph_height = 300 - margin.top - margin.bottom - lower_graph_height - margin_lower.top - margin_lower.bottom;
 
     var transcript = exon_data[0].transcript_id;
     var padding = 20;
@@ -301,11 +297,11 @@ function gene_chart(data, exon_data, variant_data) {
     var start_pos = exon_data[0].start;
     var exon_x_scale = d3.scale.linear()
         .domain([0, total_exon_length_padded - padding])
-        .range([0, width]);
+        .range([0, gene_chart_width]);
 
     var y = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.mean; })])
-        .range([graph_height, 0]);
+        .range([gene_chart_height, 0]);
 
     var xAxis = d3.svg.axis()
         .scale(exon_x_scale)
@@ -316,11 +312,11 @@ function gene_chart(data, exon_data, variant_data) {
         .orient("left");
 
     var svg = d3.select('#gene_plot_container').append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", graph_height + margin.top + margin.bottom)
+        .attr("width", gene_chart_width + gene_chart_margin.left + gene_chart_margin.right)
+        .attr("height", gene_chart_height + gene_chart_margin.top + gene_chart_margin.bottom)
         .append("g")
         .attr('id', 'inner_graph')
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
 
     var new_data = _.filter(data, function(x) { return x.exon_number >= 0; });
 
@@ -342,11 +338,11 @@ function gene_chart(data, exon_data, variant_data) {
         })
         .attr("width", 1)
         .attr("y", function(d) { return y(d.mean); })
-        .attr("height", function(d) { return graph_height - y(d.mean); });
+        .attr("height", function(d) { return gene_chart_height - y(d.mean); });
 
     svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + graph_height + ")")
+        .attr("transform", "translate(0," + gene_chart_height + ")")
         .call(xAxis);
 
     svg.append("g")
@@ -354,16 +350,16 @@ function gene_chart(data, exon_data, variant_data) {
         .call(yAxis);
 
     var svg_outer = d3.select('#gene_plot_container').append("svg")
-        .attr("width", width + margin_lower.left + margin_lower.right)
-        .attr("height", lower_graph_height)
+        .attr("width", gene_chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
+        .attr("height", lower_gene_chart_height)
         .append("g")
         .attr('id', 'track')
-        .attr("transform", "translate(" + margin_lower.left + "," + 0 + ")");
+        .attr("transform", "translate(" + gene_chart_margin_lower.left + "," + 0 + ")");
 
     var exon_color = "lightsteelblue";
     svg_outer.append("line")
-        .attr("y1", lower_graph_height/2)
-        .attr("y2", lower_graph_height/2)
+        .attr("y1", lower_gene_chart_height/2)
+        .attr("y2", lower_gene_chart_height/2)
         .attr("x1", 0)
         .attr("x2", exon_x_scale(data.length))
         .attr("stroke-width", 10)
@@ -388,16 +384,16 @@ function gene_chart(data, exon_data, variant_data) {
         .attr("rx", 6)
         .attr("ry", 6)
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
-        .attr("height", lower_graph_height);
+        .attr("height", lower_gene_chart_height);
 
 //    console.log("Variant data", variant_data);
 
     var variant_size_scale = d3.scale.log()
         .domain([d3.min(variant_data, function(d) { return d.allele_freq; }), d3.max(variant_data, function(d) { return d.allele_freq; })])
         //Circle/Ellipse
-        .range([lower_graph_height/3, 2]);
+        .range([lower_gene_chart_height/3, 2]);
         //Rectangle
-//        .range([lower_graph_height, 2]);
+//        .range([lower_gene_chart_height, 2]);
 
     svg_outer.selectAll("bar")
         .data(variant_data)
@@ -425,7 +421,7 @@ function gene_chart(data, exon_data, variant_data) {
                 return exon_x_scale(tx_coord + variant_exon_number*padding);
             }
         })
-        .attr("cy", lower_graph_height/2)
+        .attr("cy", lower_gene_chart_height/2)
         //Circle
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
         //Ellipse
@@ -445,7 +441,7 @@ function gene_chart(data, exon_data, variant_data) {
 //                return exon_x_scale(tx_coord + variant_exon_number*padding);
 //            }
 //        })
-//        .attr("y", function(d, i) { return lower_graph_height/2 - variant_size_scale(d.allele_freq)/2; } )
+//        .attr("y", function(d, i) { return lower_gene_chart_height/2 - variant_size_scale(d.allele_freq)/2; } )
 //        .attr("width", 2)
 //        .attr("height", function(d, i) { return variant_size_scale(d.allele_freq); })
 //        .attr("rx", 6)
@@ -453,13 +449,6 @@ function gene_chart(data, exon_data, variant_data) {
 }
 
 function change_gene_chart_variant_size(variant_data, change_to) {
-    var margin = {top: 10, right: 30, bottom: 30, left: 50},
-        margin_lower = {top: 5, right: margin.right, bottom: 5, left: margin.left},
-        width = 1100 - margin.left - margin.right;
-
-    var lower_graph_height = 50 - margin_lower.top - margin_lower.bottom,
-        graph_height = 300 - margin.top - margin.bottom - lower_graph_height - margin_lower.top - margin_lower.bottom;
-
     var svg_outer = d3.select('#gene_plot_container').select('#track');
 
     var variant_size_scale;
@@ -470,7 +459,7 @@ function change_gene_chart_variant_size(variant_data, change_to) {
             }), d3.max(variant_data, function (d) {
                 return d.allele_freq;
             })])
-            .range([lower_graph_height / 3, 2]);
+            .range([lower_gene_chart_height / 3, 2]);
     } else {
         variant_size_scale = d3.scale.log()
             .domain([d3.min(variant_data, function (d) {
@@ -478,7 +467,7 @@ function change_gene_chart_variant_size(variant_data, change_to) {
             }), d3.max(variant_data, function (d) {
                 return d.allele_freq;
             })])
-            .range([2, lower_graph_height / 3]);
+            .range([2, lower_gene_chart_height / 3]);
     }
     svg_outer.selectAll("a")
         .selectAll("ellipse")
@@ -488,16 +477,9 @@ function change_gene_chart_variant_size(variant_data, change_to) {
 }
 
 function change_gene_chart_metric(data, metric) {
-    var margin = {top: 10, right: 30, bottom: 30, left: 50},
-        margin_lower = {top: 5, right: margin.right, bottom: 5, left: margin.left},
-        width = 1100 - margin.left - margin.right;
-
-    var lower_graph_height = 50 - margin_lower.top - margin_lower.bottom,
-        graph_height = 300 - margin.top - margin.bottom - lower_graph_height - margin_lower.top - margin_lower.bottom;
-
     var y = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d[metric]; })])
-        .range([graph_height, 0]);
+        .range([gene_chart_height, 0]);
 
     var svg = d3.select('#gene_plot_container').select('#inner_graph');
 
@@ -509,7 +491,7 @@ function change_gene_chart_metric(data, metric) {
         .transition()
         .duration(500)
         .attr("y", function(d) { return y(d[metric]); })
-        .attr("height", function(d) { return graph_height - y(d[metric]); });
+        .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -517,6 +499,7 @@ function change_gene_chart_metric(data, metric) {
 
     svg.select(".y.axis")
         .transition()
+        .duration(200)
         .call(yAxis);
 
 }
