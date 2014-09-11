@@ -4,16 +4,20 @@
     <script type="text/javascript">
         window.transcript = {{ transcript|tojson|safe }};
         window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
-        window.mean_coverage = {{ mean_coverage|tojson|safe }};
+        window.coverage_stats = {{ coverage_stats|tojson|safe }};
         window.lof_variants = {{ lof_variants|tojson|safe }};
         window.exons = {{ exons|tojson|safe }};
 
         $(document).ready(function() {
-            if (window.mean_coverage != null) {
-                gene_chart(window.mean_coverage, window.exons, window.lof_variants);
+            if (window.coverage_stats != null) {
+                gene_chart(window.coverage_stats, window.exons, window.lof_variants);
                 $('.allele_frequency_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
-                    change_variant_size(window.lof_variants, v);
+                    change_gene_chart_variant_size(window.lof_variants, v);
+                });
+                $('.coverage_metric_buttons').change(function() {
+                    var v = $(this).attr('id').replace('_covmet_button', '');
+                    change_gene_chart_metric(window.coverage_stats, v);
                 });
             } else {
                 $('#gene_plot_container').hide();
@@ -23,7 +27,21 @@
     <div class="container">
         <h1>Transcript: {{ transcript.transcript_id }}</h1>
         <div class="row">
-            <h3>Plot</h3>
+            <h3>Gene summary</h3>
+            <span style="float:right;">
+                <label for="coverage_metric_group">
+                    Coverage metric:
+                </label>
+                <span class="btn-group" data-toggle="buttons" id="coverage_metric_group">
+                    <button class="btn btn-primary active coverage_metric_buttons" id="mean_covmet_button">
+                        <input type="radio">Coverage
+                    </button>
+                    <button class="btn btn-primary coverage_metric_buttons" id="covered_30_covmet_button">
+                        <input type="radio">Individuals over 30X
+                    </button>
+                </span>
+            </span>
+            <br/>
             <div id="gene_plot_container"></div>
             <span style="float:right">
                 <label for="allele_frequency_display_group">

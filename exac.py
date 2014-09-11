@@ -265,13 +265,22 @@ def transcript_page(transcript_id):
 
     overall_coverage = lookups.get_coverage_for_bases(db, transcript['xstart'], transcript['xstop'])
 
-    mean_coverage = [
-        (x['mean'] if x['has_coverage'] else 0, genomic_coord_to_exon[xpos_to_pos(x['xpos'])])
-        if xpos_to_pos(x['xpos']) in genomic_coord_to_exon else (0, -1)
+    null_coverage = {
+        'exon_number': -1,
+        'mean': 0,
+        'covered_30': 0
+    }
+    coverage_stats = [
+        {
+            'exon_number': genomic_coord_to_exon[xpos_to_pos(x['xpos'])],
+            'mean': x['mean'] if x['has_coverage'] else 0,
+            'covered_30': x['30'] if x['has_coverage'] else 0,
+        }
+        if xpos_to_pos(x['xpos']) in genomic_coord_to_exon else null_coverage
         for x in overall_coverage
     ]
-    # print Counter([x[1] for x in mean_coverage])
-    #print mean_coverage
+    #print Counter([x['exon_number'] for x in mean_coverage])
+    print coverage_stats
     lof_variants = [
         x for x in variants_in_transcript
         if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
@@ -285,7 +294,7 @@ def transcript_page(transcript_id):
         variants_in_transcript=variants_in_transcript,
         lof_variants=lof_variants,
         composite_lof_frequency=composite_lof_frequency,
-        mean_coverage=mean_coverage,
+        coverage_stats=coverage_stats,
         exons=exons,
     )
 
