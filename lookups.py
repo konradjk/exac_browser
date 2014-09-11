@@ -1,6 +1,7 @@
 import re
 from xbrowse import get_xpos
 
+SEARCH_LIMIT = 10000
 
 def get_gene(db, gene_id):
     return db.genes.find_one({'gene_id': gene_id}, fields={'_id': False})
@@ -18,7 +19,8 @@ def get_variant(db, xpos, ref, alt):
     return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
 
 
-def get_variant_by_rsid(db, rsid):
+def get_variants_by_rsid(db, rsid):
+    print 'Looking up: ', rsid
     if not rsid.startswith('rs'):
         return None
     return list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
@@ -56,7 +58,6 @@ def get_awesomebar_suggestions(db, query):
     If it is the prefix for a gene, return list of gene names
     """
     regex = re.compile('^' + re.escape(query), re.IGNORECASE)
-    print regex
     genes = db.genes.find({'gene_name': {
         '$regex': regex,
     }}).limit(20)
@@ -108,13 +109,14 @@ def get_awesomebar_result(db, query):
         return 'transcript', transcript['transcript_id']
 
     # Variant
-    variant = get_variant_by_rsid(db, query)
+    variant = get_variants_by_rsid(db, query)
     # TODO - https://github.com/brettpthomas/exac_browser/issues/19
     if variant:
         if len(variant) == 1:
             return 'variant', variant[0]['variant_id']
         else:
-            return 'region', '%(chrom)s-%(pos)s-%(pos)s' % variant[0]
+            print 'Got ', variant
+            return 'dbsnp_variant_set', variant[0]['rsid']
     # variant = get_variant(db, )
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
@@ -153,7 +155,7 @@ def get_variants_in_region(db, chrom, start, stop):
     variants = db.variants.find({
         'xstart': {'$lte': xstop},  # start of variant should be before (or equal to) end of region
         'xstop': {'$gte': xstart},  # opposite of above
-    })
+    }, limit=SEARCH_LIMIT)
     return list(variants)
 
 

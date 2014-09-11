@@ -8,6 +8,7 @@ from parsing import get_variants_from_sites_vcf, get_genotype_data_from_full_vcf
     get_base_coverage_from_file
 import lookups
 import xbrowse
+import operator
 import copy
 #from xbrowse.annotation.vep_annotations import get_vep_annotations_from_vcf
 
@@ -171,6 +172,7 @@ def awesome():
     db = get_db()
     query = request.args.get('query')
     datatype, identifier = lookups.get_awesomebar_result(db, query)
+
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
     elif datatype == 'transcript':
@@ -179,6 +181,8 @@ def awesome():
         return redirect('/variant/{}'.format(identifier))
     elif datatype == 'region':
         return redirect('/region/{}'.format(identifier))
+    elif datatype == 'dbsnp_variant_set':
+        return redirect('/dbsnp/{}'.format(identifier))
     else:
         raise Exception
 
@@ -221,6 +225,8 @@ def gene_page(gene_id):
         x for x in variants_in_gene
         if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Gene'] == gene_id])
     ]
+    composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+    #composite_lof_frequency = '%.5g' % (1-reduce(operator.mul, [1-x['allele_freq'] for x in lof_variants], 1.0))
 
     return render_template(
         'gene.html',
@@ -228,6 +234,7 @@ def gene_page(gene_id):
         # variants_in_gene=variants_in_gene,
         number_variants_in_gene=len(variants_in_gene),
         lof_variants_in_gene=lof_variants,
+        composite_lof_frequency=composite_lof_frequency,
         transcripts_in_gene=transcripts_in_gene,
         mean_coverage=mean_coverage
     )
@@ -258,6 +265,16 @@ def region_page(region_id):
         stop=stop,
     )
 
+
+@app.route('/dbsnp/<rsid>')
+def dbsnp_page(rsid):
+    db = get_db()
+    variant = lookups.get_variants_by_rsid(db, rsid)
+    return render_template(
+        'region.html',
+        rsid=rsid,
+        variants_in_region=variant,
+    )
 
 @app.route('/howtouse')
 def howtouse_page():

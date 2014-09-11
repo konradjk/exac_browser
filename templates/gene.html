@@ -13,8 +13,8 @@
     <style>
 
     </style>
-    <script>
-        $(document).ready(function() {
+        <script>
+            $(document).ready(function() {
             $("#variants_loading").hide();
             $("#variants_table_container").show();
             $("#gene_variants_table").tablesorter({widthFixed: true})
@@ -36,6 +36,8 @@
                     <dd>{{ number_variants_in_gene }}</dd>
                     <dt>Number of LoF variants</dt>
                     <dd>{{ lof_variants_in_gene|length }}</dd>
+                    <dt>Composite LoF frequency</dt>
+                    <dd>{{ composite_lof_frequency }}</dd>
                 </dl>
             </div>
             <div class="col-md-6">
@@ -59,51 +61,10 @@
         </div>
         <div class="row">
             {% if lof_variants_in_gene %}
-                <div id="variants_loading">Loading variants...</div>
-                <div id="variants_table_container" style="display: none;">
-                    <table id="gene_variants_table" class="tablesorter">
-                        <thead>
-                            <tr>
-                                <th>Variant</th>
-                                <th>Position</th>
-                                <th>Allele Frequency</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for variant in lof_variants_in_gene %}
-                            <tr>
-                                <td>
-                                    {% if variant.rsid == '.' %}
-                                        <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                                            {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
-                                        </a>
-                                    {% else %}
-                                        <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                                            {{ variant.rsid }}
-                                        </a>
-                                    {% endif %}
-                                </td>
-                                <td> {{ variant.pos }}</td>
-                                <td>{{ variant.allele_freq }}</td>
-                            </tr>
-                        {% endfor %}
-                        <tbody>
-                    </table>
-                    <div id="pager" class="pager">
-                        <form>
-                            <i class="fa fa-caret-square-o-left fa-2x first link"></i>
-                            <i class="fa fa-caret-left fa-2x prev link"></i>
-                            <input type="text" class="pagedisplay" style="display: none;"/>
-                            <i class="fa fa-caret-right fa-2x next link"></i>
-                            <i class="fa fa-caret-square-o-right fa-2x last link"></i>
-                            <select class="pagesize" style="display: none;">
-                                <option selected="selected" value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                                <option value="40">40</option>
-                            </select>
-                        </form>
-                    </div>
+                {% with %}
+                    {% set table_variants = lof_variants_in_gene %}
+                    {% include 'variant_table.html' %}
+                {% endwith %}
                 </div>
             {% else %}
                 No variants in this gene.
