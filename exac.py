@@ -80,7 +80,7 @@ def load_db():
     # load coverage first; variant info will depend on coverage
     for filepath in app.config['BASE_COVERAGE_FILES']:
         size = os.path.getsize(filepath)
-        progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage: {}'.format(filepath))
+        progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage: {}'.format(os.path.basename(filepath)))
         coverage_file = gzip.open(filepath)
         for base_coverage in get_base_coverage_from_file(coverage_file):
             progress.update(coverage_file.fileobj.tell())
@@ -260,9 +260,6 @@ def transcript_page(transcript_id):
     exons = sorted(exons, key=lambda k: k['start'])
     genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
-    # from collections import Counter
-    # print Counter(genomic_coord_to_exon.values())
-
     overall_coverage = lookups.get_coverage_for_bases(db, transcript['xstart'], transcript['xstop'])
 
     null_coverage = {
@@ -279,8 +276,6 @@ def transcript_page(transcript_id):
         if xpos_to_pos(x['xpos']) in genomic_coord_to_exon else null_coverage
         for x in overall_coverage
     ]
-    #print Counter([x['exon_number'] for x in mean_coverage])
-    print coverage_stats
     lof_variants = [
         x for x in variants_in_transcript
         if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])

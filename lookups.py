@@ -1,5 +1,6 @@
 import re
 from xbrowse import get_xpos
+from utils import csq_max_vep
 
 SEARCH_LIMIT = 10000
 
@@ -174,7 +175,13 @@ def get_transcripts_in_gene(db, gene_id):
 def get_variants_in_transcript(db, transcript_id):
     """
     """
-    return list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
+    # Temporarily calculating consequence here
+    variants = list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
+    print variants
+    for variant in variants:
+        for annotation in variant['vep_annotations']:
+            annotation['major_consequence'] = csq_max_vep(annotation['Consequence'])
+    return variants
 
 
 def get_exons_in_transcript(db, transcript_id):

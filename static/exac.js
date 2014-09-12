@@ -293,6 +293,8 @@ function gene_chart(data, exon_data, variant_data) {
 //    console.log("Total length: ", total_exon_length);
 //    console.log("Total length padded: ", total_exon_length_padded);
 //    console.log("Running lengths: ", running_exon_length);
+    console.log('total exon length: ', total_exon_length_padded);
+    console.log('width: ', gene_chart_width);
 
     var start_pos = exon_data[0].start;
     var exon_x_scale = d3.scale.linear()
@@ -417,7 +419,15 @@ function gene_chart(data, exon_data, variant_data) {
             if (tx_coord == 0) {
                 return -1000;
             } else {
-                var variant_exon_number = d.vep_annotations[0]['EXON'].split('/')[0] - 1;
+                var variant_exon_number;
+                var variant_exon_info = d.vep_annotations[0]['EXON'].split('/');
+                if (d.vep_annotations[0]['STRAND'] == '-1') {
+                    variant_exon_number = variant_exon_info[1] - variant_exon_info[0];
+                } else {
+                    variant_exon_number = variant_exon_info[0] - 1;
+                }
+//                console.log(d);
+//                console.log(tx_coord, " ", variant_exon_number);
                 return exon_x_scale(tx_coord + variant_exon_number*padding);
             }
         })
