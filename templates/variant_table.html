@@ -16,6 +16,7 @@
                 <th>Filter</th>
                 <th>Position</th>
                 <th>Annotation</th>
+                <th>Allele Count</th>
                 <th>Allele Frequency</th>
             </tr>
         </thead>
@@ -36,8 +37,8 @@
                 <td> {{ variant.pos }}</td>
                 <td> {{ variant.filter }} </td>
                 <td> {{ variant.vep_annotations[0].major_consequence }} </td>
-                <td> {{ variant.allele_freq }} </td>
                 <td> {{ variant.allele_count }} </td>
+                <td> {{ variant.allele_freq }} </td>
             </tr>
         {% endfor %}
         <tbody>

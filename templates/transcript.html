@@ -8,7 +8,19 @@
         window.lof_variants = {{ lof_variants|tojson|safe }};
         window.exons = {{ exons|tojson|safe }};
 
+        function pass_filter() {
+            $("#variant_table").find("td").filter(function () {
+                return $(this).text().indexOf("VQSR") !== -1;
+            }).parent().hide();
+            $('[filter_status][filter_status!="PASS"]').hide();
+        }
+        function remove_pass_filter() {
+            $("#variant_table").find("tr").show()
+            $('[filter_status][filter_status!="PASS"]').show();
+        }
+
         $(document).ready(function() {
+            pass_filter();
             if (window.coverage_stats != null) {
                 gene_chart(window.coverage_stats, window.exons, window.lof_variants);
                 $('.allele_frequency_display_buttons').change(function() {
@@ -19,9 +31,14 @@
                     var v = $(this).attr('id').replace('_covmet_button', '');
                     change_gene_chart_metric(window.coverage_stats, v);
                 });
-{#                $('#filtered_checkbox').change(function() {#}
-{#                    $('#filtered_checkbox').is(":checked");#}
-{#                });#}
+                $('#filtered_checkbox').change(function() {
+                    var include_filtered = $('#filtered_checkbox').is(":checked");
+                    if (include_filtered) {
+                        remove_pass_filter();
+                    } else {
+                        pass_filter();
+                    }
+                });
             } else {
                 $('#gene_plot_container').hide();
             }

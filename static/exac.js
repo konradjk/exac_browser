@@ -404,6 +404,9 @@ function gene_chart(data, exon_data, variant_data) {
         .attr('class', 'track_variant_link')
         .attr("xlink:href", function(d, i) { return "/variant/" + d.chrom + "-" + d.pos + "-" + d.ref + "-" + d.alt; })
         .attr("data-toggle", "tooltip")
+        .attr('filter_status', function(d) {
+            return d.filter;
+        })
         .attr("title", function(d) {
             return d.vep_annotations[0]['Consequence'];
         })
