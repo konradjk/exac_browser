@@ -19,6 +19,7 @@ from utils import add_transcript_coordinate_to_variants
 
 app = Flask(__name__)
 
+EXAC_FILES_DIRECTORY = '../exac_test_data/'
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',
@@ -27,12 +28,11 @@ app.config.update(dict(
     DEBUG = True,
     SECRET_KEY = 'development key',
 
-    SITES_VCF = os.path.join(os.path.dirname(__file__), '../sites_file.vcf.gz'),
-    FULL_VCF = os.path.join(os.path.dirname(__file__), '../genotype_data.vcf.gz'),
-    GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../gencode.gtf.gz'),
-    FULL_GENCODE_GTF = os.path.join(os.path.dirname(__file__), '../full_gencode.gtf.gz'),
+    SITES_VCF = os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
+    FULL_VCF = os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'genotype_data.vcf.gz'),
+    GENCODE_GTF = os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     BASE_COVERAGE_FILES = [
-        os.path.join(os.path.dirname(__file__), '../coverage.txt.gz'),
+        os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
     ],
 
 ))
@@ -127,8 +127,8 @@ def load_db():
     gtf_file.close()
 
     # and now transcripts
-    gtf_file = gzip.open(app.config['FULL_GENCODE_GTF'])
-    size = os.path.getsize(app.config['FULL_GENCODE_GTF'])
+    gtf_file = gzip.open(app.config['GENCODE_GTF'])
+    size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
     for transcript in get_transcripts_from_gencode_gtf(gtf_file):
         db.transcripts.insert(transcript)
@@ -137,8 +137,8 @@ def load_db():
     progress.finish()
 
     # Building up gene definitions
-    gtf_file = gzip.open(app.config['FULL_GENCODE_GTF'])
-    size = os.path.getsize(app.config['FULL_GENCODE_GTF'])
+    gtf_file = gzip.open(app.config['GENCODE_GTF'])
+    size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
     for exon in get_exons_from_gencode_gtf(gtf_file):
         db.exons.insert(exon)
