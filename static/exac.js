@@ -422,16 +422,23 @@ function gene_chart(data, exon_data, variant_data) {
             if (tx_coord == 0) {
                 return -1000;
             } else {
-                var variant_exon_number;
-                var variant_exon_info = d.vep_annotations[0]['EXON'].split('/');
-                if (d.vep_annotations[0]['STRAND'] == '-1') {
-                    variant_exon_number = variant_exon_info[1] - variant_exon_info[0];
+                var variant_exon_info;
+                if (d.vep_annotations[0]['EXON'] != '') {
+                    variant_exon_info = d.vep_annotations[0]['EXON'].split('/');
+                    var variant_exon_number;
+                    if (d.vep_annotations[0]['STRAND'] == '-1') {
+                        variant_exon_number = variant_exon_info[1] - variant_exon_info[0];
+                    } else {
+                        variant_exon_number = variant_exon_info[0] - 1;
+                    }
+                    console.log(d);
+                    console.log(tx_coord, " ", variant_exon_number);
+                    return exon_x_scale(tx_coord + variant_exon_number*padding);
                 } else {
-                    variant_exon_number = variant_exon_info[0] - 1;
+                    //TODO: Implement correct intron drawing
+                    variant_exon_info = d.vep_annotations[0]['INTRON'].split('/');
+                    return 0;
                 }
-//                console.log(d);
-//                console.log(tx_coord, " ", variant_exon_number);
-                return exon_x_scale(tx_coord + variant_exon_number*padding);
             }
         })
         .attr("cy", lower_gene_chart_height/2)
