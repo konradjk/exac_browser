@@ -1,6 +1,6 @@
 import re
 from xbrowse import get_xpos
-from utils import csq_max_vep
+from utils import csq_max_vep, csq_max
 
 SEARCH_LIMIT = 10000
 
@@ -177,10 +177,8 @@ def get_variants_in_transcript(db, transcript_id):
     """
     # Temporarily calculating consequence here
     variants = list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
-    print variants
     for variant in variants:
-        for annotation in variant['vep_annotations']:
-            annotation['major_consequence'] = csq_max_vep(annotation['Consequence'])
+        variant['major_consequence'] = csq_max([csq_max_vep(x['Consequence']) for x in variant['vep_annotations']])
     return variants
 
 

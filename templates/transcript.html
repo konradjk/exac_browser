@@ -20,17 +20,36 @@
         }
 
         $(document).ready(function() {
-            pass_filter();
+            $('#over_x_select_container').hide();
             if (window.coverage_stats != null) {
                 gene_chart(window.coverage_stats, window.exons, window.lof_variants);
+
+                // Change coverage plot
+                $('.coverage_metric_buttons').change(function() {
+                    var v = $(this).attr('id').replace('_covmet_button', '');
+                    $('.coverage_subcat_selectors').hide();
+                    if (v == 'covered') {
+                        $('#over_x_select_container').show();
+                        v += '_' + $('#over_x_select').val();
+                    } else {
+                        $('#average_select_container').show();
+                        v = $("#average_select").val();
+                    }
+                    change_gene_chart_metric(window.coverage_stats, v);
+                });
+                $('#over_x_select').change(function() {
+                    change_gene_chart_metric(window.coverage_stats, 'covered_' + $(this).val());
+                });
+                $('#average_select').change(function() {
+                    change_gene_chart_metric(window.coverage_stats, $(this).val());
+                });
+
+                // Change exon diagram
                 $('.allele_frequency_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
                     change_gene_chart_variant_size(window.lof_variants, v);
                 });
-                $('.coverage_metric_buttons').change(function() {
-                    var v = $(this).attr('id').replace('_covmet_button', '');
-                    change_gene_chart_metric(window.coverage_stats, v);
-                });
+
                 $('#filtered_checkbox').change(function() {
                     var include_filtered = $('#filtered_checkbox').is(":checked");
                     if (include_filtered) {
@@ -39,6 +58,7 @@
                         pass_filter();
                     }
                 });
+                pass_filter();
             } else {
                 $('#gene_plot_container').hide();
             }
@@ -53,13 +73,39 @@
                     Coverage metric:
                 </label>
                 <span class="btn-group" data-toggle="buttons" id="coverage_metric_group">
-                    <button class="btn btn-primary active coverage_metric_buttons" id="mean_covmet_button">
-                        <input type="radio">Coverage
+                    <button class="btn btn-primary active coverage_metric_buttons" id="covered_mean_covmet_button">
+                        <input type="radio">Average coverage
                     </button>
-                    <button class="btn btn-primary coverage_metric_buttons" id="covered_30_covmet_button">
-                        <input type="radio">Individuals over 30X
+                    <button class="btn btn-primary coverage_metric_buttons" id="covered_covmet_button">
+                        <input type="radio">Individuals over X coverage
                     </button>
                 </span>
+                <br/>
+                <div class="coverage_subcat_selectors" id="over_x_select_container" style="float:right;">
+                    <label for="over_x_select">
+                        Individuals over:
+                    </label>
+                    <select id="over_x_select">
+                        <option>1</option>
+                        <option>5</option>
+                        <option>10</option>
+                        <option>15</option>
+                        <option>20</option>
+                        <option>25</option>
+                        <option selected>30</option>
+                        <option>50</option>
+                        <option>100</option>
+                    </select>
+                </div>
+                <div class="coverage_subcat_selectors" id="average_select_container" style="float:right;">
+                    <label for="average_select">
+                        Metric:
+                    </label>
+                    <select id="average_select">
+                        <option selected>mean</option>
+                        <option>median</option>
+                    </select>
+                </div>
             </span>
             <br/>
             <div id="gene_plot_container"></div>

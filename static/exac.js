@@ -279,6 +279,7 @@ lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_l
     gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
 
 function gene_chart(data, exon_data, variant_data) {
+    var metric = 'mean';
 
     var transcript = exon_data[0].transcript_id;
     var padding = 20;
@@ -302,7 +303,7 @@ function gene_chart(data, exon_data, variant_data) {
         .range([0, gene_chart_width]);
 
     var y = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) { return d.mean; })])
+        .domain([0, d3.max(data, function(d) { return d[metric]; })])
         .range([gene_chart_height, 0]);
 
     var xAxis = d3.svg.axis()
@@ -339,8 +340,8 @@ function gene_chart(data, exon_data, variant_data) {
             return exon_x_scale(relative_start_pos);
         })
         .attr("width", 1)
-        .attr("y", function(d) { return y(d.mean); })
-        .attr("height", function(d) { return gene_chart_height - y(d.mean); });
+        .attr("y", function(d) { return y(d[metric]); })
+        .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
 
     svg.append("g")
         .attr("class", "x axis")
@@ -422,8 +423,8 @@ function gene_chart(data, exon_data, variant_data) {
             if (tx_coord == 0) {
                 return -1000;
             } else {
-                var variant_exon_info;
                 if (d.vep_annotations[0]['EXON'] != '') {
+                    var variant_exon_info;
                     variant_exon_info = d.vep_annotations[0]['EXON'].split('/');
                     var variant_exon_number;
                     if (d.vep_annotations[0]['STRAND'] == '-1') {
@@ -436,7 +437,15 @@ function gene_chart(data, exon_data, variant_data) {
                     return exon_x_scale(tx_coord + variant_exon_number*padding);
                 } else {
                     //TODO: Implement correct intron drawing
-                    variant_exon_info = d.vep_annotations[0]['INTRON'].split('/');
+                    var variant_intron_info;
+                    variant_intron_info = d.vep_annotations[0]['INTRON'].split('/');
+
+                    var variant_intron_number;
+                    if (d.vep_annotations[0]['STRAND'] == '-1') {
+                        variant_intron_number = variant_intron_info[1] - variant_intron_info[0];
+                    } else {
+                        variant_intron_number = variant_intron_info[0] - 1;
+                    }
                     return 0;
                 }
             }

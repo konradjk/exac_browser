@@ -1,10 +1,15 @@
 {% block variant_table %}
 <script>
     $(document).ready(function() {
+        window.table_variants = {{ table_variants|tojson|safe }};
+
         $("#variants_loading").hide();
         $("#variants_table_container").show();
         $("#variant_table").tablesorter({widthFixed: true})
                 .tablesorterPager({container: $("#pager"), positionFixed: false});
+        if (window.table_variants.length <= 10) {
+            $('#pager').hide();
+        }
     });
 </script>
 <div id="variants_loading">Loading variants...</div>
@@ -13,8 +18,8 @@
         <thead>
             <tr>
                 <th>Variant</th>
-                <th>Filter</th>
                 <th>Position</th>
+                <th>Filter</th>
                 <th>Annotation</th>
                 <th>Allele Count</th>
                 <th>Allele Frequency</th>
@@ -36,7 +41,7 @@
                 </td>
                 <td> {{ variant.pos }}</td>
                 <td> {{ variant.filter }} </td>
-                <td> {{ variant.vep_annotations[0].major_consequence }} </td>
+                <td> {{ variant.major_consequence }} </td>
                 <td> {{ variant.allele_count }} </td>
                 <td> {{ variant.allele_freq }} </td>
             </tr>
