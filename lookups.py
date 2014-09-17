@@ -62,7 +62,6 @@ def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
     :return:
     """
     null_coverage = {
-        'exon_number': -1,
         'mean': 0,
         'median': 0,
         '1': 0,

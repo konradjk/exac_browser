@@ -322,7 +322,7 @@ function gene_chart(data, exon_data, variant_data) {
 
     var new_data = _.filter(data, function(x) { return x.exon_number >= 0; });
 
-//    console.log('Exon data: ', exon_data);
+    console.log('Exon data: ', new_data);
     svg.selectAll("bar")
         .data(new_data)
         .enter()
