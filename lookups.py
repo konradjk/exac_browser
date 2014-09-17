@@ -1,6 +1,6 @@
 import re
 from xbrowse import get_xpos
-from utils import csq_max_vep, csq_max
+from utils import csq_max_vep, csq_max, xpos_to_pos
 
 SEARCH_LIMIT = 10000
 
@@ -50,6 +50,42 @@ def get_coverage_for_bases(db, xstart, xstop=None):
     for item in ret:
         item['has_coverage'] = 'mean' in item
     return ret
+
+
+def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
+    """
+
+    :param db:
+    :param genomic_coord_to_exon:
+    :param xstart:
+    :param xstop:
+    :return:
+    """
+    null_coverage = {
+        'exon_number': -1,
+        'mean': 0,
+        'median': 0,
+        '1': 0,
+        '5': 0,
+        '10': 0,
+        '15': 0,
+        '20': 0,
+        '25': 0,
+        '30': 0,
+        '50': 0,
+        '100': 0
+    }
+    coverage_array = get_coverage_for_bases(db, xstart, xstop)
+    for item in coverage_array:
+        xpos = item['xpos']
+        if xpos_to_pos(xpos) in genomic_coord_to_exon:
+            item['exon_number'] = genomic_coord_to_exon[xpos_to_pos(item['xpos'])]
+        else:
+            item['exon_number'] = -1
+        if not item['has_coverage']:
+            for entry in null_coverage:
+                item[entry] = null_coverage[entry]
+    return coverage_array
 
 
 def get_awesomebar_suggestions(db, query):
@@ -180,4 +216,4 @@ def get_variants_in_transcript(db, transcript_id):
 
 
 def get_exons_in_transcript(db, transcript_id):
-    return list(db.exons.find({'transcript_id': transcript_id}, fields={'_id': False}))
+    return sorted(list(db.exons.find({'transcript_id': transcript_id}, fields={'_id': False})), key=lambda k: k['start'])

@@ -3,10 +3,11 @@
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
         window.gene = {{ gene|tojson|safe }};
-{#        window.variants_in_gene = {{ variants_in_gene|tojson|safe }};#}
+        window.variants_in_gene = {{ variants_in_gene|tojson|safe }};
         window.lof_variants_in_gene = {{ lof_variants_in_gene|tojson|safe }};
         window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
-        window.mean_coverage = {{ mean_coverage|tojson|safe }};
+        window.coverage_stats = {{ coverage_stats|tojson|safe }};
+        window.exons = {{ exons|tojson|safe }}
 
         window.lof_positions = $.map(window.lof_variants_in_gene, function(x) { return x['pos']; });
     </script>
@@ -19,11 +20,12 @@
             $("#variants_table_container").show();
             $("#gene_variants_table").tablesorter({widthFixed: true})
                     .tablesorterPager({container: $("#pager")});
-{#            if (window.mean_coverage != null) {#}
-{#                gene_chart(window.mean_coverage, window.gene['start'], window.lof_variants_in_gene);#}
-{#            } else {#}
+            if (window.coverage_stats != null) {
+                gene_chart(window.coverage_stats, window.exons, window.variants_in_gene);
+                update_variants();
+            } else {
                 $('#gene_plot_container').hide();
-{#            }#}
+            }
         });
     </script>
     <div class="container">
@@ -56,19 +58,20 @@
             </div>
         </div>
         <div class="row">
-            <h3>Gene Plot</h3>
-            <div id="gene_plot_container"></div>
-        </div>
-        <div class="row">
-            {% if lof_variants_in_gene %}
-                {% with %}
-                    {% set table_variants = lof_variants_in_gene %}
-                    {% include 'variant_table.html' %}
-                {% endwith %}
-                </div>
-            {% else %}
-                No variants in this gene.
-            {% endif %}
+            <h3>Gene summary</h3>
+            <div class="row">
+                {% include 'transcript_display.html' %}
+            </div>
+            <div class="row">
+                {% if variants_in_gene %}
+                    {% with %}
+                        {% set table_variants = variants_in_gene %}
+                        {% include 'variant_table.html' %}
+                    {% endwith %}
+                {% else %}
+                    No variants in this gene.
+                {% endif %}
+            </div>
         </div>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>

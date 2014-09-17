@@ -280,7 +280,6 @@ lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_l
 
 function gene_chart(data, exon_data, variant_data) {
     var metric = 'mean';
-
     var transcript = exon_data[0].transcript_id;
     var padding = 20;
     var total_exon_length = 0;
@@ -534,4 +533,11 @@ function change_gene_chart_metric(data, metric) {
         .duration(200)
         .call(yAxis);
 
+}
+
+function update_variants() {
+    $('[category]').hide();
+    var v = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_button', '');
+    var f = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
+    $('[category=' + v + ']' + f).show();
 }

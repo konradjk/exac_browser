@@ -8,48 +8,10 @@
         window.lof_variants = {{ lof_variants|tojson|safe }};
         window.exons = {{ exons|tojson|safe }};
 
-        function update_variants() {
-            $('[category]').hide();
-            var v = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_button', '');
-            var f = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
-            $('[category=' + v + ']' + f).show();
-        }
 
         $(document).ready(function() {
-            $('#over_x_select_container').hide();
             if (window.coverage_stats != null) {
                 gene_chart(window.coverage_stats, window.exons, window.variants_in_transcript);
-
-                // Change coverage plot
-                $('.coverage_metric_buttons').change(function() {
-                    var v = $(this).attr('id').replace('_covmet_button', '');
-                    $('.coverage_subcat_selectors').hide();
-                    if (v == 'covered') {
-                        $('#over_x_select_container').show();
-                        v += '_' + $('#over_x_select').val();
-                    } else {
-                        $('#average_select_container').show();
-                        v = $("#average_select").val();
-                    }
-                    change_gene_chart_metric(window.coverage_stats, v);
-                });
-                $('#over_x_select').change(function() {
-                    change_gene_chart_metric(window.coverage_stats, 'covered_' + $(this).val());
-                });
-                $('#average_select').change(function() {
-                    change_gene_chart_metric(window.coverage_stats, $(this).val());
-                });
-
-                // Change exon diagram
-                $('.allele_frequency_display_buttons').change(function() {
-                    var v = $(this).attr('id').replace('_button', '');
-                    change_gene_chart_variant_size(window.variants_in_transcript, v);
-                });
-
-                $('.consequence_display_buttons, #filtered_checkbox').change(function() {
-                    setTimeout(update_variants, 10);
-                });
-
                 update_variants();
             } else {
                 $('#gene_plot_container').hide();
@@ -59,86 +21,16 @@
     <div class="container">
         <h1>Transcript: {{ transcript.transcript_id }}</h1>
         <div class="row">
-            <h3>Gene summary</h3>
-            <span style="float:right;">
-                <label for="coverage_metric_group">
-                    Coverage metric:
-                </label>
-                <span class="btn-group" data-toggle="buttons" id="coverage_metric_group">
-                    <button class="btn btn-primary active coverage_metric_buttons" id="covered_mean_covmet_button">
-                        <input type="radio">Average coverage
-                    </button>
-                    <button class="btn btn-primary coverage_metric_buttons" id="covered_covmet_button">
-                        <input type="radio">Individuals over X coverage
-                    </button>
-                </span>
-                <br/>
-                <div class="coverage_subcat_selectors" id="over_x_select_container" style="float:right;">
-                    <label for="over_x_select">
-                        Individuals over:
-                    </label>
-                    <select id="over_x_select">
-                        <option>1</option>
-                        <option>5</option>
-                        <option>10</option>
-                        <option>15</option>
-                        <option>20</option>
-                        <option>25</option>
-                        <option selected>30</option>
-                        <option>50</option>
-                        <option>100</option>
-                    </select>
-                </div>
-                <div class="coverage_subcat_selectors" id="average_select_container" style="float:right;">
-                    <label for="average_select">
-                        Metric:
-                    </label>
-                    <select id="average_select">
-                        <option selected>mean</option>
-                        <option>median</option>
-                    </select>
-                </div>
-            </span>
-            <br/>
-            <div id="gene_plot_container"></div>
-            <span id="variant_selectors_container">
-                <label for="variant_consequence_types">
-                    <span class="btn-group" data-toggle="buttons" id="variant_consequence_types">
-                        <button class="btn btn-primary active consequence_display_buttons" id="consequence_lof_variant_button">
-                            <input type="radio">LoF
-                        </button>
-                        <button class="btn btn-primary consequence_display_buttons" id="consequence_missense_variant_button">
-                            <input type="radio" >Missense + LoF
-                        </button>
-                        <button class="btn btn-primary consequence_display_buttons" id="consequence_other_variant_button">
-                            <input type="radio" >All
-                        </button>
-                    </span>
-                </label>
-                <label>
-                    <input type="checkbox" id="filtered_checkbox" value=""> Include filtered (non-PASS) variants
-                </label>
-            </span>
-            <span style="float:right">
-                <label for="allele_frequency_display_group">
-                    Highlight:
-                </label>
-                <span class="btn-group" data-toggle="buttons" id="allele_frequency_display_group">
-                    <button class="btn btn-primary active allele_frequency_display_buttons" id="inverse_af_button">
-                        <input type="radio">Rare Variants
-                    </button>
-                    <button class="btn btn-primary allele_frequency_display_buttons" id="proportional_af_button">
-                        <input type="radio" >Common Variants
-                    </button>
-                </span>
-            </span>
+            <h3>Transcript summary</h3>
             <div class="row">
-                {% if lof_variants %}
+                {% include 'transcript_display.html' %}
+            </div>
+            <div class="row">
+                {% if variants_in_transcript %}
                     {% with %}
                         {% set table_variants = variants_in_transcript %}
                         {% include 'variant_table.html' %}
                     {% endwith %}
-                    </div>
                 {% else %}
                     No variants in this gene.
                 {% endif %}
