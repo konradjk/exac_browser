@@ -8,21 +8,17 @@
         window.lof_variants = {{ lof_variants|tojson|safe }};
         window.exons = {{ exons|tojson|safe }};
 
-        function pass_filter() {
-            $("#variant_table").find("td").filter(function () {
-                return $(this).text().indexOf("VQSR") !== -1;
-            }).parent().hide();
-            $('[filter_status][filter_status!="PASS"]').hide();
-        }
-        function remove_pass_filter() {
-            $("#variant_table").find("tr").show()
-            $('[filter_status][filter_status!="PASS"]').show();
+        function update_variants() {
+            $('[category]').hide();
+            var v = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_button', '');
+            var f = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
+            $('[category=' + v + ']' + f).show();
         }
 
         $(document).ready(function() {
             $('#over_x_select_container').hide();
             if (window.coverage_stats != null) {
-                gene_chart(window.coverage_stats, window.exons, window.lof_variants);
+                gene_chart(window.coverage_stats, window.exons, window.variants_in_transcript);
 
                 // Change coverage plot
                 $('.coverage_metric_buttons').change(function() {
@@ -47,18 +43,14 @@
                 // Change exon diagram
                 $('.allele_frequency_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
-                    change_gene_chart_variant_size(window.lof_variants, v);
+                    change_gene_chart_variant_size(window.variants_in_transcript, v);
                 });
 
-                $('#filtered_checkbox').change(function() {
-                    var include_filtered = $('#filtered_checkbox').is(":checked");
-                    if (include_filtered) {
-                        remove_pass_filter();
-                    } else {
-                        pass_filter();
-                    }
+                $('.consequence_display_buttons, #filtered_checkbox').change(function() {
+                    setTimeout(update_variants, 10);
                 });
-                pass_filter();
+
+                update_variants();
             } else {
                 $('#gene_plot_container').hide();
             }
@@ -109,7 +101,20 @@
             </span>
             <br/>
             <div id="gene_plot_container"></div>
-            <span>
+            <span id="variant_selectors_container">
+                <label for="variant_consequence_types">
+                    <span class="btn-group" data-toggle="buttons" id="variant_consequence_types">
+                        <button class="btn btn-primary active consequence_display_buttons" id="consequence_lof_variant_button">
+                            <input type="radio">LoF
+                        </button>
+                        <button class="btn btn-primary consequence_display_buttons" id="consequence_missense_variant_button">
+                            <input type="radio" >Missense + LoF
+                        </button>
+                        <button class="btn btn-primary consequence_display_buttons" id="consequence_other_variant_button">
+                            <input type="radio" >All
+                        </button>
+                    </span>
+                </label>
                 <label>
                     <input type="checkbox" id="filtered_checkbox" value=""> Include filtered (non-PASS) variants
                 </label>
@@ -130,7 +135,7 @@
             <div class="row">
                 {% if lof_variants %}
                     {% with %}
-                        {% set table_variants = lof_variants %}
+                        {% set table_variants = variants_in_transcript %}
                         {% include 'variant_table.html' %}
                     {% endwith %}
                     </div>

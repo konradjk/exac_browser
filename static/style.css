@@ -33,3 +33,15 @@
 .dl-horizontal dt {
     white-space: normal;
 }
+
+.lof_variant {
+    background: indianred;
+}
+
+.missense_variant {
+    background: #ffff00;
+}
+
+.all_variant {
+    background: white;
+}

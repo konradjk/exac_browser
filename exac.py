@@ -10,12 +10,11 @@ import lookups
 import xbrowse
 import operator
 import copy
-from utils import xpos_to_pos
+from utils import xpos_to_pos, add_transcript_coordinate_to_variants, add_consequence_to_variants
 #from xbrowse.annotation.vep_annotations import get_vep_annotations_from_vcf
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask import Response
-from utils import add_transcript_coordinate_to_variants
 
 app = Flask(__name__)
 
@@ -292,6 +291,8 @@ def transcript_page(transcript_id):
     composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
 
     add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+    add_consequence_to_variants(variants_in_transcript)
+
     return render_template(
         'transcript.html',
         transcript=transcript,

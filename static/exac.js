@@ -408,6 +408,9 @@ function gene_chart(data, exon_data, variant_data) {
         .attr('filter_status', function(d) {
             return d.filter;
         })
+        .attr('category', function(d) {
+            return d.category;
+        })
         .attr("title", function(d) {
             return d.vep_annotations[0]['Consequence'];
         })

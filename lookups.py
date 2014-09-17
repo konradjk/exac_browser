@@ -176,10 +176,7 @@ def get_variants_in_transcript(db, transcript_id):
     """
     """
     # Temporarily calculating consequence here
-    variants = list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
-    for variant in variants:
-        variant['major_consequence'] = csq_max([csq_max_vep(x['Consequence']) for x in variant['vep_annotations']])
-    return variants
+    return list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
 
 
 def get_exons_in_transcript(db, transcript_id):

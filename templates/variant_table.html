@@ -5,11 +5,11 @@
 
         $("#variants_loading").hide();
         $("#variants_table_container").show();
-        $("#variant_table").tablesorter({widthFixed: true})
-                .tablesorterPager({container: $("#pager"), positionFixed: false});
-        if (window.table_variants.length <= 10) {
+        $("#variant_table").tablesorter({widthFixed: true});
+{#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
+{#        if (window.table_variants.length <= 10) {#}
             $('#pager').hide();
-        }
+{#        }#}
     });
 </script>
 <div id="variants_loading">Loading variants...</div>
@@ -27,7 +27,7 @@
         </thead>
         <tbody>
         {% for variant in table_variants %}
-            <tr>
+            <tr class="table_variant" category="{{ variant.category }}" filter_status="{{ variant.filter }}">
                 <td>
                     {% if variant.rsid == '.' %}
                         <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">

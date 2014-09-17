@@ -49,6 +49,16 @@ def xpos_to_pos(xpos):
     return int(xpos % 1e9)
 
 
+def add_consequence_to_variants(variant_list):
+    for variant in variant_list:
+        variant['major_consequence'] = csq_max([csq_max_vep(x['Consequence']) for x in variant['vep_annotations']])
+        if csq_order_dict[variant['major_consequence']] <= csq_order_dict["initiator_codon_variant"]:
+            variant['category'] = 'lof_variant'
+        elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
+            variant['category'] = 'missense_variant'
+        else:
+            variant['category'] = 'other_variant'
+
 
 csq_order = ["transcript_ablation",
 "splice_donor_variant",
