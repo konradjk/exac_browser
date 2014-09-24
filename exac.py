@@ -1,6 +1,5 @@
 import json
 import os
-import re
 import pymongo
 import gzip
 from parsing import get_variants_from_sites_vcf, get_genotype_data_from_full_vcf, \
@@ -8,13 +7,11 @@ from parsing import get_variants_from_sites_vcf, get_genotype_data_from_full_vcf
     get_base_coverage_from_file
 import lookups
 import xbrowse
-import operator
-import copy
-from utils import xpos_to_pos, add_transcript_coordinate_to_variants, add_consequence_to_variants
-#from xbrowse.annotation.vep_annotations import get_vep_annotations_from_vcf
+from utils import xpos_to_pos, add_transcript_coordinate_to_variants, add_consequence_to_variants, order_variant_by_csq, csq_max_vep
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask import Response
+from collections import defaultdict
 
 app = Flask(__name__)
 
@@ -24,13 +21,13 @@ app.config.update(dict(
     DB_HOST='localhost',
     DB_PORT=27017, 
     DB_NAME='exac', 
-    DEBUG = True,
-    SECRET_KEY = 'development key',
+    DEBUG=True,
+    SECRET_KEY='development key',
 
-    SITES_VCF = os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
-    FULL_VCF = os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'genotype_data.vcf.gz'),
-    GENCODE_GTF = os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
-    BASE_COVERAGE_FILES = [
+    SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
+    FULL_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'genotype_data.vcf.gz'),
+    GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
+    BASE_COVERAGE_FILES=[
         os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
     ],
 
@@ -218,8 +215,12 @@ def variant_page(variant_str):
             'ref' : ref,
             'alt' : alt
         }
+    variant = order_variant_by_csq(variant)
+    consequences = defaultdict(lambda: defaultdict(list))
+    for annotation in variant['vep_annotations']:
+        consequences[csq_max_vep(annotation['Consequence'])][annotation['Gene']].append(annotation)
     base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos+len(alt)-len(ref))
-    return render_template('variant.html', variant=variant, base_coverage=base_coverage)
+    return render_template('variant.html', variant=variant, base_coverage=base_coverage, consequences=consequences)
 
 
 @app.route('/gene/<gene_id>')

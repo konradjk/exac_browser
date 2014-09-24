@@ -112,6 +112,13 @@ def csq_max_list(ann_list):
     return min([csq_order_dict[ann] for ann in ann_list])
 
 
+def order_variant_by_csq(annotation_list):
+    # new_order = [csq_order_dict[ann] for ann in annotation_list]
+    # TODO: get order
+    return annotation_list
+    #return [annotation_list[x] for x in new_order]
+
+
 def get_minimal_representation(pos, ref, alt): 
     """
     Get the minimal representation of a variant, based on the ref + alt alleles in a VCF

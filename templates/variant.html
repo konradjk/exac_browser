@@ -95,72 +95,43 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <h3>Annotations</h3>
-                {% if variant.vep_annotations %}
-                    <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
-                    <ul>
-                    {% for gene in variant.genes %}
-                            <li>
-                                <a href="/gene/{{ gene }}">{{ gene }}</a>
-                            </li>
-                    {% endfor %}
-                    </ul>
-                    <div class="panel-group" id="annotation_accordion">
-                        {% for annotation in variant.vep_annotations %}
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <h4 class="panel-title">
-                                        <a data-toggle="collapse" data-parent="#annotation_accordion" href="#{{ annotation.Feature }}_{{ annotation.Allele }}">
-                                            {{ annotation.Feature }}
-                                            {% if annotation.SYMBOL %}
-                                                ({{ annotation.SYMBOL }})
+                <div id="annotation_container">
+                    <h3>Annotations</h3>
+                    {% if variant.vep_annotations %}
+                        <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
+                        <div class="panel-group" id="annotation_accordion">
+                            {% for consequence in consequences %}
+                                <h4>{{ consequence }}</h4>
+                                <ul>
+                                    {% for gene in consequences[consequence] %}
+                                        <li>
+                                             <a href="/gene/{{ gene }}">{{ gene }}</a>
+                                            {% if consequences[consequence][gene][0].SYMBOL %}
+                                                ({{ consequences[consequence][gene][0].SYMBOL }})
                                             {% endif %}
-                                        </a>
-                                    </h4>
-                                </div>
-                                {% if annotation.CANONICAL == "YES" %}
-                                    <div id="{{ annotation.Feature }}_{{ annotation.Allele }}" class="panel-collapse collapse in">
-                                {% else %}
-                                    <div id="{{ annotation.Feature }}_{{ annotation.Allele }}" class="panel-collapse collapse">
-                                {% endif %}
-                                    <div class="panel-body">
-                                        {% if annotation.LoF %}
-                                            <span class="label label-danger">{{ annotation.LoF }}</span>
-                                        {% endif %}
-                                        <dl class="dl-horizontal" style="text-transform:capitalize;">
-                                            <dt>Consequence</dt>
-                                            <dd>{{ annotation.Consequence }}</dd>
-                                        </dl>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    No annotations were found for this variant.
-                {% endif %}
+                                        </li>
+                                            <ul>
+                                                {% for annotation in consequences[consequence][gene] %}
+                                                    <li>
+                                                         <a href="/transcript/{{ annotation.Feature }}">{{ annotation.Feature }}</a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                    {% endfor %}
+                                </ul>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        No annotations were found for this variant.
+                    {% endif %}
+                </div>
+                <div id="browser_container">
+
+                </div>
             </div>
             <div class="col-md-6">
                 <div id="frequency_info_container">
                     <h3>Population Frequencies</h3>
-{#                    <span class="btn-group" data-toggle="buttons">#}
-{#                        <label class="btn btn-primary active frequency_type_buttons">#}
-{#                            <input type="radio" id="allele_frequencies_button"> Allele Frequencies#}
-{#                        </label>#}
-{#                        <label class="btn btn-primary frequency_type_buttons">#}
-{#                            <input type="radio" id="genotype_frequencies_button"> Genotype Frequencies#}
-{#                        </label>#}
-{#                    </span>#}
-{#                    <span class="btn-group" data-toggle="buttons" style="float: right;">#}
-{#                        <label class="btn btn-primary active">#}
-{#                            <input type="radio" class="frequency_display_buttons" id="frequency_map_button"> Map#}
-{#                        </label>#}
-{#                        <label class="btn btn-primary">#}
-{#                            <input type="radio" class="frequency_display_buttons" id="frequency_table_button"> Table#}
-{#                        </label>#}
-{#                    </span>#}
-{#                    <br/><br/>#}
-{#                    <div id="frequency_map_container" class="frequency_displays" style="height: 300px; width: 550px"></div>#}
                     <div id="frequency_table_container" class="frequency_displays">
                         <table id="frequency_table">
                             <thead>
@@ -188,16 +159,10 @@
                 </div>
                 <div id="quality_metrics_container">
                     <h3>Quality Metrics</h3>
-                    <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">
-                        Variants only
-                    </button>
+{#                    <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">#}
+{#                        Variants only#}
+{#                    </button>#}
                     <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
-    {#                    <label class="btn btn-primary active">#}
-    {#                        <input type="radio" class="quality_display_buttons" id="genotype_depths_button"> Depth#}
-    {#                    </label>#}
-    {#                    <label class="btn btn-primary">#}
-    {#                        <input type="radio" class="quality_display_buttons" id="genotype_qualities_button"> Genotype Quality#}
-    {#                    </label>#}
                         <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button">
                             <input type="radio"> Depth
                         </button>
@@ -209,8 +174,8 @@
                 </div>
             </div>
         </div>
-        <hr/>
-        <p>The variant object that we are displaying looks like this:</p>
-        <pre>{{ variant|pprint(True) }}</pre>
+{#        <hr/>#}
+{#        <p>The variant object that we are displaying looks like this:</p>#}
+{#        <pre>{{ variant|pprint(True) }}</pre>#}
     </div>
 {% endblock %}
