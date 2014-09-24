@@ -194,7 +194,7 @@ function gene_chart(data, exon_data, variant_data) {
     var variant_size_scale = d3.scale.log()
         .domain([d3.min(variant_data, function(d) { return d.allele_freq; }), d3.max(variant_data, function(d) { return d.allele_freq; })])
         //Circle/Ellipse
-        .range([lower_gene_chart_height/3, 2]);
+        .range([2, lower_gene_chart_height/3]);
         //Rectangle
 //        .range([lower_gene_chart_height, 2]);
 
@@ -284,7 +284,7 @@ function change_gene_chart_variant_size(variant_data, change_to) {
     var svg_outer = d3.select('#gene_plot_container').select('#track');
 
     var variant_size_scale;
-    if (change_to == 'inverse_af') {
+    if (change_to) {
         variant_size_scale = d3.scale.log()
             .domain([d3.min(variant_data, function (d) {
                 return d.allele_freq;
