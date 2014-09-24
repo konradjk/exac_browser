@@ -5,6 +5,8 @@ import re
 import copy
 import xbrowse
 
+POPS = ['AFR', 'AMR', 'EAS', 'FIN', 'NFE', 'SAS']
+
 
 def get_base_coverage_from_file(base_coverage_file):
     """
@@ -57,13 +59,14 @@ def get_variants_from_sites_vcf(sites_vcf):
         info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
         consequence_array = info_field['CSQ'].split(',') if 'CSQ' in info_field else []
         annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
+        coding_annotations = [ann for ann in annotations if ann['Feature'].startswith('ENST')]
 
         alt_alleles = fields[4].split(',')
 
         # different variant for each alt allele
         for i, alt_allele in enumerate(alt_alleles):
 
-            vep_annotations = [ann for ann in annotations if int(ann['ALLELE_NUM']) == i + 1 and ann['Feature'].startswith('ENST')]
+            vep_annotations = [ann for ann in coding_annotations if int(ann['ALLELE_NUM']) == i + 1]
 
             # Variant is just a dict
             # Make a copy of the info_field dict - so all the original data remains
@@ -84,6 +87,12 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['vep_annotations'] = vep_annotations
             variant['allele_count'] = int(info_field['AC'].split(',')[i])
             variant['allele_freq'] = float(info_field['AF'].split(',')[i])
+            # variant['pop_acs'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AC_')])
+            # variant['pop_ans'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AN_')])
+            # variant['pop_homs'] = dict([(x, info_field[x]) for x in info_field if x.startswith('Hom_')])
+            variant['pop_acs'] = dict([(x, int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
+            variant['pop_ans'] = dict([(x, int(info_field['AN_%s' % x])) for x in POPS])
+            variant['pop_homs'] = dict([(x, int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
             variant['num_alleles'] = int(info_field['AN'])
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
@@ -115,10 +124,8 @@ def get_genotype_data_from_full_vcf(full_vcf):
                 'ref': fields[3],
                 'alt': alt_allele,
                 'genotype_info': {
-                    'something': 0.4,
-                    'genotype_qualities': [int(x['GQ']) if 'GQ' in x else None for x in format_data],
-                    # I don't love this: I thought DP had to be int (even if 0), but apparently we have '.'
-                    'genotype_depths': [int(x['DP']) if 'DP' in x and x['DP'].isdigit() else 0 for x in format_data],
+                    'genotype_qualities': zip(range(180, 200), range(20)),
+                    'genotype_depths': zip(range(20), range(180, 200)[::-1]),
                     'genotypes': [re.split("/|\|", x['GT']) if 'GT' in x else ['.', '.'] for x in format_data],
                 }
             }

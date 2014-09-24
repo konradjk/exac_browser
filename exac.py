@@ -18,7 +18,7 @@ from flask import Response
 
 app = Flask(__name__)
 
-EXAC_FILES_DIRECTORY = '../exac_test_data/'
+EXAC_FILES_DIRECTORY = '../exac_test_data_22_2/'
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',

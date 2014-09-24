@@ -27,12 +27,6 @@
     </style>
     <script>
         $(document).ready(function() {
-            if (typeof google !== 'undefined') {
-                var map = map_initialize();
-                $('.frequency_type_buttons').click(function () {
-                    redraw_map(map);
-                });
-            }
             $('.frequency_display_buttons').change(function() {
                 $('.frequency_displays').hide();
                 var v = $(this).attr('id').replace('_button', '');
@@ -45,17 +39,17 @@
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
                     var f = $('#quality_variant_sites_only_button').hasClass('active');
-                    change_histogram(window.variant.genotype_info, v, f);
+                    draw_histogram_d3(window.variant.genotype_info[v]);
                 });
                 $('#quality_variant_sites_only_button').click(function() {
                     var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
                     // TODO: Fix to do this properly
                     var f = !$(this).hasClass('active');
-                    change_histogram(window.variant.genotype_info, v, f);
+                    draw_histogram_d3(window.variant.genotype_info[v]);
                 });
             } else {
                 $('#quality_metrics_container').hide();
-                $('#frequency_info_container').hide();
+{#                $('#frequency_info_container').hide();#}
             }
         });
     </script>
@@ -149,26 +143,25 @@
             <div class="col-md-6">
                 <div id="frequency_info_container">
                     <h3>Population Frequencies</h3>
-                    <span class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-primary active frequency_type_buttons">
-                            <input type="radio" id="allele_frequencies_button"> Allele Frequencies
-                        </label>
-                        <label class="btn btn-primary frequency_type_buttons">
-                            <input type="radio" id="genotype_frequencies_button"> Genotype Frequencies
-                        </label>
-                    </span>
-                    <span class="btn-group" data-toggle="buttons" style="float: right;">
-                        <label class="btn btn-primary active">
-                            <input type="radio" class="frequency_display_buttons" id="frequency_map_button"> Map
-                        </label>
-                        <label class="btn btn-primary">
-                            <input type="radio" class="frequency_display_buttons" id="frequency_table_button"> Table
-                        </label>
-                    </span>
-                    <br/><br/>
-                    <div id="frequency_map_container" class="frequency_displays" style="height: 300px; width: 550px">
-                    </div>
-                    <div id="frequency_table_container" class="frequency_displays" style="display: none;">
+{#                    <span class="btn-group" data-toggle="buttons">#}
+{#                        <label class="btn btn-primary active frequency_type_buttons">#}
+{#                            <input type="radio" id="allele_frequencies_button"> Allele Frequencies#}
+{#                        </label>#}
+{#                        <label class="btn btn-primary frequency_type_buttons">#}
+{#                            <input type="radio" id="genotype_frequencies_button"> Genotype Frequencies#}
+{#                        </label>#}
+{#                    </span>#}
+{#                    <span class="btn-group" data-toggle="buttons" style="float: right;">#}
+{#                        <label class="btn btn-primary active">#}
+{#                            <input type="radio" class="frequency_display_buttons" id="frequency_map_button"> Map#}
+{#                        </label>#}
+{#                        <label class="btn btn-primary">#}
+{#                            <input type="radio" class="frequency_display_buttons" id="frequency_table_button"> Table#}
+{#                        </label>#}
+{#                    </span>#}
+{#                    <br/><br/>#}
+{#                    <div id="frequency_map_container" class="frequency_displays" style="height: 300px; width: 550px"></div>#}
+                    <div id="frequency_table_container" class="frequency_displays">
                         <table id="frequency_table">
                             <thead>
                                 <tr>
@@ -178,16 +171,17 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>European</td>
-                                    <td>6</td>
-                                    <td>0.75</td>
-                                </tr>
-                                <tr>
-                                    <td>African</td>
-                                    <td>2</td>
-                                    <td>0.25</td>
-                                </tr>
+                                {% for pop in variant.pop_acs %}
+                                    <tr>
+                                        <td>{{ pop }}</td>
+                                        <td>{{ variant.pop_acs[pop] }}</td>
+                                        {% if variant.pop_ans[pop] > 0 %}
+                                            <td>{{ variant.pop_acs[pop]/variant.pop_ans[pop] }}</td>
+                                        {% else %}
+                                            <td>NA</td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
