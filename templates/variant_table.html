@@ -31,7 +31,18 @@
                 <td>
                     {% if variant.rsid == '.' %}
                         <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                            {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+                            {{ variant.chrom }}:{{ variant.pos }}
+                            {% if variant.ref|length > 20 %}
+                                {{ variant.ref[1:20] }}...
+                            {% else %}
+                                {{ variant.ref }}
+                            {% endif %} /
+                            {% if variant.alt|length > 20 %}
+                                {{ variant.alt[1:20] }}...
+                            {% else %}
+                                {{ variant.alt }}
+                            {% endif %}
+
                         </a>
                     {% else %}
                         <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">

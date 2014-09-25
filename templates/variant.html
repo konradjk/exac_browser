@@ -4,6 +4,31 @@
     <script type="text/javascript">
         window.variant = {{ variant|tojson|safe }};
         window.base_coverage = {{ base_coverage|tojson|safe }};
+        window.any_covered = {{ any_covered|tojson|safe }};
+
+        $(document).ready(function() {
+{#            if (!window.variant) {#}
+                draw_region_coverage(window.base_coverage, 'mean', window.variant.ref);
+                $('.coverage_metric_buttons').change(function () {
+                    var v = $(this).attr('id').replace('_covmet_button', '');
+                    $('.coverage_subcat_selectors').hide();
+                    if (v == 'covered') {
+                        $('#over_x_select_container').show();
+                        v = $('#over_x_select').val();
+                    } else {
+                        $('#average_select_container').show();
+                        v = $("#average_select").val();
+                    }
+                    draw_region_coverage(window.base_coverage, v, window.variant.ref);
+                });
+                $('#over_x_select').change(function () {
+                    draw_region_coverage(window.base_coverage, $(this).val(), window.variant.ref);
+                });
+                $('#average_select').change(function () {
+                    draw_region_coverage(window.base_coverage, $(this).val(), window.variant.ref);
+                });
+{#            }#}
+        });
     </script>
     <style>
     .d3_graph {
@@ -71,32 +96,34 @@
             <hr/>
         {% endif %}
 
-        <div class="row">
-            <div class="col-md-6">
-                <dl class="dl-horizontal">
-                    {% if variant.rsid != "." %}
-                        <dt>Known variant</dt>
-                        <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
-                    {% endif %}
-                    <dt>Allele Frequency</dt>
-                    <dd>{{ variant.allele_freq }}</dd>
-                    <dt>Allele Count</dt>
-                    <dd>{{ variant.allele_count }} / {{ variant.num_alleles }}</dd>
-                </dl>
+        {% if variant.allele_freq %}
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="dl-horizontal">
+                        {% if variant.rsid and variant.rsid != "." %}
+                            <dt>Known variant</dt>
+                            <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
+                        {% endif %}
+                        <dt>Allele Frequency</dt>
+                        <dd>{{ variant.allele_freq }}</dd>
+                        <dt>Allele Count</dt>
+                        <dd>{{ variant.allele_count }} / {{ variant.num_alleles }}</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="dl-horizontal">
+                        <dt>Site Quality</dt>
+                        <dd>{{ variant.site_quality }}</dd>
+                        <dt>Filter Status</dt>
+                        <dd>{{ variant.filter }}</dd>
+                    </dl>
+                </div>
             </div>
-            <div class="col-md-6">
-                <dl class="dl-horizontal">
-                    <dt>Site Quality</dt>
-                    <dd>{{ variant.site_quality }}</dd>
-                    <dt>Filter Status</dt>
-                    <dd>{{ variant.filter }}</dd>
-                </dl>
-            </div>
-        </div>
+        {% endif %}
         <div class="row">
             <div class="col-md-6">
                 <div id="annotation_container">
-                    <h3>Annotations</h3>
+                    <div class="section_header">Annotations</div>
                     {% if variant.vep_annotations %}
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                         <div class="panel-group" id="annotation_accordion">
@@ -130,48 +157,64 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div id="frequency_info_container">
-                    <h3>Population Frequencies</h3>
-                    <div id="frequency_table_container" class="frequency_displays">
-                        <table id="frequency_table">
-                            <thead>
-                                <tr>
-                                    <th>Population</th>
-                                    <th>Allele Count</th>
-                                    <th>Allele Frequency</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for pop in variant.pop_acs %}
+                {% if variant.pop_acs %}
+                    <div id="frequency_info_container">
+                        <h3>Population Frequencies</h3>
+                        <div id="frequency_table_container" class="frequency_displays">
+                            <table id="frequency_table">
+                                <thead>
                                     <tr>
-                                        <td>{{ pop }}</td>
-                                        <td>{{ variant.pop_acs[pop] }}</td>
-                                        {% if variant.pop_ans[pop] > 0 %}
-                                            <td>{{ variant.pop_acs[pop]/variant.pop_ans[pop] }}</td>
-                                        {% else %}
-                                            <td>NA</td>
-                                        {% endif %}
+                                        <th>Population</th>
+                                        <th>Allele Count</th>
+                                        <th>Number of Homozygotes</th>
+                                        <th>Allele Frequency</th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for pop in variant.pop_acs %}
+                                        <tr>
+                                            <td>{{ pop }}</td>
+                                            <td>{{ variant.pop_acs[pop] }}</td>
+                                            <td>{{ variant.pop_homs[pop] }}</td>
+                                            {% if variant.pop_ans[pop] > 0 %}
+                                                <td>{{ variant.pop_acs[pop]/variant.pop_ans[pop] }}</td>
+                                            {% else %}
+                                                <td>NA</td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                <div id="quality_metrics_container">
-                    <h3>Quality Metrics</h3>
-{#                    <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">#}
-{#                        Variants only#}
-{#                    </button>#}
-                    <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
-                        <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button">
-                            <input type="radio"> Depth
-                        </button>
-                        <button class="btn btn-primary quality_display_buttons" id="genotype_qualities_button">
-                            <input type="radio" > Genotype Quality
-                        </button>
-                    </span>
-                    <div id="quality_display_container" class="d3_graph"></div>
-                </div>
+                    <div id="quality_metrics_container">
+                        <h3>Quality Metrics</h3>
+    {#                    <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">#}
+    {#                        Variants only#}
+    {#                    </button>#}
+                        <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
+                            <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button">
+                                <input type="radio"> Depth
+                            </button>
+                            <button class="btn btn-primary quality_display_buttons" id="genotype_qualities_button">
+                                <input type="radio" > Genotype Quality
+                            </button>
+                        </span>
+                        <div id="quality_display_container" class="d3_graph"></div>
+                    </div>
+                {% else %}
+                    {% if any_covered %}
+                        <div class="row">
+                            <span class="section_header">Coverage</span>
+                            {% if base_coverage|length > 1 %}
+                                {% include 'coverage_selectors.html' %}
+                            {% endif %}
+                        </div>
+                        <div id="region_coverage"></div>
+                    {% else %}
+                        This region is not covered in the ExAC dataset.
+                    {% endif %}
+                {% endif %}
             </div>
         </div>
 {#        <hr/>#}

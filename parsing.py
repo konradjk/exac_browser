@@ -4,8 +4,17 @@ Utils for reading flat files that are loaded into database
 import re
 import copy
 import xbrowse
+from collections import OrderedDict
+from utils import get_minimal_representation
 
-POPS = ['AFR', 'AMR', 'EAS', 'FIN', 'NFE', 'SAS']
+POPS = {
+    'AFR': 'African',
+    'AMR': 'American',
+    'EAS': 'East Asian',
+    'FIN': 'European (Finnish)',
+    'NFE': 'European (Non-Finnish)',
+    'SAS': 'South Asian'
+}
 
 
 def get_base_coverage_from_file(base_coverage_file):
@@ -71,13 +80,15 @@ def get_variants_from_sites_vcf(sites_vcf):
             # Variant is just a dict
             # Make a copy of the info_field dict - so all the original data remains
             # Add some new keys that are allele-specific
+            pos, ref, alt = get_minimal_representation(int(fields[1]), fields[3], alt_allele)
+
             variant = {}
             variant['chrom'] = fields[0]
-            variant['pos'] = int(fields[1])
+            variant['pos'] = pos
             variant['rsid'] = fields[2]
             variant['xpos'] = xbrowse.get_xpos(variant['chrom'], variant['pos'])
-            variant['ref'] = fields[3]
-            variant['alt'] = alt_allele
+            variant['ref'] = ref
+            variant['alt'] = alt
             variant['xstart'] = variant['xpos']
             variant['xstop'] = variant['xpos'] + len(variant['alt']) - len(variant['ref'])
             variant['variant_id'] = '{}-{}-{}-{}'.format(variant['chrom'], str(variant['pos']), variant['ref'], variant['alt'])
@@ -90,9 +101,9 @@ def get_variants_from_sites_vcf(sites_vcf):
             # variant['pop_acs'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AC_')])
             # variant['pop_ans'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AN_')])
             # variant['pop_homs'] = dict([(x, info_field[x]) for x in info_field if x.startswith('Hom_')])
-            variant['pop_acs'] = dict([(x, int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
-            variant['pop_ans'] = dict([(x, int(info_field['AN_%s' % x])) for x in POPS])
-            variant['pop_homs'] = dict([(x, int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
+            variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
+            variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
+            variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
             variant['num_alleles'] = int(info_field['AN'])
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})

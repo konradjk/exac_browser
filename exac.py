@@ -7,7 +7,7 @@ from parsing import get_variants_from_sites_vcf, get_genotype_data_from_full_vcf
     get_base_coverage_from_file
 import lookups
 import xbrowse
-from utils import xpos_to_pos, add_transcript_coordinate_to_variants, add_consequence_to_variants, order_variant_by_csq, csq_max_vep
+from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask import Response
@@ -209,18 +209,21 @@ def variant_page(variant_str):
 
     if variant is None:
         variant = {
-            'chrom' : chrom,
-            'pos' : pos,
-            'xpos' : xpos,
-            'ref' : ref,
-            'alt' : alt
+            'chrom': chrom,
+            'pos': pos,
+            'xpos': xpos,
+            'ref': ref,
+            'alt': alt
         }
     variant = order_variant_by_csq(variant)
-    consequences = defaultdict(lambda: defaultdict(list))
-    for annotation in variant['vep_annotations']:
-        consequences[csq_max_vep(annotation['Consequence'])][annotation['Gene']].append(annotation)
-    base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos+len(alt)-len(ref))
-    return render_template('variant.html', variant=variant, base_coverage=base_coverage, consequences=consequences)
+    consequences = None
+    if 'vep_annotations' in variant:
+        consequences = defaultdict(lambda: defaultdict(list))
+        for annotation in variant['vep_annotations']:
+            consequences[csq_max_vep(annotation['Consequence'])][annotation['Gene']].append(annotation)
+    base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
+    any_covered = any([x['has_coverage'] for x in base_coverage])
+    return render_template('variant.html', variant=variant, base_coverage=base_coverage, consequences=consequences, any_covered=any_covered)
 
 
 @app.route('/gene/<gene_id>')
@@ -298,6 +301,9 @@ def region_page(region_id):
     stop = int(stop)
     genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
     variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
+    xstart = xbrowse.get_xpos(chrom, start)
+    xstop = xbrowse.get_xpos(chrom, stop)
+    coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
     return render_template(
         'region.html',
         genes_in_region=genes_in_region,
@@ -305,6 +311,7 @@ def region_page(region_id):
         chrom=chrom,
         start=start,
         stop=stop,
+        coverage=coverage_array
     )
 
 

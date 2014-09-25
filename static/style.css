@@ -45,3 +45,8 @@
 .all_variant {
     background: white;
 }
+
+.section_header {
+    font-weight: bold;
+    font-size: 24px;
+}

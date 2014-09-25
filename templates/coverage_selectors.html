@@ -1,0 +1,39 @@
+<span style="float:right;">
+    <label for="coverage_metric_group">
+        Coverage metric:
+    </label>
+    <span class="btn-group" data-toggle="buttons" id="coverage_metric_group">
+        <button class="btn btn-primary active coverage_metric_buttons" id="covered_mean_covmet_button">
+            <input type="radio">Average
+        </button>
+        <button class="btn btn-primary coverage_metric_buttons" id="covered_covmet_button">
+            <input type="radio">Individuals over X
+        </button>
+    </span>
+    <br/>
+    <div class="coverage_subcat_selectors" id="over_x_select_container" style="display: none; float:right;">
+        <label for="over_x_select">
+            Individuals over:
+        </label>
+        <select id="over_x_select">
+            <option>1</option>
+            <option>5</option>
+            <option>10</option>
+            <option>15</option>
+            <option>20</option>
+            <option>25</option>
+            <option selected>30</option>
+            <option>50</option>
+            <option>100</option>
+        </select>
+    </div>
+    <div class="coverage_subcat_selectors" id="average_select_container" style="float:right;">
+        <label for="average_select">
+            Metric:
+        </label>
+        <select id="average_select">
+            <option selected>mean</option>
+            <option>median</option>
+        </select>
+    </div>
+</span>

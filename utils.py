@@ -1,4 +1,3 @@
-import lookups
 from operator import itemgetter
 
 
@@ -27,6 +26,7 @@ def add_transcript_coordinate_to_variants(db, variant_list, transcript_id):
     Edits variant_list in place; no return val
     """
 
+    import lookups
     # make sure exons is sorted by (start, end)
     exons = sorted(lookups.get_exons_in_transcript(db, transcript_id), key=itemgetter('start', 'stop'))
 

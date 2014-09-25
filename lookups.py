@@ -1,6 +1,6 @@
 import re
 from xbrowse import get_xpos
-from utils import csq_max_vep, csq_max, xpos_to_pos
+from utils import xpos_to_pos
 
 SEARCH_LIMIT = 10000
 
@@ -177,7 +177,7 @@ def get_genes_in_region(db, chrom, start, stop):
     genes = db.genes.find({
         'xstart': {'$lte': xstop},
         'xstop': {'$gte': xstart},
-    })
+    }, fields={'_id': False})
     return list(genes)
 
 
@@ -191,7 +191,7 @@ def get_variants_in_region(db, chrom, start, stop):
     variants = db.variants.find({
         'xstart': {'$lte': xstop},  # start of variant should be before (or equal to) end of region
         'xstop': {'$gte': xstart},  # opposite of above
-    }, limit=SEARCH_LIMIT)
+    }, fields={'_id': False}, limit=SEARCH_LIMIT)
     return list(variants)
 
 

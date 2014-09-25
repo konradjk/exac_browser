@@ -1,11 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
+    <script type="text/javascript">
+        window.coverage_stats = {{ coverage|tojson|safe }};
+    </script>
     <div class="container">
         {% if rsid %}
             <h1>RSID: {{ rsid }}</h1>
         {% else %}
             <h1>Region: {{ chrom }} / {{ start }} / {{ stop }}</h1>
         {% endif %}
+        <h3>Coverage summary</h3>
+        <div class="row">
+            {% include 'transcript_display.html' %}
+        </div>
         {% if genes_in_region %}
             <ul>
                 {% for gene in genes_in_region %}
