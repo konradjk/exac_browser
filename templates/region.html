@@ -2,6 +2,10 @@
 {% block body %}
     <script type="text/javascript">
         window.coverage_stats = {{ coverage|tojson|safe }};
+
+        $(document).ready(function() {
+            region_chart(window.coverage_stats, null);
+        });
     </script>
     <div class="container">
         {% if rsid %}
@@ -11,7 +15,7 @@
         {% endif %}
         <h3>Coverage summary</h3>
         <div class="row">
-            {% include 'transcript_display.html' %}
+            {% include 'region_display.html' %}
         </div>
         {% if genes_in_region %}
             <ul>
