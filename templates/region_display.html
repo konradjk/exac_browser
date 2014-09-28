@@ -71,7 +71,7 @@ function region_chart(data, variant_data) {
         .attr("class", "y axis")
         .call(yAxis);
 
-    var svg_outer = d3.select('#gene_plot_container').append("svg")
+    var svg_outer = d3.select('#region_plot_container').append("svg")
         .attr("width", gene_chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
         .attr("height", lower_gene_chart_height)
         .append("g")
@@ -115,7 +115,15 @@ function region_chart(data, variant_data) {
         //Ellipse
         .append("ellipse")
         .attr("class", "track_variant")
-        .style("fill", "darkred")
+        .style("fill", function(d) {
+            if (d.category == 'stop_gained' || d.category == 'frameshift_variant' || d.category == 'splice_donor_variant' || d.category == 'splice_acceptor_variant') {
+                return "darkred";
+            } else if (d.category == 'missense_variant') {
+                return "yellow";
+            } else {
+                return "green";
+            }
+        })
         .style("opacity", 0.5)
         .attr("cx", function(d, i) { x(d.pos - data[0].pos) })
         .attr("cy", lower_gene_chart_height/2)

@@ -2,9 +2,11 @@
 {% block body %}
     <script type="text/javascript">
         window.coverage_stats = {{ coverage|tojson|safe }};
+        window.genes = {{ genes_in_region|tojson|safe }};
+        window.variants = {{ variants_in_region|tojson|safe }};
 
         $(document).ready(function() {
-            region_chart(window.coverage_stats, null);
+            region_chart(window.coverage_stats, window.variants);
         });
     </script>
     <div class="container">

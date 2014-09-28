@@ -30,7 +30,7 @@ def add_transcript_coordinate_to_variants(db, variant_list, transcript_id):
     # make sure exons is sorted by (start, end)
     exons = sorted(lookups.get_exons_in_transcript(db, transcript_id), key=itemgetter('start', 'stop'))
 
-    # offset from start of base for exon in ith position (so first item in htis list is always 0)
+    # offset from start of base for exon in ith position (so first item in this list is always 0)
     exon_offsets = [0 for i in range(len(exons))]
     for i, exon in enumerate(exons):
         for j in range(i+1, len(exons)):
@@ -55,6 +55,7 @@ def add_consequence_to_variants(variant_list):
         if csq_order_dict[variant['major_consequence']] <= csq_order_dict["initiator_codon_variant"]:
             variant['category'] = 'lof_variant'
         elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
+            # Should be noted that this grabs inframe deletion, etc.
             variant['category'] = 'missense_variant'
         else:
             variant['category'] = 'other_variant'

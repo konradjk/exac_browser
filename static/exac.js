@@ -238,3 +238,14 @@ function update_variants() {
     var f = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
     $('[category=' + v + ']' + f).show();
 }
+
+
+function get_color(variant) {
+    if (variant.category == 'lof_variant') {
+        return "darkred";
+    } else if (variant.category == 'missense_variant') {
+        return "yellow";
+    } else {
+        return "green";
+    }
+}

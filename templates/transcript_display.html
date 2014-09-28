@@ -152,7 +152,9 @@ function gene_chart(data, exon_data, variant_data) {
         //Ellipse
         .append("ellipse")
         .attr("class", "track_variant")
-        .style("fill", "darkred")
+        .style("fill", function(d) {
+            return get_color(d);
+        })
         .style("opacity", 0.5)
         .attr("cx", function(d, i) {
             var tx_coord = d.transcript_coordinates[transcript];
