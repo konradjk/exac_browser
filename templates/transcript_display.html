@@ -131,6 +131,9 @@ function gene_chart(data, exon_data, variant_data) {
         //Rectangle
 //        .range([lower_gene_chart_height, 2]);
 
+    var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { return d.category; });
+    svg.call(tip);
+
     svg_outer.selectAll("bar")
         .data(variant_data)
         .enter()
@@ -144,8 +147,17 @@ function gene_chart(data, exon_data, variant_data) {
         .attr('category', function(d) {
             return d.category;
         })
-        .attr("title", function(d) {
-            return d.vep_annotations[0]['Consequence'];
+{#        .attr("title", function(d) {#}
+{#            return d.vep_annotations[0]['Consequence'];#}
+{#        })#}
+        .on('mouseover', function(d) {
+            $('#variant_' + d.variant_id).find('td').addClass('table_hover');
+            console.log(d.variant_id);
+            tip.show(d);
+        })
+        .on('mouseout', function(d) {
+            $('#variant_' + d.variant_id).find('td').removeClass('table_hover');
+            tip.hide(d);
         })
         //Circle
 //        .append("circle")

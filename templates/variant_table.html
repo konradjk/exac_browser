@@ -27,7 +27,7 @@
         </thead>
         <tbody>
         {% for variant in table_variants %}
-            <tr class="table_variant" category="{{ variant.category }}" filter_status="{{ variant.filter }}">
+            <tr class="table_variant" id="variant_{{ variant.variant_id }}" category="{{ variant.category }}" filter_status="{{ variant.filter }}">
                 <td>
                     {% if variant.rsid == '.' %}
                         <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">

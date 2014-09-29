@@ -7,7 +7,7 @@
         window.coverage_stats = {{ coverage_stats|tojson|safe }};
         window.lof_variants = {{ lof_variants|tojson|safe }};
         window.exons = {{ exons|tojson|safe }};
-
+        window.gene = {{ gene|tojson|safe }};
 
         $(document).ready(function() {
             if (window.coverage_stats != null) {
@@ -19,9 +19,9 @@
         });
     </script>
     <div class="container">
-        <h1>Transcript: {{ transcript.transcript_id }}</h1>
+        <h1>{{ gene.gene_name }}</h1>
+        <h3>Transcript: {{ transcript.transcript_id }} ({{ exons|length }} exons)</h3>
         <div class="row">
-            <h3>Transcript summary</h3>
             <div class="row">
                 {% include 'transcript_display.html' %}
             </div>

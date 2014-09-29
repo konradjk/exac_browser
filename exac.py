@@ -15,7 +15,8 @@ from collections import defaultdict
 
 app = Flask(__name__)
 
-EXAC_FILES_DIRECTORY = '../exac_test_data_19_45000000-45800000/'
+#EXAC_FILES_DIRECTORY = '../exac_test_data_19_45000000-45800000/'
+EXAC_FILES_DIRECTORY = '../exac_test_data_22_2/'
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',
@@ -30,7 +31,6 @@ app.config.update(dict(
     BASE_COVERAGE_FILES=[
         os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
     ],
-
 ))
 
 
@@ -267,6 +267,7 @@ def gene_page(gene_id):
 def transcript_page(transcript_id):
     db = get_db()
     transcript = lookups.get_transcript(db, transcript_id)
+    gene = lookups.get_gene(db, transcript['gene_id'])
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
     exons = lookups.get_exons_in_transcript(db, transcript_id)
     genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
@@ -290,6 +291,7 @@ def transcript_page(transcript_id):
         composite_lof_frequency=composite_lof_frequency,
         coverage_stats=coverage_stats,
         exons=exons,
+        gene=gene
     )
 
 
