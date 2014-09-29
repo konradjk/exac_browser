@@ -5,7 +5,10 @@
 
         $("#variants_loading").hide();
         $("#variants_table_container").show();
-        $("#variant_table").tablesorter({widthFixed: true});
+        $("#variant_table").tablesorter({
+            widthFixed: true,
+            sortList: [[1,0]]
+        });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
 {#        if (window.table_variants.length <= 10) {#}
             $('#pager').hide();
@@ -52,7 +55,7 @@
                 </td>
                 <td> {{ variant.pos }}</td>
                 <td> {{ variant.filter }} </td>
-                <td> {{ variant.major_consequence }} </td>
+                <td class="{{ variant.category }}"><b> {{ variant.major_consequence }} </b> </td>
                 <td> {{ variant.allele_count }} </td>
                 <td> {{ variant.allele_freq }} </td>
             </tr>

@@ -152,7 +152,6 @@ function gene_chart(data, exon_data, variant_data) {
 {#        })#}
         .on('mouseover', function(d) {
             $('#variant_' + d.variant_id).find('td').addClass('table_hover');
-            console.log(d.variant_id);
             tip.show(d);
         })
         .on('mouseout', function(d) {
@@ -182,8 +181,8 @@ function gene_chart(data, exon_data, variant_data) {
                     } else {
                         variant_exon_number = variant_exon_info[0] - 1;
                     }
-                    console.log(d);
-                    console.log(tx_coord, " ", variant_exon_number);
+{#                    console.log(d);#}
+{#                    console.log(tx_coord, " ", variant_exon_number);#}
                     return exon_x_scale(tx_coord + variant_exon_number*padding);
                 } else {
                     //TODO: Implement correct intron drawing

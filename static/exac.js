@@ -234,9 +234,15 @@ function draw_region_coverage(raw_data, metric, ref) {
 
 function update_variants() {
     $('[category]').hide();
-    var v = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_button', '');
+    var v = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_variant_button', '');
     var f = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
-    $('[category=' + v + ']' + f).show();
+    $('[category=lof_variant]' + f).show();
+    if (v == 'missense') {
+        $('[category=missense_variant]' + f).show();
+    } else if (v == 'other') {
+        $('[category=missense_variant]' + f).show();
+        $('[category=other_variant]' + f).show();
+    }
 }
 
 

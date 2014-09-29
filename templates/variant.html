@@ -57,7 +57,9 @@
                 var v = $(this).attr('id').replace('_button', '');
                 $('#' + v + '_container').show();
             });
-            $('#frequency_table').tablesorter();
+            $('#frequency_table').tablesorter({
+                sortList: [[1,1], [0,0]]
+            });
 
             if (window.variant != null && 'genotype_info' in window.variant && 'genotype_depths' in window.variant.genotype_info) {
                 draw_histogram_d3(window.variant.genotype_info.genotype_depths);
