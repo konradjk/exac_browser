@@ -4,10 +4,12 @@ quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
 
 
 function draw_histogram_d3(data) {
+    console.log(data);
     var x = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[0]; }), d3.max(data, function(d) { return d[0]; })])
         .range([0, quality_chart_width]);
 
+    var bar_width = 2*x(data[1][0] - data[0][0]);
     var y = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[1]; }), d3.max(data, function(d) { return d[1]; })])
         .range([quality_chart_height, 0]);
@@ -36,7 +38,7 @@ function draw_histogram_d3(data) {
 
         bar.append("rect")
             .attr("x", function(d) { return x(d[0]); })
-            .attr("width", 20)
+            .attr("width", bar_width)
             .attr("height", function(d) { return quality_chart_height - y(d[1]); })
             .attr("y", function(d) { return y(d[1]); });
 
@@ -64,7 +66,7 @@ function draw_histogram_d3(data) {
             .transition()
             .duration(500)
             .attr("x", function(d) { return x(d[0]); })
-            .attr("width", 20)
+            .attr("width", bar_width)
             .attr("height", function(d) { return quality_chart_height - y(d[1]); })
             .attr("y", function(d) { return y(d[1]); });
     }

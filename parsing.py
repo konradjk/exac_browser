@@ -135,9 +135,8 @@ def get_genotype_data_from_full_vcf(full_vcf):
                 'ref': fields[3],
                 'alt': alt_allele,
                 'genotype_info': {
-                    'genotype_qualities': zip(range(180, 200), range(20)),
-                    'genotype_depths': zip(range(20), range(180, 200)[::-1]),
-                    'genotypes': [re.split("/|\|", x['GT']) if 'GT' in x else ['.', '.'] for x in format_data],
+                    'genotype_depths': zip(map(float, info_field['DP_MID'].split('|')), map(int, info_field['DP_HIST'].split('|'))),
+                    'genotype_qualities': zip(map(float, info_field['GQ_MID'].split('|')), map(int, info_field['GQ_HIST'].split('|'))),
                 }
             }
             yield genotype_info_container
