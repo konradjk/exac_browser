@@ -6,7 +6,9 @@
         window.variants = {{ variants_in_region|tojson|safe }};
 
         $(document).ready(function() {
-            region_chart(window.coverage_stats, window.variants);
+            if (window.coverage_stats != null) {
+                region_chart(window.coverage_stats, window.variants);
+            }
         });
     </script>
     <div class="container">
@@ -15,11 +17,11 @@
         {% else %}
             <h1>Region: {{ chrom }} / {{ start }} / {{ stop }}</h1>
         {% endif %}
-        <h3>Coverage summary</h3>
-        <div class="row">
-            {% include 'region_display.html' %}
-        </div>
         {% if genes_in_region %}
+            <h3>Coverage summary</h3>
+            <div class="row">
+                {% include 'region_display.html' %}
+            </div>
             <ul>
                 {% for gene in genes_in_region %}
                     <li><a href="/gene/{{ gene.gene_id }}">{{ gene.gene_id }}</a></li>

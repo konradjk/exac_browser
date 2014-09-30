@@ -109,7 +109,7 @@
                         <dt>Allele Frequency</dt>
                         <dd>{{ variant.allele_freq }}</dd>
                         <dt>Allele Count</dt>
-                        <dd>{{ variant.allele_count }} / {{ variant.num_alleles }}</dd>
+                        <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
                     </dl>
                 </div>
                 <div class="col-md-6">
@@ -186,6 +186,14 @@
                                         </tr>
                                     {% endfor %}
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td><b>Total</b></td>
+                                        <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
+                                        <td><b>{{ variant.pop_homs.values()|sum }}</b></td>
+                                        <td><b>{{ variant.allele_freq }}</b></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>

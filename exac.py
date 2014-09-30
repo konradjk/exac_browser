@@ -32,6 +32,9 @@ app.config.update(dict(
     ],
 ))
 
+import math
+app.jinja_env.globals.update(log=math.log)
+
 
 def connect_db():
     """
@@ -320,10 +323,13 @@ def region_page(region_id):
 def dbsnp_page(rsid):
     db = get_db()
     variant = lookups.get_variants_by_rsid(db, rsid)
+    print variant
     return render_template(
         'region.html',
         rsid=rsid,
         variants_in_region=variant,
+        coverage=None,
+        genes_in_region=None
     )
 
 @app.route('/howtouse')

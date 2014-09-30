@@ -4,7 +4,6 @@ quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
 
 
 function draw_histogram_d3(data) {
-    console.log(data);
     var x = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[0]; }), d3.max(data, function(d) { return d[0]; })])
         .range([0, quality_chart_width]);

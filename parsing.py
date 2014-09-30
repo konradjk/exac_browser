@@ -96,15 +96,23 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['site_quality'] = float(fields[5])
             variant['filter'] = fields[6]
             variant['vep_annotations'] = vep_annotations
-            variant['allele_count'] = int(info_field['AC'].split(',')[i])
-            variant['allele_freq'] = float(info_field['AF'].split(',')[i])
-            # variant['pop_acs'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AC_')])
-            # variant['pop_ans'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AN_')])
-            # variant['pop_homs'] = dict([(x, info_field[x]) for x in info_field if x.startswith('Hom_')])
+
+            variant['allele_count'] = int(info_field['AC_Adj'].split(',')[i])
+            variant['allele_num'] = int(info_field['AN_Adj'])
+
+            if variant['allele_num'] > 0:
+                variant['allele_freq'] = float(info_field['AC_Adj'].split(',')[i])/float(info_field['AN_Adj'])
+            else:
+                variant['allele_freq'] = None
+
             variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
             variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
             variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
-            variant['num_alleles'] = int(info_field['AN'])
+
+            variant['pop_acs']['Other'] = int(info_field['AC_Adj'].split(',')[i]) - sum(variant['pop_acs'].values())
+            variant['pop_ans']['Other'] = int(info_field['AN_Adj']) - sum(variant['pop_ans'].values())
+            variant['pop_homs']['Other'] = int(info_field['AC_Hom']) - sum(variant['pop_homs'].values())
+
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
 

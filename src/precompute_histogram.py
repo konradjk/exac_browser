@@ -83,6 +83,7 @@ def get_histogram_for_variant(vcf_line, metric="DP", num_bins=40, midpoints=True
         for sample in fields[9:]:
             # This is only DP/GQ for now
             sample_info = sample.split(':')
+            if sample_info[0] == './.': continue
             if idx < len(sample_info) and sample_info[idx] != '.':
                 distr.append(sample_info[idx])
 
