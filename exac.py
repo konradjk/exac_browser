@@ -15,8 +15,8 @@ from collections import defaultdict
 
 app = Flask(__name__)
 
-EXAC_FILES_DIRECTORY = '../exac_test_data_1_1-1000000/'
-#EXAC_FILES_DIRECTORY = '../exac_test_data/'
+EXAC_FILES_DIRECTORY = '../exac_test_data/'
+REGION_LIMIT = 1E6
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',
@@ -32,10 +32,6 @@ app.config.update(dict(
         os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
     ],
 ))
-
-import math
-app.jinja_env.globals.update(log=math.log)
-
 
 def connect_db():
     """
@@ -238,7 +234,7 @@ def gene_page(gene_id):
 
     # Get csome anonical transcript and corresponding info
     #transcript_id = get_canonical_transcript()
-    transcript_id = 'ENST00000296029' # Guaranteed to be canonical transcript
+    transcript_id = 'ENST00000598827' # Guaranteed to be canonical transcript
     transcript = lookups.get_transcript(db, transcript_id)
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
     exons = lookups.get_exons_in_transcript(db, transcript_id)
@@ -304,6 +300,16 @@ def region_page(region_id):
     chrom, start, stop = region_id.split('-')
     start = int(start)
     stop = int(stop)
+    if stop - start > REGION_LIMIT:
+        return render_template(
+            'region.html',
+            genes_in_region=None,
+            variants_in_region=None,
+            chrom=chrom,
+            start=start,
+            stop=stop,
+            coverage=None
+        )
     genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
     variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
     xstart = xbrowse.get_xpos(chrom, start)

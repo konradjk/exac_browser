@@ -108,8 +108,10 @@ def get_awesomebar_suggestions(db, query):
 
 
 # 1:1-1000
-R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
-R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
+R1 = re.compile(r'^(\d+|X|Y|M|MT)\s+:\s+(\d+)-(\d+)$')
+R2 = re.compile(r'^(\d+|X|Y|M|MT)\s+:\s+(\d+)$')
+# R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
+# R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
 
 def get_awesomebar_result(db, query):
     """
@@ -133,6 +135,7 @@ def get_awesomebar_result(db, query):
     This could be important for performance later
 
     """
+    query = query.strip()
     print query
 
     # Gene
@@ -161,10 +164,10 @@ def get_awesomebar_result(db, query):
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
     # Region
-    m = R1.match(query)
+    m = R1.match(query.lstrip('chr'))
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(3))
-    m = R2.match(query)
+    m = R2.match(query.lstrip('chr'))
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(2))
     print "Didn't find anything"

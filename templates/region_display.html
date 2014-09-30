@@ -46,7 +46,7 @@ function region_chart(data, variant_data) {
         .attr("x", function(d, i) {
             return x(i);
         })
-        .attr("width", 1)
+        .attr("width", gene_chart_width/data.length - 1)
         .attr("y", function(d) {
             if (d['has_coverage']) {
                 return y(d[metric]);
@@ -84,15 +84,28 @@ function region_chart(data, variant_data) {
         .attr("y2", lower_gene_chart_height/2)
         .attr("x1", 0)
         .attr("x2", x(data.length))
-        .attr("stroke-width", 10)
+        .attr("stroke-width", 1)
         .attr("stroke", exon_color);
 
+    var start = d3.min(variant_data, function(d) { return d.pos; });
+    var bounds = get_af_bounds(variant_data);
+    var min_af = bounds[0];
+    var max_af = bounds[1];
     var variant_size_scale = d3.scale.log()
-        .domain([d3.min(variant_data, function(d) { return d.allele_freq; }), d3.max(variant_data, function(d) { return d.allele_freq; })])
+        .domain([min_af, max_af])
         //Circle/Ellipse
         .range([2, lower_gene_chart_height/3]);
         //Rectangle
 //        .range([lower_gene_chart_height, 2]);
+
+    var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+        if (d.category) {
+            return d.category;
+        } else {
+            return 'None';
+        }
+    });
+    svg.call(tip);
 
     svg_outer.selectAll("bar")
         .data(variant_data)
@@ -107,8 +120,13 @@ function region_chart(data, variant_data) {
         .attr('category', function(d) {
             return d.category;
         })
-        .attr("title", function(d) {
-            return d.vep_annotations[0]['Consequence'];
+        .on('mouseover', function(d) {
+            $('#variant_' + d.variant_id).find('td').addClass('table_hover');
+            tip.show(d);
+        })
+        .on('mouseout', function(d) {
+            $('#variant_' + d.variant_id).find('td').removeClass('table_hover');
+            tip.hide(d);
         })
         //Circle
 //        .append("circle")
@@ -125,13 +143,20 @@ function region_chart(data, variant_data) {
             }
         })
         .style("opacity", 0.5)
-        .attr("cx", function(d, i) { x(d.pos - data[0].pos) })
+        .attr("cx", function(d) { return x(d.pos - start) })
         .attr("cy", lower_gene_chart_height/2)
         //Circle
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
         //Ellipse
         .attr("rx", 2)
-        .attr("ry", function(d, i) { return variant_size_scale(d.allele_freq); });
+        .attr("ry", function(d) {
+            if (d.allele_freq == 0) {
+                return 0;
+            } else {
+                return variant_size_scale(d.allele_freq);
+            }
+        });
+
         //Rectangle
 //        .append("rect")
 //        .attr("class", "track_variant")
