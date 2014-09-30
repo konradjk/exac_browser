@@ -3,7 +3,11 @@ quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
     quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
 
 
-function draw_histogram_d3(data) {
+function draw_quality_histogram(data) {
+    //Takes histogram data as a list of [midpoint, value] and puts into container
+    //If data already in container, transitions to new data
+    var container = '#quality_display_container';
+
     var x = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[0]; }), d3.max(data, function(d) { return d[0]; })])
         .range([0, quality_chart_width]);
@@ -21,9 +25,9 @@ function draw_histogram_d3(data) {
         .scale(y)
         .orient("left");
 
-    var svg = d3.select('#quality_display_container');
+    var svg = d3.select(container);
     if (svg.selectAll('rect').length == 0 || svg.selectAll('rect')[0].length == 0) {
-        svg = d3.select('#quality_display_container').append("svg")
+        svg = d3.select(container).append("svg")
             .attr("width", quality_chart_width + quality_chart_margin.left + quality_chart_margin.right)
             .attr("height", quality_chart_height + quality_chart_margin.top + quality_chart_margin.bottom)
             .append("g")
@@ -50,7 +54,7 @@ function draw_histogram_d3(data) {
             .attr("class", "y axis")
             .call(yAxis);
     } else {
-        svg = d3.select('#quality_display_container').select('svg').select('#inner_graph');
+        svg = d3.select(container).select('svg').select('#inner_graph');
         svg.select(".x.axis")
             .transition()
             .attr("transform", "translate(0," + quality_chart_height + ")")

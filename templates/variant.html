@@ -58,21 +58,21 @@
                 $('#' + v + '_container').show();
             });
             $('#frequency_table').tablesorter({
-                sortList: [[1,1], [0,0]]
+                sortList: [[3,1], [0,0]]
             });
 
             if (window.variant != null && 'genotype_info' in window.variant && 'genotype_depths' in window.variant.genotype_info) {
-                draw_histogram_d3(window.variant.genotype_info.genotype_depths);
+                draw_quality_histogram(window.variant.genotype_info.genotype_depths);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
                     var f = $('#quality_variant_sites_only_button').hasClass('active');
-                    draw_histogram_d3(window.variant.genotype_info[v]);
+                    draw_quality_histogram(window.variant.genotype_info[v]);
                 });
                 $('#quality_variant_sites_only_button').click(function() {
                     var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
                     // TODO: Fix to do this properly
                     var f = !$(this).hasClass('active');
-                    draw_histogram_d3(window.variant.genotype_info[v]);
+                    draw_quality_histogram(window.variant.genotype_info[v]);
                 });
             } else {
                 $('#quality_metrics_container').hide();
@@ -117,7 +117,13 @@
                     <dl class="dl-horizontal">
                         <dt>Site Quality</dt>
                         <dd>{{ variant.site_quality }}</dd>
-                        <dt>Filter Status</dt>
+                        <dt>
+                            {% if variant.filter != "PASS" %}
+                                <span class="label label-danger">Filter Status</span>
+                            {% else %}
+                                Filter Status
+                            {% endif %}
+                        </dt>
                         <dd>{{ variant.filter }}</dd>
                     </dl>
                 </div>

@@ -133,7 +133,7 @@ def get_awesomebar_result(db, query):
     """
     query = query.strip()
     print query
-    
+
     # Gene
     gene = get_gene(db, query)
     if gene:
