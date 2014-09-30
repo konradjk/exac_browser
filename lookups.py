@@ -104,8 +104,10 @@ def get_awesomebar_suggestions(db, query):
 
 
 # 1:1-1000
-R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
-R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
+R1 = re.compile(r'^(\d+|X|Y|M|MT)\s+:\s+(\d+)-(\d+)$')
+R2 = re.compile(r'^(\d+|X|Y|M|MT)\s+:\s+(\d+)$')
+# R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
+# R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
 
 def get_awesomebar_result(db, query):
     """
@@ -129,8 +131,9 @@ def get_awesomebar_result(db, query):
     This could be important for performance later
 
     """
+    query = query.strip()
     print query
-
+    
     # Gene
     gene = get_gene(db, query)
     if gene:
