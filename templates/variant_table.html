@@ -17,13 +17,17 @@
             $('#pager').hide();
 {#        }#}
         $(document).ready(function() {
+            $('[frequency="0.0"]').hide();
             var data = window.table_variants;
 
             var width = 50;
             var height = 15;
 
+            var bounds = get_af_bounds(data);
+            var min_af = bounds[0];
+            var max_af = bounds[1];
             var x = d3.scale.log()
-                .domain([d3.min(data, function(d) { return d.allele_freq; })/2, 1])
+                .domain([min_af/2, max_af])
                 .range([0, width]);
 
             var svg;
@@ -38,7 +42,13 @@
                     .style('fill', 'steelblue')
                     .attr('x', 0)
                     .attr('y', 0)
-                    .attr('width', x(d.allele_freq))
+                    .attr('width', function() {
+                        if (d.allele_freq == 0) {
+                            return 0;
+                        } else {
+                            return x(d.allele_freq);
+                        }
+                    })
                     .attr('height', height);
             });
         });
@@ -60,7 +70,8 @@
         </thead>
         <tbody>
         {% for variant in table_variants %}
-            <tr class="table_variant" id="variant_{{ variant.variant_id }}" category="{{ variant.category }}" filter_status="{{ variant.filter }}">
+            <tr class="table_variant" id="variant_{{ variant.variant_id }}"
+                category="{{ variant.category }}" filter_status="{{ variant.filter }}" frequency="{{ variant.allele_freq }}">
                 <td>
                     {% if variant.rsid == '.' %}
                         <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">

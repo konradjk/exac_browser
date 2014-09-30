@@ -80,7 +80,7 @@ def get_variants_from_sites_vcf(sites_vcf):
             # Variant is just a dict
             # Make a copy of the info_field dict - so all the original data remains
             # Add some new keys that are allele-specific
-            pos, ref, alt = get_minimal_representation(int(fields[1]), fields[3], alt_allele)
+            pos, ref, alt = get_minimal_representation(fields[1], fields[3], alt_allele)
 
             variant = {}
             variant['chrom'] = fields[0]
@@ -91,8 +91,11 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['alt'] = alt
             variant['xstart'] = variant['xpos']
             variant['xstop'] = variant['xpos'] + len(variant['alt']) - len(variant['ref'])
-            variant['variant_id'] = '{}-{}-{}-{}'.format(variant['chrom'], str(variant['pos']), variant['ref'], variant['alt'])
-            variant['orig_alt_alleles'] = alt_alleles
+            variant['variant_id'] = '{}-{}-{}-{}'.format(variant['chrom'], variant['pos'], variant['ref'], variant['alt'])
+            variant['orig_alt_alleles'] = [
+                '{}-{}-{}-{}'.format(variant['chrom'], *get_minimal_representation(fields[1], fields[3], x))
+                for x in alt_alleles
+            ]
             variant['site_quality'] = float(fields[5])
             variant['filter'] = fields[6]
             variant['vep_annotations'] = vep_annotations
@@ -101,7 +104,7 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['allele_num'] = int(info_field['AN_Adj'])
 
             if variant['allele_num'] > 0:
-                variant['allele_freq'] = float(info_field['AC_Adj'].split(',')[i])/float(info_field['AN_Adj'])
+                variant['allele_freq'] = variant['allele_count']/float(info_field['AN_Adj'])
             else:
                 variant['allele_freq'] = None
 

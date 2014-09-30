@@ -88,9 +88,9 @@
             <p><span class="label label-info">Note:</span> This variant is multiallelic! The other alt alleles are:</p>
             <ul>
                 {% for allele in variant.orig_alt_alleles %}
-                    {% if allele != variant.alt %}
+                    {% if allele != variant.variant_id %}
                         <li>
-                            <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ allele }}">{{ allele }}</a>
+                            <a href="/variant/{{ allele }}">{{ allele }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
@@ -98,6 +98,7 @@
             <hr/>
         {% endif %}
 
+{#          Upper display #}
         {% if variant.allele_freq %}
             <div class="row">
                 <div class="col-md-6">
@@ -121,7 +122,10 @@
                     </dl>
                 </div>
             </div>
+            <hr/>
         {% endif %}
+
+{#          Lower display#}
         <div class="row">
             <div class="col-md-6">
                 <div id="annotation_container">
@@ -134,10 +138,13 @@
                                 <ul>
                                     {% for gene in consequences[consequence] %}
                                         <li>
-                                             <a href="/gene/{{ gene }}">{{ gene }}</a>
+                                             <a href="/gene/{{ gene }}">
                                             {% if consequences[consequence][gene][0].SYMBOL %}
-                                                ({{ consequences[consequence][gene][0].SYMBOL }})
+                                                {{ consequences[consequence][gene][0].SYMBOL }}
+                                            {% else %}
+                                                {{ gene }}
                                             {% endif %}
+                                            </a>
                                         </li>
                                             <ul>
                                                 {% for annotation in consequences[consequence][gene] %}
@@ -155,13 +162,13 @@
                     {% endif %}
                 </div>
                 <div id="browser_container">
-
                 </div>
             </div>
+
             <div class="col-md-6">
                 {% if variant.pop_acs %}
                     <div id="frequency_info_container">
-                        <h3>Population Frequencies</h3>
+                        <div class="section_header">Population Frequencies</div>
                         <div id="frequency_table_container" class="frequency_displays">
                             <table id="frequency_table">
                                 <thead>

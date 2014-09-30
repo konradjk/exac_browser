@@ -157,10 +157,10 @@ def get_awesomebar_result(db, query):
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
     # Region
-    m = R1.match(query)
+    m = R1.match(query.lstrip('chr'))
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(3))
-    m = R2.match(query)
+    m = R2.match(query.lstrip('chr'))
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(2))
     print "Didn't find anything"

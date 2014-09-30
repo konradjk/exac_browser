@@ -72,7 +72,7 @@ function gene_chart(data, exon_data, variant_data) {
             }
             return exon_x_scale(relative_start_pos);
         })
-        .attr("width", 1)
+        .attr("width", gene_chart_width/new_data.length - 1)
         .attr("y", function(d) { return y(d[metric]); })
         .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
 
@@ -124,14 +124,23 @@ function gene_chart(data, exon_data, variant_data) {
 
 //    console.log("Variant data", variant_data);
 
+    var bounds = get_af_bounds(variant_data);
+    var min_af = bounds[0];
+    var max_af = bounds[1];
     var variant_size_scale = d3.scale.log()
-        .domain([d3.min(variant_data, function(d) { return d.allele_freq; }), d3.max(variant_data, function(d) { return d.allele_freq; })])
+        .domain([min_af, max_af])
         //Circle/Ellipse
         .range([2, lower_gene_chart_height/3]);
         //Rectangle
 //        .range([lower_gene_chart_height, 2]);
 
-    var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { return d.category; });
+    var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+        if (d.category) {
+            return d.category;
+        } else {
+            return 'None';
+        }
+    });
     svg.call(tip);
 
     svg_outer.selectAll("bar")
@@ -147,9 +156,6 @@ function gene_chart(data, exon_data, variant_data) {
         .attr('category', function(d) {
             return d.category;
         })
-{#        .attr("title", function(d) {#}
-{#            return d.vep_annotations[0]['Consequence'];#}
-{#        })#}
         .on('mouseover', function(d) {
             $('#variant_' + d.variant_id).find('td').addClass('table_hover');
             tip.show(d);
@@ -204,7 +210,13 @@ function gene_chart(data, exon_data, variant_data) {
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
         //Ellipse
         .attr("rx", 2)
-        .attr("ry", function(d, i) { return variant_size_scale(d.allele_freq); });
+        .attr("ry", function(d, i) {
+            if (d.allele_freq == 0) {
+                return 0;
+            } else {
+                return variant_size_scale(d.allele_freq);
+            }
+        });
         //Rectangle
 //        .append("rect")
 //        .attr("class", "track_variant")
@@ -230,28 +242,29 @@ function change_gene_chart_variant_size(variant_data, change_to) {
     var svg_outer = d3.select('#gene_plot_container').select('#track');
 
     var variant_size_scale;
+    var bounds = get_af_bounds(variant_data);
+    var min_af = bounds[0];
+    var max_af = bounds[1];
     if (change_to) {
         variant_size_scale = d3.scale.log()
-            .domain([d3.min(variant_data, function (d) {
-                return d.allele_freq;
-            }), d3.max(variant_data, function (d) {
-                return d.allele_freq;
-            })])
+            .domain([min_af, max_af])
             .range([lower_gene_chart_height / 3, 2]);
     } else {
         variant_size_scale = d3.scale.log()
-            .domain([d3.min(variant_data, function (d) {
-                return d.allele_freq;
-            }), d3.max(variant_data, function (d) {
-                return d.allele_freq;
-            })])
+            .domain([min_af, max_af])
             .range([2, lower_gene_chart_height / 3]);
     }
     svg_outer.selectAll("a")
         .selectAll("ellipse")
         .transition()
         .duration(500)
-        .attr("ry", function(d, i) { return variant_size_scale(d.allele_freq); });
+        .attr("ry", function(d, i) {
+            if (d.allele_freq == 0) {
+                return 0;
+            } else {
+                return variant_size_scale(d.allele_freq);
+            }
+        });
 }
 
 function change_gene_chart_metric(data, metric) {

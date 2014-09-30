@@ -235,14 +235,14 @@ function draw_region_coverage(raw_data, metric, ref) {
 
 function update_variants() {
     $('[category]').hide();
-    var v = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_variant_button', '');
-    var f = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
-    $('[category=lof_variant]' + f).show();
-    if (v == 'missense') {
-        $('[category=missense_variant]' + f).show();
-    } else if (v == 'other') {
-        $('[category=missense_variant]' + f).show();
-        $('[category=other_variant]' + f).show();
+    var category = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_variant_button', '');
+    var filter = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
+    $('[category=lof_variant]' + filter).show();
+    if (category == 'missense') {
+        $('[category=missense_variant]' + filter).show();
+    } else if (category == 'other') {
+        $('[category=missense_variant]' + filter).show();
+        $('[category=other_variant]' + filter).show();
     }
 }
 
@@ -255,4 +255,18 @@ function get_color(variant) {
     } else {
         return "green";
     }
+}
+
+function get_af_bounds(data) {
+    // Removing AC_Adj = 0 cases
+    var min_af = d3.min(data, function(d) {
+        if (d.allele_freq > 0) {
+            return d.allele_freq;
+        } else {
+            return 1;
+        }
+    });
+    // Should this be 1?
+    var max_af = d3.max(data, function(d) { return d.allele_freq; });
+    return [min_af, max_af];
 }
