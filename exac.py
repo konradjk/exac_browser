@@ -15,7 +15,8 @@ from collections import defaultdict
 
 app = Flask(__name__)
 
-EXAC_FILES_DIRECTORY = '../exac_test_data/'
+EXAC_FILES_DIRECTORY = '../exac_test_data_1_1-1000000/'
+#EXAC_FILES_DIRECTORY = '../exac_test_data/'
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',

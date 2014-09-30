@@ -4,6 +4,69 @@
 {% include 'variant_selectors.html' %}
 <script>
 
+// this should be global - should not vary across installation
+var EXON_PADDING = 20;
+
+// todo: move this somewhere else
+/*
+    The following methods are for working with "Coding Coordinates",
+    a coordinate space that we use to plot data in the coding regions of a transcript.
+
+    Conceptually: suppose you lined up all the coding regions in a transcript, with some padding on each side,
+    then plotted any variants that overlap. The position of a variant on this line is the coding position -
+    this will obviously differ from the actual genomic or cds coordinates.
+
+    Random notes:
+        - coding coordinates have no concept of a gene - they are solely a property of a transcript
+        - should probably have a map between coding coodinates and protein position
+        - Brett, will you please write some fucking tests for this...
+
+ */
+window.get_coding_coordinates = function(_transcript, position_list) {
+    var num_exons = _transcript.exons.length;
+    var exon_offsets = [];
+    // initialize with one sided padding
+    for (var i=0; i<num_exons; i++) {
+        exon_offsets.push(EXON_PADDING);
+    }
+    for (var i=0; i<num_exons; i++) {
+        for (var j=i+1; j<num_exons; j++) {
+            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'] + EXON_PADDING;
+        }
+    }
+
+    // get each position
+    // todo: optimize by sorting positions
+    var coding_positions = [];
+    for (var i=0; i<num_exons; i++) {  // todo: underscore init method?
+        coding_positions.push(-1);
+    }
+    _.each(position_list, function(position, i) {
+        _.each(transcript.exons, function(exon, j) {
+            if (position >= exon.start && position <= exon.stop) {
+                coding_positions[i] = exon_offsets[j] + position - exon.start;
+                return;
+            }
+        });
+    });
+    return coding_positions;
+};
+
+window.get_coding_coordinate = function(_transcript, position) {
+    return get_coding_coordinates(_transcript, [position])[0];
+};
+
+
+window.get_coding_coordinate_params = function(_transcript) {
+    var ret = {};
+    ret.num_exons = _transcript.exons.length;
+    ret.size = EXON_PADDING;
+    _.each(_transcript.exons, function(exon) {
+        ret.size += exon.stop - exon.start + EXON_PADDING;
+    });
+    return ret;
+};
+
 // Gene charts
 gene_chart_margin = {top: 10, right: 30, bottom: 30, left: 80},
     gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},

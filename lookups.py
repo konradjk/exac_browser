@@ -13,7 +13,11 @@ def get_gene_by_name(db, gene_name):
 
 
 def get_transcript(db, transcript_id):
-    return db.transcripts.find_one({'transcript_id': transcript_id}, fields={'_id': False})
+    transcript = db.transcripts.find_one({'transcript_id': transcript_id}, fields={'_id': False})
+    if not transcript:
+        return None
+    transcript['exons'] = get_exons_in_transcript(db, transcript_id)
+    return transcript
 
 
 def get_variant(db, xpos, ref, alt):
