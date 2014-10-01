@@ -4,72 +4,6 @@
 {% include 'variant_selectors.html' %}
 <script>
 
-// this should be global - should not vary across installation
-var EXON_PADDING = 50;
-
-// todo: move this somewhere else
-/*
-    The following methods are for working with "Coding Coordinates",
-    a coordinate space that we use to plot data in the coding regions of a transcript.
-
-    Conceptually: suppose you lined up all the coding regions in a transcript, with some padding on each side,
-    then plotted any variants that overlap. The position of a variant on this line is the coding position -
-    this will obviously differ from the actual genomic or cds coordinates.
-
-    Random notes:
-        - coding coordinates have no concept of a gene - they are solely a property of a transcript
-        - should probably have a map between coding coodinates and protein position
-        - Brett, will you please write some fucking tests for this...
-
- */
-window.get_coding_coordinates = function(_transcript, position_list) {
-    var num_exons = _transcript.exons.length;
-    var exon_offsets = [];
-    // initialize with one sided padding
-    for (var i=0; i<num_exons; i++) {
-        exon_offsets.push(EXON_PADDING);
-    }
-    for (var i=0; i<num_exons; i++) {
-        for (var j=i+1; j<num_exons; j++) {
-            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'] + EXON_PADDING*2;
-        }
-    }
-
-    // get each position
-    // todo: optimize by sorting positions
-    var coding_positions = [];
-    for (var i=0; i<num_exons; i++) {  // todo: underscore init method?
-        coding_positions.push(-1);
-    }
-    _.each(position_list, function(position, i) {
-        _.each(transcript.exons, function(exon, j) {
-            if (position >= exon.start && position <= exon.stop) {
-                coding_positions[i] = exon_offsets[j] + position - exon.start;
-                return;
-            }
-            else if (position > exon.stop && position <= exon.stop + EXON_PADDING) {
-                coding_positions[i] = exon_offsets[j] + position - exon.start;
-            }
-        });
-    });
-    return coding_positions;
-};
-
-window.get_coding_coordinate = function(_transcript, position) {
-    return get_coding_coordinates(_transcript, [position])[0];
-};
-
-
-window.get_coding_coordinate_params = function(_transcript) {
-    var ret = {};
-    ret.num_exons = _transcript.exons.length;
-    ret.size = EXON_PADDING;
-    _.each(_transcript.exons, function(exon) {
-        ret.size += exon.stop - exon.start + EXON_PADDING;
-    });
-    return ret;
-};
-
 // Gene charts
 gene_chart_margin = {top: 10, right: 30, bottom: 5, left: 80},
     gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
@@ -85,21 +19,6 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
     //var coverage_bar_width = 2;
 
     var metric = 'mean';
-    var transcript = exon_data[0].transcript_id;
-    var padding = 20;
-    var total_exon_length = 0;
-    var total_exon_length_padded = 0;
-    var running_exon_length = [];
-    $.each(exon_data, function(i, x) {
-        total_exon_length += (x.stop - x.start + 1);
-        total_exon_length_padded += (x.stop - x.start + 1 + padding);
-        running_exon_length.push(total_exon_length);
-    });
-//    console.log("Total length: ", total_exon_length);
-//    console.log("Total length padded: ", total_exon_length_padded);
-//    console.log("Running lengths: ", running_exon_length);
-    console.log('total exon length: ', total_exon_length_padded);
-    console.log('width: ', gene_chart_width);
 
     var exon_x_scale = d3.scale.linear()
         .domain([0, coding_coordinate_params.size])
@@ -109,9 +28,9 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .domain([0, d3.max(data, function(d) { return d[metric]; })])
         .range([gene_chart_height, 0]);
 
-    var xAxis = d3.svg.axis()
-        .scale(exon_x_scale)
-        .orient("bottom");
+{#    var xAxis = d3.svg.axis()#}
+{#        .scale(exon_x_scale)#}
+{#        .orient("bottom");#}
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -124,27 +43,13 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .attr('id', 'inner_graph')
         .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
 
-    //var new_data = _.filter(data, function(x) { return x.exon_number >= 0; });
-    // todo
-    var new_data = data;
-
-    console.log('Exon data: ', new_data);
     svg.selectAll("bar")
-        .data(new_data)
+        .data(data)
         .enter()
         .append("rect")
         .attr('class', 'main_plot_bars')
         .style("fill", "steelblue")
             .attr('x', function(d) { return get_coding_coordinate(_transcript, d.pos)})
-{#        .attr("x", function(d, i) {#}
-{#//            console.log("i: ", i);#}
-{#//            console.log("d: ", d);#}
-{#            var relative_start_pos = i;#}
-{#            if (d.exon_number > 0) {#}
-{#                relative_start_pos += (d.exon_number)*padding;#}
-{#            }#}
-{#            return exon_x_scale(relative_start_pos);#}
-{#        })#}
         .attr("width", coverage_bar_width)
         .attr("y", function(d) { return y(d[metric]); })
         .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
@@ -187,8 +92,6 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
 {#        .attr("ry", 6)#}
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
         .attr("height", lower_gene_chart_height);
-
-//    console.log("Variant data", variant_data);
 
     var bounds = get_af_bounds(variant_data);
     var min_af = bounds[0];
@@ -242,37 +145,6 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         })
         .style("opacity", 0.5)
         .attr("cx", function(d, i) { return get_coding_coordinate(_transcript, d.pos) })
-{#            var tx_coord = d.transcript_coordinates[transcript];#}
-{#            if (tx_coord == 0) {#}
-{#                return -1000;#}
-{#            } else {#}
-{#                if (d.vep_annotations[0]['EXON'] != '') {#}
-{#                    var variant_exon_info;#}
-{#                    variant_exon_info = d.vep_annotations[0]['EXON'].split('/');#}
-{#                    var variant_exon_number;#}
-{#                    if (d.vep_annotations[0]['STRAND'] == '-1') {#}
-{#                        variant_exon_number = variant_exon_info[1] - variant_exon_info[0];#}
-{#                    } else {#}
-{#                        variant_exon_number = variant_exon_info[0] - 1;#}
-{#                    }#}
-{#                    console.log(d);#}
-{#                    console.log(tx_coord, " ", variant_exon_number);#}
-{#                    return exon_x_scale(tx_coord + variant_exon_number*padding);#}
-{#                } else {#}
-{#                    //TODO: Implement correct intron drawing#}
-{#                    var variant_intron_info;#}
-{#                    variant_intron_info = d.vep_annotations[0]['INTRON'].split('/');#}
-{##}
-{#                    var variant_intron_number;#}
-{#                    if (d.vep_annotations[0]['STRAND'] == '-1') {#}
-{#                        variant_intron_number = variant_intron_info[1] - variant_intron_info[0];#}
-{#                    } else {#}
-{#                        variant_intron_number = variant_intron_info[0] - 1;#}
-{#                    }#}
-{#                    return 0;#}
-{#                }#}
-{#            }#}
-{#        })#}
         .attr("cy", lower_gene_chart_height/2)
         //Circle
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
@@ -344,7 +216,6 @@ function change_gene_chart_metric(data, metric) {
 
     var new_data = _.filter(data, function(x) { return x.exon_number >= 0; });
 
-//    console.log('Exon data: ', exon_data);
     svg.selectAll("rect")
         .data(new_data)
         .transition()

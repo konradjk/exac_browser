@@ -1,3 +1,88 @@
+/*
+ *
+ *
+ * Coding Coordinates
+ *
+ *
+ */
+
+// this should be global - should not vary across installation
+var EXON_PADDING = 50;
+
+// todo: move this somewhere else
+/*
+    The following methods are for working with "Coding Coordinates",
+    a coordinate space that we use to plot data in the coding regions of a transcript.
+
+    Conceptually: suppose you lined up all the coding regions in a transcript, with some padding on each side,
+    then plotted any variants that overlap. The position of a variant on this line is the coding position -
+    this will obviously differ from the actual genomic or cds coordinates.
+
+    Random notes:
+        - coding coordinates have no concept of a gene - they are solely a property of a transcript
+        - should probably have a map between coding coodinates and protein position
+        - Brett, will you please write some fucking tests for this...
+
+ */
+window.get_coding_coordinates = function(_transcript, position_list) {
+    var num_exons = _transcript.exons.length;
+    var exon_offsets = [];
+    // initialize with one sided padding
+    for (var i=0; i<num_exons; i++) {
+        exon_offsets.push(EXON_PADDING);
+    }
+    for (var i=0; i<num_exons; i++) {
+        for (var j=i+1; j<num_exons; j++) {
+            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'] + EXON_PADDING*2;
+        }
+    }
+
+    // get each position
+    // todo: optimize by sorting positions
+    var coding_positions = [];
+    for (var i=0; i<num_exons; i++) {  // todo: underscore init method?
+        coding_positions.push(-1);
+    }
+    _.each(position_list, function(position, i) {
+        _.each(transcript.exons, function(exon, j) {
+            if (position >= exon.start && position <= exon.stop) {
+                coding_positions[i] = exon_offsets[j] + position - exon.start;
+                return;
+            }
+            else if (position > exon.stop && position <= exon.stop + EXON_PADDING) {
+                coding_positions[i] = exon_offsets[j] + position - exon.start;
+            }
+        });
+    });
+    return coding_positions;
+};
+
+window.get_coding_coordinate = function(_transcript, position) {
+    return get_coding_coordinates(_transcript, [position])[0];
+};
+
+
+window.get_coding_coordinate_params = function(_transcript) {
+    var ret = {};
+    ret.num_exons = _transcript.exons.length;
+    ret.size = EXON_PADDING;
+    _.each(_transcript.exons, function(exon) {
+        ret.size += exon.stop - exon.start + EXON_PADDING;
+    });
+    return ret;
+};
+
+
+
+
+/*
+ *
+ *
+ * Other Stuff
+ *
+ *
+ */
+
 quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
     quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right,
     quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
