@@ -99,7 +99,7 @@
                 <td class="{{ variant.category }}"><b> {{ variant.major_consequence }} </b> </td>
                 <td> {{ variant.allele_count }} </td>
                 <td>
-                    {{ variant.allele_freq }}
+                    {{ '%0.4g' % variant.allele_freq }}
                 </td>
                 <td id="variant_af_box_{{ variant.variant_id }}"></td>
             </tr>

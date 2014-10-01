@@ -24,8 +24,14 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .domain([0, coding_coordinate_params.size])
         .range([0, gene_chart_width]);
 
+    var max_cov;
+    if (metric == 'mean' || metric == 'median') {
+        max_cov = d3.max(data, function(d) { return d[metric]; });
+    } else {
+        max_cov = 1;
+    }
     var y = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) { return d[metric]; })])
+        .domain([0, max_cov])
         .range([gene_chart_height, 0]);
 
 {#    var xAxis = d3.svg.axis()#}
@@ -208,8 +214,14 @@ function change_gene_chart_variant_size(variant_data, change_to) {
 }
 
 function change_gene_chart_metric(data, metric) {
+    var max_cov;
+    if (metric == 'mean' || metric == 'median') {
+        max_cov = d3.max(data, function(d) { return d[metric]; });
+    } else {
+        max_cov = 1;
+    }
     var y = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) { return d[metric]; })])
+        .domain([0, max_cov])
         .range([gene_chart_height, 0]);
 
     var svg = d3.select('#gene_plot_container').select('#inner_graph');
