@@ -11,7 +11,7 @@
 
         $(document).ready(function() {
             if (window.coverage_stats != null) {
-                gene_chart(window.coverage_stats, window.exons, window.variants_in_transcript);
+                gene_chart(window.coverage_stats, window.exons, window.variants_in_transcript, window.transcript);
                 update_variants();
             } else {
                 $('#gene_plot_container').hide();

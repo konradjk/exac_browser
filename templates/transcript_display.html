@@ -5,7 +5,7 @@
 <script>
 
 // this should be global - should not vary across installation
-var EXON_PADDING = 20;
+var EXON_PADDING = 50;
 
 // todo: move this somewhere else
 /*
@@ -31,7 +31,7 @@ window.get_coding_coordinates = function(_transcript, position_list) {
     }
     for (var i=0; i<num_exons; i++) {
         for (var j=i+1; j<num_exons; j++) {
-            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'] + EXON_PADDING;
+            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'] + EXON_PADDING*2;
         }
     }
 
@@ -46,6 +46,9 @@ window.get_coding_coordinates = function(_transcript, position_list) {
             if (position >= exon.start && position <= exon.stop) {
                 coding_positions[i] = exon_offsets[j] + position - exon.start;
                 return;
+            }
+            else if (position > exon.stop && position <= exon.stop + EXON_PADDING) {
+                coding_positions[i] = exon_offsets[j] + position - exon.start;
             }
         });
     });
@@ -68,14 +71,19 @@ window.get_coding_coordinate_params = function(_transcript) {
 };
 
 // Gene charts
-gene_chart_margin = {top: 10, right: 30, bottom: 30, left: 80},
+gene_chart_margin = {top: 10, right: 30, bottom: 5, left: 80},
     gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
     gene_chart_width = 1100 - gene_chart_margin.left - gene_chart_margin.right;
 
 lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
     gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
 
-function gene_chart(data, exon_data, variant_data) {
+function gene_chart(data, exon_data, variant_data, _transcript) {
+
+    var coding_coordinate_params = get_coding_coordinate_params(_transcript);
+    var coverage_bar_width = gene_chart_width / coding_coordinate_params.size;
+    //var coverage_bar_width = 2;
+
     var metric = 'mean';
     var transcript = exon_data[0].transcript_id;
     var padding = 20;
@@ -93,9 +101,8 @@ function gene_chart(data, exon_data, variant_data) {
     console.log('total exon length: ', total_exon_length_padded);
     console.log('width: ', gene_chart_width);
 
-    var start_pos = exon_data[0].start;
     var exon_x_scale = d3.scale.linear()
-        .domain([0, total_exon_length_padded - padding])
+        .domain([0, coding_coordinate_params.size])
         .range([0, gene_chart_width]);
 
     var y = d3.scale.linear()
@@ -117,7 +124,9 @@ function gene_chart(data, exon_data, variant_data) {
         .attr('id', 'inner_graph')
         .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
 
-    var new_data = _.filter(data, function(x) { return x.exon_number >= 0; });
+    //var new_data = _.filter(data, function(x) { return x.exon_number >= 0; });
+    // todo
+    var new_data = data;
 
     console.log('Exon data: ', new_data);
     svg.selectAll("bar")
@@ -126,28 +135,30 @@ function gene_chart(data, exon_data, variant_data) {
         .append("rect")
         .attr('class', 'main_plot_bars')
         .style("fill", "steelblue")
-        .attr("x", function(d, i) {
-//            console.log("i: ", i);
-//            console.log("d: ", d);
-            var relative_start_pos = i;
-            if (d.exon_number > 0) {
-                relative_start_pos += (d.exon_number)*padding;
-            }
-            return exon_x_scale(relative_start_pos);
-        })
-        .attr("width", gene_chart_width/new_data.length - 1)
+            .attr('x', function(d) { return get_coding_coordinate(_transcript, d.pos)})
+{#        .attr("x", function(d, i) {#}
+{#//            console.log("i: ", i);#}
+{#//            console.log("d: ", d);#}
+{#            var relative_start_pos = i;#}
+{#            if (d.exon_number > 0) {#}
+{#                relative_start_pos += (d.exon_number)*padding;#}
+{#            }#}
+{#            return exon_x_scale(relative_start_pos);#}
+{#        })#}
+        .attr("width", coverage_bar_width)
         .attr("y", function(d) { return y(d[metric]); })
         .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
 
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + gene_chart_height + ")")
-        .call(xAxis);
+{#    svg.append("g")#}
+{#        .attr("class", "x axis")#}
+{#        .attr("transform", "translate(0," + gene_chart_height + ")")#}
+{#        .call(xAxis);#}
 
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
 
+    // plot exon rounded rects
     var svg_outer = d3.select('#gene_plot_container').append("svg")
         .attr("width", gene_chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
         .attr("height", lower_gene_chart_height)
@@ -160,28 +171,20 @@ function gene_chart(data, exon_data, variant_data) {
         .attr("y1", lower_gene_chart_height/2)
         .attr("y2", lower_gene_chart_height/2)
         .attr("x1", 0)
-        .attr("x2", exon_x_scale(data.length))
+        .attr("x2", exon_x_scale(coding_coordinate_params.size))
         .attr("stroke-width", 10)
         .attr("stroke", exon_color);
 
     svg_outer.selectAll("bar")
-        .data(exon_data)
+        .data(_transcript.exons)
         .enter()
         .append("rect")
         .attr('class', 'track_bar')
         .style("fill", exon_color)
-        .attr("x", function(d, i) {
-            var relative_start_pos;
-            if (i == 0) {
-                relative_start_pos = 0;
-            } else {
-                relative_start_pos = running_exon_length[i-1] + i*padding;
-            }
-            return exon_x_scale(relative_start_pos);
-        })
+        .attr("x", function(d, i) { return get_coding_coordinate(_transcript, d.start) })
         .attr("y", 0)
-        .attr("rx", 6)
-        .attr("ry", 6)
+{#        .attr("rx", 6)#}
+{#        .attr("ry", 6)#}
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
         .attr("height", lower_gene_chart_height);
 
@@ -197,6 +200,7 @@ function gene_chart(data, exon_data, variant_data) {
         //Rectangle
 //        .range([lower_gene_chart_height, 2]);
 
+    // show variant category on hover
     var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
         if (d.category) {
             return d.category;
@@ -206,6 +210,7 @@ function gene_chart(data, exon_data, variant_data) {
     });
     svg.call(tip);
 
+    // plot variants
     svg_outer.selectAll("bar")
         .data(variant_data)
         .enter()
@@ -236,38 +241,38 @@ function gene_chart(data, exon_data, variant_data) {
             return get_color(d);
         })
         .style("opacity", 0.5)
-        .attr("cx", function(d, i) {
-            var tx_coord = d.transcript_coordinates[transcript];
-            if (tx_coord == 0) {
-                return -1000;
-            } else {
-                if (d.vep_annotations[0]['EXON'] != '') {
-                    var variant_exon_info;
-                    variant_exon_info = d.vep_annotations[0]['EXON'].split('/');
-                    var variant_exon_number;
-                    if (d.vep_annotations[0]['STRAND'] == '-1') {
-                        variant_exon_number = variant_exon_info[1] - variant_exon_info[0];
-                    } else {
-                        variant_exon_number = variant_exon_info[0] - 1;
-                    }
+        .attr("cx", function(d, i) { return get_coding_coordinate(_transcript, d.pos) })
+{#            var tx_coord = d.transcript_coordinates[transcript];#}
+{#            if (tx_coord == 0) {#}
+{#                return -1000;#}
+{#            } else {#}
+{#                if (d.vep_annotations[0]['EXON'] != '') {#}
+{#                    var variant_exon_info;#}
+{#                    variant_exon_info = d.vep_annotations[0]['EXON'].split('/');#}
+{#                    var variant_exon_number;#}
+{#                    if (d.vep_annotations[0]['STRAND'] == '-1') {#}
+{#                        variant_exon_number = variant_exon_info[1] - variant_exon_info[0];#}
+{#                    } else {#}
+{#                        variant_exon_number = variant_exon_info[0] - 1;#}
+{#                    }#}
 {#                    console.log(d);#}
 {#                    console.log(tx_coord, " ", variant_exon_number);#}
-                    return exon_x_scale(tx_coord + variant_exon_number*padding);
-                } else {
-                    //TODO: Implement correct intron drawing
-                    var variant_intron_info;
-                    variant_intron_info = d.vep_annotations[0]['INTRON'].split('/');
-
-                    var variant_intron_number;
-                    if (d.vep_annotations[0]['STRAND'] == '-1') {
-                        variant_intron_number = variant_intron_info[1] - variant_intron_info[0];
-                    } else {
-                        variant_intron_number = variant_intron_info[0] - 1;
-                    }
-                    return 0;
-                }
-            }
-        })
+{#                    return exon_x_scale(tx_coord + variant_exon_number*padding);#}
+{#                } else {#}
+{#                    //TODO: Implement correct intron drawing#}
+{#                    var variant_intron_info;#}
+{#                    variant_intron_info = d.vep_annotations[0]['INTRON'].split('/');#}
+{##}
+{#                    var variant_intron_number;#}
+{#                    if (d.vep_annotations[0]['STRAND'] == '-1') {#}
+{#                        variant_intron_number = variant_intron_info[1] - variant_intron_info[0];#}
+{#                    } else {#}
+{#                        variant_intron_number = variant_intron_info[0] - 1;#}
+{#                    }#}
+{#                    return 0;#}
+{#                }#}
+{#            }#}
+{#        })#}
         .attr("cy", lower_gene_chart_height/2)
         //Circle
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })

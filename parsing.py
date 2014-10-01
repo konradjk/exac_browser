@@ -42,6 +42,7 @@ def get_base_coverage_from_file(base_coverage_file):
         fields = line.strip('\n').split('\t')
         d = {
             'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
+            'pos': int(fields[1]),
         }
         for i, k in enumerate(float_header_fields):
             d[k] = float(fields[i+2])
