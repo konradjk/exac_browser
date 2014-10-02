@@ -69,7 +69,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .attr("class", "y axis")
         .call(yAxis);
 
-    // plot exon rounded rects
+    // plot exons
     var svg_outer = d3.select('#gene_plot_container').append("svg")
         .attr("width", gene_chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
         .attr("height", lower_gene_chart_height)
@@ -86,6 +86,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .attr("stroke-width", 10)
         .attr("stroke", exon_color);
 
+    // plot exon rounded rects
     svg_outer.selectAll("bar")
         .data(_transcript.exons)
         .enter()
@@ -182,6 +183,17 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
 //        .attr("height", function(d, i) { return variant_size_scale(d.allele_freq); })
 //        .attr("rx", 6)
 //        .attr("ry", 6);
+    svg_outer.selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", function(d) {
+{#            console.log(d);#}
+            return get_coding_coordinate(_transcript, d.pos);
+        })
+        .attr("cy", 0)
+        .attr('r', 1);
+
 }
 
 function change_gene_chart_variant_size(variant_data, change_to) {
