@@ -55,7 +55,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .append("rect")
         .attr('class', 'main_plot_bars')
         .style("fill", "steelblue")
-            .attr('x', function(d) { return get_coding_coordinate(_transcript, d.pos)})
+        .attr('x', function(d) { return get_coding_coordinate(_transcript, d.pos)})
         .attr("width", coverage_bar_width)
         .attr("y", function(d) { return y(d[metric]); })
         .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
@@ -68,6 +68,17 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
+
+    svg.selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", function(d) {
+{#            console.log(d);#}
+            return get_coding_coordinate(_transcript, d.pos);
+        })
+        .attr("cy", gene_chart_height + 3)
+        .attr('r', 2);
 
     // plot exons
     var svg_outer = d3.select('#gene_plot_container').append("svg")
@@ -183,16 +194,6 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
 //        .attr("height", function(d, i) { return variant_size_scale(d.allele_freq); })
 //        .attr("rx", 6)
 //        .attr("ry", 6);
-    svg_outer.selectAll("circle")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", function(d) {
-{#            console.log(d);#}
-            return get_coding_coordinate(_transcript, d.pos);
-        })
-        .attr("cy", 0)
-        .attr('r', 1);
 
 }
 
@@ -238,10 +239,8 @@ function change_gene_chart_metric(data, metric) {
 
     var svg = d3.select('#gene_plot_container').select('#inner_graph');
 
-    var new_data = _.filter(data, function(x) { return x.exon_number >= 0; });
-
     svg.selectAll("rect")
-        .data(new_data)
+        .data(data)
         .transition()
         .duration(500)
         .attr("y", function(d) { return y(d[metric]); })
