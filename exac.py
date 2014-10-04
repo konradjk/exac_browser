@@ -91,25 +91,25 @@ def load_db():
         progress.update(sites_vcf.fileobj.tell())
     progress.finish()
 
-    # parse full VCF and append other stuff to variants
-    full_vcf = gzip.open(app.config['FULL_VCF'])
-    size = os.path.getsize(app.config['FULL_VCF'])
-    progress = xbrowse.utils.get_progressbar(size, 'Parsing full VCF')
-    for genotype_info_container in get_genotype_data_from_full_vcf(full_vcf):
-
-        # not the most efficient, but let's keep it simple for now
-        variant = db.variants.find_one({
-            'xpos': genotype_info_container['xpos'],
-            'ref': genotype_info_container['ref'],
-            'alt': genotype_info_container['alt'],
-        })
-        if not variant:
-            continue  # :(
-            #raise Exception("I didn't find this variant: {}".format(genotype_info_container))
-        variant['genotype_info'] = genotype_info_container['genotype_info']
-        db.variants.save(variant)
-        progress.update(sites_vcf.fileobj.tell())
-    progress.finish()
+    # # parse full VCF and append other stuff to variants
+    # full_vcf = gzip.open(app.config['FULL_VCF'])
+    # size = os.path.getsize(app.config['FULL_VCF'])
+    # progress = xbrowse.utils.get_progressbar(size, 'Parsing full VCF')
+    # for genotype_info_container in get_genotype_data_from_full_vcf(full_vcf):
+    #
+    #     # not the most efficient, but let's keep it simple for now
+    #     variant = db.variants.find_one({
+    #         'xpos': genotype_info_container['xpos'],
+    #         'ref': genotype_info_container['ref'],
+    #         'alt': genotype_info_container['alt'],
+    #     })
+    #     if not variant:
+    #         continue  # :(
+    #         #raise Exception("I didn't find this variant: {}".format(genotype_info_container))
+    #     variant['genotype_info'] = genotype_info_container['genotype_info']
+    #     db.variants.save(variant)
+    #     progress.update(sites_vcf.fileobj.tell())
+    # progress.finish()
 
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])

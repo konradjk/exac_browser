@@ -120,6 +120,11 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
 
+            if 'DP_MID' in info_field:
+                variant['genotype_depths'] = zip(map(float, info_field['DP_MID'].split('|')), map(int, info_field['DP_HIST'].split('|')))
+            if 'GQ_MID' in info_field:
+                variant['genotype_qualities'] = zip(map(float, info_field['GQ_MID'].split('|')), map(int, info_field['GQ_HIST'].split('|')))
+
             yield variant
 
 

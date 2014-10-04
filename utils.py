@@ -52,7 +52,7 @@ def xpos_to_pos(xpos):
 def add_consequence_to_variants(variant_list):
     for variant in variant_list:
         variant['major_consequence'] = csq_max([csq_max_vep(x['Consequence']) for x in variant['vep_annotations']])
-        if csq_order_dict[variant['major_consequence']] <= csq_order_dict["initiator_codon_variant"]:
+        if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
             variant['category'] = 'lof_variant'
         elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
             # Should be noted that this grabs inframe deletion, etc.
