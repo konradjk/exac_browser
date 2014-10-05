@@ -247,6 +247,7 @@ def gene_page(gene_id):
     return render_template(
         'gene.html',
         gene=gene,
+        transcript=transcript,
         variants_in_gene=variants_in_transcript,
         number_variants_in_gene=len(variants_in_gene),
         lof_variants_in_gene=lof_variants,

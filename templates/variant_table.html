@@ -43,7 +43,7 @@
                     .attr('x', 0)
                     .attr('y', 0)
                     .attr('width', function() {
-                        if (d.allele_freq == 0) {
+                        if (!d.allele_freq) {
                             return 0;
                         } else {
                             return x(d.allele_freq);

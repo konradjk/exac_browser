@@ -169,7 +169,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         //Ellipse
         .attr("rx", 2)
         .attr("ry", function(d, i) {
-            if (d.allele_freq == 0) {
+            if (!d.allele_freq) {
                 return 0;
             } else {
                 return variant_size_scale(d.allele_freq);
@@ -218,7 +218,7 @@ function change_gene_chart_variant_size(variant_data, change_to) {
         .transition()
         .duration(500)
         .attr("ry", function(d, i) {
-            if (d.allele_freq == 0) {
+            if (!d.allele_freq) {
                 return 0;
             } else {
                 return variant_size_scale(d.allele_freq);
