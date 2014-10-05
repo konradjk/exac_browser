@@ -16,11 +16,13 @@
     <div class="container">
         {% if rsid %}
             <h1>RSID: {{ rsid }}</h1>
+        {% elif stop == None %}
+            <h1>Region: {{ chrom }}</h1>
         {% else %}
             <h1>Region: {{ chrom }} / {{ start }} / {{ stop }}</h1>
         {% endif %}
         <br/>
-        {% if stop-start > 100000 %}
+        {% if stop != None and stop-start > 100000 %}
             <p>
                 <span class="label label-danger">Warning:</span> Your region is too large. Please submit a region of at most 100 kb.
             </p>
@@ -29,7 +31,7 @@
             </p>
         {% endif %}
         {% if genes_in_region %}
-            {% if stop - start > 1 %}
+            {% if stop != None and stop - start > 1 %}
                 <h3>Coverage summary</h3>
                 <div class="row">
                     {% include 'region_display.html' %}

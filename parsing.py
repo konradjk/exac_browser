@@ -128,36 +128,6 @@ def get_variants_from_sites_vcf(sites_vcf):
             yield variant
 
 
-def get_genotype_data_from_full_vcf(full_vcf):
-    """
-
-    """
-    for line in full_vcf:
-        line = line.strip('\n')
-        if line.startswith('#'):
-            continue
-        fields = line.split('\t')
-        info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
-
-        alt_alleles = fields[4].split(',')
-
-        format_field = fields[8].split(':')
-        format_data = [dict(zip(format_field, x.split(':'))) for x in fields[9:]]
-
-        # different variant for each alt allele
-        for i, alt_allele in enumerate(alt_alleles):
-
-            genotype_info_container = {
-                'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
-                'ref': fields[3],
-                'alt': alt_allele,
-                'genotype_info': {
-                    #'genotype_depths': zip(map(float, info_field['DP_MID'].split('|')), map(int, info_field['DP_HIST'].split('|'))),
-                    #'genotype_qualities': zip(map(float, info_field['GQ_MID'].split('|')), map(int, info_field['GQ_HIST'].split('|'))),
-                }
-            }
-            yield genotype_info_container
-
 def get_genes_from_gencode_gtf(gtf_file):
     """
     Parse gencode GTF file;

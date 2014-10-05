@@ -108,8 +108,9 @@ def get_awesomebar_suggestions(db, query):
 
 
 # 1:1-1000
-R1 = re.compile(r'^(\d+|X|Y|M|MT)\s+:\s+(\d+)-(\d+)$')
-R2 = re.compile(r'^(\d+|X|Y|M|MT)\s+:\s+(\d+)$')
+R1 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)-(\d+)$')
+R2 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)$')
+R3 = re.compile(r'^(\d+|X|Y|M|MT)$')
 # R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
 # R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
 
@@ -170,6 +171,9 @@ def get_awesomebar_result(db, query):
     m = R2.match(query.lstrip('chr'))
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(2))
+    m = R3.match(query.lstrip('chr'))
+    if m:
+        return 'region', '{}'.format(m.group(1))
     print "Didn't find anything"
 
     
