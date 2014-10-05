@@ -2,7 +2,7 @@ import json
 import os
 import pymongo
 import gzip
-from parsing import get_variants_from_sites_vcf, \
+from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
     get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
     get_base_coverage_from_file
 import lookups
@@ -28,6 +28,7 @@ app.config.update(dict(
     SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
     FULL_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'genotype_data.vcf.gz'),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
+    CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     BASE_COVERAGE_FILES=[
         os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
     ],
@@ -118,6 +119,21 @@ def load_db():
     for exon in get_exons_from_gencode_gtf(gtf_file):
         db.exons.insert(exon)
         progress.update(gtf_file.fileobj.tell())
+    gtf_file.close()
+    progress.finish()
+
+    canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
+    size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
+    progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
+    for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
+        gene = db.genes.find_one({
+            'gene_id': gene
+        })
+        if not gene:
+            continue
+        gene['canonical_transcript'] = transcript
+        db.genes.save(gene)
+        progress.update(canonical_transcript_file.fileobj.tell())
     gtf_file.close()
     progress.finish()
 
@@ -213,8 +229,7 @@ def gene_page(gene_id):
     transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
     # Get csome anonical transcript and corresponding info
-    #transcript_id = get_canonical_transcript()
-    transcript_id = 'ENST00000598827' # Guaranteed to be canonical transcript
+    transcript_id = gene['canonical_transcript']
     transcript = lookups.get_transcript(db, transcript_id)
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
     exons = lookups.get_exons_in_transcript(db, transcript_id)

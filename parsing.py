@@ -128,6 +128,12 @@ def get_variants_from_sites_vcf(sites_vcf):
             yield variant
 
 
+def get_canonical_transcripts(canonical_transcript_file):
+    for line in canonical_transcript_file:
+        gene, transcript = line.strip().split()
+        yield gene, transcript
+
+
 def get_genes_from_gencode_gtf(gtf_file):
     """
     Parse gencode GTF file;
