@@ -67,7 +67,7 @@ window.get_coding_coordinate_params = function(_transcript) {
     ret.num_exons = _transcript.exons.length;
     ret.size = EXON_PADDING;
     _.each(_transcript.exons, function(exon) {
-        ret.size += exon.stop - exon.start + EXON_PADDING;
+        ret.size += exon.stop - exon.start + EXON_PADDING*2;
     });
     return ret;
 };
