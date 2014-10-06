@@ -55,7 +55,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .append("rect")
         .attr('class', 'main_plot_bars')
         .style("fill", "steelblue")
-        .attr('x', function(d) { return get_coding_coordinate(_transcript, d.pos)})
+        .attr('x', function(d) { return exon_x_scale(get_coding_coordinate(_transcript, d.pos))})
         .attr("width", coverage_bar_width)
         .attr("y", function(d) { return y(d[metric]); })
         .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
@@ -75,7 +75,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .append("circle")
         .attr("cx", function(d) {
 {#            console.log(d);#}
-            return get_coding_coordinate(_transcript, d.pos);
+            return exon_x_scale(get_coding_coordinate(_transcript, d.pos));
         })
         .attr("cy", gene_chart_height + 3)
         .attr('r', 2);
@@ -97,6 +97,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .attr("stroke-width", 10)
         .attr("stroke", exon_color);
 
+    console.log(_transcript);
     // plot exon rounded rects
     svg_outer.selectAll("bar")
         .data(_transcript.exons)
@@ -104,10 +105,10 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .append("rect")
         .attr('class', 'track_bar')
         .style("fill", exon_color)
-        .attr("x", function(d, i) { return get_coding_coordinate(_transcript, d.start) })
+        .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start)); })
         .attr("y", 0)
-{#        .attr("rx", 6)#}
-{#        .attr("ry", 6)#}
+        .attr("rx", 6)
+        .attr("ry", 6)
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
         .attr("height", lower_gene_chart_height);
 
@@ -162,7 +163,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
             return get_color(d);
         })
         .style("opacity", 0.5)
-        .attr("cx", function(d, i) { return get_coding_coordinate(_transcript, d.pos) })
+        .attr("cx", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.pos)) })
         .attr("cy", lower_gene_chart_height/2)
         //Circle
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })

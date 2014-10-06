@@ -74,20 +74,5 @@
                 {% endif %}
             </div>
         </div>
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-        <hr/>
-        <p>The gene object that we are displaying looks like this:</p>
-        <pre>{{ gene|pprint(True) }}</pre>
-        <hr/>
-        <p>It has these transcripts:</p>
-        <pre>{{ transcripts_in_gene|pprint(True) }}</pre>
-        <hr/>
-        <p>The coverage looks like this:</p>
-        <pre>{{ overall_coverage|pprint(True) }}</pre>
-        <hr/>
-        <p>It has these LoF variants:</p>
-        <pre>{{ lof_variants_in_gene|pprint(True) }}</pre>
     </div>
 {% endblock %}
