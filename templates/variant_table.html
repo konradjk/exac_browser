@@ -26,8 +26,8 @@
             var bounds = get_af_bounds(data);
             var min_af = bounds[0];
             var max_af = bounds[1];
-            var x = d3.scale.log()
-                .domain([min_af/2, max_af])
+            var x_scale = d3.scale.linear()
+                .domain([0, 7])
                 .range([0, width]);
 
             var svg;
@@ -44,9 +44,21 @@
                     .attr('y', 0)
                     .attr('width', function() {
                         if (!d.allele_freq) {
-                            return 0;
+                            return x_scale(0);
+                        } else if (d.allele_count == 1) {
+                            return x_scale(1);
+                        } else if (d.allele_freq < 1/10000) {
+                            return x_scale(2);
+                        } else if (d.allele_freq < 1/1000) {
+                            return x_scale(3);
+                        } else if (d.allele_freq < 1/100) {
+                            return x_scale(4);
+                        } else if (d.allele_freq < 1/20) {
+                            return x_scale(5);
+                        } else if (d.allele_freq < 1/2) {
+                            return x_scale(6);
                         } else {
-                            return x(d.allele_freq);
+                            return x_scale(7);
                         }
                     })
                     .attr('height', height);
