@@ -7,9 +7,9 @@
         $("#variants_table_container").show();
         $("#variant_table").tablesorter({
             widthFixed: true,
-            sortList: [[1,0]],
+            sortList: [[1,0], [2,0], [6,1]],
             headers: {
-                6: { sorter: false, parser: false }
+                7: { sorter: false, parser: false }
             }
         });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
@@ -72,6 +72,7 @@
         <thead>
             <tr>
                 <th>Variant</th>
+                <th>Chromosome</th>
                 <th>Position</th>
                 <th>Filter</th>
                 <th>Annotation</th>
@@ -85,27 +86,26 @@
             <tr class="table_variant" id="variant_{{ variant.variant_id }}"
                 category="{{ variant.category }}" filter_status="{{ variant.filter }}" frequency="{{ variant.allele_freq }}">
                 <td>
+                    <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
                     {% if variant.rsid == '.' %}
-                        <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                            {{ variant.chrom }}:{{ variant.pos }}
-                            {% if variant.ref|length > 20 %}
-                                {{ variant.ref[1:20] }}...
-                            {% else %}
-                                {{ variant.ref }}
-                            {% endif %} /
-                            {% if variant.alt|length > 20 %}
-                                {{ variant.alt[1:20] }}...
-                            {% else %}
-                                {{ variant.alt }}
-                            {% endif %}
-
-                        </a>
+                        {{ variant.chrom }}:{{ variant.pos }}
                     {% else %}
-                        <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                            {{ variant.rsid }}
-                        </a>
+                        {{ variant.rsid }}
                     {% endif %}
+                        {% if variant.ref|length > 20 %}
+                            {{ variant.ref[1:20] }}...
+                        {% else %}
+                            {{ variant.ref }}
+                        {% endif %} /
+                        {% if variant.alt|length > 20 %}
+                            {{ variant.alt[1:20] }}...
+                        {% else %}
+                            {{ variant.alt }}
+                        {% endif %}
+
+                    </a>
                 </td>
+                <td> {{ variant.chrom }}</td>
                 <td> {{ variant.pos }}</td>
                 <td> {{ variant.filter }} </td>
                 <td class="{{ variant.category }}"><b> {{ variant.major_consequence }} </b> </td>
