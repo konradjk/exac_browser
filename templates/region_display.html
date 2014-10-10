@@ -1,7 +1,11 @@
-{% include 'coverage_selectors.html' %}
-<br/>
-<div id="region_plot_container"></div>
-{% include 'variant_selectors.html' %}
+<div id="region_plot">
+    {% include 'coverage_selectors.html' %}
+    <br/>
+    <div id="region_plot_container"></div>
+</div>
+<div id="not_covered" style="display: none;">
+    No coverage for this region.
+</div>
 <script>
 
 gene_chart_margin = {top: 10, right: 30, bottom: 30, left: 80},
@@ -15,7 +19,7 @@ function region_chart(data, variant_data) {
     var metric = 'mean';
 
     var x = d3.scale.linear()
-        .domain([0, data.length])
+        .domain([d3.min(data, function(d) { return d.pos; }), d3.max(data, function(d) { return d.pos; })])
         .range([0, gene_chart_width]);
 
     var y = d3.scale.linear()
@@ -44,9 +48,11 @@ function region_chart(data, variant_data) {
         .attr('class', 'main_plot_bars')
         .style("fill", "steelblue")
         .attr("x", function(d, i) {
-            return x(i);
+            if (d.has_coverage) {
+                return x(d.pos);
+            }
         })
-        .attr("width", gene_chart_width/data.length - 1)
+        .attr("width", gene_chart_width/data.length)
         .attr("y", function(d) {
             if (d['has_coverage']) {
                 return y(d[metric]);
@@ -83,7 +89,7 @@ function region_chart(data, variant_data) {
         .attr("y1", lower_gene_chart_height/2)
         .attr("y2", lower_gene_chart_height/2)
         .attr("x1", 0)
-        .attr("x2", x(data.length))
+        .attr("x2", x(d3.max(data, function(d) { return d.pos; })))
         .attr("stroke-width", 1)
         .attr("stroke", exon_color);
 
@@ -143,7 +149,7 @@ function region_chart(data, variant_data) {
             }
         })
         .style("opacity", 0.5)
-        .attr("cx", function(d) { return x(d.pos - start) })
+        .attr("cx", function(d) { return x(d.pos) })
         .attr("cy", lower_gene_chart_height/2)
         //Circle
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
