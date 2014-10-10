@@ -395,3 +395,32 @@ function change_coverage_chart_metric(data, metric, container) {
         .call(yAxis);
 
 }
+
+function change_track_chart_variant_size(variant_data, change_to, container) {
+    var svg_outer = d3.select(container).select('#track');
+
+    var variant_size_scale;
+    var bounds = get_af_bounds(variant_data);
+    var min_af = bounds[0];
+    var max_af = bounds[1];
+    if (change_to) {
+        variant_size_scale = d3.scale.log()
+            .domain([min_af, max_af])
+            .range([lower_gene_chart_height / 3, 2]);
+    } else {
+        variant_size_scale = d3.scale.log()
+            .domain([min_af, max_af])
+            .range([2, lower_gene_chart_height / 3]);
+    }
+    svg_outer.selectAll("a")
+        .selectAll("ellipse")
+        .transition()
+        .duration(500)
+        .attr("ry", function(d, i) {
+            if (!d.allele_freq) {
+                return 0;
+            } else {
+                return variant_size_scale(d.allele_freq);
+            }
+        });
+}

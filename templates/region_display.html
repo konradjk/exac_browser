@@ -124,7 +124,7 @@ function region_chart(data, variant_data) {
             return d.filter;
         })
         .attr('category', function(d) {
-            return d.category;
+            return " " + d.category;
         })
         .on('mouseover', function(d) {
             $('#variant_' + d.variant_id).find('td').addClass('table_hover');
@@ -203,7 +203,7 @@ $(document).ready(function() {
     $('#inverted_checkbox').change(function () {
         setTimeout(function () {
             var v = $('#inverted_checkbox').is(':checked');
-            change_coverage_chart_metric(window.variants_in_transcript, v, '#region_plot_container');
+            change_track_chart_variant_size(window.variants, v, '#region_plot_container');
         }, 10);
     });
 
