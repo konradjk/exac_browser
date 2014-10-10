@@ -45,12 +45,9 @@ window.get_coding_coordinates = function(_transcript, position_list) {
     }
     _.each(position_list, function(position, i) {
         _.each(transcript.exons, function(exon, j) {
-            if (position >= exon.start && position <= exon.stop) {
+            if (position >= exon.start - EXON_PADDING && position <= exon.stop + EXON_PADDING) {
                 coding_positions[i] = exon_offsets[j] + position - exon.start;
                 return;
-            }
-            else if (position > exon.stop && position <= exon.stop + EXON_PADDING) {
-                coding_positions[i] = exon_offsets[j] + position - exon.start;
             }
         });
     });
