@@ -7,15 +7,6 @@
     No coverage for this transcript.
 </div>
 <script>
-
-// Gene charts
-gene_chart_margin = {top: 10, right: 30, bottom: 5, left: 80},
-    gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
-    gene_chart_width = 1100 - gene_chart_margin.left - gene_chart_margin.right;
-
-lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
-    gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
-
 function gene_chart(data, exon_data, variant_data, _transcript) {
     console.log('Coverage data: ', data);
     var coding_coordinate_params = get_coding_coordinate_params(_transcript);
@@ -231,36 +222,6 @@ function change_gene_chart_variant_size(variant_data, change_to) {
         });
 }
 
-function change_gene_chart_metric(data, metric) {
-    var max_cov;
-    if (metric == 'mean' || metric == 'median') {
-        max_cov = d3.max(data, function(d) { return d[metric]; });
-    } else {
-        max_cov = 1;
-    }
-    var y = d3.scale.linear()
-        .domain([0, max_cov])
-        .range([gene_chart_height, 0]);
-
-    var svg = d3.select('#gene_plot_container').select('#inner_graph');
-
-    svg.selectAll("rect")
-        .data(data)
-        .transition()
-        .duration(500)
-        .attr("y", function(d) { return y(d[metric]); })
-        .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
-
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left");
-
-    svg.select(".y.axis")
-        .transition()
-        .duration(200)
-        .call(yAxis);
-
-}
 
 $(document).ready(function() {
 // Change coverage plot
@@ -274,13 +235,13 @@ $(document).ready(function() {
             $('#average_select_container').show();
             v = $("#average_select").val();
         }
-        change_gene_chart_metric(window.coverage_stats, v);
+        change_coverage_chart_metric(window.coverage_stats, v, '#gene_plot_container');
     });
     $('#over_x_select').change(function () {
-        change_gene_chart_metric(window.coverage_stats, $(this).val());
+        change_coverage_chart_metric(window.coverage_stats, $(this).val(), '#gene_plot_container');
     });
     $('#average_select').change(function () {
-        change_gene_chart_metric(window.coverage_stats, $(this).val());
+        change_coverage_chart_metric(window.coverage_stats, $(this).val(), '#gene_plot_container');
     });
 
 // Change exon diagram

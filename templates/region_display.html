@@ -138,15 +138,8 @@ function region_chart(data, variant_data) {
 //        .append("circle")
         //Ellipse
         .append("ellipse")
-        .attr("class", "track_variant")
-        .style("fill", function(d) {
-            if (d.category == 'stop_gained' || d.category == 'frameshift_variant' || d.category == 'splice_donor_variant' || d.category == 'splice_acceptor_variant') {
-                return "darkred";
-            } else if (d.category == 'missense_variant') {
-                return "yellow";
-            } else {
-                return "green";
-            }
+        .attr("class", function(d) {
+            return "track_variant " + d.category;
         })
         .style("opacity", 0.5)
         .attr("cx", function(d) { return x(d.pos) })
@@ -197,20 +190,20 @@ $(document).ready(function() {
             $('#average_select_container').show();
             v = $("#average_select").val();
         }
-        change_region_chart_metric(window.coverage_stats, v);
+        change_coverage_chart_metric(window.coverage_stats, v, '#region_plot_container');
     });
     $('#over_x_select').change(function () {
-        change_region_chart_metric(window.coverage_stats, $(this).val());
+        change_coverage_chart_metric(window.coverage_stats, $(this).val(), '#region_plot_container');
     });
     $('#average_select').change(function () {
-        change_region_chart_metric(window.coverage_stats, $(this).val());
+        change_coverage_chart_metric(window.coverage_stats, $(this).val(), '#region_plot_container');
     });
 
 // Change exon diagram
     $('#inverted_checkbox').change(function () {
         setTimeout(function () {
             var v = $('#inverted_checkbox').is(':checked');
-            change_gene_chart_variant_size(window.variants_in_transcript, v);
+            change_coverage_chart_metric(window.variants_in_transcript, v, '#region_plot_container');
         }, 10);
     });
 

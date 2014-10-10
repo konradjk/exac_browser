@@ -335,17 +335,6 @@ function update_variants() {
     }
 }
 
-
-//function get_color(variant) {
-//    if (variant.category == 'lof_variant') {
-//        return "darkred";
-//    } else if (variant.category == 'missense_variant') {
-//        return "yellow";
-//    } else {
-//        return "green";
-//    }
-//}
-
 function get_af_bounds(data) {
     // Removing AC_Adj = 0 cases
     var min_af = d3.min(data, function(d) {
@@ -358,4 +347,44 @@ function get_af_bounds(data) {
     // Should this be 1?
     var max_af = d3.max(data, function(d) { return d.allele_freq; });
     return [min_af, max_af];
+}
+
+// Coverage charts
+gene_chart_margin = {top: 10, right: 30, bottom: 5, left: 80},
+    gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
+    gene_chart_width = 1100 - gene_chart_margin.left - gene_chart_margin.right;
+
+lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
+    gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
+
+
+function change_coverage_chart_metric(data, metric, container) {
+    var max_cov;
+    if (metric == 'mean' || metric == 'median') {
+        max_cov = d3.max(data, function(d) { return d[metric]; });
+    } else {
+        max_cov = 1;
+    }
+    var y = d3.scale.linear()
+        .domain([0, max_cov])
+        .range([gene_chart_height, 0]);
+
+    var svg = d3.select(container).select('#inner_graph');
+
+    svg.selectAll("rect")
+        .data(data)
+        .transition()
+        .duration(500)
+        .attr("y", function(d) { return y(d[metric]); })
+        .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    svg.select(".y.axis")
+        .transition()
+        .duration(200)
+        .call(yAxis);
+
 }
