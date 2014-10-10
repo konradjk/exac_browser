@@ -14,7 +14,8 @@
                 gene_chart(window.coverage_stats, window.exons, window.variants_in_transcript, window.transcript);
                 update_variants();
             } else {
-                $('#gene_plot_container').hide();
+                $('#gene_plot').hide();
+                $('#not_covered').show();
             }
         });
     </script>

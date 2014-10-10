@@ -1,4 +1,5 @@
 {% block variant_table %}
+{% include 'variant_selectors.html' %}
 <script>
     $(document).ready(function() {
         window.table_variants = {{ table_variants|tojson|safe }};

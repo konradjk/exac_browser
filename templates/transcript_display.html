@@ -1,7 +1,11 @@
-{% include 'coverage_selectors.html' %}
-<br/>
-<div id="gene_plot_container"></div>
-{% include 'variant_selectors.html' %}
+<div id="gene_plot">
+    {% include 'coverage_selectors.html' %}
+    <br/>
+    <div id="gene_plot_container"></div>
+</div>
+<div id="not_covered" style="display: none;">
+    No coverage for this transcript.
+</div>
 <script>
 
 // Gene charts
