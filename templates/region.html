@@ -10,6 +10,7 @@
         $(document).ready(function() {
             if (window.coverage_stats != null && stop - start > 1) {
                 region_chart(window.coverage_stats, window.variants);
+                update_variants();
             }
         });
     </script>

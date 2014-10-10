@@ -323,16 +323,15 @@ function draw_region_coverage(raw_data, metric, ref) {
 }
 
 function update_variants() {
-    $('[category]').hide();
     var category = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_variant_button', '');
     var filter = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
-    $('[category=lof_variant]' + filter).show();
-    if (category == 'missense') {
+    $('[category]').hide();
+    if (category == 'other') {
+        $('[category]' + filter).show();
+    } else if (category == 'missense') {
         $('[category=missense_variant]' + filter).show();
-    } else if (category == 'other') {
-        $('[category=missense_variant]' + filter).show();
-        $('[category=other_variant]' + filter).show();
     }
+    $('[category=lof_variant]' + filter).show();
 }
 
 function get_af_bounds(data) {
@@ -375,8 +374,16 @@ function change_coverage_chart_metric(data, metric, container) {
         .data(data)
         .transition()
         .duration(500)
-        .attr("y", function(d) { return y(d[metric]); })
-        .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
+        .attr("y", function(d) {
+            if (d['has_coverage']) {
+                return y(d[metric]);
+            }
+        })
+        .attr("height", function(d) {
+            if (d['has_coverage']) {
+                return gene_chart_height - y(d[metric]);
+            }
+        });
 
     var yAxis = d3.svg.axis()
         .scale(y)
