@@ -35,15 +35,18 @@
 }
 
 .lof_variant {
-    color: indianred !important;
+    color: #cd2932 !important;
+    fill: #cd2932 !important;
 }
 
 .missense_variant {
-    color: #2e7e53 !important;
+    color: #a96500 !important;
+    fill: #a96500 !important;
 }
 
-.all_variant {
-    color: #000000 !important;
+.other_variant {
+    color: #157e28 !important;
+    fill: #157e28 !important;
 }
 
 .section_header {

@@ -336,15 +336,15 @@ function update_variants() {
 }
 
 
-function get_color(variant) {
-    if (variant.category == 'lof_variant') {
-        return "darkred";
-    } else if (variant.category == 'missense_variant') {
-        return "yellow";
-    } else {
-        return "green";
-    }
-}
+//function get_color(variant) {
+//    if (variant.category == 'lof_variant') {
+//        return "darkred";
+//    } else if (variant.category == 'missense_variant') {
+//        return "yellow";
+//    } else {
+//        return "green";
+//    }
+//}
 
 function get_af_bounds(data) {
     // Removing AC_Adj = 0 cases

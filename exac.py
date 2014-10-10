@@ -226,6 +226,7 @@ def gene_page(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
     variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+    add_consequence_to_variants(variants_in_gene)
     transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
     # Get csome anonical transcript and corresponding info
@@ -248,8 +249,8 @@ def gene_page(gene_id):
         'gene.html',
         gene=gene,
         transcript=transcript,
-        variants_in_gene=variants_in_transcript,
-        number_variants_in_gene=len(variants_in_gene),
+        variants_in_gene=variants_in_gene,
+        variants_in_transcript=variants_in_transcript,
         lof_variants_in_gene=lof_variants,
         composite_lof_frequency=composite_lof_frequency,
         transcripts_in_gene=transcripts_in_gene,
@@ -268,6 +269,8 @@ def transcript_page(transcript_id):
     genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
     coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'], transcript['xstop'])
+    if not any([x['has_coverage'] for x in coverage_stats]):
+        coverage_stats = None
 
     lof_variants = [
         x for x in variants_in_transcript

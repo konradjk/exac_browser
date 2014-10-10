@@ -159,9 +159,8 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
 //        .append("circle")
         //Ellipse
         .append("ellipse")
-        .attr("class", "track_variant")
-        .style("fill", function(d) {
-            return get_color(d);
+        .attr("class", function(d) {
+            return "track_variant " + d.category;
         })
         .style("opacity", 0.5)
         .attr("cx", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.pos)) })

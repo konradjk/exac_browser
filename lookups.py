@@ -221,8 +221,11 @@ def get_transcripts_in_gene(db, gene_id):
 def get_variants_in_transcript(db, transcript_id):
     """
     """
-    # Temporarily calculating consequence here
-    return list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
+    variants = []
+    for variant in db.variants.find({'transcripts': transcript_id}, fields={'_id': False}):
+        variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Feature'] == transcript_id]
+        variants.append(variant)
+    return variants
 
 
 def get_exons_in_transcript(db, transcript_id):
