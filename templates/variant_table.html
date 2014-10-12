@@ -109,7 +109,7 @@
                 <td> {{ variant.chrom }}</td>
                 <td> {{ variant.pos }}</td>
                 <td> {{ variant.filter }} </td>
-                <td class="{{ variant.category }}"><b> {{ variant.major_consequence }} </b> </td>
+                <td class="{{ variant.category }}"><b> {{ variant.major_consequence|replace('_', ' ')|capitalize|replace('utr', 'UTR') }} </b> </td>
                 <td> {{ variant.allele_count }} </td>
                 <td>
                     {% if variant.allele_freq %}
