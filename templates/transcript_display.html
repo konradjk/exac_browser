@@ -8,7 +8,6 @@
 </div>
 <script>
 function gene_chart(data, exon_data, variant_data, _transcript) {
-    console.log('Coverage data: ', data);
     var coding_coordinate_params = get_coding_coordinate_params(_transcript);
     var coverage_bar_width = gene_chart_width / coding_coordinate_params.size;
     //var coverage_bar_width = 2;
@@ -44,7 +43,6 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .attr('id', 'inner_graph')
         .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
 
-    console.log('Max position is: ', d3.max(data, function(x) { return x.pos }));
     svg.selectAll("bar")
         .data(data)
         .enter()

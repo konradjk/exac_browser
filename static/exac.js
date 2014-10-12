@@ -73,6 +73,7 @@ window.get_coding_coordinate_params = function(_transcript) {
             ret.size += EXON_PADDING*2;
         }
     }
+    ret.size -= EXON_PADDING;
     return ret;
 };
 
