@@ -270,26 +270,29 @@ def gene_page(gene_id):
 def transcript_page(transcript_id):
     db = get_db()
     transcript = lookups.get_transcript(db, transcript_id)
-    gene = lookups.get_gene(db, transcript['gene_id'])
-    variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-    exons = lookups.get_exons_in_transcript(db, transcript_id)
-    genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
-    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
-    if not any([x['has_coverage'] for x in coverage_stats]):
-        coverage_stats = None
-
-    lof_variants = [
-        x for x in variants_in_transcript
-        if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
-    ]
-    composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
-
-    add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-    add_consequence_to_variants(variants_in_transcript)
     cache_key = 't-transcript-{}'.format(transcript_id)
     t = cache.get(cache_key)
     if t is None: 
+    
+        gene = lookups.get_gene(db, transcript['gene_id'])
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+        exons = lookups.get_exons_in_transcript(db, transcript_id)
+        genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
+
+        coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+        if not any([x['has_coverage'] for x in coverage_stats]):
+            coverage_stats = None
+
+        lof_variants = [
+            x for x in variants_in_transcript
+            if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
+        ]
+        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+        add_consequence_to_variants(variants_in_transcript)
+
         t = render_template(
             'transcript.html',
             transcript=transcript,
