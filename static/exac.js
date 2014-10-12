@@ -77,6 +77,14 @@ window.get_coding_coordinate_params = function(_transcript) {
     return ret;
 };
 
+window.precalc_coding_coordinates = function(_transcript, objects, key) {
+    var orig_positions = _.map(objects, function(o) { return o[key] });
+    var new_positions = get_coding_coordinates(_transcript, orig_positions);
+    _.each(objects, function(o, i) {
+        o[key+'_coding'] = new_positions[i];
+    });
+};
+
 
 
 

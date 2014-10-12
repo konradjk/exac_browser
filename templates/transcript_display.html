@@ -10,6 +10,8 @@
 function gene_chart(data, exon_data, variant_data, _transcript) {
     var coding_coordinate_params = get_coding_coordinate_params(_transcript);
     var coverage_bar_width = gene_chart_width / coding_coordinate_params.size;
+    precalc_coding_coordinates(_transcript, data, 'pos');
+    precalc_coding_coordinates(_transcript, variant_data, 'pos');
     //var coverage_bar_width = 2;
 
     var metric = 'mean';
@@ -49,7 +51,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .append("rect")
         .attr('class', 'main_plot_bars')
         .style("fill", "steelblue")
-        .attr('x', function(d) { return exon_x_scale(get_coding_coordinate(_transcript, d.pos))})
+        .attr('x', function(d) { return exon_x_scale(d.pos_coding)})
         .attr("width", coverage_bar_width)
         .attr("y", function(d) { return y(d[metric]); })
         .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
@@ -168,7 +170,7 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
             return "track_variant " + d.category;
         })
         .style("opacity", 0.5)
-        .attr("cx", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.pos)) })
+        .attr("cx", function(d, i) { return exon_x_scale(d.pos_coding) })
         .attr("cy", lower_gene_chart_height/2)
         //Circle
 //        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
