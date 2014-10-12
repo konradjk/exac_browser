@@ -12,8 +12,10 @@ from utils import *
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask import Response
 from collections import defaultdict
+from werkzeug.contrib.cache import SimpleCache
 
 app = Flask(__name__)
+cache = SimpleCache()
 
 EXAC_FILES_DIRECTORY = '../exac_test_data/'
 REGION_LIMIT = 1E6
@@ -23,7 +25,7 @@ app.config.update(dict(
     DB_HOST='localhost',
     DB_PORT=27017, 
     DB_NAME='exac', 
-    DEBUG=True,
+    DEBUG=False,
     SECRET_KEY='development key',
 
     SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
@@ -269,6 +271,7 @@ def transcript_page(transcript_id):
     genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
     coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+    coverage_stats = [c for c in coverage_stats if c['has_coverage']]
     if not any([x['has_coverage'] for x in coverage_stats]):
         coverage_stats = None
 
@@ -280,23 +283,28 @@ def transcript_page(transcript_id):
 
     add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
     add_consequence_to_variants(variants_in_transcript)
-    return render_template(
-        'transcript.html',
-        transcript=transcript,
-        transcript_json=json.dumps(transcript),
-        variants_in_transcript=variants_in_transcript,
-        variants_in_transcript_json=json.dumps(variants_in_transcript),
-        lof_variants=lof_variants,
-        lof_variants_json=json.dumps(lof_variants),
-        composite_lof_frequency=composite_lof_frequency,
-        composite_lof_frequency_json=json.dumps(composite_lof_frequency),
-        coverage_stats=coverage_stats,
-        coverage_stats_json=json.dumps(coverage_stats),
-        exons=exons,
-        exons_json=json.dumps(exons),
-        gene=gene,
-        gene_json=json.dumps(gene),
-    )
+    cache_key = 't-transcript-{}'.format(transcript_id)
+    t = cache.get(cache_key)
+    if t is None: 
+        t = render_template(
+            'transcript.html',
+            transcript=transcript,
+            transcript_json=json.dumps(transcript),
+            variants_in_transcript=variants_in_transcript,
+            variants_in_transcript_json=json.dumps(variants_in_transcript),
+            lof_variants=lof_variants,
+            lof_variants_json=json.dumps(lof_variants),
+            composite_lof_frequency=composite_lof_frequency,
+            composite_lof_frequency_json=json.dumps(composite_lof_frequency),
+            coverage_stats=coverage_stats,
+            coverage_stats_json=json.dumps(coverage_stats),
+            exons=exons,
+            exons_json=json.dumps(exons),
+            gene=gene,
+            gene_json=json.dumps(gene),
+        )
+        cache.set(cache_key, t, timeout=1000*60)
+    return t
 
 
 @app.route('/region/<region_id>')
