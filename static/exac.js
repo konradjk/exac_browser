@@ -7,7 +7,7 @@
  */
 
 // this should be global - should not vary across installation
-var EXON_PADDING = 50;
+var EXON_PADDING = 75;
 
 // todo: move this somewhere else
 /*
