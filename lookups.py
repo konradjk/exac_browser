@@ -79,15 +79,6 @@ def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
         '100': 0
     }
     coverage_array = get_coverage_for_bases(db, xstart, xstop)
-    for item in coverage_array:
-        xpos = item['xpos']
-        if xpos_to_pos(xpos) in genomic_coord_to_exon:
-            item['exon_number'] = genomic_coord_to_exon[xpos_to_pos(item['xpos'])]
-        else:
-            item['exon_number'] = -1
-        if not item['has_coverage']:
-            for entry in null_coverage:
-                item[entry] = null_coverage[entry]
     # only return coverages that have coverage (if that makes any sense?)
     return [c for c in coverage_array if c['has_coverage']]
 
