@@ -211,7 +211,7 @@ def get_exons_from_gencode_gtf(gtf_file):
             continue
         fields = line.strip('\n').split('\t')
 
-        if fields[2] not in ['exon', 'CDS', 'UTR', 'start_codon', 'stop_codon']:
+        if fields[2] not in ['exon', 'CDS', 'UTR']:
             continue
 
         chrom = fields[0][3:]

@@ -102,11 +102,23 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         .attr('class', 'track_bar')
         .style("fill", exon_color)
         .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start)); })
-        .attr("y", 0)
+        .attr("y", function(d, i) {
+            if (d.feature_type == 'CDS') {
+                return 0;
+            } else {
+                return lower_gene_chart_height/4;
+            }
+        })
         .attr("rx", 6)
         .attr("ry", 6)
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
-        .attr("height", lower_gene_chart_height);
+        .attr("height", function(d, i) {
+            if (d.feature_type == 'CDS') {
+                return lower_gene_chart_height;
+            } else {
+                return lower_gene_chart_height/2;
+            }
+        });
 
     var bounds = get_af_bounds(variant_data);
     var min_af = bounds[0];

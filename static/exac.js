@@ -34,7 +34,10 @@ window.get_coding_coordinates = function(_transcript, position_list) {
     }
     for (var i=0; i<num_exons; i++) {
         for (var j=i+1; j<num_exons; j++) {
-            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'] + EXON_PADDING*2;
+            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'];
+            if (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1) {
+                exon_offsets[j] += EXON_PADDING*2;
+            }
         }
     }
 
@@ -64,9 +67,12 @@ window.get_coding_coordinate_params = function(_transcript) {
     var ret = {};
     ret.num_exons = _transcript.exons.length;
     ret.size = EXON_PADDING;
-    _.each(_transcript.exons, function(exon) {
-        ret.size += exon.stop - exon.start + EXON_PADDING*2;
-    });
+    for (var i=0; i<ret.num_exons; i++) {
+        ret.size += _transcript.exons[i].stop - _transcript.exons[i].start;
+        if (i == ret.num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1) {
+            ret.size += EXON_PADDING*2;
+        }
+    }
     return ret;
 };
 
