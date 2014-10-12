@@ -25,6 +25,7 @@ var EXON_PADDING = 50;
 
  */
 window.get_coding_coordinates = function(_transcript, position_list) {
+//    console.log(_transcript.exons);
     var num_exons = _transcript.exons.length;
     var exon_offsets = [];
     // initialize with one sided padding

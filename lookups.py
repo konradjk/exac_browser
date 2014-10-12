@@ -230,4 +230,4 @@ def get_variants_in_transcript(db, transcript_id):
 
 
 def get_exons_in_transcript(db, transcript_id):
-    return sorted(list(db.exons.find({'transcript_id': transcript_id}, fields={'_id': False})), key=lambda k: k['start'])
+    return sorted(list(db.exons.find({'transcript_id': transcript_id, 'feature_type': 'exon'}, fields={'_id': False})), key=lambda k: k['start'])
