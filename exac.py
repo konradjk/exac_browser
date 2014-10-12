@@ -276,7 +276,6 @@ def transcript_page(transcript_id):
     genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
     coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
-    coverage_stats = [c for c in coverage_stats if c['has_coverage']]
     if not any([x['has_coverage'] for x in coverage_stats]):
         coverage_stats = None
 

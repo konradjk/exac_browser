@@ -20,6 +20,11 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
         return variant.pos_coding != undefined;
     });
 
+    // only show coding rects that have a coding coordinate 
+    data = _.filter(data, function(d) {
+        return d.pos_coding != undefined;
+    });
+
     var metric = 'mean';
 
     var exon_x_scale = d3.scale.linear()
