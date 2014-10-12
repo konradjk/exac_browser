@@ -27,7 +27,6 @@ app.config.update(dict(
     SECRET_KEY='development key',
 
     SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
-    FULL_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'genotype_data.vcf.gz'),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     BASE_COVERAGE_FILES=[
