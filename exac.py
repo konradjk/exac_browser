@@ -247,18 +247,23 @@ def gene_page(gene_id):
     ]
     composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
 
-    return render_template(
-        'gene.html',
-        gene=gene,
-        transcript=transcript,
-        variants_in_gene=variants_in_gene,
-        variants_in_transcript=variants_in_transcript,
-        lof_variants_in_gene=lof_variants,
-        composite_lof_frequency=composite_lof_frequency,
-        transcripts_in_gene=transcripts_in_gene,
-        coverage_stats=coverage_stats,
-        exons=exons
-    )
+    cache_key = 't-gene-{}'.format(gene_id)
+    t = cache.get(cache_key)
+    if t is None: 
+        t = render_template(
+            'gene.html',
+            gene=gene,
+            transcript=transcript,
+            variants_in_gene=variants_in_gene,
+            variants_in_transcript=variants_in_transcript,
+            lof_variants_in_gene=lof_variants,
+            composite_lof_frequency=composite_lof_frequency,
+            transcripts_in_gene=transcripts_in_gene,
+            coverage_stats=coverage_stats,
+            exons=exons
+        )
+        cache.set(cache_key, t, timeout=1000*60)
+    return t
 
 
 @app.route('/transcript/<transcript_id>')
