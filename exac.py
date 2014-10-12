@@ -17,6 +17,7 @@ app = Flask(__name__)
 
 EXAC_FILES_DIRECTORY = '../exac_test_data/'
 REGION_LIMIT = 1E6
+EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',
@@ -235,7 +236,7 @@ def gene_page(gene_id):
     variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
     exons = lookups.get_exons_in_transcript(db, transcript_id)
     genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
-    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'], transcript['xstop'])
+    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
     add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
     add_consequence_to_variants(variants_in_transcript)
 
@@ -268,7 +269,7 @@ def transcript_page(transcript_id):
     exons = lookups.get_exons_in_transcript(db, transcript_id)
     genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
-    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'], transcript['xstop'])
+    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
     if not any([x['has_coverage'] for x in coverage_stats]):
         coverage_stats = None
 

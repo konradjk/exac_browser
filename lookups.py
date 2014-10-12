@@ -26,7 +26,7 @@ def get_variant(db, xpos, ref, alt):
 
 def get_variants_by_rsid(db, rsid):
     print 'Looking up: ', rsid
-    if not rsid.startswith('rs'):
+    if not rsid.startswith('RS'):
         return None
     return list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
 
@@ -136,7 +136,7 @@ def get_awesomebar_result(db, query):
     This could be important for performance later
 
     """
-    query = query.strip()
+    query = query.strip().upper()
     print query
 
     # Gene
@@ -154,7 +154,6 @@ def get_awesomebar_result(db, query):
 
     # Variant
     variant = get_variants_by_rsid(db, query)
-    # TODO - https://github.com/brettpthomas/exac_browser/issues/19
     if variant:
         if len(variant) == 1:
             return 'variant', variant[0]['variant_id']
