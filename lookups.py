@@ -88,7 +88,8 @@ def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
         if not item['has_coverage']:
             for entry in null_coverage:
                 item[entry] = null_coverage[entry]
-    return coverage_array
+    # only return coverages that have coverage (if that makes any sense?)
+    return [c for c in coverage_array if c['has_coverage']]
 
 
 def get_awesomebar_suggestions(db, query):
