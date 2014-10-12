@@ -262,6 +262,7 @@ def gene_page(gene_id):
 
 @app.route('/transcript/<transcript_id>')
 def transcript_page(transcript_id):
+    start = datetime.datetime.now()
     db = get_db()
     transcript = lookups.get_transcript(db, transcript_id)
     gene = lookups.get_gene(db, transcript['gene_id'])
@@ -281,17 +282,24 @@ def transcript_page(transcript_id):
 
     add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
     add_consequence_to_variants(variants_in_transcript)
-
-    return render_template(
+    t = render_template(
         'transcript.html',
         transcript=transcript,
+        transcript_json=json.dumps(transcript),
         variants_in_transcript=variants_in_transcript,
+        variants_in_transcript_json=json.dumps(variants_in_transcript),
         lof_variants=lof_variants,
+        lof_variants_json=json.dumps(lof_variants),
         composite_lof_frequency=composite_lof_frequency,
+        composite_lof_frequency_json=json.dumps(composite_lof_frequency),
         coverage_stats=coverage_stats,
+        coverage_stats_json=json.dumps(coverage_stats),
         exons=exons,
-        gene=gene
+        exons_json=json.dumps(exons),
+        gene=gene,
+        gene_json=json.dumps(gene),
     )
+    return t
 
 
 @app.route('/region/<region_id>')
