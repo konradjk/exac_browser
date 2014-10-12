@@ -8,11 +8,17 @@
 </div>
 <script>
 function gene_chart(data, exon_data, variant_data, _transcript) {
+
     var coding_coordinate_params = get_coding_coordinate_params(_transcript);
     var coverage_bar_width = gene_chart_width / coding_coordinate_params.size;
     precalc_coding_coordinates(_transcript, data, 'pos');
     precalc_coding_coordinates(_transcript, variant_data, 'pos');
     //var coverage_bar_width = 2;
+
+    // only show variants that have a coding coordinate 
+    variant_data = _.filter(variant_data, function(variant) {
+        return variant.pos_coding != undefined;
+    });
 
     var metric = 'mean';
 
