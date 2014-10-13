@@ -8,9 +8,9 @@
         $("#variants_table_container").show();
         $("#variant_table").tablesorter({
             widthFixed: true,
-            sortList: [[1,0], [2,0], [6,1]],
+            sortList: [[1,0], [2,0], [7,1]],
             headers: {
-                7: { sorter: false, parser: false }
+                8: { sorter: false, parser: false }
             }
         });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
@@ -78,6 +78,7 @@
                 <th>Filter</th>
                 <th>Annotation</th>
                 <th>Allele Count</th>
+                <th>Allele Number</th>
                 <th>Allele Frequency</th>
                 <th></th>
             </tr>
@@ -111,6 +112,7 @@
                 <td> {{ variant.filter }} </td>
                 <td class="{{ variant.category }}"><b> {{ variant.major_consequence|replace('_variant', '')|replace('_', ' ')|capitalize|replace('utr', 'UTR') }} </b> </td>
                 <td> {{ variant.allele_count }} </td>
+                <td> {{ variant.allele_num }} </td>
                 <td>
                     {% if variant.allele_freq %}
                         {{ '%0.4g' % variant.allele_freq }}

@@ -35,9 +35,9 @@ window.get_coding_coordinates = function(_transcript, position_list) {
     for (var i=0; i<num_exons; i++) {
         for (var j=i+1; j<num_exons; j++) {
             exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'];
-            if (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1) {
+//            if (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1) {
                 exon_offsets[j] += EXON_PADDING*2;
-            }
+//            }
         }
     }
 

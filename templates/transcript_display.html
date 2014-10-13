@@ -84,7 +84,8 @@ function gene_chart(data, variant_data, _transcript) {
         .attr('x', function(d) { return exon_x_scale(d.pos_coding)})
         .attr("width", coverage_bar_width)
         .attr("y", function(d) { return y(d[metric]); })
-        .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
+        .attr("height", function(d) { return gene_chart_height - y(d[metric]); })
+        .attr('position', function(d) { return d.pos });
 
 {#    svg.append("g")#}
 {#        .attr("class", "x axis")#}
@@ -141,8 +142,8 @@ function gene_chart(data, variant_data, _transcript) {
                 return lower_gene_chart_height/4;
             }
         })
-        .attr("rx", 6)
-        .attr("ry", 6)
+{#        .attr("rx", 6)#}
+{#        .attr("ry", 6)#}
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
         .attr("height", function(d, i) {
             if (d.feature_type == 'CDS') {
