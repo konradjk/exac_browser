@@ -10,11 +10,15 @@ import xbrowse
 from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+from flask.ext.compress import Compress
+
+compress = Compress()
 from flask import Response
 from collections import defaultdict
 from werkzeug.contrib.cache import SimpleCache
 
 app = Flask(__name__)
+# compress.init_app(app)
 cache = SimpleCache()
 
 EXAC_FILES_DIRECTORY = '../exac_test_data/'
@@ -138,7 +142,6 @@ def load_db():
         progress.update(canonical_transcript_file.fileobj.tell())
     gtf_file.close()
     progress.finish()
-
 
 
 def get_db():

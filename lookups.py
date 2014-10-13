@@ -193,6 +193,10 @@ def get_variants_in_gene(db, gene_id):
     for variant in variants:
         del variant['genotype_depths']
         del variant['genotype_qualities']
+        del variant['pop_acs']
+        del variant['pop_ans']
+        del variant['pop_homs']
+
         csq = variant['vep_annotations']
         variant['vep_annotations'] = [
             {'Consequence': x['Consequence'],
