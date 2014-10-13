@@ -51,7 +51,8 @@ function gene_chart(data, variant_data, _transcript) {
 
     var max_cov;
     if (metric == 'mean' || metric == 'median') {
-        max_cov = d3.max(data, function(d) { return d[metric]; });
+{#        max_cov = d3.max(data, function(d) { return d[metric]; });#}
+        max_cov = 100;
     } else {
         max_cov = 1;
     }

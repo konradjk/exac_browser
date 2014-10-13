@@ -359,19 +359,15 @@ def dbsnp_page(rsid):
         genes_in_region=None
     )
 
-@app.route('/howtouse')
-def howtouse_page():
-    return render_template('howtouse.html')
-
 
 @app.route('/downloads')
 def downloads_page():
     return render_template('downloads.html')
 
 
-@app.route('/contact')
-def contact_page():
-    return render_template('contact.html')
+@app.route('/about')
+def about_page():
+    return render_template('about.html')
 
 
 if __name__ == "__main__":
