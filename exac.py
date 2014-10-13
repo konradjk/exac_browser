@@ -279,8 +279,6 @@ def transcript_page(transcript_id):
         variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
 
         coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
-        if not any([x['has_coverage'] for x in coverage_stats]):
-            coverage_stats = None
 
         lof_variants = [
             x for x in variants_in_transcript

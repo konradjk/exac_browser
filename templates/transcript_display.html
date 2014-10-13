@@ -1,7 +1,9 @@
 <div id="gene_plot">
     {% include 'coverage_selectors.html' %}
     <br/>
-    <div id="gene_plot_container"></div>
+    <div id="gene_plot_container_container" style="overflow-x:scroll; width:1100px;">
+        <div id="gene_plot_container"></div>
+    </div>
 </div>
 <div id="not_covered" style="display: none;">
     No coverage for this transcript.
@@ -10,7 +12,8 @@
 function gene_chart(data, variant_data, _transcript) {
 
     var coding_coordinate_params = get_coding_coordinate_params(_transcript);
-    var coverage_bar_width = gene_chart_width / coding_coordinate_params.size;
+    var chart_width = gene_chart_width;
+    var coverage_bar_width = chart_width / coding_coordinate_params.size;
     precalc_coding_coordinates(_transcript, data, 'pos');
     precalc_coding_coordinates(_transcript, variant_data, 'pos');
     //var coverage_bar_width = 2;
@@ -29,7 +32,7 @@ function gene_chart(data, variant_data, _transcript) {
 
     var exon_x_scale = d3.scale.linear()
         .domain([0, coding_coordinate_params.size])
-        .range([0, gene_chart_width]);
+        .range([0, chart_width]);
 
     var max_cov;
     if (metric == 'mean' || metric == 'median') {
@@ -50,8 +53,9 @@ function gene_chart(data, variant_data, _transcript) {
         .orient("left");
 
     var svg = d3.select('#gene_plot_container').append("svg")
-        .attr("width", gene_chart_width + gene_chart_margin.left + gene_chart_margin.right)
+        .attr("width", chart_width + gene_chart_margin.left + gene_chart_margin.right)
         .attr("height", gene_chart_height + gene_chart_margin.top + gene_chart_margin.bottom)
+        .attr('id', 'inner_svg')
         .append("g")
         .attr('id', 'inner_graph')
         .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
@@ -89,8 +93,9 @@ function gene_chart(data, variant_data, _transcript) {
 
     // plot exons
     var svg_outer = d3.select('#gene_plot_container').append("svg")
-        .attr("width", gene_chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
+        .attr("width", chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
         .attr("height", lower_gene_chart_height)
+        .attr('id', 'track_svg')
         .append("g")
         .attr('id', 'track')
         .attr("transform", "translate(" + gene_chart_margin_lower.left + "," + 0 + ")");
@@ -101,6 +106,7 @@ function gene_chart(data, variant_data, _transcript) {
         .attr("y2", lower_gene_chart_height/2)
         .attr("x1", 0)
         .attr("x2", exon_x_scale(coding_coordinate_params.size))
+        .attr('id', 'boundary_line')
         .attr("stroke-width", 10)
         .attr("stroke", exon_color);
 
@@ -250,6 +256,17 @@ $(document).ready(function() {
 
     $('.consequence_display_buttons, #filtered_checkbox').change(function () {
         setTimeout(update_variants, 10);
+    });
+
+    $('.display_coverage_metric_buttons').change(function () {
+        var detail = $(this).attr('id').replace('display_coverage_', '').replace('_button', '');
+        var metric = $('.coverage_metric_buttons.active').attr('id').replace('_covmet_button', '');
+        if (detail == 'detail') {
+            $('#gene_plot_container_container');
+        } else {
+            $('#gene_plot_container_container');
+        }
+        change_chart_width(window.coverage_stats, window.variants_in_transcript, window.transcript, detail, '#gene_plot_container');
     });
 });
 </script>
