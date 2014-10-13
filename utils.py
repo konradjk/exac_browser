@@ -57,6 +57,8 @@ def add_consequence_to_variants(variant_list):
         elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
             # Should be noted that this grabs inframe deletion, etc.
             variant['category'] = 'missense_variant'
+        elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["synonymous_variant"]:
+            variant['category'] = 'synonymous_variant'
         else:
             variant['category'] = 'other_variant'
 
