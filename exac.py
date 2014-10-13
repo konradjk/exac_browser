@@ -18,6 +18,7 @@ from werkzeug.contrib.cache import SimpleCache
 
 app = Flask(__name__)
 Compress(app)
+app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
 EXAC_FILES_DIRECTORY = '../exac_test_data/'
