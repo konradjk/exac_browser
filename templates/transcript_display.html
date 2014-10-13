@@ -1,4 +1,18 @@
 <div id="gene_plot">
+    <span style="float: right;">
+        <label for="display_coverage_metric_group">
+            Display:
+        </label>
+        <span class="btn-group" data-toggle="buttons" id="display_coverage_metric_group">
+            <button class="btn btn-primary active display_coverage_metric_buttons" id="display_coverage_overview_button">
+                <input type="radio">Overview
+            </button>
+            <button class="btn btn-primary display_coverage_metric_buttons" id="display_coverage_detail_button">
+                <input type="radio">Detail
+            </button>
+        </span>
+    </span>
+    <br/>
     {% include 'coverage_selectors.html' %}
     <br/>
     <div id="gene_plot_container_container" style="overflow-x:scroll; width:1100px;">
@@ -261,11 +275,6 @@ $(document).ready(function() {
     $('.display_coverage_metric_buttons').change(function () {
         var detail = $(this).attr('id').replace('display_coverage_', '').replace('_button', '');
         var metric = $('.coverage_metric_buttons.active').attr('id').replace('_covmet_button', '');
-        if (detail == 'detail') {
-            $('#gene_plot_container_container');
-        } else {
-            $('#gene_plot_container_container');
-        }
         change_chart_width(window.coverage_stats, window.variants_in_transcript, window.transcript, detail, '#gene_plot_container');
     });
 });

@@ -145,7 +145,7 @@ def get_awesomebar_result(db, query):
     # Region
     m = R1.match(query.lstrip('chr'))
     if m:
-        if int(m.group(2)) < int(m.group(3)):
+        if int(m.group(3)) < int(m.group(2)):
             return 'region', 'invalid'
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(3))
     m = R2.match(query.lstrip('chr'))

@@ -406,7 +406,6 @@ function change_coverage_chart_metric(data, metric, container) {
 }
 
 function change_chart_width(data, variant_data, _transcript, scale_type, container) {
-    console.log('changing to ', scale_type);
     var coding_coordinate_params = get_coding_coordinate_params(_transcript);
     var chart_width;
     if (scale_type == 'overview') {
@@ -465,9 +464,8 @@ function change_chart_width(data, variant_data, _transcript, scale_type, contain
         .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start)); })
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); });
 
-    console.log(variant_data);
     // plot variants
-    svg_outer.selectAll("a")
+    var variants = svg_outer.selectAll("a")
         .data(variant_data)
         .transition()
         .duration(500)
