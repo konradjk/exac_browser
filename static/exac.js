@@ -441,6 +441,14 @@ function change_chart_width(data, variant_data, _transcript, scale_type, contain
         .attr('x', function(d) { return exon_x_scale(d.pos_coding)})
         .attr("width", coverage_bar_width);
 
+    svg.selectAll("circle")
+        .data(data)
+        .transition()
+        .duration(500)
+        .attr("cx", function(d) {
+            return exon_x_scale(get_coding_coordinate(_transcript, d.pos));
+        });
+
     // plot exons
     var svg_outer = d3.select(container).select('#track_svg')
         .attr("width", chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
@@ -450,18 +458,20 @@ function change_chart_width(data, variant_data, _transcript, scale_type, contain
         .attr("x2", exon_x_scale(coding_coordinate_params.size));
 
     // plot exon rounded rects
-    svg_outer.selectAll("bar")
+    svg_outer.selectAll("rect")
         .data(_transcript.exons)
         .transition()
         .duration(500)
         .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start)); })
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); });
+
     console.log(variant_data);
     // plot variants
-    svg_outer.selectAll("a").selectAll('ellipse')
+    svg_outer.selectAll("a")
         .data(variant_data)
         .transition()
         .duration(500)
+        .selectAll('ellipse')
         .attr("cx", function(d, i) { return exon_x_scale(d.pos_coding) });
 }
 
