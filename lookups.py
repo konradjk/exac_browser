@@ -65,19 +65,6 @@ def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
     :param xstop:
     :return:
     """
-    null_coverage = {
-        'mean': 0,
-        'median': 0,
-        '1': 0,
-        '5': 0,
-        '10': 0,
-        '15': 0,
-        '20': 0,
-        '25': 0,
-        '30': 0,
-        '50': 0,
-        '100': 0
-    }
     coverage_array = get_coverage_for_bases(db, xstart, xstop)
     # only return coverages that have coverage (if that makes any sense?)
     return [c for c in coverage_array if c['has_coverage']]
@@ -202,7 +189,19 @@ def get_variants_in_region(db, chrom, start, stop):
 def get_variants_in_gene(db, gene_id):
     """
     """
-    return list(db.variants.find({'genes': gene_id}, fields={'_id': False}))
+    variants = list(db.variants.find({'genes': gene_id}, fields={'_id': False}))
+    for variant in variants:
+        del variant['genotype_depths']
+        del variant['genotype_qualities']
+        csq = variant['vep_annotations']
+        variant['vep_annotations'] = [
+            {'Consequence': x['Consequence'],
+             'Gene': x['Gene'],
+             'Feature': x['Feature'],
+             'LoF': x['LoF']}
+            for x in csq
+        ]
+    return variants
 
 
 def get_transcripts_in_gene(db, gene_id):

@@ -25,7 +25,7 @@ app.config.update(dict(
     DB_HOST='localhost',
     DB_PORT=27017, 
     DB_NAME='exac', 
-    DEBUG=False,
+    DEBUG=True,
     SECRET_KEY='development key',
 
     SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),

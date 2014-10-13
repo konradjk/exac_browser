@@ -387,16 +387,8 @@ function change_coverage_chart_metric(data, metric, container) {
         .data(data)
         .transition()
         .duration(500)
-        .attr("y", function(d) {
-            if (d['has_coverage']) {
-                return y(d[metric]);
-            }
-        })
-        .attr("height", function(d) {
-            if (d['has_coverage']) {
-                return gene_chart_height - y(d[metric]);
-            }
-        });
+        .attr("y", function(d) { return y(d[metric]); })
+        .attr("height", function(d) { return gene_chart_height - y(d[metric]); });
 
     var yAxis = d3.svg.axis()
         .scale(y)
