@@ -108,7 +108,7 @@
                             <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
                         {% endif %}
                         <dt>Allele Frequency</dt>
-                        <dd>{{ variant.allele_freq }}</dd>
+                        <dd>{{ '%0.4g' % variant.allele_freq }}</dd>
                         <dt>Allele Count</dt>
                         <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
                     </dl>
