@@ -61,18 +61,18 @@
                 sortList: [[3,1], [0,0]]
             });
 
-            if (window.variant != null && 'genotype_info' in window.variant && 'genotype_depths' in window.variant.genotype_info) {
-                draw_quality_histogram(window.variant.genotype_info.genotype_depths);
+            if (window.variant != null && 'genotype_depths' in window.variant) {
+                draw_quality_histogram(window.variant.genotype_depths);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
                     var f = $('#quality_variant_sites_only_button').hasClass('active');
-                    draw_quality_histogram(window.variant.genotype_info[v]);
+                    draw_quality_histogram(window.variant[v]);
                 });
                 $('#quality_variant_sites_only_button').click(function() {
                     var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
                     // TODO: Fix to do this properly
                     var f = !$(this).hasClass('active');
-                    draw_quality_histogram(window.variant.genotype_info[v]);
+                    draw_quality_histogram(window.variant[v]);
                 });
             } else {
                 $('#quality_metrics_container').hide();
