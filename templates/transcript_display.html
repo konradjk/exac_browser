@@ -166,14 +166,17 @@ function gene_chart(data, variant_data, _transcript) {
     // show variant category on hover
     var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
         if (d.category) {
-            return d.major_consequence.replace('_variant', '').
-                    replace('_', ' ').
-                    replace('utr', 'UTR').
-                    replace('3 prime', "3'").
-                    replace('5 prime', "5'").
-                    replace('nc ', "non-coding ") +
-                    '<br/>' + d.chrom + ':' + d.pos +
-                    '<br/>Frequency: ' + d.allele_freq.toExponential(3);
+            var csq = d.major_consequence.replace('_variant', '')
+                    .replace('_', ' ')
+                    .replace('utr', 'UTR')
+                    .replace('3 prime', "3'")
+                    .replace('5 prime', "5'")
+                    .replace('nc ', "non-coding ");
+            var output = csq + '<br/>' + d.chrom + ':' + d.pos + '<br/>Frequency: ' + d.allele_freq.toExponential(3);
+            if (d.major_consequence == 'missense_variant') {
+                output += '<br/>' + d.vep_annotations[0].HGVSp.split(':')[1];
+            }
+            return output;
         } else {
             return 'None';
         }
