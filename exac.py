@@ -334,6 +334,7 @@ def region_page(region_id):
     xstart = xbrowse.get_xpos(chrom, start)
     xstop = xbrowse.get_xpos(chrom, stop)
     coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
+    add_consequence_to_variants(variants_in_region)
     return render_template(
         'region.html',
         genes_in_region=genes_in_region,
