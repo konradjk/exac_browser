@@ -39,6 +39,16 @@
                     .attr("height", height)
                     .append("g");
 
+                for (var j=0; j<8; j++) {
+                    svg.append('rect')
+                            .style('stroke', 'steelblue')
+                            .style('fill', 'white')
+                            .attr('x', x_scale(j))
+                            .attr('y', 0)
+                            .attr('height', height)
+                            .attr('width', x_scale(1) - x_scale(0))
+                }
+
                 svg.append('rect')
                     .style('fill', 'steelblue')
                     .attr('x', 0)
@@ -121,8 +131,9 @@
                     {% else %}
                         {{ variant.allele_freq }}
                     {% endif %}
+                    <div id="variant_af_box_{{ variant.variant_id }}" style="float: right;"></div>
                 </td>
-                <td id="variant_af_box_{{ variant.variant_id }}"></td>
+                <td></td>
             </tr>
         {% endfor %}
         <tbody>
