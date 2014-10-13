@@ -56,7 +56,7 @@ def get_coverage_for_bases(db, xstart, xstop=None):
     return ret
 
 
-def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
+def get_coverage_for_transcript(db, xstart, xstop=None):
     """
 
     :param db:

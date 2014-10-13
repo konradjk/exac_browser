@@ -241,9 +241,7 @@ def gene_page(gene_id):
         transcript_id = gene['canonical_transcript']
         transcript = lookups.get_transcript(db, transcript_id)
         variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-        exons = lookups.get_exons_in_transcript(db, transcript_id)
-        genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
-        coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
         add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
         add_consequence_to_variants(variants_in_transcript)
 
@@ -262,8 +260,7 @@ def gene_page(gene_id):
             lof_variants_in_gene=lof_variants,
             composite_lof_frequency=composite_lof_frequency,
             transcripts_in_gene=transcripts_in_gene,
-            coverage_stats=coverage_stats,
-            exons=exons
+            coverage_stats=coverage_stats
         )
         cache.set(cache_key, t, timeout=1000*60)
     return t
@@ -280,10 +277,8 @@ def transcript_page(transcript_id):
     
         gene = lookups.get_gene(db, transcript['gene_id'])
         variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-        exons = lookups.get_exons_in_transcript(db, transcript_id)
-        genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
-        coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
         if not any([x['has_coverage'] for x in coverage_stats]):
             coverage_stats = None
 
@@ -308,8 +303,6 @@ def transcript_page(transcript_id):
             composite_lof_frequency_json=json.dumps(composite_lof_frequency),
             coverage_stats=coverage_stats,
             coverage_stats_json=json.dumps(coverage_stats),
-            exons=exons,
-            exons_json=json.dumps(exons),
             gene=gene,
             gene_json=json.dumps(gene),
         )
