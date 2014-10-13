@@ -172,7 +172,9 @@ function gene_chart(data, variant_data, _transcript) {
                     .replace('3 prime', "3'")
                     .replace('5 prime', "5'")
                     .replace('nc ', "non-coding ");
-            var output = csq + '<br/>' + d.chrom + ':' + d.pos + '<br/>Frequency: ' + d.allele_freq.toExponential(3);
+            var output = csq + '<br/>' + d.chrom + ':' + d.pos + ' ' + d.ref + '&#8594;' + d.alt;
+            output += '<br/>Frequency: ' + d.allele_freq.toExponential(3);
+            output += '<br/>' + d.vep_annotations[0].HGVSc.split(':')[1];
             if (d.major_consequence == 'missense_variant') {
                 output += '<br/>' + d.vep_annotations[0].HGVSp.split(':')[1];
             }
