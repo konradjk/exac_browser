@@ -230,29 +230,29 @@ def variant_page(variant_str):
 def gene_page(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
-    variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
-    add_consequence_to_variants(variants_in_gene)
-    transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
-
-    # Get csome anonical transcript and corresponding info
-    transcript_id = gene['canonical_transcript']
-    transcript = lookups.get_transcript(db, transcript_id)
-    variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-    exons = lookups.get_exons_in_transcript(db, transcript_id)
-    genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
-    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
-    add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-    add_consequence_to_variants(variants_in_transcript)
-
-    lof_variants = [
-        x for x in variants_in_gene
-        if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Gene'] == gene_id])
-    ]
-    composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
-
     cache_key = 't-gene-{}'.format(gene_id)
     t = cache.get(cache_key)
-    if t is None: 
+    if t is None:
+        variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+        add_consequence_to_variants(variants_in_gene)
+        transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
+
+        # Get csome anonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']
+        transcript = lookups.get_transcript(db, transcript_id)
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+        exons = lookups.get_exons_in_transcript(db, transcript_id)
+        genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
+        coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+        add_consequence_to_variants(variants_in_transcript)
+
+        lof_variants = [
+            x for x in variants_in_gene
+            if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Gene'] == gene_id])
+        ]
+        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+
         t = render_template(
             'gene.html',
             gene=gene,

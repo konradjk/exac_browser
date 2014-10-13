@@ -383,6 +383,9 @@ function change_coverage_chart_metric(data, metric, container) {
 
     var svg = d3.select(container).select('#inner_graph');
 
+    data = _.filter(data, function(d) {
+        return d.pos_coding != undefined;
+    });
     svg.selectAll("rect")
         .data(data)
         .transition()

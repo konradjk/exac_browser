@@ -144,7 +144,9 @@ function gene_chart(data, exon_data, variant_data, _transcript) {
     // show variant category on hover
     var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
         if (d.category) {
-            return d.category;
+            return d.category.replace('_', ' ') +
+                    '<br/>' + d.chrom + ':' + d.pos +
+                    '<br/>Frequency: ' + d.allele_freq.toExponential(3);
         } else {
             return 'None';
         }
