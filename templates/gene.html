@@ -6,6 +6,7 @@
         window.transcript = {{ transcript|tojson|safe }};
         window.variants_in_gene = {{ variants_in_gene|tojson|safe }};
         window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
+        window.lof_variants_in_gene = {{ lof_variants_in_gene|tojson|safe }};
         window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
         window.coverage_stats = {{ coverage_stats|tojson|safe }};
 
@@ -28,9 +29,19 @@
             <div class="col-md-6">
                 <dl class="dl-horizontal">
                     <dt>Number of variants</dt>
-                    <dd>{{ variants_in_gene|length }}</dd>
+                    <dd><span id="number_of_variants"></span> (Including filtered: {{ variants_in_gene|length }})</dd>
                     <dt>Number of LoF variants</dt>
-                    <dd>{{ lof_variants_in_gene|length }}</dd>
+                    <dd><span id="number_of_lof_variants"></span> (Including filtered: {{ lof_variants_in_gene|length }})</dd>
+                    <script>
+                        filtered_variants = _.filter(window.variants_in_gene, function(d) {
+                            return d.filter == 'PASS';
+                        });
+                        $('#number_of_variants').replaceWith(filtered_variants.length);
+                        lof_filtered_variants = _.filter(window.variants_in_gene, function(d) {
+                            return d.filter == 'PASS' && d.category == 'lof_variant';
+                        });
+                        $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
+                    </script>
                     <dt>LoF rate</dt>
                     <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>
                     <dt>GeneCards</dt>

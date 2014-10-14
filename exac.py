@@ -269,7 +269,7 @@ def gene_page(gene_id):
 
         lof_variants = [
             x for x in variants_in_gene
-            if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Gene'] == gene_id])
+            if any([y['LoF'] in ('HC', 'LC') for y in x['vep_annotations'] if y['Gene'] == gene_id])
         ]
         composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
 
