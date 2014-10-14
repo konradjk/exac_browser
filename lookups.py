@@ -26,7 +26,11 @@ def get_variant(db, xpos, ref, alt):
 
 def get_variants_by_rsid(db, rsid):
     print 'Looking up: ', rsid
-    if not rsid.startswith('RS'):
+    if not rsid.startswith('rs'):
+        return None
+    try:
+        int(rsid.lstrip('rs'))
+    except Exception, e:
         return None
     return list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
 
@@ -133,7 +137,7 @@ def get_awesomebar_result(db, query):
         return 'transcript', transcript['transcript_id']
 
     # Variant
-    variant = get_variants_by_rsid(db, query)
+    variant = get_variants_by_rsid(db, query.lower())
     if variant:
         if len(variant) == 1:
             return 'variant', variant[0]['variant_id']

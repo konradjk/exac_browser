@@ -371,12 +371,18 @@ def region_page(region_id):
 @app.route('/dbsnp/<rsid>')
 def dbsnp_page(rsid):
     db = get_db()
-    variant = lookups.get_variants_by_rsid(db, rsid)
-    print variant
+    variants = lookups.get_variants_by_rsid(db, rsid)
+    chrom = None
+    start = None
+    stop = None
+    add_consequence_to_variants(variants)
     return render_template(
         'region.html',
         rsid=rsid,
-        variants_in_region=variant,
+        variants_in_region=variants,
+        chrom=chrom,
+        start=start,
+        stop=stop,
         coverage=None,
         genes_in_region=None
     )
