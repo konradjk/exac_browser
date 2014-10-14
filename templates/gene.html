@@ -19,12 +19,6 @@
             $("#variants_table_container").show();
             $("#gene_variants_table").tablesorter({widthFixed: true})
                     .tablesorterPager({container: $("#pager")});
-            if (window.coverage_stats != null) {
-                gene_chart(window.coverage_stats, window.variants_in_transcript, window.transcript);
-                update_variants();
-            } else {
-                $('#gene_plot_container').hide();
-            }
         });
     </script>
     <div class="container">

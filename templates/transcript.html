@@ -7,16 +7,6 @@
         window.coverage_stats = {{ coverage_stats_json|safe }};
         window.lof_variants = {{ lof_variants_json|safe }};
         window.gene = {{ gene_json|safe }};
-
-        $(document).ready(function() {
-            if (window.coverage_stats != null) {
-                gene_chart(window.coverage_stats, window.variants_in_transcript, window.transcript);
-                update_variants();
-            } else {
-                $('#gene_plot').hide();
-                $('#not_covered').show();
-            }
-        });
     </script>
     <div class="container">
         <h1>{{ gene.gene_name }}</h1>
