@@ -24,9 +24,17 @@ var EXON_PADDING = 75;
         - Brett, will you please write some fucking tests for this...
 
  */
-window.get_coding_coordinates = function(_transcript, position_list) {
+window.get_coding_coordinates = function(_transcript, position_list, skip_utrs) {
 //    console.log(_transcript.exons);
-    var num_exons = _transcript.exons.length;
+    var exons;
+    if (skip_utrs) {
+        exons = _.filter(_transcript.exons, function(d) {
+            return d.feature_type != 'UTR';
+        });
+    } else {
+        exons = _transcript.exons;
+    }
+    var num_exons = exons.length;
     var exon_offsets = [];
     // initialize with one sided padding
     for (var i=0; i<num_exons; i++) {
@@ -34,10 +42,10 @@ window.get_coding_coordinates = function(_transcript, position_list) {
     }
     for (var i=0; i<num_exons; i++) {
         for (var j=i+1; j<num_exons; j++) {
-            exon_offsets[j] += _transcript.exons[i]['stop'] - _transcript.exons[i]['start'];
-//            if (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1) {
+            exon_offsets[j] += exons[i]['stop'] - exons[i]['start'];
+            if (!skip_utrs && (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1)) {
                 exon_offsets[j] += EXON_PADDING*2;
-//            }
+            }
         }
     }
 
@@ -48,7 +56,7 @@ window.get_coding_coordinates = function(_transcript, position_list) {
         coding_positions.push(-1);
     }
     _.each(position_list, function(position, i) {
-        _.each(transcript.exons, function(exon, j) {
+        _.each(exons, function(exon, j) {
             if (position >= exon.start - EXON_PADDING && position <= exon.stop + EXON_PADDING) {
                 coding_positions[i] = exon_offsets[j] + position - exon.start;
                 return;
@@ -58,30 +66,42 @@ window.get_coding_coordinates = function(_transcript, position_list) {
     return coding_positions;
 };
 
-window.get_coding_coordinate = function(_transcript, position) {
-    return get_coding_coordinates(_transcript, [position])[0];
+window.get_coding_coordinate = function(_transcript, position, skip_utrs) {
+    return get_coding_coordinates(_transcript, [position], skip_utrs)[0];
 };
 
 
-window.get_coding_coordinate_params = function(_transcript) {
+window.get_coding_coordinate_params = function(_transcript, skip_utrs) {
     var ret = {};
-    ret.num_exons = _transcript.exons.length;
+    var exons;
+    if (skip_utrs) {
+        exons = _.filter(_transcript.exons, function(d) {
+            return d.feature_type != 'UTR';
+        });
+    } else {
+        exons = _transcript.exons;
+    }
+    ret.num_exons = exons.length;
     ret.size = EXON_PADDING;
     for (var i=0; i<ret.num_exons; i++) {
-        ret.size += _transcript.exons[i].stop - _transcript.exons[i].start;
-        if (i == ret.num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1) {
+        ret.size += exons[i].stop - exons[i].start;
+        if (!skip_utrs && (i == ret.num_exons - 1 || exons[i]['stop'] != exons[i+1]['start'] - 1)) {
             ret.size += EXON_PADDING*2;
         }
     }
-    ret.size -= EXON_PADDING;
+    ret.size -= EXON_PADDING*2;
     return ret;
 };
 
 window.precalc_coding_coordinates = function(_transcript, objects, key) {
     var orig_positions = _.map(objects, function(o) { return o[key] });
-    var new_positions = get_coding_coordinates(_transcript, orig_positions);
+    var new_positions = get_coding_coordinates(_transcript, orig_positions, false);
     _.each(objects, function(o, i) {
         o[key+'_coding'] = new_positions[i];
+    });
+    var new_positions = get_coding_coordinates(_transcript, orig_positions, true);
+    _.each(objects, function(o, i) {
+        o[key+'_coding_noutr'] = new_positions[i];
     });
 };
 
