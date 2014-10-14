@@ -1,13 +1,14 @@
 {% extends "layout.html" %}
 {% block body %}
+    <script>
+        $(document).ready(function() {
+            $('.about_links').replaceWith('here');
+        });
+    </script>
     <div class="container">
         <h1>Contact</h1>
         <div class="row">
-            <p>
-                The Exome Aggregation Consortium (ExAC) is an international collection of scientists,
-                that has assembled the world’s largest single collection of sequencing data from human protein-coding gene regions (the exome),
-                spanning over 90,000 individuals.
-            </p>
+            {% include "about_text.html" %}
             <p>
                 To cite the browser, please use: <a href="">ExAC Browser</a>.
             </p>

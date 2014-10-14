@@ -16,8 +16,9 @@
     <br/>
     {% include 'coverage_selectors.html' %}
     <br/>
-    <div id="gene_plot_container_container" style="overflow-x:scroll; width:1100px;">
-        <div id="gene_plot_container"></div>
+    <div id="gene_plot_container_container" style="width:1200px;">
+        <span id="gene_plot_axis_container" style="width:50px; display: inline-block;"></span>
+        <span id="gene_plot_container" style="overflow-x:scroll; width:1100px; display: inline-block;"></span>
     </div>
 </div>
 <div id="not_covered" style="display: none;">
@@ -124,7 +125,7 @@ function gene_chart(data, variant_data, _transcript) {
         .attr("x1", 0)
         .attr("x2", exon_x_scale(coding_coordinate_params.size))
         .attr('id', 'boundary_line')
-        .attr("stroke-width", 10)
+        .attr("stroke-width", 5)
         .attr("stroke", exon_color);
 
     console.log(_transcript);
@@ -178,7 +179,7 @@ function gene_chart(data, variant_data, _transcript) {
             if (d.major_consequence == 'missense_variant') {
                 output += '<br/>' + d.vep_annotations[0].HGVSp.split(':')[1];
             }
-            output += '<br/>Frequency: ' + d.allele_freq.toExponential(3);
+            output += '<br/>Frequency: ' + parseFloat(d.allele_freq);
             return output;
         } else {
             return 'None';

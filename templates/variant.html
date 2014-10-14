@@ -111,6 +111,13 @@
                         <dd>{{ '%0.4g' % variant.allele_freq }}</dd>
                         <dt>Allele Count</dt>
                         <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
+                        <dt>UCSC</dt>
+                        <dd>
+                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
+                                {{ variant.variant_id }}
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </dd>
                     </dl>
                 </div>
                 <div class="col-md-6">

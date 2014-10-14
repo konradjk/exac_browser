@@ -39,6 +39,27 @@
                     <dd>{{ lof_variants_in_gene|length }}</dd>
                     <dt>LoF rate</dt>
                     <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>
+                    <dt>GeneCards</dt>
+                    <dd>
+                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                            {{ gene.gene_name }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
+                    <dt>UCSC</dt>
+                    <dd>
+                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                            {{ gene.gene_name }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
+                    <dt>GTEx (Expression)</dt>
+                    <dd>
+                        <a href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
+                            {{ gene.gene_name }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
                 </dl>
             </div>
             <div class="col-md-6">
