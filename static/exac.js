@@ -43,7 +43,7 @@ window.get_coding_coordinates = function(_transcript, position_list, skip_utrs) 
     for (var i=0; i<num_exons; i++) {
         for (var j=i+1; j<num_exons; j++) {
             exon_offsets[j] += exons[i]['stop'] - exons[i]['start'];
-            if (!skip_utrs && (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1)) {
+            if (skip_utrs || (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1)) {
                 exon_offsets[j] += EXON_PADDING*2;
             }
         }
@@ -85,7 +85,7 @@ window.get_coding_coordinate_params = function(_transcript, skip_utrs) {
     ret.size = EXON_PADDING;
     for (var i=0; i<ret.num_exons; i++) {
         ret.size += exons[i].stop - exons[i].start;
-        if (!skip_utrs && (i == ret.num_exons - 1 || exons[i]['stop'] != exons[i+1]['start'] - 1)) {
+        if (skip_utrs || (i == ret.num_exons - 1 || exons[i]['stop'] != exons[i+1]['start'] - 1)) {
             ret.size += EXON_PADDING*2;
         }
     }
