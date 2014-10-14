@@ -4,7 +4,7 @@ import pymongo
 import gzip
 from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
     get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
-    get_base_coverage_from_file
+    get_base_coverage_from_file, get_omim_associations
 import lookups
 import xbrowse
 from utils import *
@@ -35,6 +35,7 @@ app.config.update(dict(
     SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
+    OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=[
         os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
     ],
@@ -140,8 +141,29 @@ def load_db():
         gene['canonical_transcript'] = transcript
         db.genes.save(gene)
         progress.update(canonical_transcript_file.fileobj.tell())
-    gtf_file.close()
+    canonical_transcript_file.close()
     progress.finish()
+
+    omim_file = gzip.open(app.config['OMIM_FILE'])
+    size = os.path.getsize(app.config['OMIM_FILE'])
+    progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
+    for fields in get_omim_associations(omim_file):
+        if fields is None:
+            continue
+        gene, transcript, accession, description = fields
+        gene = db.genes.find_one({
+            'gene_id': gene
+        })
+        if not gene:
+            continue
+        gene['omim_accession'] = accession
+        gene['omim_description'] = description
+        db.genes.save(gene)
+        progress.update(omim_file.fileobj.tell())
+    omim_file.close()
+    progress.finish()
+
+
 
 
 def get_db():

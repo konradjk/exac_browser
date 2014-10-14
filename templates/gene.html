@@ -47,6 +47,15 @@
                             <i class="fa fa-external-link"></i>
                         </a>
                     </dd>
+                    {% if gene.omim_accession %}
+                        <dt>OMIM</dt>
+                        <dd>
+                            <a href="http://omim.org/entry/{{ gene.omim_accession }}" target="_blank">
+                                {{ gene.gene_name }}
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </dd>
+                    {% endif %}
                     <dt>GTEx (Expression)</dt>
                     <dd>
                         <a href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">

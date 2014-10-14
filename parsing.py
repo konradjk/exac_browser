@@ -134,6 +134,15 @@ def get_canonical_transcripts(canonical_transcript_file):
         yield gene, transcript
 
 
+def get_omim_associations(omim_file):
+    for line in omim_file:
+        fields = line.strip().split('\t')
+        if len(fields) == 4:
+            yield fields
+        else:
+            yield None
+
+
 def get_genes_from_gencode_gtf(gtf_file):
     """
     Parse gencode GTF file;
