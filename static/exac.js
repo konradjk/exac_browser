@@ -43,7 +43,7 @@ window.get_coding_coordinates = function(_transcript, position_list, skip_utrs) 
     for (var i=0; i<num_exons; i++) {
         for (var j=i+1; j<num_exons; j++) {
             exon_offsets[j] += exons[i]['stop'] - exons[i]['start'];
-            if (skip_utrs || (i == num_exons - 1 || _transcript.exons[i]['stop'] != _transcript.exons[i+1]['start'] - 1)) {
+            if (skip_utrs || (i == num_exons - 1 || exons[i]['stop'] != exons[i+1]['start'] - 1)) {
                 exon_offsets[j] += EXON_PADDING*2;
             }
         }
@@ -95,11 +95,12 @@ window.get_coding_coordinate_params = function(_transcript, skip_utrs) {
 
 window.precalc_coding_coordinates = function(_transcript, objects, key) {
     var orig_positions = _.map(objects, function(o) { return o[key] });
-    var new_positions = get_coding_coordinates(_transcript, orig_positions, false);
+    var new_positions;
+    new_positions = get_coding_coordinates(_transcript, orig_positions, false);
     _.each(objects, function(o, i) {
         o[key+'_coding'] = new_positions[i];
     });
-    var new_positions = get_coding_coordinates(_transcript, orig_positions, true);
+    new_positions = get_coding_coordinates(_transcript, orig_positions, true);
     _.each(objects, function(o, i) {
         o[key+'_coding_noutr'] = new_positions[i];
     });
