@@ -28,16 +28,12 @@
     No coverage for this transcript.
 </div>
 <script>
-function gene_chart(data, new_data, variant_data_original, _transcript) {
+function gene_chart(data, new_data, variant_data, _transcript) {
     var coords = 'pos_coding_noutr';
     var coding_coordinate_params = get_coding_coordinate_params(_transcript, true);
     var chart_width = gene_chart_width;
     var metric = 'mean';
 
-    // only show variants that have a coding coordinate
-    var variant_data = _.filter(variant_data_original, function(variant) {
-        return variant[coords] != undefined;
-    });
     var exon_x_scale = d3.scale.linear()
         .domain([0, coding_coordinate_params.size])
         .range([0, chart_width]);
@@ -88,7 +84,7 @@ function gene_chart(data, new_data, variant_data_original, _transcript) {
         .append("circle")
         .attr("cx", function(d) {
             if (d['pos_coding_noutr'] == undefined) {
-                return -1;
+                return -100;
             } else {
                 return exon_x_scale(d[coords]);
             }
@@ -215,11 +211,12 @@ function gene_chart(data, new_data, variant_data_original, _transcript) {
             return "track_variant " + d.category;
         })
         .style("opacity", 0.5)
-        .attr("cx", function(d, i) {
-            if (isNaN(exon_x_scale(d[coords]))) {
-                console.log(d);
+        .attr("cx",  function(d) {
+            if (d['pos_coding_noutr'] == undefined) {
+                return -100;
+            } else {
+                return exon_x_scale(d[coords]);
             }
-            return exon_x_scale(d[coords])
         })
         .attr("cy", lower_gene_chart_height/2)
         //Circle
@@ -255,7 +252,7 @@ function gene_chart(data, new_data, variant_data_original, _transcript) {
 
 }
 
-function change_coverage_chart(data, new_data, variant_data_original, _transcript, scale_type, metric, skip_utrs, container) {
+function change_coverage_chart(data, new_data, variant_data, _transcript, scale_type, metric, skip_utrs, container) {
     var coords = skip_utrs ? 'pos_coding_noutr' : 'pos_coding';
     var max_cov = (metric == 'mean' || metric == 'median') ? 100 : 1;
     var coding_coordinate_params = get_coding_coordinate_params(_transcript, skip_utrs);
@@ -265,11 +262,6 @@ function change_coverage_chart(data, new_data, variant_data_original, _transcrip
     } else {
         chart_width = coding_coordinate_params.size*2;
     }
-
-    // only show variants that have a coding coordinate
-    var variant_data = _.filter(variant_data_original, function(variant) {
-        return variant[coords] != undefined;
-    });
 
     var exon_x_scale = d3.scale.linear()
         .domain([0, coding_coordinate_params.size])
@@ -312,7 +304,7 @@ function change_coverage_chart(data, new_data, variant_data_original, _transcrip
         .duration(500)
         .attr("cx", function(d) {
             if (d[coords] == undefined) {
-                return -1;
+                return -100;
             } else {
                 return exon_x_scale(d[coords]);
             }
@@ -335,12 +327,18 @@ function change_coverage_chart(data, new_data, variant_data_original, _transcrip
         .attr("width", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.stop, skip_utrs) - get_coding_coordinate(_transcript, d.start, skip_utrs) + 1); });
 
     // plot variants
-    var variants = svg_outer.selectAll("a")
+    svg_outer.selectAll("a")
         .data(variant_data)
         .transition()
         .duration(500)
         .selectAll('ellipse')
-        .attr("cx", function(d, i) { return exon_x_scale(d[coords]) });
+        .attr("cx", function(d) {
+            if (d[coords] == undefined) {
+                return -100;
+            } else {
+                return exon_x_scale(d[coords]);
+            }
+        });
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -397,7 +395,9 @@ $(document).ready(function() {
     var new_data_skip_utr = create_new_data(window.coverage_stats, 'pos_coding_noutr');
     if (window.coverage_stats != null) {
         gene_chart(window.coverage_stats, new_data_skip_utr, window.variants_in_transcript, window.transcript);
-        update_variants();
+        if (!window.variants_in_transcript.length) {
+            update_variants();
+        }
     } else {
         $('#gene_plot').hide();
         $('#not_covered').show();
