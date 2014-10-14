@@ -59,26 +59,10 @@ def load_db():
     # Don't need to explicitly create tables with mongo, just indices
 
     db.variants.remove()
-    db.variants.ensure_index('xpos')
-    db.variants.ensure_index('rsid')
-    db.variants.ensure_index('genes')
-    db.variants.ensure_index('transcripts')
-
     db.genes.remove()
-    db.genes.ensure_index('gene_id')
-    db.genes.ensure_index('gene_name')
-
     db.transcripts.remove()
-    db.transcripts.ensure_index('transcript_id')
-    db.transcripts.ensure_index('gene_id')
-
     db.exons.remove()
-    db.exons.ensure_index('exon_id')
-    db.exons.ensure_index('transcript_id')
-    db.exons.ensure_index('gene_id')
-
     db.base_coverage.remove()
-    db.base_coverage.ensure_index('xpos')
 
     # load coverage first; variant info will depend on coverage
     for filepath in app.config['BASE_COVERAGE_FILES']:
@@ -87,47 +71,64 @@ def load_db():
         coverage_file = gzip.open(filepath)
         for base_coverage in get_base_coverage_from_file(coverage_file):
             progress.update(coverage_file.fileobj.tell())
-            db.base_coverage.insert(base_coverage)
+            db.base_coverage.insert(base_coverage, w=0)
         progress.finish()
+
+    db.base_coverage.ensure_index('xpos')
 
     # grab variants from sites VCF
     sites_vcf = gzip.open(app.config['SITES_VCF'])
     size = os.path.getsize(app.config['SITES_VCF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
     for variant in get_variants_from_sites_vcf(sites_vcf):
-        db.variants.insert(variant)
+        db.variants.insert(variant, w=0)
         progress.update(sites_vcf.fileobj.tell())
     progress.finish()
+
+    db.variants.ensure_index('xpos')
+    db.variants.ensure_index('rsid')
+    db.variants.ensure_index('genes')
+    db.variants.ensure_index('transcripts')
 
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     for gene in get_genes_from_gencode_gtf(gtf_file):
-        db.genes.insert(gene)
+        db.genes.insert(gene, w=0)
         progress.update(gtf_file.fileobj.tell())
     progress.finish()
     gtf_file.close()
+
+    db.genes.ensure_index('gene_id')
+    db.genes.ensure_index('gene_name')
 
     # and now transcripts
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
     for transcript in get_transcripts_from_gencode_gtf(gtf_file):
-        db.transcripts.insert(transcript)
+        db.transcripts.insert(transcript, w=0)
         progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
     progress.finish()
+
+    db.transcripts.ensure_index('transcript_id')
+    db.transcripts.ensure_index('gene_id')
 
     # Building up gene definitions
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
     for exon in get_exons_from_gencode_gtf(gtf_file):
-        db.exons.insert(exon)
+        db.exons.insert(exon, w=0)
         progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
     progress.finish()
+
+    db.exons.ensure_index('exon_id')
+    db.exons.ensure_index('transcript_id')
+    db.exons.ensure_index('gene_id')
 
     canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
     size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
@@ -162,8 +163,6 @@ def load_db():
         progress.update(omim_file.fileobj.tell())
     omim_file.close()
     progress.finish()
-
-
 
 
 def get_db():
