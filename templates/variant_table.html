@@ -17,6 +17,26 @@
 {#        if (window.table_variants.length <= 10) {#}
             $('#pager').hide();
 {#        }#}
+
+        function get_af_category(d) {
+            if (!d.allele_freq) {
+                return [0, '0'];
+            } else if (d.allele_count == 1) {
+                return [1, 'Singleton'];
+            } else if (d.allele_freq < 1/10000) {
+                return [2, '<1/10000'];
+            } else if (d.allele_freq < 1/1000) {
+                return [3, '1/10000-0.001'];
+            } else if (d.allele_freq < 1/100) {
+                return [4, '0.001-0.01'];
+            } else if (d.allele_freq < 1/20) {
+                return [5, '0.01-0.05'];
+            } else if (d.allele_freq < 1/2) {
+                return [6, '0.05-0.5'];
+            } else {
+                return [7, '0.5-1'];
+            }
+        }
         $(document).ready(function() {
             $('[frequency="0.0"]').hide();
             var data = window.table_variants;
@@ -49,30 +69,21 @@
                             .attr('width', x_scale(1) - x_scale(0))
                 }
 
+                var tip = d3.tip().attr('class', 'd3-tip').html(function() {
+                    return get_af_category(d)[1];
+                });
+                svg.call(tip);
+
                 svg.append('rect')
                     .style('fill', 'steelblue')
                     .attr('x', 0)
                     .attr('y', 0)
                     .attr('width', function() {
-                        if (!d.allele_freq) {
-                            return x_scale(0);
-                        } else if (d.allele_count == 1) {
-                            return x_scale(1);
-                        } else if (d.allele_freq < 1/10000) {
-                            return x_scale(2);
-                        } else if (d.allele_freq < 1/1000) {
-                            return x_scale(3);
-                        } else if (d.allele_freq < 1/100) {
-                            return x_scale(4);
-                        } else if (d.allele_freq < 1/20) {
-                            return x_scale(5);
-                        } else if (d.allele_freq < 1/2) {
-                            return x_scale(6);
-                        } else {
-                            return x_scale(7);
-                        }
+                        return x_scale(get_af_category(d)[0]);
                     })
-                    .attr('height', height);
+                    .attr('height', height)
+                    .on('mouseover', function(d) { tip.show(d); })
+                    .on('mouseout', function(d) { tip.hide(d); });
             });
         });
     });

@@ -165,7 +165,7 @@ function gene_chart(data, new_data, variant_data, _transcript) {
             if (d.major_consequence == 'missense_variant') {
                 output += '<br/>' + d.vep_annotations[0].HGVSp.split(':')[1];
             }
-            output += '<br/>Frequency: ' + parseFloat(d.allele_freq);
+            output += '<br/>Frequency: ' + d.allele_freq.toPrecision(3);
             return output;
         } else {
             return 'None';
