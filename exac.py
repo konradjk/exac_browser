@@ -36,11 +36,11 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCFS= glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
-    BASE_COVERAGE_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
+    BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage_split*')),
 ))
 
 
@@ -55,7 +55,7 @@ def connect_db():
 def load_variants(sites_file, db, start_time):
     batch_size = 1000
     sites_vcf = gzip.open(sites_file)
-    size = os.path.getsize(sites_file)
+    #size = os.path.getsize(sites_file)
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
     current_entry = 0
     variants = []
@@ -66,28 +66,30 @@ def load_variants(sites_file, db, start_time):
         if not current_entry % batch_size:
             db.variants.insert(variants, w=0)
             variants = []
-            if not current_entry % 10000:
+            if not current_entry % 100000:
                 print '%s up to %s (%s seconds so far)' % (sites_file, current_entry, (time.time() - start_time))
-    db.variants.insert(variants, w=0)
+    if len(variants) > 0: db.variants.insert(variants, w=0)
     #progress.finish()
 
 
-def load_coverage(coverage_file, db):
+def load_coverage(coverage_fname, db, start_time):
     batch_size = 1000
-    size = os.path.getsize(coverage_file)
-    coverage_file = gzip.open(coverage_file)
-    progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
+    #size = os.path.getsize(coverage_file)
+    coverage_file = gzip.open(coverage_fname)
+    #progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
     current_entry = 0
     bases = []
     for base_coverage in get_base_coverage_from_file(coverage_file):
         current_entry += 1
-        progress.update(coverage_file.fileobj.tell())
+        #progress.update(coverage_file.fileobj.tell())
         bases.append(base_coverage)
         if not current_entry % batch_size:
             db.base_coverage.insert(bases, w=0)
             bases = []
-    db.base_coverage.insert(bases, w=0)
-    progress.finish()
+            if not current_entry % 10000:
+                print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, (time.time() - start_time))
+    if len(bases) > 0: db.base_coverage.insert(bases, w=0)
+    #progress.finish()
 
 
 def load_db():
@@ -106,7 +108,15 @@ def load_db():
     db.base_coverage.drop()
 
     # load coverage first; variant info will depend on coverage
-    load_coverage(app.config['BASE_COVERAGE_FILE'], db)
+    start_time = time.time()
+    procs = []
+    for fname in app.config['BASE_COVERAGE_FILES']:
+        p = Process(target=load_coverage, args=(fname, db, start_time,))
+        p.start()
+        procs.append(p)
+    [p.join() for p in procs]
+    print 'Done loading. Took %s seconds' % (time.time() - start_time)
+
     db.base_coverage.ensure_index('xpos')
 
     # grab variants from sites VCF
