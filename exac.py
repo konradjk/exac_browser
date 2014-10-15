@@ -36,9 +36,7 @@ app.config.update(dict(
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
-    BASE_COVERAGE_FILES=[
-        os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
-    ],
+    BASE_COVERAGE_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
 ))
 
 def connect_db():
@@ -65,14 +63,14 @@ def load_db():
     db.base_coverage.drop()
 
     # load coverage first; variant info will depend on coverage
-    for filepath in app.config['BASE_COVERAGE_FILES']:
-        size = os.path.getsize(filepath)
-        progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage: {}'.format(os.path.basename(filepath)))
-        coverage_file = gzip.open(filepath)
-        for base_coverage in get_base_coverage_from_file(coverage_file):
-            progress.update(coverage_file.fileobj.tell())
-            db.base_coverage.insert(base_coverage, w=0)
-        progress.finish()
+    coverage_file = app.config['BASE_COVERAGE_FILE']
+    size = os.path.getsize(coverage_file)
+    progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
+    coverage_file = gzip.open(coverage_file)
+    for base_coverage in get_base_coverage_from_file(coverage_file):
+        progress.update(coverage_file.fileobj.tell())
+        db.base_coverage.insert(base_coverage, w=0)
+    progress.finish()
 
     db.base_coverage.ensure_index('xpos')
 
@@ -270,7 +268,7 @@ def gene_page(gene_id):
             x for x in variants_in_gene
             if any([y['LoF'] in ('HC', 'LC') for y in x['vep_annotations'] if y['Gene'] == gene_id])
         ]
-        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants if x['filter'] == 'PASS'])
 
         t = render_template(
             'gene.html',
@@ -305,7 +303,7 @@ def transcript_page(transcript_id):
             x for x in variants_in_transcript
             if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
         ]
-        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants if x['filter'] == 'PASS'])
 
         add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
         add_consequence_to_variants(variants_in_transcript)
