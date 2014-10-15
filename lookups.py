@@ -137,7 +137,8 @@ def get_awesomebar_result(db, query):
         return 'transcript', transcript['transcript_id']
 
     # Variant
-    variant = get_variants_by_rsid(db, query.lower())
+    query = query.lower()
+    variant = get_variants_by_rsid(db, query)
     if variant:
         if len(variant) == 1:
             return 'variant', variant[0]['variant_id']
