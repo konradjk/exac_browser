@@ -68,8 +68,8 @@ def load_variants(sites_file, db):
 
 def load_coverage(coverage_file, db):
     batch_size = 1000
-    coverage_file = gzip.open(coverage_file)
     size = os.path.getsize(coverage_file)
+    coverage_file = gzip.open(coverage_file)
     progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
     current_entry = 0
     bases = []
