@@ -18,6 +18,7 @@ from werkzeug.contrib.cache import SimpleCache
 
 from multiprocessing import Process, cpu_count
 import glob
+import time
 
 app = Flask(__name__)
 Compress(app)
@@ -51,7 +52,7 @@ def connect_db():
     return client[app.config['DB_NAME']]
 
 
-def load_variants(sites_file, db):
+def load_variants(sites_file, db, start_time):
     batch_size = 1000
     sites_vcf = gzip.open(sites_file)
     size = os.path.getsize(sites_file)
@@ -65,7 +66,7 @@ def load_variants(sites_file, db):
         if not current_entry % batch_size:
             db.variants.insert(variants, w=0)
             variants = []
-            print current_entry
+            if not current_entry % 10*batch_size: print '%s up to %s (%s seconds so far)' % (sites_file, current_entry, (time.time() - start_time))
     db.variants.insert(variants, w=0)
     #progress.finish()
 
@@ -108,11 +109,10 @@ def load_db():
     db.base_coverage.ensure_index('xpos')
 
     # grab variants from sites VCF
-    import time
     start_time = time.time()
     procs = []
     for fname in app.config['SITES_VCFS']:
-        p = Process(target=load_variants, args=(fname, db,))
+        p = Process(target=load_variants, args=(fname, db, start_time,))
         p.start()
         procs.append(p)
     [p.join() for p in procs]
