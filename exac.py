@@ -16,6 +16,9 @@ from flask import Response
 from collections import defaultdict
 from werkzeug.contrib.cache import SimpleCache
 
+from multiprocessing import Process, cpu_count
+import glob
+
 app = Flask(__name__)
 Compress(app)
 app.config['COMPRESS_DEBUG'] = True
@@ -32,7 +35,7 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
+    SITES_VCFS= glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
@@ -52,18 +55,18 @@ def load_variants(sites_file, db):
     batch_size = 1000
     sites_vcf = gzip.open(sites_file)
     size = os.path.getsize(sites_file)
-    progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
     current_entry = 0
     variants = []
     for variant in get_variants_from_sites_vcf(sites_vcf):
         current_entry += 1
-        progress.update(sites_vcf.fileobj.tell())
+        #progress.update(sites_vcf.fileobj.tell())
         variants.append(variant)
         if not current_entry % batch_size:
             db.variants.insert(variants, w=0)
             variants = []
     db.variants.insert(variants, w=0)
-    progress.finish()
+    #progress.finish()
 
 
 def load_coverage(coverage_file, db):
@@ -104,7 +107,15 @@ def load_db():
     db.base_coverage.ensure_index('xpos')
 
     # grab variants from sites VCF
-    load_variants(app.config['SITES_VCF'], db)
+    import time
+    start_time = time.time()
+    procs = []
+    for fname in app.config['SITES_VCFS']:
+        p = Process(target=load_variants, args=(fname, db,))
+        p.start()
+        procs.append(p)
+    [p.join() for p in procs]
+    print 'Done loading. Took %s seconds' % (time.time() - start_time)
 
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('rsid')
