@@ -30,8 +30,8 @@
                 <dl class="dl-horizontal">
                     <dt>Number of variants</dt>
                     <dd><span id="number_of_variants"></span> (Including filtered: {{ variants_in_gene|length }})</dd>
-                    <dt>Number of LoF variants</dt>
-                    <dd><span id="number_of_lof_variants"></span> (Including filtered: {{ lof_variants_in_gene|length }})</dd>
+{#                    <dt>Number of LoF variants</dt>#}
+{#                    <dd><span id="number_of_lof_variants"></span> (Including filtered: {{ lof_variants_in_gene|length }})</dd>#}
                     <script>
                         filtered_variants = _.filter(window.variants_in_gene, function(d) {
                             return d.filter == 'PASS';
@@ -42,8 +42,8 @@
                         });
                         $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
                     </script>
-                    <dt>LoF rate</dt>
-                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>
+{#                    <dt>LoF rate</dt>#}
+{#                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>#}
                     <dt>GeneCards</dt>
                     <dd>
                         <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
@@ -53,7 +53,7 @@
                     </dd>
                     <dt>Ensembl</dt>
                     <dd>
-                        <a href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}">{{ gene.gene_id }}</a>
+                        <a href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">{{ gene.gene_id }}</a>
                         <i class="fa fa-external-link"></i>
                     </dd>
                     <dt>UCSC</dt>

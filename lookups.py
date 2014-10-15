@@ -206,10 +206,13 @@ def remove_extraneous_information(variant):
     del variant['xstop']
     csq = variant['vep_annotations']
     variant['vep_annotations'] = [
-        {'Consequence': x['Consequence'],
-         'Gene': x['Gene'],
-         'Feature': x['Feature'],
-         'LoF': x['LoF']}
+        {
+            'Consequence': x['Consequence'],
+            'Gene': x['Gene'],
+            'Feature': x['Feature'],
+            'LoF': x['LoF'],
+            'HGVS': x['HGVSp'].split(':')[-1].replace('%3D', '=') if x['HGVSp'] != '' else ''
+        }
         for x in csq
     ]
 

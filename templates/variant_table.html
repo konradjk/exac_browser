@@ -79,16 +79,21 @@
                 .on('mouseout', function(d) { tip.hide(d); });
         });
         update_variants();
+        $("#export_to_csv").on('click', function (event) {
+            exportTableToCSV.apply(this, [$('#variant_table'), 'export.csv']);
+        });
     });
 </script>
 <div id="variants_loading">Loading variants...</div>
 <div id="variants_table_container" style="display: none;">
+    <a class="btn btn-success" id="export_to_csv">Export table to CSV</a>
     <table id="variant_table" class="tablesorter">
         <thead>
             <tr>
                 <th>Variant</th>
                 <th>Chromosome</th>
                 <th>Position</th>
+                <th>Protein Consequence</th>
                 <th>Filter</th>
                 <th>Annotation</th>
                 <th>Allele Count</th>
@@ -121,6 +126,7 @@
                 </td>
                 <td> {{ variant.chrom }}</td>
                 <td> {{ variant.pos }}</td>
+                <td> {{ variant.vep_annotations[0].HGVS }}</td>
                 <td> {{ variant.filter }} </td>
                 <td class="{{ variant.category }}"><b>
                     {{ variant.major_consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}
