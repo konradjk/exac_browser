@@ -65,6 +65,7 @@ def load_variants(sites_file, db):
         if not current_entry % batch_size:
             db.variants.insert(variants, w=0)
             variants = []
+            print current_entry
     db.variants.insert(variants, w=0)
     #progress.finish()
 
