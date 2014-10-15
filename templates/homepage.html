@@ -54,12 +54,16 @@
 
             bestPictures.initialize();
 
-            $('#home-searchbox-input').typeahead(null, {
-                name: 'best-pictures',
-                displayKey: 'value',
-                source: bestPictures.ttAdapter(),
-                highlight: true,
-            });
+            $('#home-searchbox-input').typeahead(
+                {
+                    autoselect: true, 
+                },
+                {
+                    name: 'best-pictures',
+                    displayKey: 'value',
+                    source: bestPictures.ttAdapter(),
+                }
+            );
             $('#home-searchbox-input').bind('typeahead:selected', function(obj, datum) {
                 window.location.href = '/awesome?query=' + datum.value;
             });
