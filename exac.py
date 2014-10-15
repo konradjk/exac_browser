@@ -174,8 +174,6 @@ def load_db():
         if not current_entry % 1000:
             db.base_coverage.insert(exons, w=0)
             exons = []
-            if not current_entry % 10000:
-                print '%s (%s seconds so far)' % (current_entry, (time.time() - start_time))
     gtf_file.close()
     progress.finish()
 

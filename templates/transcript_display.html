@@ -131,6 +131,9 @@ function gene_chart(data, new_data, variant_data, _transcript) {
 {#        .attr("ry", 6)#}
         .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
         .attr("height", function(d, i) {
+            if (get_coding_coordinate(_transcript, d.start, true) == -100) {
+                return 0;
+            }
             if (d.feature_type == 'CDS') {
                 return lower_gene_chart_height;
             } else {
