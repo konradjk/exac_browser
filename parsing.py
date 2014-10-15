@@ -42,6 +42,7 @@ def get_base_coverage_from_file(base_coverage_file):
         fields = line.strip('\n').split('\t')
         d = {
             'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
+            'pos': int(fields[1]),
         }
         for i, k in enumerate(float_header_fields):
             d[k] = float(fields[i+2])
@@ -80,7 +81,7 @@ def get_variants_from_sites_vcf(sites_vcf):
             # Variant is just a dict
             # Make a copy of the info_field dict - so all the original data remains
             # Add some new keys that are allele-specific
-            pos, ref, alt = get_minimal_representation(int(fields[1]), fields[3], alt_allele)
+            pos, ref, alt = get_minimal_representation(fields[1], fields[3], alt_allele)
 
             variant = {}
             variant['chrom'] = fields[0]
@@ -91,56 +92,65 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['alt'] = alt
             variant['xstart'] = variant['xpos']
             variant['xstop'] = variant['xpos'] + len(variant['alt']) - len(variant['ref'])
-            variant['variant_id'] = '{}-{}-{}-{}'.format(variant['chrom'], str(variant['pos']), variant['ref'], variant['alt'])
-            variant['orig_alt_alleles'] = alt_alleles
+            variant['variant_id'] = '{}-{}-{}-{}'.format(variant['chrom'], variant['pos'], variant['ref'], variant['alt'])
+            variant['orig_alt_alleles'] = [
+                '{}-{}-{}-{}'.format(variant['chrom'], *get_minimal_representation(fields[1], fields[3], x))
+                for x in alt_alleles
+            ]
             variant['site_quality'] = float(fields[5])
             variant['filter'] = fields[6]
             variant['vep_annotations'] = vep_annotations
-            variant['allele_count'] = int(info_field['AC'].split(',')[i])
-            variant['allele_freq'] = float(info_field['AF'].split(',')[i])
-            # variant['pop_acs'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AC_')])
-            # variant['pop_ans'] = dict([(x, info_field[x].split(',')[i]) for x in info_field if x.startswith('AN_')])
-            # variant['pop_homs'] = dict([(x, info_field[x]) for x in info_field if x.startswith('Hom_')])
+
+            variant['allele_count'] = int(info_field['AC_Adj'].split(',')[i])
+            if not variant['allele_count'] and variant['filter'] == 'PASS': variant['filter'] = 'AC_Adj0' # Temporary filter
+            variant['allele_num'] = int(info_field['AN_Adj'])
+
+            if variant['allele_num'] > 0:
+                variant['allele_freq'] = variant['allele_count']/float(info_field['AN_Adj'])
+            else:
+                variant['allele_freq'] = None
+
             variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
             variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
             variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
-            variant['num_alleles'] = int(info_field['AN'])
+
+            variant['pop_acs']['Other'] = int(info_field['AC_Adj'].split(',')[i]) - sum(variant['pop_acs'].values())
+            variant['pop_ans']['Other'] = int(info_field['AN_Adj']) - sum(variant['pop_ans'].values())
+            variant['pop_homs']['Other'] = int(info_field['AC_Hom']) - sum(variant['pop_homs'].values())
+
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
+
+            if 'DP_MID' in info_field:
+                mids_all = info_field['DP_MID'].split(',')[0]
+                hists_all = info_field['DP_HIST'].split(',')[0]
+                mids = info_field['DP_MID'].split(',')[i+1]
+                hists = info_field['DP_HIST'].split(',')[i+1]
+                variant['genotype_depths'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
+            if 'GQ_MID' in info_field:
+                mids_all = info_field['GQ_MID'].split(',')[0]
+                hists_all = info_field['GQ_HIST'].split(',')[0]
+                mids = info_field['GQ_MID'].split(',')[i+1]
+                hists = info_field['GQ_HIST'].split(',')[i+1]
+                variant['genotype_qualities'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
 
             yield variant
 
 
-def get_genotype_data_from_full_vcf(full_vcf):
-    """
+def get_canonical_transcripts(canonical_transcript_file):
+    for line in canonical_transcript_file:
+        gene, transcript = line.strip().split()
+        yield gene, transcript
 
-    """
-    for line in full_vcf:
-        line = line.strip('\n')
-        if line.startswith('#'):
-            continue
-        fields = line.split('\t')
-        info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
 
-        alt_alleles = fields[4].split(',')
+def get_omim_associations(omim_file):
+    for line in omim_file:
+        fields = line.strip().split('\t')
+        if len(fields) == 4:
+            yield fields
+        else:
+            yield None
 
-        format_field = fields[8].split(':')
-        format_data = [dict(zip(format_field, x.split(':'))) for x in fields[9:]]
-
-        # different variant for each alt allele
-        for i, alt_allele in enumerate(alt_alleles):
-
-            genotype_info_container = {
-                'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
-                'ref': fields[3],
-                'alt': alt_allele,
-                'genotype_info': {
-                    'genotype_qualities': zip(range(180, 200), range(20)),
-                    'genotype_depths': zip(range(20), range(180, 200)[::-1]),
-                    'genotypes': [re.split("/|\|", x['GT']) if 'GT' in x else ['.', '.'] for x in format_data],
-                }
-            }
-            yield genotype_info_container
 
 def get_genes_from_gencode_gtf(gtf_file):
     """
@@ -152,7 +162,6 @@ def get_genes_from_gencode_gtf(gtf_file):
             continue
         fields = line.strip('\n').split('\t')
 
-        # This isn't required anymore, as we're currently reading in just a genes GTF, but could be useful later
         if fields[2] != 'gene':
             continue
 
@@ -169,6 +178,7 @@ def get_genes_from_gencode_gtf(gtf_file):
             'chrom': chrom,
             'start': start,
             'stop': stop,
+            'strand': fields[6],
             'xstart': xbrowse.get_xpos(chrom, start),
             'xstop': xbrowse.get_xpos(chrom, stop),
         }
@@ -202,6 +212,7 @@ def get_transcripts_from_gencode_gtf(gtf_file):
             'chrom': chrom,
             'start': start,
             'stop': stop,
+            'strand': fields[6],
             'xstart': xbrowse.get_xpos(chrom, start),
             'xstop': xbrowse.get_xpos(chrom, stop),
         }
@@ -218,47 +229,26 @@ def get_exons_from_gencode_gtf(gtf_file):
             continue
         fields = line.strip('\n').split('\t')
 
-        if fields[2] != 'exon':
+        if fields[2] not in ['exon', 'CDS', 'UTR']:
             continue
 
         chrom = fields[0][3:]
+        feature_type = fields[2]
         start = int(fields[3]) + 1  # bed files are 0-indexed
         stop = int(fields[4]) + 1
         info = dict(x.strip().split() for x in fields[8].split(';') if x != '')
         info = {k: v.strip('"') for k, v in info.items()}
         transcript_id = info['transcript_id'].split('.')[0]
-        exon_id = info['exon_id'].split('.')[0]
         gene_id = info['gene_id'].split('.')[0]
 
-        gene = {
-            'exon_id': exon_id,
+        exon = {
+            'feature_type': feature_type,
             'transcript_id': transcript_id,
             'gene_id': gene_id,
             'chrom': chrom,
             'start': start,
             'stop': stop,
+            'strand': fields[6],
             'xstart': xbrowse.get_xpos(chrom, start),
             'xstop': xbrowse.get_xpos(chrom, stop),
         }
-        yield gene
-
-
-def get_dbNSFP_info(dbNSFP_file):
-    """
-    Parse dbNSFP_gene file;
-    Returns iter of transcript dicts
-    """
-    header = dbNSFP_file.next().split()
-    fields = dict(zip(header, range(len(header))))
-    for line in dbNSFP_file:
-        line = line.split()
-        gene_info = {
-            'gene_name':line[fields["Gene_name"]],
-            'ensembl_gene':line[fields["Ensembl_gene"]],
-            'gene_full_name':line[fields["Gene_full_name"]],
-            'gene_old_names':line[fields["Gene_old_names"]],
-            'gene_other_names':line[fields["Gene_other_names"]]
-        }
-        
-        yield gene_info
-    

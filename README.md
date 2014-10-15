@@ -42,7 +42,11 @@ This local server needs to be running at all times when you are working on the s
 You could do this in the background if you want or set up some startup service,
 but I think it's easier just to open a tab you can monitor.
 
-Finally, if you have virtualenv installed, you may want to create a python virtual environment where the browser will live:
+Finally, you may want to keep the system in a virtualenv:
+
+    sudo port install py27-virtualenv # Or whatever version
+
+If so, you can create a python virtual environment where the browser will live:
 
     mkdir exac_env
     virtualenv exac_env

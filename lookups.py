@@ -13,7 +13,11 @@ def get_gene_by_name(db, gene_name):
 
 
 def get_transcript(db, transcript_id):
-    return db.transcripts.find_one({'transcript_id': transcript_id}, fields={'_id': False})
+    transcript = db.transcripts.find_one({'transcript_id': transcript_id}, fields={'_id': False})
+    if not transcript:
+        return None
+    transcript['exons'] = get_exons_in_transcript(db, transcript_id)
+    return transcript
 
 
 def get_variant(db, xpos, ref, alt):
@@ -23,6 +27,10 @@ def get_variant(db, xpos, ref, alt):
 def get_variants_by_rsid(db, rsid):
     print 'Looking up: ', rsid
     if not rsid.startswith('rs'):
+        return None
+    try:
+        int(rsid.lstrip('rs'))
+    except Exception, e:
         return None
     return list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
 
@@ -46,13 +54,13 @@ def get_coverage_for_bases(db, xstart, xstop=None):
         if i in coverages:
             ret.append(coverages[i])
         else:
-            ret.append({'xpos': i})
+            ret.append({'xpos': i, 'pos': xpos_to_pos(i)})
     for item in ret:
         item['has_coverage'] = 'mean' in item
     return ret
 
 
-def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
+def get_coverage_for_transcript(db, xstart, xstop=None):
     """
 
     :param db:
@@ -61,30 +69,10 @@ def get_coverage_for_transcript(db, genomic_coord_to_exon, xstart, xstop=None):
     :param xstop:
     :return:
     """
-    null_coverage = {
-        'mean': 0,
-        'median': 0,
-        '1': 0,
-        '5': 0,
-        '10': 0,
-        '15': 0,
-        '20': 0,
-        '25': 0,
-        '30': 0,
-        '50': 0,
-        '100': 0
-    }
     coverage_array = get_coverage_for_bases(db, xstart, xstop)
-    for item in coverage_array:
-        xpos = item['xpos']
-        if xpos_to_pos(xpos) in genomic_coord_to_exon:
-            item['exon_number'] = genomic_coord_to_exon[xpos_to_pos(item['xpos'])]
-        else:
-            item['exon_number'] = -1
-        if not item['has_coverage']:
-            for entry in null_coverage:
-                item[entry] = null_coverage[entry]
+    # only return coverages that have coverage (if that makes any sense?)
     return coverage_array
+    #return [c for c in coverage_array if c['has_coverage']]
 
 
 def get_awesomebar_suggestions(db, query):
@@ -104,8 +92,11 @@ def get_awesomebar_suggestions(db, query):
 
 
 # 1:1-1000
-R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
-R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
+R1 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)-(\d+)$')
+R2 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)$')
+R3 = re.compile(r'^(\d+|X|Y|M|MT)$')
+# R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
+# R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
 
 def get_awesomebar_result(db, query):
     """
@@ -129,6 +120,7 @@ def get_awesomebar_result(db, query):
     This could be important for performance later
 
     """
+    query = query.strip().upper()
     print query
 
     # Gene
@@ -145,8 +137,8 @@ def get_awesomebar_result(db, query):
         return 'transcript', transcript['transcript_id']
 
     # Variant
+    query = query.lower()
     variant = get_variants_by_rsid(db, query)
-    # TODO - https://github.com/brettpthomas/exac_browser/issues/19
     if variant:
         if len(variant) == 1:
             return 'variant', variant[0]['variant_id']
@@ -157,12 +149,17 @@ def get_awesomebar_result(db, query):
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
     # Region
-    m = R1.match(query)
+    m = R1.match(query.lstrip('chr'))
     if m:
+        if int(m.group(3)) < int(m.group(2)):
+            return 'region', 'invalid'
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(3))
-    m = R2.match(query)
+    m = R2.match(query.lstrip('chr'))
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(2))
+    m = R3.match(query.lstrip('chr'))
+    if m:
+        return 'region', '{}'.format(m.group(1))
     print "Didn't find anything"
 
     
@@ -195,10 +192,36 @@ def get_variants_in_region(db, chrom, start, stop):
     return list(variants)
 
 
+def remove_extraneous_information(variant):
+    del variant['genotype_depths']
+    del variant['genotype_qualities']
+    del variant['pop_acs']
+    del variant['pop_ans']
+    del variant['pop_homs']
+    del variant['transcripts']
+    del variant['genes']
+    del variant['orig_alt_alleles']
+    del variant['xpos']
+    del variant['xstart']
+    del variant['xstop']
+    csq = variant['vep_annotations']
+    variant['vep_annotations'] = [
+        {'Consequence': x['Consequence'],
+         'Gene': x['Gene'],
+         'Feature': x['Feature'],
+         'LoF': x['LoF']}
+        for x in csq
+    ]
+
+
 def get_variants_in_gene(db, gene_id):
     """
     """
-    return list(db.variants.find({'genes': gene_id}, fields={'_id': False}))
+    variants = []
+    for variant in db.variants.find({'genes': gene_id}, fields={'_id': False}):
+        remove_extraneous_information(variant)
+        variants.append(variant)
+    return variants
 
 
 def get_transcripts_in_gene(db, gene_id):
@@ -210,9 +233,18 @@ def get_transcripts_in_gene(db, gene_id):
 def get_variants_in_transcript(db, transcript_id):
     """
     """
-    # Temporarily calculating consequence here
-    return list(db.variants.find({'transcripts': transcript_id}, fields={'_id': False}))
+    variants = []
+    for variant in db.variants.find({'transcripts': transcript_id}, fields={'_id': False}):
+        variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Feature'] == transcript_id]
+        remove_extraneous_information(variant)
+        variants.append(variant)
+    return variants
 
 
 def get_exons_in_transcript(db, transcript_id):
-    return sorted(list(db.exons.find({'transcript_id': transcript_id}, fields={'_id': False})), key=lambda k: k['start'])
+    # return sorted(
+    #     [x for x in
+    #      db.exons.find({'transcript_id': transcript_id}, fields={'_id': False})
+    #      if x['feature_type'] != 'exon'],
+    #     key=lambda k: k['start'])
+    return sorted(list(db.exons.find({'transcript_id': transcript_id, 'feature_type': { "$in": ['CDS', 'UTR', 'exon'] }}, fields={'_id': False})), key=lambda k: k['start'])

@@ -57,20 +57,23 @@
                 var v = $(this).attr('id').replace('_button', '');
                 $('#' + v + '_container').show();
             });
-            $('#frequency_table').tablesorter();
+            $('#frequency_table').tablesorter({
+                sortList: [[3,1], [0,0]]
+            });
 
-            if (window.variant != null && 'genotype_info' in window.variant && 'genotype_depths' in window.variant.genotype_info) {
-                draw_histogram_d3(window.variant.genotype_info.genotype_depths);
+            if (window.variant != null && 'genotype_depths' in window.variant) {
+                draw_quality_histogram(window.variant.genotype_depths[1]);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
-                    var f = $('#quality_variant_sites_only_button').hasClass('active');
-                    draw_histogram_d3(window.variant.genotype_info[v]);
+                    var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;
+                    draw_quality_histogram(window.variant[v][f]);
                 });
-                $('#quality_variant_sites_only_button').click(function() {
-                    var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
-                    // TODO: Fix to do this properly
-                    var f = !$(this).hasClass('active');
-                    draw_histogram_d3(window.variant.genotype_info[v]);
+                $('#quality_full_site_button').change(function() {
+                    setTimeout( function() {
+                        var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
+                        var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;
+                        draw_quality_histogram(window.variant[v][f]);
+                    }, 10)
                 });
             } else {
                 $('#quality_metrics_container').hide();
@@ -86,9 +89,9 @@
             <p><span class="label label-info">Note:</span> This variant is multiallelic! The other alt alleles are:</p>
             <ul>
                 {% for allele in variant.orig_alt_alleles %}
-                    {% if allele != variant.alt %}
+                    {% if allele != variant.variant_id %}
                         <li>
-                            <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ allele }}">{{ allele }}</a>
+                            <a href="/variant/{{ allele }}">{{ allele }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
@@ -96,30 +99,56 @@
             <hr/>
         {% endif %}
 
+{#          Upper display #}
         {% if variant.allele_freq %}
             <div class="row">
                 <div class="col-md-6">
                     <dl class="dl-horizontal">
+                        <dt>dbSNP</dt>
                         {% if variant.rsid and variant.rsid != "." %}
-                            <dt>Known variant</dt>
                             <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
+                        {% else %}
+                            <dd>Not found in dbSNP</dd>
                         {% endif %}
                         <dt>Allele Frequency</dt>
-                        <dd>{{ variant.allele_freq }}</dd>
+                        <dd>{{ '%0.4g' % variant.allele_freq }}</dd>
                         <dt>Allele Count</dt>
-                        <dd>{{ variant.allele_count }} / {{ variant.num_alleles }}</dd>
+                        <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
+                        <dt>UCSC</dt>
+                        <dd>
+                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
+                                {{ variant.variant_id }}
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </dd>
+                        <dt>ClinVar</dt>
+                        <dd>
+                            <a href="http://www.ncbi.nlm.nih.gov/clinvar?term=({{ variant.chrom }}%5BChromosome%5D)%20AND%20{{ variant.pos }}%5BBase%20Position%5D">
+                                Click to search for variant in Clinvar
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </dd>
                     </dl>
                 </div>
                 <div class="col-md-6">
                     <dl class="dl-horizontal">
                         <dt>Site Quality</dt>
                         <dd>{{ variant.site_quality }}</dd>
-                        <dt>Filter Status</dt>
+                        <dt>
+                            {% if variant.filter != "PASS" %}
+                                <span class="label label-danger">Filter Status</span>
+                            {% else %}
+                                Filter Status
+                            {% endif %}
+                        </dt>
                         <dd>{{ variant.filter }}</dd>
                     </dl>
                 </div>
             </div>
+            <hr/>
         {% endif %}
+
+{#          Lower display#}
         <div class="row">
             <div class="col-md-6">
                 <div id="annotation_container">
@@ -132,10 +161,13 @@
                                 <ul>
                                     {% for gene in consequences[consequence] %}
                                         <li>
-                                             <a href="/gene/{{ gene }}">{{ gene }}</a>
+                                             <a href="/gene/{{ gene }}">
                                             {% if consequences[consequence][gene][0].SYMBOL %}
-                                                ({{ consequences[consequence][gene][0].SYMBOL }})
+                                                {{ consequences[consequence][gene][0].SYMBOL }}
+                                            {% else %}
+                                                {{ gene }}
                                             {% endif %}
+                                            </a>
                                         </li>
                                             <ul>
                                                 {% for annotation in consequences[consequence][gene] %}
@@ -153,13 +185,13 @@
                     {% endif %}
                 </div>
                 <div id="browser_container">
-
                 </div>
             </div>
+
             <div class="col-md-6">
                 {% if variant.pop_acs %}
                     <div id="frequency_info_container">
-                        <h3>Population Frequencies</h3>
+                        <div class="section_header">Population Frequencies</div>
                         <div id="frequency_table_container" class="frequency_displays">
                             <table id="frequency_table">
                                 <thead>
@@ -175,23 +207,35 @@
                                         <tr>
                                             <td>{{ pop }}</td>
                                             <td>{{ variant.pop_acs[pop] }}</td>
-                                            <td>{{ variant.pop_homs[pop] }}</td>
+                                            {% if pop != 'Other' %}
+                                                <td>{{ variant.pop_homs[pop] }}</td>
+                                            {% else %}
+                                                <td>-</td>
+                                            {% endif %}
                                             {% if variant.pop_ans[pop] > 0 %}
-                                                <td>{{ variant.pop_acs[pop]/variant.pop_ans[pop] }}</td>
+                                                <td>{{ '%0.4g' % (variant.pop_acs[pop]/variant.pop_ans[pop]) }}</td>
                                             {% else %}
                                                 <td>NA</td>
                                             {% endif %}
                                         </tr>
                                     {% endfor %}
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td><b>Total</b></td>
+                                        <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
+                                        <td><b>{{ variant.pop_homs.values()|sum - variant.pop_homs['Other'] }}</b></td>
+                                        <td><b>{{ '%0.4g' % variant.allele_freq }}</b></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
                     <div id="quality_metrics_container">
                         <h3>Quality Metrics</h3>
-    {#                    <button type="button" data-toggle="button" class="btn btn-primary" id="quality_variant_sites_only_button">#}
-    {#                        Variants only#}
-    {#                    </button>#}
+                        <label>
+                            <input type="checkbox" id="quality_full_site_button" value=""> Full site metrics
+                        </label>
                         <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
                             <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button">
                                 <input type="radio"> Depth
@@ -217,8 +261,5 @@
                 {% endif %}
             </div>
         </div>
-{#        <hr/>#}
-{#        <p>The variant object that we are displaying looks like this:</p>#}
-{#        <pre>{{ variant|pprint(True) }}</pre>#}
     </div>
 {% endblock %}

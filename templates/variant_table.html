@@ -1,15 +1,84 @@
 {% block variant_table %}
+{% include 'variant_selectors.html' %}
 <script>
     $(document).ready(function() {
         window.table_variants = {{ table_variants|tojson|safe }};
 
         $("#variants_loading").hide();
         $("#variants_table_container").show();
-        $("#variant_table").tablesorter({widthFixed: true});
+        $("#variant_table").tablesorter({
+            widthFixed: true,
+            sortList: [[1,0], [2,0], [7,1]]
+        });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
 {#        if (window.table_variants.length <= 10) {#}
             $('#pager').hide();
 {#        }#}
+
+        function get_af_category(d) {
+            if (!d.allele_freq) {
+                return [0, '0'];
+            } else if (d.allele_count == 1) {
+                return [1, 'Singleton'];
+            } else if (d.allele_freq < 1/10000) {
+                return [2, '<1/10000'];
+            } else if (d.allele_freq < 1/1000) {
+                return [3, '1/10000-0.001'];
+            } else if (d.allele_freq < 1/100) {
+                return [4, '0.001-0.01'];
+            } else if (d.allele_freq < 1/20) {
+                return [5, '0.01-0.05'];
+            } else if (d.allele_freq < 1/2) {
+                return [6, '0.05-0.5'];
+            } else {
+                return [7, '0.5-1'];
+            }
+        }
+
+        var data = window.table_variants;
+
+        var width = 50;
+        var height = 15;
+
+        var x_scale = d3.scale.linear()
+            .domain([0, 7])
+            .range([0, width]);
+
+        var svg;
+        $.each(data, function(i, d) {
+            svg = d3.select('#variant_af_box_' + d.variant_id)
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g");
+
+            for (var j=0; j<8; j++) {
+                svg.append('rect')
+                        .style('stroke', 'steelblue')
+                        .style('fill', 'white')
+                        .attr('x', x_scale(j))
+                        .attr('y', 0)
+                        .attr('height', height)
+                        .attr('width', x_scale(1) - x_scale(0))
+            }
+
+            var tip = d3.tip().attr('class', 'd3-tip').html(function() {
+                return get_af_category(d)[1];
+            });
+            svg.call(tip);
+
+            svg.append('rect')
+                .style('fill', 'steelblue')
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('width', function() {
+                    return x_scale(get_af_category(d)[0]);
+                })
+                .attr('height', height)
+                .on('mouseover', function(d) { tip.show(d); })
+                .on('mouseout', function(d) { tip.hide(d); });
+        });
+        update_variants();
     });
 </script>
 <div id="variants_loading">Loading variants...</div>
@@ -18,43 +87,54 @@
         <thead>
             <tr>
                 <th>Variant</th>
+                <th>Chromosome</th>
                 <th>Position</th>
                 <th>Filter</th>
                 <th>Annotation</th>
                 <th>Allele Count</th>
+                <th>Allele Number</th>
                 <th>Allele Frequency</th>
             </tr>
         </thead>
         <tbody>
         {% for variant in table_variants %}
-            <tr class="table_variant" category="{{ variant.category }}" filter_status="{{ variant.filter }}">
+            <tr class="table_variant" id="variant_{{ variant.variant_id }}"
+                category="{{ variant.category }}" filter_status="{{ variant.filter }}" frequency="{{ variant.allele_freq }}">
                 <td>
-                    {% if variant.rsid == '.' %}
-                        <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                            {{ variant.chrom }}:{{ variant.pos }}
-                            {% if variant.ref|length > 20 %}
-                                {{ variant.ref[1:20] }}...
-                            {% else %}
-                                {{ variant.ref }}
-                            {% endif %} /
-                            {% if variant.alt|length > 20 %}
-                                {{ variant.alt[1:20] }}...
-                            {% else %}
-                                {{ variant.alt }}
-                            {% endif %}
-
-                        </a>
+                    <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
+                    {{ variant.chrom }}:{{ variant.pos }}
+                    {% if variant.ref|length > 20 %}
+                        {{ variant.ref[1:20] }}...
                     {% else %}
-                        <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                            {{ variant.rsid }}
-                        </a>
+                        {{ variant.ref }}
+                    {% endif %} /
+                    {% if variant.alt|length > 20 %}
+                        {{ variant.alt[1:20] }}...
+                    {% else %}
+                        {{ variant.alt }}
                     {% endif %}
+                    {% if variant.rsid != '.' %}
+                        ({{ variant.rsid }})
+                    {% endif %}
+
+                    </a>
                 </td>
+                <td> {{ variant.chrom }}</td>
                 <td> {{ variant.pos }}</td>
                 <td> {{ variant.filter }} </td>
-                <td> {{ variant.major_consequence }} </td>
+                <td class="{{ variant.category }}"><b>
+                    {{ variant.major_consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}
+                </b> </td>
                 <td> {{ variant.allele_count }} </td>
-                <td> {{ variant.allele_freq }} </td>
+                <td> {{ variant.allele_num }} </td>
+                <td>
+                    {% if variant.allele_freq %}
+                        {{ '%0.4g' % variant.allele_freq }}
+                    {% else %}
+                        {{ variant.allele_freq }}
+                    {% endif %}
+                    <div id="variant_af_box_{{ variant.variant_id }}" style="float: right;"></div>
+                </td>
             </tr>
         {% endfor %}
         <tbody>

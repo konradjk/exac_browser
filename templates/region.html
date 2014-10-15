@@ -2,32 +2,60 @@
 {% block body %}
     <script type="text/javascript">
         window.coverage_stats = {{ coverage|tojson|safe }};
+        window.genes = {{ genes_in_region|tojson|safe }};
+        window.variants = {{ variants_in_region|tojson|safe }};
+        window.start = {{ start|tojson|safe }};
+        window.stop = {{ stop|tojson|safe }};
+
+        $(document).ready(function() {
+            if (window.coverage_stats != null && stop - start > 1) {
+                region_chart(window.coverage_stats, window.variants);
+                update_variants();
+            }
+        });
     </script>
     <div class="container">
         {% if rsid %}
             <h1>RSID: {{ rsid }}</h1>
+        {% elif stop == None %}
+            <h1>Region: {{ chrom }}</h1>
         {% else %}
             <h1>Region: {{ chrom }} / {{ start }} / {{ stop }}</h1>
         {% endif %}
-        <h3>Coverage summary</h3>
-        <div class="row">
-            {% include 'transcript_display.html' %}
-        </div>
+        <br/>
+        {% if stop != None and stop-start > 100000 %}
+            <p>
+                <span class="label label-danger">Warning:</span> Your region is too large. Please submit a region of at most 100 kb.
+            </p>
+            <p>
+                If you require larger regions, please see our <a href="/downloads">Downloads</a> page for raw data.
+            </p>
+        {% endif %}
         {% if genes_in_region %}
+            {% if stop != None and stop - start > 1 %}
+                <h3>Coverage summary</h3>
+                <div class="row">
+                    {% include 'region_display.html' %}
+                </div>
+            {% endif %}
+            <div class="section_header">Genes</div>
             <ul>
                 {% for gene in genes_in_region %}
                     <li><a href="/gene/{{ gene.gene_id }}">{{ gene.gene_id }}</a></li>
                 {% endfor %}
             </ul>
+            <br/>
         {% endif %}
-        {% if rsid %}
-            <p>This is a dbSNP variant. Here are the possibilities</p>
-        {% else %}
-            <p>Here are the these variants in this region:</p>
+        {% if variants_in_region %}
+            {% if rsid %}
+                <p>This is a dbSNP variant. Here are the possibilities</p>
+            {% else %}
+                <div class="section_header">Variants</div>
+            {% endif %}
+            {% with %}
+                {% set table_variants = variants_in_region %}
+                {% include 'variant_table.html' %}
+            {% endwith %}
         {% endif %}
-        {% with %}
-            {% set table_variants = variants_in_region %}
-            {% include 'variant_table.html' %}
-        {% endwith %}
     </div>
 {% endblock %}

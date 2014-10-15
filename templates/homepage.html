@@ -1,27 +1,45 @@
 {% extends "layout.html" %}
 {% block body %}
     <div class="container">
-        <h1 id="home-title"><i class="fa fa-institution"></i> ExAC | Exome Aggregation Consortium</h1>
+        <h1 id="home-title">ExAC Browser (Beta) | Exome Aggregation Consortium</h1>
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <div id="home-searchbox">
                     <form action="/awesome">
                         <input type="submit" style="display: none;"/>
                         <input id="home-searchbox-input" name="query" class="form-control input-lg" type="text" placeholder="Search for a gene or variant or region"/>
+                        <input type="submit" style="position: absolute; left: -9999px"/>
                     </form>
                     <p class="text-muted">
-                        Examples - Gene: <a href="/gene/ENSG00000186092">OR4F5</a>,
-                        Transcript: <a href="/transcript/ENST00000335137">ENST00000335137</a>,
-                        Variant: <a href="/variant/1-69511-A-G">1-69511-A-G</a>,
-                        Multi-alleleic variant: <a href="/awesome?query=rs75062661">rs75062661</a>,
-                        Region: <a href="/region/1-69509-69515">1:69509-69515</a>
+                        Examples - Gene: <a href="/awesome?query=PPARA">PPARA</a>,
+                        Transcript: <a href="/transcript/ENST00000407236">ENST00000407236</a>,
+                        Variant: <a href="/variant/22-46615880-T-C">22-46615880-T-C</a>,
+                        Multi-alleleic variant: <a href="/awesome?query=rs1800234">rs1800234</a>,
+                        Region: <a href="/region/22-46615715-46615880">22:46615715-46615880</a>
                     </p>
                 </div>
             </div>
-            <div class="col-md-6 col-md-offset-3">
-                <div id="exac_pca">
-                    <img height="315px" width="444px" src="{{ url_for('static', filename='images/exac_pca3.gif') }}">
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                <h3 align="center">About ExAC</h3>
+                <div>
+                    <p>
+                        The Exome Aggregation Consortium (ExAC) is a coalition of investigators seeking to collect and harmonize exome sequencing data from a wide variety of large-scale sequencing projects, and to make summary data available for the wider scientific community.
+                    </p>
+                    <p>
+                        The data set provided on this website spans over 60,000 unrelated individuals sequenced as part of various disease-specific and population genetic studies (see list <a class="about_links" href="/about">here</a>).
+                    </p>
+                    <p>
+                        A list of ExAC Principal Investigators and groups that have contributed data to the current release is available <a class="about_links" href="/about">here</a>.
+                    </p>
+                    <p>
+                        All data here are released under a Fort Lauderdale Agreement. That means you can freely search the data, and use it for publications focused on a small number of variants (for instance, a set of candidate causal variants observed in a set of rare disease patients). However, we ask that you not publish global (genome-wide) analyses of these data until after the ExAC flagship paper has been published, estimated to be in early 2015. If you’re uncertain which category your analyses fall into, please <a href="mailto:exomeconsortium@gmail.com">email us</a>.
+                    </p>
                 </div>
+            </div>
+            <div class="col-md-4">
+                <h3 align="center">Recent News</h3>
             </div>
         </div>
     </div>
@@ -36,12 +54,16 @@
 
             bestPictures.initialize();
 
-            $('#home-searchbox-input').typeahead(null, {
-                name: 'best-pictures',
-                displayKey: 'value',
-                source: bestPictures.ttAdapter(),
-                highlight: true,
-            });
+            $('#home-searchbox-input').typeahead(
+                {
+                    autoselect: true, 
+                },
+                {
+                    name: 'best-pictures',
+                    displayKey: 'value',
+                    source: bestPictures.ttAdapter(),
+                }
+            );
             $('#home-searchbox-input').bind('typeahead:selected', function(obj, datum) {
                 window.location.href = '/awesome?query=' + datum.value;
             });

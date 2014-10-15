@@ -2,26 +2,16 @@
 {% block body %}
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
-        window.transcript = {{ transcript|tojson|safe }};
-        window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
-        window.coverage_stats = {{ coverage_stats|tojson|safe }};
-        window.lof_variants = {{ lof_variants|tojson|safe }};
-        window.exons = {{ exons|tojson|safe }};
-
-
-        $(document).ready(function() {
-            if (window.coverage_stats != null) {
-                gene_chart(window.coverage_stats, window.exons, window.variants_in_transcript);
-                update_variants();
-            } else {
-                $('#gene_plot_container').hide();
-            }
-        });
+        window.transcript = {{ transcript_json|safe }};
+        window.variants_in_transcript = {{ variants_in_transcript_json|safe }};
+        window.coverage_stats = {{ coverage_stats_json|safe }};
+        window.lof_variants = {{ lof_variants_json|safe }};
+        window.gene = {{ gene_json|safe }};
     </script>
     <div class="container">
-        <h1>Transcript: {{ transcript.transcript_id }}</h1>
+        <h1>{{ gene.gene_name }}</h1>
+        <h3>Transcript: {{ transcript.transcript_id }} ({{ transcript.exons|length }} exons)</h3>
         <div class="row">
-            <h3>Transcript summary</h3>
             <div class="row">
                 {% include 'transcript_display.html' %}
             </div>

@@ -35,18 +35,41 @@
 }
 
 .lof_variant {
-    background: indianred;
+    color: #cd2932 !important;
+    fill: #cd2932 !important;
 }
 
 .missense_variant {
-    background: #ffff00;
+    color: #a96500 !important;
+    fill: #a96500 !important;
 }
 
-.all_variant {
-    background: white;
+.synonymous_variant {
+    color: #157e28 !important;
+    fill: #157e28 !important;
 }
 
 .section_header {
     font-weight: bold;
     font-size: 24px;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+.table_hover {
+    background-color: #b5f7ff !important;
 }

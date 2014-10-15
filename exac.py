@@ -2,20 +2,32 @@ import json
 import os
 import pymongo
 import gzip
-from parsing import get_variants_from_sites_vcf, get_genotype_data_from_full_vcf, \
+from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
     get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
-    get_base_coverage_from_file
+    get_base_coverage_from_file, get_omim_associations
 import lookups
 import xbrowse
 from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+from flask.ext.compress import Compress
+
 from flask import Response
 from collections import defaultdict
+from werkzeug.contrib.cache import SimpleCache
+
+from multiprocessing import Process, cpu_count
+import glob
+import time
 
 app = Flask(__name__)
+Compress(app)
+app.config['COMPRESS_DEBUG'] = True
+cache = SimpleCache()
 
-EXAC_FILES_DIRECTORY = '../exac_test_data_22_2/'
+EXAC_FILES_DIRECTORY = '../exac_test_data/'
+REGION_LIMIT = 1E6
+EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',
@@ -24,13 +36,11 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_file.vcf.gz'),
-    FULL_VCF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'genotype_data.vcf.gz'),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
-    BASE_COVERAGE_FILES=[
-        os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
-    ],
-
+    CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
+    OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
+    BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage_split*')),
 ))
 
 
@@ -42,6 +52,46 @@ def connect_db():
     return client[app.config['DB_NAME']]
 
 
+def load_variants(sites_file, db, start_time):
+    batch_size = 1000
+    sites_vcf = gzip.open(sites_file)
+    #size = os.path.getsize(sites_file)
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
+    current_entry = 0
+    variants = []
+    for variant in get_variants_from_sites_vcf(sites_vcf):
+        current_entry += 1
+        #progress.update(sites_vcf.fileobj.tell())
+        variants.append(variant)
+        if not current_entry % batch_size:
+            db.variants.insert(variants, w=0)
+            variants = []
+            if not current_entry % 10000:
+                print '%s up to %s (%s seconds so far)' % (sites_file, current_entry, (time.time() - start_time))
+    if len(variants) > 0: db.variants.insert(variants, w=0)
+    #progress.finish()
+
+
+def load_coverage(coverage_fname, db, start_time):
+    batch_size = 1000
+    #size = os.path.getsize(coverage_file)
+    coverage_file = gzip.open(coverage_fname)
+    #progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
+    current_entry = 0
+    bases = []
+    for base_coverage in get_base_coverage_from_file(coverage_file):
+        current_entry += 1
+        #progress.update(coverage_file.fileobj.tell())
+        bases.append(base_coverage)
+        if not current_entry % batch_size:
+            db.base_coverage.insert(bases, w=0)
+            bases = []
+            if not current_entry % 100000:
+                print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, (time.time() - start_time))
+    if len(bases) > 0: db.base_coverage.insert(bases, w=0)
+    #progress.finish()
+
+
 def load_db():
     """
     Load the database
@@ -51,97 +101,119 @@ def load_db():
     # Initialize database 
     # Don't need to explicitly create tables with mongo, just indices
 
-    db.variants.remove()
+    db.variants.drop()
+    db.genes.drop()
+    db.transcripts.drop()
+    db.exons.drop()
+    db.base_coverage.drop()
+
+    # load coverage first; variant info will depend on coverage
+    start_time = time.time()
+    procs = []
+    for fname in app.config['BASE_COVERAGE_FILES']:
+        p = Process(target=load_coverage, args=(fname, db, start_time,))
+        p.start()
+        procs.append(p)
+    [p.join() for p in procs]
+    print 'Done loading. Took %s seconds' % (time.time() - start_time)
+
+    db.base_coverage.ensure_index('xpos')
+
+    # grab variants from sites VCF
+    start_time = time.time()
+    procs = []
+    for fname in app.config['SITES_VCFS']:
+        p = Process(target=load_variants, args=(fname, db, start_time,))
+        p.start()
+        procs.append(p)
+    [p.join() for p in procs]
+    print 'Done loading. Took %s seconds' % (time.time() - start_time)
+
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('rsid')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
-
-    db.genes.remove()
-    db.genes.ensure_index('gene_id')
-    db.genes.ensure_index('gene_name')
-
-    db.transcripts.remove()
-    db.transcripts.ensure_index('transcript_id')
-    db.transcripts.ensure_index('gene_id')
-
-    db.exons.remove()
-    db.exons.ensure_index('exon_id')
-    db.exons.ensure_index('transcript_id')
-    db.exons.ensure_index('gene_id')
-
-    db.base_coverage.remove()
-    db.base_coverage.ensure_index('xpos')
-
-    # load coverage first; variant info will depend on coverage
-    for filepath in app.config['BASE_COVERAGE_FILES']:
-        size = os.path.getsize(filepath)
-        progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage: {}'.format(os.path.basename(filepath)))
-        coverage_file = gzip.open(filepath)
-        for base_coverage in get_base_coverage_from_file(coverage_file):
-            progress.update(coverage_file.fileobj.tell())
-            db.base_coverage.insert(base_coverage)
-        progress.finish()
-
-    # grab variants from sites VCF
-    sites_vcf = gzip.open(app.config['SITES_VCF'])
-    size = os.path.getsize(app.config['SITES_VCF'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
-    for variant in get_variants_from_sites_vcf(sites_vcf):
-        db.variants.insert(variant)
-        progress.update(sites_vcf.fileobj.tell())
-    progress.finish()
-
-    # parse full VCF and append other stuff to variants
-    full_vcf = gzip.open(app.config['FULL_VCF'])
-    size = os.path.getsize(app.config['FULL_VCF'])
-    progress = xbrowse.utils.get_progressbar(size, 'Parsing full VCF')
-    for genotype_info_container in get_genotype_data_from_full_vcf(full_vcf):
-
-        # not the most efficient, but let's keep it simple for now
-        variant = db.variants.find_one({
-            'xpos': genotype_info_container['xpos'],
-            'ref': genotype_info_container['ref'],
-            'alt': genotype_info_container['alt'],
-        })
-        if not variant:
-            continue  # :(
-            #raise Exception("I didn't find this variant: {}".format(genotype_info_container))
-        variant['genotype_info'] = genotype_info_container['genotype_info']
-        db.variants.save(variant)
-        progress.update(sites_vcf.fileobj.tell())
-    progress.finish()
 
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     for gene in get_genes_from_gencode_gtf(gtf_file):
-        db.genes.insert(gene)
+        db.genes.insert(gene, w=0)
         progress.update(gtf_file.fileobj.tell())
     progress.finish()
     gtf_file.close()
+
+    db.genes.ensure_index('gene_id')
+    db.genes.ensure_index('gene_name')
 
     # and now transcripts
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
     for transcript in get_transcripts_from_gencode_gtf(gtf_file):
-        db.transcripts.insert(transcript)
+        db.transcripts.insert(transcript, w=0)
         progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
     progress.finish()
+
+    db.transcripts.ensure_index('transcript_id')
+    db.transcripts.ensure_index('gene_id')
 
     # Building up gene definitions
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
+    current_entry = 0
+    exons = []
     for exon in get_exons_from_gencode_gtf(gtf_file):
-        db.exons.insert(exon)
+        current_entry += 1
+        exons.append(exon)
+        db.exons.insert(exon, w=0)
         progress.update(gtf_file.fileobj.tell())
+        if not current_entry % 1000:
+            db.base_coverage.insert(exons, w=0)
+            exons = []
     gtf_file.close()
     progress.finish()
 
+    db.exons.ensure_index('exon_id')
+    db.exons.ensure_index('transcript_id')
+    db.exons.ensure_index('gene_id')
+
+    canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
+    size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
+    progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
+    for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
+        gene = db.genes.find_one({
+            'gene_id': gene
+        })
+        if not gene:
+            continue
+        gene['canonical_transcript'] = transcript
+        db.genes.save(gene)
+        progress.update(canonical_transcript_file.fileobj.tell())
+    canonical_transcript_file.close()
+    progress.finish()
+
+    omim_file = gzip.open(app.config['OMIM_FILE'])
+    size = os.path.getsize(app.config['OMIM_FILE'])
+    progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
+    for fields in get_omim_associations(omim_file):
+        if fields is None:
+            continue
+        gene, transcript, accession, description = fields
+        gene = db.genes.find_one({
+            'gene_id': gene
+        })
+        if not gene:
+            continue
+        gene['omim_accession'] = accession
+        gene['omim_description'] = description
+        db.genes.save(gene)
+        progress.update(omim_file.fileobj.tell())
+    omim_file.close()
+    progress.finish()
 
 
 def get_db():
@@ -163,7 +235,6 @@ def get_db():
 
 @app.route('/')
 def homepage():
-    db = get_db()
     return render_template('homepage.html')
 
 
@@ -230,80 +301,111 @@ def variant_page(variant_str):
 def gene_page(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
-    variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
-    transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
+    cache_key = 't-gene-{}'.format(gene_id)
+    t = cache.get(cache_key)
+    if t is None:
+        variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+        add_consequence_to_variants(variants_in_gene)
+        transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
-    # Get csome anonical transcript and corresponding info
-    #transcript_id = get_canonical_transcript()
-    transcript_id = 'ENST00000296029' # Guaranteed to be canonical transcript
-    transcript = lookups.get_transcript(db, transcript_id)
-    variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-    exons = lookups.get_exons_in_transcript(db, transcript_id)
-    genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
-    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'], transcript['xstop'])
-    add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-    add_consequence_to_variants(variants_in_transcript)
+        # Get csome anonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']
+        transcript = lookups.get_transcript(db, transcript_id)
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+        add_consequence_to_variants(variants_in_transcript)
 
-    lof_variants = [
-        x for x in variants_in_gene
-        if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Gene'] == gene_id])
-    ]
-    composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+        lof_variants = [
+            x for x in variants_in_gene
+            if any([y['LoF'] in ('HC', 'LC') for y in x['vep_annotations'] if y['Gene'] == gene_id])
+        ]
+        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants if x['filter'] == 'PASS'])
 
-    return render_template(
-        'gene.html',
-        gene=gene,
-        variants_in_gene=variants_in_transcript,
-        number_variants_in_gene=len(variants_in_gene),
-        lof_variants_in_gene=lof_variants,
-        composite_lof_frequency=composite_lof_frequency,
-        transcripts_in_gene=transcripts_in_gene,
-        coverage_stats=coverage_stats,
-        exons=exons
-    )
+        t = render_template(
+            'gene.html',
+            gene=gene,
+            transcript=transcript,
+            variants_in_gene=variants_in_gene,
+            variants_in_transcript=variants_in_transcript,
+            lof_variants_in_gene=lof_variants,
+            composite_lof_frequency=composite_lof_frequency,
+            transcripts_in_gene=transcripts_in_gene,
+            coverage_stats=coverage_stats
+        )
+        cache.set(cache_key, t, timeout=1000*60)
+    return t
 
 
 @app.route('/transcript/<transcript_id>')
 def transcript_page(transcript_id):
     db = get_db()
     transcript = lookups.get_transcript(db, transcript_id)
-    variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-    exons = lookups.get_exons_in_transcript(db, transcript_id)
-    genomic_coord_to_exon = dict([(y, i) for i, x in enumerate(exons) for y in range(x['start'], x['stop'] + 1)])
 
-    coverage_stats = lookups.get_coverage_for_transcript(db, genomic_coord_to_exon, transcript['xstart'], transcript['xstop'])
+    cache_key = 't-transcript-{}'.format(transcript_id)
+    t = cache.get(cache_key)
+    if t is None: 
+    
+        gene = lookups.get_gene(db, transcript['gene_id'])
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
 
-    lof_variants = [
-        x for x in variants_in_transcript
-        if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
-    ]
-    composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants])
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
 
-    add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-    add_consequence_to_variants(variants_in_transcript)
+        lof_variants = [
+            x for x in variants_in_transcript
+            if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
+        ]
+        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants if x['filter'] == 'PASS'])
 
-    return render_template(
-        'transcript.html',
-        transcript=transcript,
-        variants_in_transcript=variants_in_transcript,
-        lof_variants=lof_variants,
-        composite_lof_frequency=composite_lof_frequency,
-        coverage_stats=coverage_stats,
-        exons=exons,
-    )
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+        add_consequence_to_variants(variants_in_transcript)
+
+        t = render_template(
+            'transcript.html',
+            transcript=transcript,
+            transcript_json=json.dumps(transcript),
+            variants_in_transcript=variants_in_transcript,
+            variants_in_transcript_json=json.dumps(variants_in_transcript),
+            lof_variants=lof_variants,
+            lof_variants_json=json.dumps(lof_variants),
+            composite_lof_frequency=composite_lof_frequency,
+            composite_lof_frequency_json=json.dumps(composite_lof_frequency),
+            coverage_stats=coverage_stats,
+            coverage_stats_json=json.dumps(coverage_stats),
+            gene=gene,
+            gene_json=json.dumps(gene),
+        )
+        cache.set(cache_key, t, timeout=1000*60)
+    return t
 
 
 @app.route('/region/<region_id>')
 def region_page(region_id):
     db = get_db()
-    chrom, start, stop = region_id.split('-')
-    start = int(start)
-    stop = int(stop)
+    region = region_id.split('-')
+    chrom = region[0]
+    start = None
+    stop = None
+    if len(region) == 3:
+        chrom, start, stop = region
+        start = int(start)
+        stop = int(stop)
+    if start is None or stop - start > REGION_LIMIT:
+        return render_template(
+            'region.html',
+            genes_in_region=None,
+            variants_in_region=None,
+            chrom=chrom,
+            start=start,
+            stop=stop,
+            coverage=None
+        )
     genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
     variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
     xstart = xbrowse.get_xpos(chrom, start)
     xstop = xbrowse.get_xpos(chrom, stop)
     coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
+    add_consequence_to_variants(variants_in_region)
     return render_template(
         'region.html',
         genes_in_region=genes_in_region,
@@ -318,16 +420,21 @@ def region_page(region_id):
 @app.route('/dbsnp/<rsid>')
 def dbsnp_page(rsid):
     db = get_db()
-    variant = lookups.get_variants_by_rsid(db, rsid)
+    variants = lookups.get_variants_by_rsid(db, rsid)
+    chrom = None
+    start = None
+    stop = None
+    add_consequence_to_variants(variants)
     return render_template(
         'region.html',
         rsid=rsid,
-        variants_in_region=variant,
+        variants_in_region=variants,
+        chrom=chrom,
+        start=start,
+        stop=stop,
+        coverage=None,
+        genes_in_region=None
     )
-
-@app.route('/howtouse')
-def howtouse_page():
-    return render_template('howtouse.html')
 
 
 @app.route('/downloads')
@@ -335,9 +442,9 @@ def downloads_page():
     return render_template('downloads.html')
 
 
-@app.route('/contact')
-def contact_page():
-    return render_template('contact.html')
+@app.route('/about')
+def about_page():
+    return render_template('about.html')
 
 
 if __name__ == "__main__":

@@ -1,0 +1,214 @@
+<div id="region_plot">
+    {% include 'coverage_selectors.html' %}
+    <br/>
+    <div id="region_plot_container"></div>
+</div>
+<div id="not_covered" style="display: none;">
+    No coverage for this region.
+</div>
+<script>
+
+gene_chart_margin = {top: 10, right: 30, bottom: 30, left: 80},
+    gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
+    gene_chart_width = 1100 - gene_chart_margin.left - gene_chart_margin.right;
+
+lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
+    gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
+
+function region_chart(data, variant_data) {
+    var metric = 'mean';
+
+    var x = d3.scale.linear()
+        .domain([d3.min(data, function(d) { return d.pos; }), d3.max(data, function(d) { return d.pos; })])
+        .range([0, gene_chart_width]);
+
+    var y = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) { return d[metric]; })])
+        .range([gene_chart_height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left");
+
+    var svg = d3.select('#region_plot_container').append("svg")
+        .attr("width", gene_chart_width + gene_chart_margin.left + gene_chart_margin.right)
+        .attr("height", gene_chart_height + gene_chart_margin.top + gene_chart_margin.bottom)
+        .append("g")
+        .attr('id', 'inner_graph')
+        .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
+
+    svg.selectAll("bar")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr('class', 'main_plot_bars')
+        .style("fill", "steelblue")
+        .attr("x", function(d, i) {
+            if (d.has_coverage) {
+                return x(d.pos);
+            }
+        })
+        .attr("width", gene_chart_width/data.length)
+        .attr("y", function(d) {
+            if (d['has_coverage']) {
+                return y(d[metric]);
+            } else {
+                return 0;
+            }
+        })
+        .attr("height", function(d) {
+            if (d['has_coverage']) {
+                return gene_chart_height - y(d[metric]);
+            } else {
+                return 0;
+            }
+        });
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + gene_chart_height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+    var svg_outer = d3.select('#region_plot_container').append("svg")
+        .attr("width", gene_chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
+        .attr("height", lower_gene_chart_height)
+        .append("g")
+        .attr('id', 'track')
+        .attr("transform", "translate(" + gene_chart_margin_lower.left + "," + 0 + ")");
+
+    var exon_color = "lightsteelblue";
+    svg_outer.append("line")
+        .attr("y1", lower_gene_chart_height/2)
+        .attr("y2", lower_gene_chart_height/2)
+        .attr("x1", 0)
+        .attr("x2", x(d3.max(data, function(d) { return d.pos; })))
+        .attr("stroke-width", 1)
+        .attr("stroke", exon_color);
+
+    var start = d3.min(variant_data, function(d) { return d.pos; });
+    var bounds = get_af_bounds(variant_data);
+    var min_af = bounds[0];
+    var max_af = bounds[1];
+    var variant_size_scale = d3.scale.log()
+        .domain([min_af, max_af])
+        //Circle/Ellipse
+        .range([2, lower_gene_chart_height/3]);
+        //Rectangle
+//        .range([lower_gene_chart_height, 2]);
+
+    var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+        if (d.category) {
+            return d.category;
+        } else {
+            return 'None';
+        }
+    });
+    svg.call(tip);
+
+    svg_outer.selectAll("bar")
+        .data(variant_data)
+        .enter()
+        .append("a")
+        .attr('class', 'track_variant_link')
+        .attr("xlink:href", function(d, i) { return "/variant/" + d.chrom + "-" + d.pos + "-" + d.ref + "-" + d.alt; })
+        .attr("data-toggle", "tooltip")
+        .attr('filter_status', function(d) {
+            return d.filter;
+        })
+        .attr('category', function(d) {
+            return " " + d.category;
+        })
+        .on('mouseover', function(d) {
+            $('#variant_' + d.variant_id).find('td').addClass('table_hover');
+            tip.show(d);
+        })
+        .on('mouseout', function(d) {
+            $('#variant_' + d.variant_id).find('td').removeClass('table_hover');
+            tip.hide(d);
+        })
+        //Circle
+//        .append("circle")
+        //Ellipse
+        .append("ellipse")
+        .attr("class", function(d) {
+            return "track_variant " + d.category;
+        })
+        .style("opacity", 0.5)
+        .attr("cx", function(d) { return x(d.pos) })
+        .attr("cy", lower_gene_chart_height/2)
+        //Circle
+//        .attr("r", function(d, i) { return variant_size_scale(d.allele_freq); })
+        //Ellipse
+        .attr("rx", 2)
+        .attr("ry", function(d) {
+            if (d.allele_freq == 0) {
+                return 0;
+            } else {
+                return variant_size_scale(d.allele_freq);
+            }
+        });
+
+        //Rectangle
+//        .append("rect")
+//        .attr("class", "track_variant")
+//        .style("fill", "darkred")
+//        .style("opacity", 0.5)
+//        .attr("x", function(d, i) {
+//            var tx_coord = d.transcript_coordinates[transcript];
+//            if (tx_coord == 0) {
+//                return -1000;
+//            } else {
+//                var variant_exon_number = d.vep_annotations[0]['EXON'].split('/')[0] - 1;
+//                return exon_x_scale(tx_coord + variant_exon_number*padding);
+//            }
+//        })
+//        .attr("y", function(d, i) { return lower_gene_chart_height/2 - variant_size_scale(d.allele_freq)/2; } )
+//        .attr("width", 2)
+//        .attr("height", function(d, i) { return variant_size_scale(d.allele_freq); })
+//        .attr("rx", 6)
+//        .attr("ry", 6);
+}
+
+
+$(document).ready(function() {
+    // Change coverage plot
+    $('.coverage_metric_buttons').change(function () {
+        var v = $(this).attr('id').replace('_covmet_button', '');
+        $('.coverage_subcat_selectors').hide();
+        if (v == 'covered') {
+            $('#over_x_select_container').show();
+            v = $('#over_x_select').val();
+        } else {
+            $('#average_select_container').show();
+            v = $("#average_select").val();
+        }
+        change_coverage_chart_metric(window.coverage_stats, v, '#region_plot_container');
+    });
+    $('#over_x_select').change(function () {
+        change_coverage_chart_metric(window.coverage_stats, $(this).val(), '#region_plot_container');
+    });
+    $('#average_select').change(function () {
+        change_coverage_chart_metric(window.coverage_stats, $(this).val(), '#region_plot_container');
+    });
+
+// Change exon diagram
+    $('#inverted_checkbox').change(function () {
+        setTimeout(function () {
+            var v = $('#inverted_checkbox').is(':checked');
+            change_track_chart_variant_size(window.variants, v, '#region_plot_container');
+        }, 10);
+    });
+
+    $('.consequence_display_buttons, #filtered_checkbox').change(function () {
+        setTimeout(update_variants, 10);
+    });
+});
+</script>
