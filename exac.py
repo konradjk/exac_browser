@@ -58,11 +58,11 @@ def load_db():
     # Initialize database 
     # Don't need to explicitly create tables with mongo, just indices
 
-    db.variants.remove()
-    db.genes.remove()
-    db.transcripts.remove()
-    db.exons.remove()
-    db.base_coverage.remove()
+    db.variants.drop()
+    db.genes.drop()
+    db.transcripts.drop()
+    db.exons.drop()
+    db.base_coverage.drop()
 
     # load coverage first; variant info will depend on coverage
     for filepath in app.config['BASE_COVERAGE_FILES']:
