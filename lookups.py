@@ -192,25 +192,35 @@ def get_variants_in_region(db, chrom, start, stop):
     return list(variants)
 
 
+def remove_extraneous_information(variant):
+    del variant['genotype_depths']
+    del variant['genotype_qualities']
+    del variant['pop_acs']
+    del variant['pop_ans']
+    del variant['pop_homs']
+    del variant['transcripts']
+    del variant['genes']
+    del variant['orig_alt_alleles']
+    del variant['xpos']
+    del variant['xstart']
+    del variant['xstop']
+    csq = variant['vep_annotations']
+    variant['vep_annotations'] = [
+        {'Consequence': x['Consequence'],
+         'Gene': x['Gene'],
+         'Feature': x['Feature'],
+         'LoF': x['LoF']}
+        for x in csq
+    ]
+
+
 def get_variants_in_gene(db, gene_id):
     """
     """
-    variants = list(db.variants.find({'genes': gene_id}, fields={'_id': False}))
-    for variant in variants:
-        del variant['genotype_depths']
-        del variant['genotype_qualities']
-        del variant['pop_acs']
-        del variant['pop_ans']
-        del variant['pop_homs']
-
-        csq = variant['vep_annotations']
-        variant['vep_annotations'] = [
-            {'Consequence': x['Consequence'],
-             'Gene': x['Gene'],
-             'Feature': x['Feature'],
-             'LoF': x['LoF']}
-            for x in csq
-        ]
+    variants = []
+    for variant in db.variants.find({'genes': gene_id}, fields={'_id': False}):
+        remove_extraneous_information(variant)
+        variants.append(variant)
     return variants
 
 
@@ -226,6 +236,7 @@ def get_variants_in_transcript(db, transcript_id):
     variants = []
     for variant in db.variants.find({'transcripts': transcript_id}, fields={'_id': False}):
         variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Feature'] == transcript_id]
+        remove_extraneous_information(variant)
         variants.append(variant)
     return variants
 

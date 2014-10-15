@@ -51,10 +51,15 @@
                             <i class="fa fa-external-link"></i>
                         </a>
                     </dd>
+                    <dt>Ensembl</dt>
+                    <dd>
+                        <a href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}">{{ gene.gene_id }}</a>
+                        <i class="fa fa-external-link"></i>
+                    </dd>
                     <dt>UCSC</dt>
                     <dd>
                         <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                            {{ gene.gene_name }}
+                            {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
                             <i class="fa fa-external-link"></i>
                         </a>
                     </dd>
@@ -78,17 +83,27 @@
             </div>
             <div class="col-md-6">
                 <dl class="dl-horizontal">
-                    <dt>Transcripts:</dt>
-                    <dd>
-                        <ul>
-                            {% for transcript in transcripts_in_gene %}
-                                <li>
-                                    <a href="/transcript/{{ transcript.transcript_id }}">{{ transcript.transcript_id }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </dd>
+                    <dt>Position</dt>
+                    <dd>{{ gene.chrom }}:{{ gene.start }}-{{ gene.stop }}</dd>
                 </dl>
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
+                        Transcripts
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
+                        {% for transcript in transcripts_in_gene %}
+                            <li role="presentation">
+                                <a role="menuitem" tabindex="-1" href="/transcript/{{ transcript.transcript_id }}">
+                                    {{ transcript.transcript_id }}
+                                    {% if transcript.transcript_id == gene.canonical_transcript %}
+                                        *
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="row">

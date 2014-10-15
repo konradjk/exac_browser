@@ -104,9 +104,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <dl class="dl-horizontal">
+                        <dt>dbSNP</dt>
                         {% if variant.rsid and variant.rsid != "." %}
-                            <dt>Known variant</dt>
                             <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
+                        {% else %}
+                            <dd>Not found in dbSNP</dd>
                         {% endif %}
                         <dt>Allele Frequency</dt>
                         <dd>{{ '%0.4g' % variant.allele_freq }}</dd>
