@@ -53,7 +53,7 @@ window.get_coding_coordinates = function(_transcript, position_list, skip_utrs) 
     // todo: optimize by sorting positions
     var coding_positions = [];
     for (var i=0; i<num_exons; i++) {  // todo: underscore init method?
-        coding_positions.push(-1);
+        coding_positions.push(-1E5);
     }
     _.each(position_list, function(position, i) {
         _.each(exons, function(exon, j) {

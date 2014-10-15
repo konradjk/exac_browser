@@ -164,9 +164,18 @@ def load_db():
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
+    current_entry = 0
+    exons = []
     for exon in get_exons_from_gencode_gtf(gtf_file):
+        current_entry += 1
+        exons.append(exon)
         db.exons.insert(exon, w=0)
         progress.update(gtf_file.fileobj.tell())
+        if not current_entry % 1000:
+            db.base_coverage.insert(exons, w=0)
+            exons = []
+            if not current_entry % 10000:
+                print '%s (%s seconds so far)' % (current_entry, (time.time() - start_time))
     gtf_file.close()
     progress.finish()
 

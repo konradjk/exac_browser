@@ -102,6 +102,7 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['vep_annotations'] = vep_annotations
 
             variant['allele_count'] = int(info_field['AC_Adj'].split(',')[i])
+            if not variant['allele_count'] and variant['filter'] == 'PASS': variant['filter'] = 'AC_Adj0' # Temporary filter
             variant['allele_num'] = int(info_field['AN_Adj'])
 
             if variant['allele_num'] > 0:
