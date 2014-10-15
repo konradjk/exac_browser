@@ -113,7 +113,7 @@
                     {% else %}
                         {{ variant.alt }}
                     {% endif %}
-                    {% if variant.rsid == '.' %}
+                    {% if variant.rsid != '.' %}
                         ({{ variant.rsid }})
                     {% endif %}
 
