@@ -395,7 +395,7 @@ $(document).ready(function() {
     var new_data_skip_utr = create_new_data(window.coverage_stats, 'pos_coding_noutr');
     if (window.coverage_stats != null) {
         gene_chart(window.coverage_stats, new_data_skip_utr, window.variants_in_transcript, window.transcript);
-        if (!window.variants_in_transcript.length) {
+        if (window.variants_in_transcript.length) {
             update_variants();
         }
     } else {

@@ -8,10 +8,7 @@
         $("#variants_table_container").show();
         $("#variant_table").tablesorter({
             widthFixed: true,
-            sortList: [[1,0], [2,0], [7,1]],
-            headers: {
-                8: { sorter: false, parser: false }
-            }
+            sortList: [[1,0], [2,0], [7,1]]
         });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
 {#        if (window.table_variants.length <= 10) {#}
@@ -38,7 +35,6 @@
             }
         }
         $(document).ready(function() {
-            $('[frequency="0.0"]').hide();
             var data = window.table_variants;
 
             var width = 50;
@@ -101,7 +97,6 @@
                 <th>Allele Count</th>
                 <th>Allele Number</th>
                 <th>Allele Frequency</th>
-                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -144,7 +139,6 @@
                     {% endif %}
                     <div id="variant_af_box_{{ variant.variant_id }}" style="float: right;"></div>
                 </td>
-                <td></td>
             </tr>
         {% endfor %}
         <tbody>

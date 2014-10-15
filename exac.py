@@ -66,7 +66,7 @@ def load_variants(sites_file, db, start_time):
         if not current_entry % batch_size:
             db.variants.insert(variants, w=0)
             variants = []
-            if not current_entry % 100000:
+            if not current_entry % 10000:
                 print '%s up to %s (%s seconds so far)' % (sites_file, current_entry, (time.time() - start_time))
     if len(variants) > 0: db.variants.insert(variants, w=0)
     #progress.finish()
@@ -86,7 +86,7 @@ def load_coverage(coverage_fname, db, start_time):
         if not current_entry % batch_size:
             db.base_coverage.insert(bases, w=0)
             bases = []
-            if not current_entry % 10000:
+            if not current_entry % 100000:
                 print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, (time.time() - start_time))
     if len(bases) > 0: db.base_coverage.insert(bases, w=0)
     #progress.finish()
@@ -228,7 +228,6 @@ def get_db():
 
 @app.route('/')
 def homepage():
-    db = get_db()
     return render_template('homepage.html')
 
 

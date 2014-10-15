@@ -204,7 +204,11 @@
                                         <tr>
                                             <td>{{ pop }}</td>
                                             <td>{{ variant.pop_acs[pop] }}</td>
-                                            <td>{{ variant.pop_homs[pop] }}</td>
+                                            {% if pop != 'Other' %}
+                                                <td>{{ variant.pop_homs[pop] }}</td>
+                                            {% else %}
+                                                <td>-</td>
+                                            {% endif %}
                                             {% if variant.pop_ans[pop] > 0 %}
                                                 <td>{{ '%0.4g' % (variant.pop_acs[pop]/variant.pop_ans[pop]) }}</td>
                                             {% else %}
@@ -217,7 +221,7 @@
                                     <tr>
                                         <td><b>Total</b></td>
                                         <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
-                                        <td><b>{{ variant.pop_homs.values()|sum }}</b></td>
+                                        <td><b>{{ variant.pop_homs.values()|sum - variant.pop_homs['Other'] }}</b></td>
                                         <td><b>{{ '%0.4g' % variant.allele_freq }}</b></td>
                                     </tr>
                                 </tfoot>
