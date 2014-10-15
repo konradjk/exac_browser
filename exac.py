@@ -62,14 +62,22 @@ def load_db():
     db.exons.drop()
     db.base_coverage.drop()
 
+    batch_size = 1000
+
     # load coverage first; variant info will depend on coverage
-    coverage_file = app.config['BASE_COVERAGE_FILE']
-    size = os.path.getsize(coverage_file)
+    coverage_file = gzip.open(app.config['BASE_COVERAGE_FILE'])
+    size = os.path.getsize(app.config['BASE_COVERAGE_FILE'])
     progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
-    coverage_file = gzip.open(coverage_file)
+    current_entry = 0
+    bases = []
     for base_coverage in get_base_coverage_from_file(coverage_file):
+        current_entry += 1
         progress.update(coverage_file.fileobj.tell())
-        db.base_coverage.insert(base_coverage, w=0)
+        bases.append(base_coverage)
+        if not current_entry % batch_size:
+            db.base_coverage.insert(bases, w=0)
+            bases = []
+    db.base_coverage.insert(bases, w=0)
     progress.finish()
 
     db.base_coverage.ensure_index('xpos')
@@ -78,9 +86,16 @@ def load_db():
     sites_vcf = gzip.open(app.config['SITES_VCF'])
     size = os.path.getsize(app.config['SITES_VCF'])
     progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
+    current_entry = 0
+    variants = []
     for variant in get_variants_from_sites_vcf(sites_vcf):
-        db.variants.insert(variant, w=0)
+        current_entry += 1
         progress.update(sites_vcf.fileobj.tell())
+        variants.append(variant)
+        if not current_entry % batch_size:
+            db.variants.insert(variants, w=0)
+            variants = []
+    db.variants.insert(variants, w=0)
     progress.finish()
 
     db.variants.ensure_index('xpos')
