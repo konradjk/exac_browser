@@ -76,9 +76,14 @@ window.get_coding_coordinate_params = function(_transcript, skip_utrs) {
     var exons;
     if (skip_utrs) {
         exons = _.filter(_transcript.exons, function(d) {
-            return d.feature_type != 'UTR';
+            return d.feature_type == 'CDS';
         });
     } else {
+        exons = _.filter(_transcript.exons, function(d) {
+            return d.feature_type == 'CDS' || d.feature_type == 'UTR';
+        });
+    }
+    if (exons.length == 0) {
         exons = _transcript.exons;
     }
     ret.num_exons = exons.length;

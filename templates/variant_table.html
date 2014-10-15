@@ -34,54 +34,51 @@
                 return [7, '0.5-1'];
             }
         }
-        $(document).ready(function() {
-            var data = window.table_variants;
 
-            var width = 50;
-            var height = 15;
+        var data = window.table_variants;
 
-            var bounds = get_af_bounds(data);
-            var min_af = bounds[0];
-            var max_af = bounds[1];
-            var x_scale = d3.scale.linear()
-                .domain([0, 7])
-                .range([0, width]);
+        var width = 50;
+        var height = 15;
 
-            var svg;
-            $.each(data, function(i, d) {
-                svg = d3.select('#variant_af_box_' + d.variant_id)
-                    .append("svg")
-                    .attr("width", width)
-                    .attr("height", height)
-                    .append("g");
+        var x_scale = d3.scale.linear()
+            .domain([0, 7])
+            .range([0, width]);
 
-                for (var j=0; j<8; j++) {
-                    svg.append('rect')
-                            .style('stroke', 'steelblue')
-                            .style('fill', 'white')
-                            .attr('x', x_scale(j))
-                            .attr('y', 0)
-                            .attr('height', height)
-                            .attr('width', x_scale(1) - x_scale(0))
-                }
+        var svg;
+        $.each(data, function(i, d) {
+            svg = d3.select('#variant_af_box_' + d.variant_id)
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g");
 
-                var tip = d3.tip().attr('class', 'd3-tip').html(function() {
-                    return get_af_category(d)[1];
-                });
-                svg.call(tip);
-
+            for (var j=0; j<8; j++) {
                 svg.append('rect')
-                    .style('fill', 'steelblue')
-                    .attr('x', 0)
-                    .attr('y', 0)
-                    .attr('width', function() {
-                        return x_scale(get_af_category(d)[0]);
-                    })
-                    .attr('height', height)
-                    .on('mouseover', function(d) { tip.show(d); })
-                    .on('mouseout', function(d) { tip.hide(d); });
+                        .style('stroke', 'steelblue')
+                        .style('fill', 'white')
+                        .attr('x', x_scale(j))
+                        .attr('y', 0)
+                        .attr('height', height)
+                        .attr('width', x_scale(1) - x_scale(0))
+            }
+
+            var tip = d3.tip().attr('class', 'd3-tip').html(function() {
+                return get_af_category(d)[1];
             });
+            svg.call(tip);
+
+            svg.append('rect')
+                .style('fill', 'steelblue')
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('width', function() {
+                    return x_scale(get_af_category(d)[0]);
+                })
+                .attr('height', height)
+                .on('mouseover', function(d) { tip.show(d); })
+                .on('mouseout', function(d) { tip.hide(d); });
         });
+        update_variants();
     });
 </script>
 <div id="variants_loading">Loading variants...</div>
@@ -105,21 +102,20 @@
                 category="{{ variant.category }}" filter_status="{{ variant.filter }}" frequency="{{ variant.allele_freq }}">
                 <td>
                     <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                    {% if variant.rsid == '.' %}
-                        {{ variant.chrom }}:{{ variant.pos }}
+                    {{ variant.chrom }}:{{ variant.pos }}
+                    {% if variant.ref|length > 20 %}
+                        {{ variant.ref[1:20] }}...
                     {% else %}
-                        {{ variant.rsid }}
+                        {{ variant.ref }}
+                    {% endif %} /
+                    {% if variant.alt|length > 20 %}
+                        {{ variant.alt[1:20] }}...
+                    {% else %}
+                        {{ variant.alt }}
                     {% endif %}
-                        {% if variant.ref|length > 20 %}
-                            {{ variant.ref[1:20] }}...
-                        {% else %}
-                            {{ variant.ref }}
-                        {% endif %} /
-                        {% if variant.alt|length > 20 %}
-                            {{ variant.alt[1:20] }}...
-                        {% else %}
-                            {{ variant.alt }}
-                        {% endif %}
+                    {% if variant.rsid == '.' %}
+                        ({{ variant.rsid }})
+                    {% endif %}
 
                     </a>
                 </td>
