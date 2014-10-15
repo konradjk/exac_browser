@@ -122,9 +122,17 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
 
             if 'DP_MID' in info_field:
-                variant['genotype_depths'] = zip(map(float, info_field['DP_MID'].split('|')), map(int, info_field['DP_HIST'].split('|')))
+                mids_all = info_field['DP_MID'].split(',')[0]
+                hists_all = info_field['DP_HIST'].split(',')[0]
+                mids = info_field['DP_MID'].split(',')[i+1]
+                hists = info_field['DP_HIST'].split(',')[i+1]
+                variant['genotype_depths'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
             if 'GQ_MID' in info_field:
-                variant['genotype_qualities'] = zip(map(float, info_field['GQ_MID'].split('|')), map(int, info_field['GQ_HIST'].split('|')))
+                mids_all = info_field['GQ_MID'].split(',')[0]
+                hists_all = info_field['GQ_HIST'].split(',')[0]
+                mids = info_field['GQ_MID'].split(',')[i+1]
+                hists = info_field['GQ_HIST'].split(',')[i+1]
+                variant['genotype_qualities'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
 
             yield variant
 
