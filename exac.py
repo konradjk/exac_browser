@@ -39,12 +39,49 @@ app.config.update(dict(
     BASE_COVERAGE_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage.txt.gz'),
 ))
 
+
 def connect_db():
     """
     Connects to the specific database.
     """
     client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
     return client[app.config['DB_NAME']]
+
+
+def load_variants(sites_file, db):
+    batch_size = 1000
+    sites_vcf = gzip.open(sites_file)
+    size = os.path.getsize(sites_file)
+    progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
+    current_entry = 0
+    variants = []
+    for variant in get_variants_from_sites_vcf(sites_vcf):
+        current_entry += 1
+        progress.update(sites_vcf.fileobj.tell())
+        variants.append(variant)
+        if not current_entry % batch_size:
+            db.variants.insert(variants, w=0)
+            variants = []
+    db.variants.insert(variants, w=0)
+    progress.finish()
+
+
+def load_coverage(coverage_file, db):
+    batch_size = 1000
+    coverage_file = gzip.open(coverage_file)
+    size = os.path.getsize(coverage_file)
+    progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
+    current_entry = 0
+    bases = []
+    for base_coverage in get_base_coverage_from_file(coverage_file):
+        current_entry += 1
+        progress.update(coverage_file.fileobj.tell())
+        bases.append(base_coverage)
+        if not current_entry % batch_size:
+            db.base_coverage.insert(bases, w=0)
+            bases = []
+    db.base_coverage.insert(bases, w=0)
+    progress.finish()
 
 
 def load_db():
@@ -62,41 +99,12 @@ def load_db():
     db.exons.drop()
     db.base_coverage.drop()
 
-    batch_size = 1000
-
     # load coverage first; variant info will depend on coverage
-    coverage_file = gzip.open(app.config['BASE_COVERAGE_FILE'])
-    size = os.path.getsize(app.config['BASE_COVERAGE_FILE'])
-    progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
-    current_entry = 0
-    bases = []
-    for base_coverage in get_base_coverage_from_file(coverage_file):
-        current_entry += 1
-        progress.update(coverage_file.fileobj.tell())
-        bases.append(base_coverage)
-        if not current_entry % batch_size:
-            db.base_coverage.insert(bases, w=0)
-            bases = []
-    db.base_coverage.insert(bases, w=0)
-    progress.finish()
-
+    load_coverage(app.config['BASE_COVERAGE_FILE'], db)
     db.base_coverage.ensure_index('xpos')
 
     # grab variants from sites VCF
-    sites_vcf = gzip.open(app.config['SITES_VCF'])
-    size = os.path.getsize(app.config['SITES_VCF'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
-    current_entry = 0
-    variants = []
-    for variant in get_variants_from_sites_vcf(sites_vcf):
-        current_entry += 1
-        progress.update(sites_vcf.fileobj.tell())
-        variants.append(variant)
-        if not current_entry % batch_size:
-            db.variants.insert(variants, w=0)
-            variants = []
-    db.variants.insert(variants, w=0)
-    progress.finish()
+    load_variants(app.config['SITES_VCF'], db)
 
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('rsid')
