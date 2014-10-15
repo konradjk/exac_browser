@@ -66,7 +66,8 @@ def load_variants(sites_file, db, start_time):
         if not current_entry % batch_size:
             db.variants.insert(variants, w=0)
             variants = []
-            if not current_entry % 10*batch_size: print '%s up to %s (%s seconds so far)' % (sites_file, current_entry, (time.time() - start_time))
+            if not current_entry % 10000:
+                print '%s up to %s (%s seconds so far)' % (sites_file, current_entry, (time.time() - start_time))
     db.variants.insert(variants, w=0)
     #progress.finish()
 
