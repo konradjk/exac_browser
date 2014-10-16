@@ -96,7 +96,7 @@ def get_awesomebar_suggestions(db, query):
     }}, fields={'gene_name': True}).limit(20)
     if genes is None:
         genes = []
-    gene_names = [gene['gene_name'] for gene in genes]
+    gene_names = sorted([gene['gene_name'] for gene in genes])
 
     genes_by_other_name = db.genes.find({'other_names': {
         '$regex': regex,
@@ -104,8 +104,8 @@ def get_awesomebar_suggestions(db, query):
     if genes_by_other_name is None:
         genes_by_other_name = []
     other_names = [gene['other_names'] for gene in genes_by_other_name]
-    other_names = [name for names in other_names for name in names if regex.match(name)]
-    return list(set(gene_names + other_names))
+    other_names = sorted([name for names in other_names for name in names if regex.match(name)])
+    return gene_names + other_names
 
 
 # 1:1-1000
