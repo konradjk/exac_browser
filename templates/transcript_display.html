@@ -141,16 +141,17 @@ function gene_chart(data, new_data, variant_data, _transcript) {
             }
         });
 
-    var points;
-    if (_transcript.strand == "-") {
-        points = "-10," + lower_gene_chart_height/2 + " 10," + lower_gene_chart_height + " 10,0";
-    } else {
-        points = "-10," + lower_gene_chart_height + " 10," + lower_gene_chart_height/2 + " -10,0";
-    }
+
+    var a_s = _transcript.strand == "-"? -1 : 1; //arrow direction
+    var a_x = -5;  //arrow position on x-axis
+    var a_y = lower_gene_chart_height/2.0; //arrow position on y-axis
+    var a_w = 2; //arrow width
+    var points = [[a_x+a_s*6, a_y], [a_x+a_s*1, a_y+a_w*3], [a_x+a_s*1, a_y+a_w], [a_x-a_s*9, a_y+a_w],
+        [a_x-a_s*9, a_y-a_w], [a_x+a_s*1, a_y-a_w], [a_x+a_s*1, a_y-a_w*3]];
     svg_outer.append("polygon")
-            .attr("points", points)
-            .attr("fill", "lightsteelblue")
-            .attr("stroke", "steelblue");
+            .attr("points", points.join(" "))
+            .attr("fill", "steelblue")
+            .attr("stroke", "black");
 
     var bounds = get_af_bounds(variant_data);
     var min_af = bounds[0];
