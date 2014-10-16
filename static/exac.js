@@ -136,7 +136,6 @@ function draw_quality_histogram(data) {
     //Takes histogram data as a list of [midpoint, value] and puts into container
     //If data already in container, transitions to new data
     var container = '#quality_display_container';
-    console.log(data);
     var x = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[0]; }), d3.max(data, function(d) { return d[0]; })])
         .range([0, quality_chart_width]);
