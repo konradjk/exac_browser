@@ -8,6 +8,10 @@
     color: white;
 }
 
+#transcript_dropdown {
+    margin: 0px 0px 20px 0px;
+}
+
 #header-links a {
     color: white;
     font-weight: bold;
