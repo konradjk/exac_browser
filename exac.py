@@ -26,7 +26,7 @@ app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
 EXAC_FILES_DIRECTORY = '../exac_test_data/'
-REGION_LIMIT = 1E6
+REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(

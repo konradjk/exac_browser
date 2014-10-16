@@ -325,7 +325,17 @@ function change_coverage_chart(data, new_data, variant_data, _transcript, scale_
         .transition()
         .duration(500)
         .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
-        .attr("width", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.stop, skip_utrs) - get_coding_coordinate(_transcript, d.start, skip_utrs) + 1); });
+        .attr("width", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.stop, skip_utrs) - get_coding_coordinate(_transcript, d.start, skip_utrs) + 1); })
+        .attr("height", function(d, i) {
+            if (get_coding_coordinate(_transcript, d.start, skip_utrs) == -100) {
+                return 0;
+            }
+            if (d.feature_type == 'CDS') {
+                return lower_gene_chart_height;
+            } else {
+                return lower_gene_chart_height/2;
+            }
+        });
 
     // plot variants
     svg_outer.selectAll("a")
