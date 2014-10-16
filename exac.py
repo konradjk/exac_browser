@@ -309,6 +309,7 @@ def variant_page(variant_str):
             'alt': alt
         }
     consequences = None
+    ordered_csqs = None
     if 'vep_annotations' in variant:
         variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
         ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
@@ -319,7 +320,14 @@ def variant_page(variant_str):
             consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
     base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
     any_covered = any([x['has_coverage'] for x in base_coverage])
-    return render_template('variant.html', variant=variant, base_coverage=base_coverage, consequences=consequences, any_covered=any_covered, ordered_csqs=ordered_csqs)
+    return render_template(
+        'variant.html',
+        variant=variant,
+        base_coverage=base_coverage,
+        consequences=consequences,
+        any_covered=any_covered,
+        ordered_csqs=ordered_csqs
+    )
 
 
 @app.route('/gene/<gene_id>')
