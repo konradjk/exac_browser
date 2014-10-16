@@ -181,7 +181,7 @@
                                                             <li role="presentation">
                                                                 <a role="menuitem" tabindex="-1" href="/transcript/{{ annotation.Feature }}">
                                                                     {{ annotation.Feature }}
-                                                                    {% if annotation.Feature == gene.canonical_transcript %}
+                                                                    {% if annotation.CANONICAL == 'YES' %}
                                                                         *
                                                                     {% endif %}
                                                                 </a>
@@ -192,7 +192,7 @@
                                             {% else %}
                                                  - <a href="/transcript/{{ consequences[consequence][gene][0].Feature }}">
                                                     {{ consequences[consequence][gene][0].Feature }}
-                                                    {% if consequences[consequence][gene][0].Feature == gene.canonical_transcript %}
+                                                    {% if consequences[consequence][gene][0].CANONICAL == 'YES' %}
                                                         *
                                                     {% endif %}
                                                 </a>
