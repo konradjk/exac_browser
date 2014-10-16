@@ -87,7 +87,7 @@ def get_awesomebar_suggestions(db, query):
     regex = re.compile('^' + re.escape(query), re.IGNORECASE)
     genes = db.genes.find({'gene_name': {
         '$regex': regex,
-    }}).limit(20)
+    }}, fields={'gene_name': True}).limit(20)
     genes = list(genes)
     if genes is None:
         genes = []

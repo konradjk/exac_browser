@@ -63,11 +63,12 @@
             });
 
             if (window.variant != null && 'genotype_depths' in window.variant) {
-                draw_quality_histogram(window.variant.genotype_depths[1]);
+                draw_quality_histogram(window.variant.genotype_depths);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
-                    var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;
-                    draw_quality_histogram(window.variant[v][f]);
+{#                    var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;#}
+{#                    draw_quality_histogram(window.variant[v][f]);#}
+                    draw_quality_histogram(window.variant[v]);
                 });
                 $('#quality_full_site_button').change(function() {
                     setTimeout( function() {
@@ -254,9 +255,9 @@
                     </div>
                     <div id="quality_metrics_container">
                         <h3>Quality Metrics</h3>
-                        <label>
-                            <input type="checkbox" id="quality_full_site_button" value=""> Full site metrics
-                        </label>
+{#                        <label>#}
+{#                            <input type="checkbox" id="quality_full_site_button" value=""> Full site metrics#}
+{#                        </label>#}
                         <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
                             <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button">
                                 <input type="radio"> Depth

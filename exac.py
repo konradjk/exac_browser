@@ -478,5 +478,10 @@ def about_page():
     return render_template('about.html')
 
 
+@app.route('/terms')
+def terms_page():
+    return render_template('terms.html')
+
+
 if __name__ == "__main__":
     app.run()

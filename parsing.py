@@ -264,8 +264,9 @@ def get_dbnsfp_info(dbnsfp_file):
     fields = dict(zip(header, range(len(header))))
     for line in dbnsfp_file:
         line = line.split()
-        other_names = line[fields["Gene_old_names"]].split(';')
-        other_names.extend(line[fields["Gene_other_names"]].split(';'))
+        other_names = line[fields["Gene_old_names"]].split(';') if line[fields["Gene_old_names"]] != '.' else []
+        if line[fields["Gene_other_names"]] != '.':
+            other_names.extend(line[fields["Gene_other_names"]].split(';'))
         gene_info = {
             'gene_name': line[fields["Gene_name"]],
             'ensembl_gene': line[fields["Ensembl_gene"]],
