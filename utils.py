@@ -51,7 +51,10 @@ def xpos_to_pos(xpos):
 
 def add_consequence_to_variants(variant_list):
     for variant in variant_list:
-        variant['major_consequence'] = worst_csq_from_list([worst_csq_from_csq(x['Consequence']) for x in variant['vep_annotations']])
+        worst_csq = worst_csq_with_vep(variant['vep_annotations'])
+        print worst_csq
+        variant['major_consequence'] = worst_csq['major_consequence']
+        variant['HGVSp'] = worst_csq['HGVSp']
         if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
             variant['category'] = 'lof_variant'
         elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
@@ -156,7 +159,7 @@ def worst_csq_with_vep(annotation_list):
     for annotation in annotation_list:
         if compare_two_consequences(annotation['Consequence'], worst['Consequence']) < 0:
             worst = annotation
-            worst['major_consequence'] = worst_csq_from_csq(worst['Consequence'])
+    worst['major_consequence'] = worst_csq_from_csq(worst['Consequence'])
     return worst
 
 

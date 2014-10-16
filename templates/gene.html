@@ -48,6 +48,13 @@
                     </script>
 {#                    <dt>LoF rate</dt>#}
 {#                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>#}
+                    <dt>UCSC Browser</dt>
+                    <dd>
+                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                            {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
                     <dt>GeneCards</dt>
                     <dd>
                         <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
@@ -69,17 +76,17 @@
                             <i class="fa fa-external-link"></i>
                         </a>
                     </dd>
+                    <dt>Wikipedia</dt>
+                    <dd>
+                        <a href="http://en.wikipedia.org/{{ gene.gene_name }}" target="_blank">
+                            {{ gene.gene_name }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
                     <dt>Ensembl</dt>
                     <dd>
                         <a href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">{{ gene.gene_id }}</a>
                         <i class="fa fa-external-link"></i>
-                    </dd>
-                    <dt>UCSC</dt>
-                    <dd>
-                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                            {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
                     </dd>
                     {% if gene.omim_accession %}
                         <dt>OMIM</dt>
