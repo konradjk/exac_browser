@@ -4,7 +4,7 @@ import pymongo
 import gzip
 from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
     get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
-    get_base_coverage_from_file, get_omim_associations
+    get_base_coverage_from_file, get_omim_associations, get_dbnsfp_info
 import lookups
 import xbrowse
 from utils import *
@@ -215,6 +215,23 @@ def load_db():
     omim_file.close()
     progress.finish()
 
+    dbnsfp_file = gzip.open(app.config['DBNSFP_FILE'])
+    size = os.path.getsize(app.config['DBNSFP_FILE'])
+    progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
+    for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
+        gene = db.genes.find_one({
+            'gene_id': dbnsfp_gene['ensembl_gene']
+        })
+        if not gene:
+            continue
+        gene['full_gene_name'] = dbnsfp_gene['gene_full_name']
+        for other_name in dbnsfp_gene['gene_other_names']:
+            pass
+        db.genes.save(gene)
+        progress.update(omim_file.fileobj.tell())
+    dbnsfp_file.close()
+    progress.finish()
+
 
 def get_db():
     """
@@ -308,7 +325,7 @@ def gene_page(gene_id):
         add_consequence_to_variants(variants_in_gene)
         transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
-        # Get csome anonical transcript and corresponding info
+        # Get some canonical transcript and corresponding info
         transcript_id = gene['canonical_transcript']
         transcript = lookups.get_transcript(db, transcript_id)
         variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)

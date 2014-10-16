@@ -252,22 +252,24 @@ def get_exons_from_gencode_gtf(gtf_file):
             'xstart': xbrowse.get_xpos(chrom, start),
             'xstop': xbrowse.get_xpos(chrom, stop),
         }
-	yield exon
+        yield exon
 
-def get_dbNSFP_info(dbNSFP_file):
+
+def get_dbnsfp_info(dbnsfp_file):
     """
     Parse dbNSFP_gene file;
     Returns iter of transcript dicts
     """
-    header = dbNSFP_file.next().split()
+    header = dbnsfp_file.next().split()
     fields = dict(zip(header, range(len(header))))
-    for line in dbNSFP_file:
+    for line in dbnsfp_file:
         line = line.split()
+        other_names = line[fields["Gene_old_names"]].split(';')
+        other_names.extend(line[fields["Gene_other_names"]].split(';'))
         gene_info = {
-            'gene_name':line[fields["Gene_name"]],
-            'ensembl_gene':line[fields["Ensembl_gene"]],
-            'gene_full_name':line[fields["Gene_full_name"]],
-            'gene_old_names':line[fields["Gene_old_names"]],
-            'gene_other_names':line[fields["Gene_other_names"]]
+            'gene_name': line[fields["Gene_name"]],
+            'ensembl_gene': line[fields["Ensembl_gene"]],
+            'gene_full_name': line[fields["Gene_full_name"]],
+            'gene_other_names': other_names
         } 
         yield gene_info

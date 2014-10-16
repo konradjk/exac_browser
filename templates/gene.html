@@ -28,6 +28,10 @@
         <div class="row">
             <div class="col-md-6">
                 <dl class="dl-horizontal">
+                    {% if gene.full_gene_name %}
+                        <dt>{{ gene.gene_name }}</dt>
+                        <dd>{{ gene.full_gene_name }}</dd>
+                    {% endif %}
                     <dt>Number of variants</dt>
                     <dd><span id="number_of_variants"></span> (Including filtered: {{ variants_in_gene|length }})</dd>
 {#                    <dt>Number of LoF variants</dt>#}
