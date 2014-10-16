@@ -41,6 +41,7 @@ app.config.update(dict(
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage_split*')),
+    DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
 ))
 
 
@@ -146,6 +147,7 @@ def load_db():
 
     db.genes.ensure_index('gene_id')
     db.genes.ensure_index('gene_name')
+    db.genes.ensure_index('other_names')
 
     # and now transcripts
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
@@ -225,10 +227,11 @@ def load_db():
         if not gene:
             continue
         gene['full_gene_name'] = dbnsfp_gene['gene_full_name']
+        gene['other_names'] = []
         for other_name in dbnsfp_gene['gene_other_names']:
-            pass
+            gene['other_names'].append(other_name)
         db.genes.save(gene)
-        progress.update(omim_file.fileobj.tell())
+        progress.update(dbnsfp_file.fileobj.tell())
     dbnsfp_file.close()
     progress.finish()
 

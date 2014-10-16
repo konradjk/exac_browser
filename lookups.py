@@ -1,4 +1,5 @@
 import re
+import itertools
 from xbrowse import get_xpos
 from utils import xpos_to_pos
 
@@ -13,7 +14,12 @@ def get_gene(db, gene_id):
 
 
 def get_gene_by_name(db, gene_name):
-    return db.genes.find_one({'gene_name': gene_name}, fields={'_id': False})
+    # try gene_name field first
+    gene = db.genes.find_one({'gene_name': gene_name}, fields={'_id': False})
+    if gene:
+        return gene
+    # if not, try gene['other_names']
+    return db.genes.find_one({'other_names': gene_name}, fields={'_id': False})
 
 
 def get_transcript(db, transcript_id):
@@ -88,10 +94,18 @@ def get_awesomebar_suggestions(db, query):
     genes = db.genes.find({'gene_name': {
         '$regex': regex,
     }}, fields={'gene_name': True}).limit(20)
-    genes = list(genes)
     if genes is None:
         genes = []
-    return [gene['gene_name'] for gene in genes]
+    gene_names = [gene['gene_name'] for gene in genes]
+
+    genes_by_other_name = db.genes.find({'other_names': {
+        '$regex': regex,
+    }}, fields={'other_names': True}).limit(20)
+    if genes_by_other_name is None:
+        genes_by_other_name = []
+    other_names = [gene['other_names'] for gene in genes_by_other_name]
+    other_names = [name for names in other_names for name in names if regex.match(name)]
+    return list(set(gene_names + other_names))
 
 
 # 1:1-1000
