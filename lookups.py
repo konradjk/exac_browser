@@ -211,7 +211,8 @@ def remove_extraneous_information(variant):
             'Gene': x['Gene'],
             'Feature': x['Feature'],
             'LoF': x['LoF'],
-            'HGVS': x['HGVSp'].split(':')[-1].replace('%3D', '=') if x['HGVSp'] != '' else ''
+            'HGVSp': x['HGVSp'].split(':')[-1].replace('%3D', '=') if x['HGVSp'] != '' else '',
+            'HGVSc': x['HGVSc']
         }
         for x in csq
     ]

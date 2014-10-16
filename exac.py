@@ -364,6 +364,7 @@ def transcript_page(transcript_id):
     if t is None: 
     
         gene = lookups.get_gene(db, transcript['gene_id'])
+        gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
         variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
 
         coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)

@@ -169,25 +169,34 @@
                                                 {{ gene }}
                                             {% endif %}
                                             </a>
+                                            {% if consequences[consequence][gene]|length > 1 %}
+                                                <span class="dropdown">
+                                                    <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
+                                                        Transcripts
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
+                                                        {% for annotation in consequences[consequence][gene] %}
+                                                            <li role="presentation">
+                                                                <a role="menuitem" tabindex="-1" href="/transcript/{{ annotation.Feature }}">
+                                                                    {{ annotation.Feature }}
+                                                                    {% if annotation.Feature == gene.canonical_transcript %}
+                                                                        *
+                                                                    {% endif %}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </span>
+                                            {% else %}
+                                                 - <a href="/transcript/{{ consequences[consequence][gene][0].Feature }}">
+                                                    {{ consequences[consequence][gene][0].Feature }}
+                                                    {% if consequences[consequence][gene][0].Feature == gene.canonical_transcript %}
+                                                        *
+                                                    {% endif %}
+                                                </a>
+                                            {% endif %}
                                         </li>
-                                            <div class="dropdown">
-                                                <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
-                                                    Transcripts
-                                                    <span class="caret"></span>
-                                                </button>
-                                                <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
-                                                    {% for annotation in consequences[consequence][gene] %}
-                                                        <li role="presentation">
-                                                            <a role="menuitem" tabindex="-1" href="/transcript/{{ annotation.Feature }}">
-                                                                {{ annotation.Feature }}
-                                                                {% if annotation.Feature == gene.canonical_transcript %}
-                                                                    *
-                                                                {% endif %}
-                                                            </a>
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
                                     {% endfor %}
                                 </ul>
                             {% endfor %}
