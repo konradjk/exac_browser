@@ -112,8 +112,8 @@ def get_awesomebar_suggestions(db, query):
 R1 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)-(\d+)$')
 R2 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)$')
 R3 = re.compile(r'^(\d+|X|Y|M|MT)$')
-# R1 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)-(\d+)$')
-# R2 = re.compile(r'^(\d+|X|Y|M|MT):(\d+)$')
+R4 = re.compile(r'^(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)-([ATCG]+)-([ATCG]+)$')
+
 
 def get_awesomebar_result(db, query):
     """
@@ -137,49 +137,57 @@ def get_awesomebar_result(db, query):
     This could be important for performance later
 
     """
-    query = query.strip().upper()
+    query = query.strip()
     print query
-
     if query in UNSUPPORTED_QUERIES:
         return 'error', query
 
-    # Gene
-    gene = get_gene(db, query)
-    if gene:
-        return 'gene', gene['gene_id']
-    gene = get_gene_by_name(db, query)
-    if gene:
-        return 'gene', gene['gene_id']
-
-    # Transcript
-    transcript = get_transcript(db, query)
-    if transcript:
-        return 'transcript', transcript['transcript_id']
-
     # Variant
-    query = query.lower()
-    variant = get_variants_by_rsid(db, query)
+    variant = get_variants_by_rsid(db, query.lower())
     if variant:
         if len(variant) == 1:
             return 'variant', variant[0]['variant_id']
         else:
-            print 'Got ', variant
             return 'dbsnp_variant_set', variant[0]['rsid']
     # variant = get_variant(db, )
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
+    # From here out, all should be uppercase (gene, tx, region, variant_id)
+    query = query.upper()
+
+    # Ensembl formatted queries
+    if query.startswith('ENS'):
+        # Gene
+        gene = get_gene(db, query)
+        if gene:
+            return 'gene', gene['gene_id']
+
+        # Transcript
+        transcript = get_transcript(db, query)
+        if transcript:
+            return 'transcript', transcript['transcript_id']
+
+    gene = get_gene_by_name(db, query)
+    if gene:
+        return 'gene', gene['gene_id']
+
+    # From here on out, only region queries
+    query = query.lstrip('chr')
     # Region
-    m = R1.match(query.lstrip('chr'))
+    m = R1.match(query)
     if m:
         if int(m.group(3)) < int(m.group(2)):
             return 'region', 'invalid'
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(3))
-    m = R2.match(query.lstrip('chr'))
+    m = R2.match(query)
     if m:
         return 'region', '{}-{}-{}'.format(m.group(1), m.group(2), m.group(2))
-    m = R3.match(query.lstrip('chr'))
+    m = R3.match(query)
     if m:
         return 'region', '{}'.format(m.group(1))
+    m = R4.match(query)
+    if m:
+        return 'variant', '{}-{}-{}-{}'.format(m.group(1), m.group(2), m.group(3), m.group(4))
 
     return 'error', query
 
