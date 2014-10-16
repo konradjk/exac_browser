@@ -55,6 +55,20 @@
                             <i class="fa fa-external-link"></i>
                         </a>
                     </dd>
+                    <dt>Pubmed Search</dt>
+                    <dd>
+                        <a href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
+                            {{ gene.gene_name }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
+                    <dt>Wikigenes</dt>
+                    <dd>
+                        <a href="http://www.wikigenes.org/?search={{ gene.gene_name }}" target="_blank">
+                            {{ gene.gene_name }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
                     <dt>Ensembl</dt>
                     <dd>
                         <a href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">{{ gene.gene_id }}</a>
@@ -112,7 +126,7 @@
         </div>
         <div class="row">
             <h3>Gene summary</h3>
-            <h4>(Coverage shown for canonical transcript: {{ transcript.transcript_id }})</h4>
+            <h4>(Coverage shown for <a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">canonical transcript</a>: {{ transcript.transcript_id }})</h4>
             <div class="row">
                 {% include 'transcript_display.html' %}
             </div>

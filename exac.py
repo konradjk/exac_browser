@@ -481,6 +481,11 @@ def about_page():
     return render_template('about.html')
 
 
+@app.route('/participants')
+def participants_page():
+    return render_template('about.html')
+
+
 @app.route('/terms')
 def terms_page():
     return render_template('terms.html')
