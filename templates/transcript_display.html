@@ -90,6 +90,8 @@ function gene_chart(data, new_data, variant_data, _transcript) {
         .attr("cy", gene_chart_height + 3)
         .attr('r', function(d) { return (d.has_coverage) ? 2 : 0; });
 
+    d3.select('#gene_plot_container').append("br"); //make sure track_svg is below graph and not to the right of it
+
     // plot exons
     var svg_outer = d3.select('#gene_plot_container').append("svg")
         .attr("width", chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)
