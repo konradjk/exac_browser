@@ -260,10 +260,10 @@ def get_dbnsfp_info(dbnsfp_file):
     Parse dbNSFP_gene file;
     Returns iter of transcript dicts
     """
-    header = dbnsfp_file.next().split()
+    header = dbnsfp_file.next().split('\t')
     fields = dict(zip(header, range(len(header))))
     for line in dbnsfp_file:
-        line = line.split()
+        line = line.split('\t')
         other_names = line[fields["Gene_old_names"]].split(';') if line[fields["Gene_old_names"]] != '.' else []
         if line[fields["Gene_other_names"]] != '.':
             other_names.extend(line[fields["Gene_other_names"]].split(';'))
