@@ -11,6 +11,24 @@
     <div class="container">
         <h1>{{ gene.gene_name }}</h1>
         <h3>Transcript: {{ transcript.transcript_id }} ({{ transcript.exons|length }} exons)</h3>
+        <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
+                Other transcripts in this gene
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
+                {% for transcript in gene.transcripts %}
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" href="/transcript/{{ transcript.transcript_id }}">
+                            {{ transcript.transcript_id }}
+                            {% if transcript.transcript_id == gene.canonical_transcript %}
+                                *
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
         <div class="row">
             <div class="row">
                 {% include 'transcript_display.html' %}

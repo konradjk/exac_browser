@@ -136,7 +136,6 @@ function draw_quality_histogram(data) {
     //Takes histogram data as a list of [midpoint, value] and puts into container
     //If data already in container, transitions to new data
     var container = '#quality_display_container';
-    console.log(data);
     var x = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[0]; }), d3.max(data, function(d) { return d[0]; })])
         .range([0, quality_chart_width]);
@@ -470,4 +469,46 @@ function memorySizeOf(obj) {
     };
 
     return formatByteSize(sizeOf(obj));
-};
+}
+
+// Adapted from http://jsfiddle.net/terryyounghk/KPEGU/
+function exportTableToCSV($table, filename) {
+
+    var $rows = $table.find('tr:has(td,th)[style!="display: none;"]'),
+
+        // Temporary delimiter characters unlikely to be typed by keyboard
+        // This is to avoid accidentally splitting the actual contents
+        tmpColDelim = String.fromCharCode(11), // vertical tab character
+        tmpRowDelim = String.fromCharCode(0), // null character
+
+        // actual delimiter characters for CSV format
+        colDelim = '","',
+        rowDelim = '"\r\n"',
+
+        // Grab text from table into CSV formatted string
+        csv = '"' + $rows.map(function (i, row) {
+            var $row = $(row),
+                $cols = $row.find('td,th');
+
+            return $cols.map(function (j, col) {
+                var $col = $(col),
+                    text = $col.text();
+
+                return text.replace('"', '""').replace(/\s+/g, " ").replace(/^\s+/, "").replace(/\s+$/, ""); // escape double quotes
+
+            }).get().join(tmpColDelim);
+
+        }).get().join(tmpRowDelim)
+            .split(tmpRowDelim).join(rowDelim)
+            .split(tmpColDelim).join(colDelim) + '"',
+
+        // Data URI
+        csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+    $(this)
+        .attr({
+        'download': filename,
+            'href': csvData,
+            'target': '_blank'
+    });
+}
