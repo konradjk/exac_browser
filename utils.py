@@ -51,7 +51,7 @@ def xpos_to_pos(xpos):
 
 def add_consequence_to_variants(variant_list):
     for variant in variant_list:
-        variant['major_consequence'] = csq_max([csq_max_vep(x['Consequence']) for x in variant['vep_annotations']])
+        variant['major_consequence'] = worst_csq_from_list([worst_csq_from_csq(x['Consequence']) for x in variant['vep_annotations']])
         if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
             variant['category'] = 'lof_variant'
         elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
@@ -102,20 +102,11 @@ csq_order_dict = dict(zip(csq_order, range(len(csq_order))))
 rev_csq_order_dict = dict(zip(range(len(csq_order)), csq_order))
 
 
-def csq_max_vep(ann_list):
-    return rev_csq_order_dict[csq_max_list(ann_list.split('&'))]
-
-
-def csq_max(ann_list):
-    if len(ann_list) == 0: return ''
-    return rev_csq_order_dict[csq_max_list(ann_list)]
-
-
 def worst_csq_index(csq_list):
     """
     Input list of consequences (e.g. ['frameshift_variant', 'missense_variant'])
     Return index of the worst annotation (In this case, index of 'frameshift_variant', so 4)
-    Works well with csqs = 'non_coding_exon_variant&nc_transcript_variant' by csq_max_list(csqs.split('&'))
+    Works well with csqs = 'non_coding_exon_variant&nc_transcript_variant' by worst_csq_index(csqs.split('&'))
 
     :param annnotation:
     :return most_severe_consequence_index:
@@ -127,7 +118,7 @@ def worst_csq_from_list(csq_list):
     """
     Input list of consequences (e.g. ['frameshift_variant', 'missense_variant'])
     Return the worst annotation (In this case, 'frameshift_variant')
-    Works well with csqs = 'non_coding_exon_variant&nc_transcript_variant' by csq_max_list(csqs.split('&'))
+    Works well with csqs = 'non_coding_exon_variant&nc_transcript_variant' by worst_csq_from_list(csqs.split('&'))
 
     :param annnotation:
     :return most_severe_consequence:
