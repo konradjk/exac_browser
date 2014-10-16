@@ -278,6 +278,8 @@ def awesome():
         return redirect('/region/{}'.format(identifier))
     elif datatype == 'dbsnp_variant_set':
         return redirect('/dbsnp/{}'.format(identifier))
+    elif datatype == 'error':
+        return redirect('/error/{}'.format(identifier))
     else:
         raise Exception
 
@@ -452,6 +454,17 @@ def dbsnp_page(rsid):
         stop=stop,
         coverage=None,
         genes_in_region=None
+    )
+
+
+@app.route('/error/<query>')
+def error_page(query):
+    unsupported = "TTN" if query in lookups.UNSUPPORTED_QUERIES else None
+
+    return render_template(
+        'error.html',
+        query=query,
+        unsupported=unsupported
     )
 
 

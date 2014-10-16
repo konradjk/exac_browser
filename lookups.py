@@ -3,6 +3,10 @@ from xbrowse import get_xpos
 from utils import xpos_to_pos
 
 SEARCH_LIMIT = 10000
+UNSUPPORTED_QUERIES = ['ENSG00000155657', 'CMD1G', 'CMH9', 'CMPD4', 'FLJ32040', 'LGMD2J', 'MYLK5', 'TMD',
+                       u'ENST00000342175', u'ENST00000359218', u'ENST00000342992', u'ENST00000460472',
+                       u'ENST00000589042', u'ENST00000591111']
+
 
 def get_gene(db, gene_id):
     return db.genes.find_one({'gene_id': gene_id}, fields={'_id': False})
@@ -25,7 +29,6 @@ def get_variant(db, xpos, ref, alt):
 
 
 def get_variants_by_rsid(db, rsid):
-    print 'Looking up: ', rsid
     if not rsid.startswith('rs'):
         return None
     try:
@@ -123,6 +126,9 @@ def get_awesomebar_result(db, query):
     query = query.strip().upper()
     print query
 
+    if query in UNSUPPORTED_QUERIES:
+        return 'error', query
+
     # Gene
     gene = get_gene(db, query)
     if gene:
@@ -160,9 +166,8 @@ def get_awesomebar_result(db, query):
     m = R3.match(query.lstrip('chr'))
     if m:
         return 'region', '{}'.format(m.group(1))
-    print "Didn't find anything"
 
-    
+    return 'error', query
 
 
 def get_genes_in_region(db, chrom, start, stop):
