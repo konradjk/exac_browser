@@ -308,15 +308,18 @@ def variant_page(variant_str):
             'ref': ref,
             'alt': alt
         }
-    variant = order_variant_by_csq(variant)
     consequences = None
     if 'vep_annotations' in variant:
+        variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+        ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
+        ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs).split(',') # Close but not quite there
+        print ordered_csqs
         consequences = defaultdict(lambda: defaultdict(list))
         for annotation in variant['vep_annotations']:
-            consequences[csq_max_vep(annotation['Consequence'])][annotation['Gene']].append(annotation)
+            consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
     base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
     any_covered = any([x['has_coverage'] for x in base_coverage])
-    return render_template('variant.html', variant=variant, base_coverage=base_coverage, consequences=consequences, any_covered=any_covered)
+    return render_template('variant.html', variant=variant, base_coverage=base_coverage, consequences=consequences, any_covered=any_covered, ordered_csqs=ordered_csqs)
 
 
 @app.route('/gene/<gene_id>')

@@ -158,7 +158,7 @@
                     {% if variant.vep_annotations %}
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                         <div class="panel-group" id="annotation_accordion">
-                            {% for consequence in consequences %}
+                            {% for consequence in ordered_csqs %}
                                 <h4>{{ consequence }}</h4>
                                 <ul>
                                     {% for gene in consequences[consequence] %}
