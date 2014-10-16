@@ -10,10 +10,13 @@ Create a directory to put all this stuff in. This will serve as the parent direc
     mkdir exac
     cd exac
 
-First (as this can run in parallel), get the datasets that the browser uses:
+First (as this can run in parallel), get the datasets that the browser uses and put them into an 'exac_test_data' directory:
 
+    mkdir exac_test_data
+    cd exac_test_data
     scp tin:/humgen/atgu1/fs03/konradk/exac_browser/exac_browser.tar.gz .
     tar zxvf exac_browser.tar.gz
+    cd ..
 
 Now clone the repo: 
 
@@ -62,9 +65,7 @@ Note that this installs xBrowse too.
 
 ### Setup
 
-First, make sure those data files you downloaded earlier are in the same directory as `exac.py`.
-
-At this point, it's also probably worth quickly checking out the code structure if you haven't already :)
+At this point, it's probably worth quickly checking out the code structure if you haven't already :)
 
 Now we must load the database from those flat files.
 This is a single command.
@@ -95,3 +96,4 @@ And visit on your browser:
 For testing, you can open up an interactive shell with:
 
     python manage.py shell
+

@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+    <div class="container">
+        <br><br>
+        <center>
+        {% if unsupported %}
+          <h4>Searches for {{query}} are unsupported at this time</h4><br>
+        {% else %}
+          <h4>There was an error when attempting to retrieve {{query}}</h4><br>
+          <img class="error_image" src="{{ url_for('static', filename='images/exac_404_ripped_page.jpg') }}" />
+          <br><br>
+          To report a bug, please file an issue on <a href="https://github.com/konradjk/exac_browser/issues">Github</a>.<br>
+        {% endif %}
+        </center>
+    </div>
+
+{% endblock %}
