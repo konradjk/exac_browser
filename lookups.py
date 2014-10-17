@@ -1,7 +1,7 @@
 import re
 import itertools
 from xbrowse import get_xpos
-from utils import xpos_to_pos
+from utils import *
 
 SEARCH_LIMIT = 10000
 UNSUPPORTED_QUERIES = ['TTN', 'ENSG00000155657', 'CMD1G', 'CMH9', 'CMPD4', 'FLJ32040', 'LGMD2J', 'MYLK5', 'TMD',
@@ -239,7 +239,7 @@ def remove_extraneous_information(variant):
             'Gene': x['Gene'],
             'Feature': x['Feature'],
             'LoF': x['LoF'],
-            'HGVSp': x['HGVSp'].split(':')[-1].replace('%3D', '=') if x['HGVSp'] != '' else '',
+            'HGVSp': get_proper_hgvs(x),
             'HGVSc': x['HGVSc']
         }
         for x in csq

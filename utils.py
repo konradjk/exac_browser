@@ -66,6 +66,24 @@ def add_consequence_to_variants(variant_list):
             variant['category'] = 'other_variant'
 
 
+protein_letters_1to3 = {
+    'A': 'Ala', 'C': 'Cys', 'D': 'Asp', 'E': 'Glu',
+    'F': 'Phe', 'G': 'Gly', 'H': 'His', 'I': 'Ile',
+    'K': 'Lys', 'L': 'Leu', 'M': 'Met', 'N': 'Asn',
+    'P': 'Pro', 'Q': 'Gln', 'R': 'Arg', 'S': 'Ser',
+    'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr'
+}
+
+
+def get_proper_hgvs(csq):
+    """
+    Takes consequence dictionary, returns proper HGVS for matting for synonymous variants
+    """
+    if csq['Consequence'] != 'synonymous_variant' or csq['HGVSp'] == '':
+        return csq['HGVSp'].split(':')[-1]
+    else:
+        return "p." + protein_letters_1to3[csq['Amino_acids']] + csq['Protein_position'] + protein_letters_1to3[csq['Amino_acids']]
+
 csq_order = ["transcript_ablation",
 "splice_donor_variant",
 "splice_acceptor_variant",
