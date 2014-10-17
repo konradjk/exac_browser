@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block body %}
+    <script>
+        $('#navbar-awesomebar').hide();
+    </script>
     <div class="container">
         <h1 id="home-title">ExAC Browser (Beta) | <a href="/about" style="color: black;">Exome Aggregation Consortium</a></h1>
         <div class="row">
@@ -7,7 +10,7 @@
                 <div id="home-searchbox">
                     <form action="/awesome">
                         <input type="submit" style="display: none;"/>
-                        <input id="home-searchbox-input" name="query" class="form-control input-lg" type="text" placeholder="Search for a gene or variant or region"/>
+                        <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search for a gene or variant or region"/>
                         <input type="submit" style="position: absolute; left: -9999px"/>
                     </form>
                     <p class="text-muted">
@@ -42,30 +45,4 @@
             </div>
         </div>
     </div>
-
-    <script type="text/javascript">
-        $(function() {
-            var bestPictures = new Bloodhound({
-              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-              queryTokenizer: Bloodhound.tokenizers.whitespace,
-              remote: '/autocomplete/%QUERY'
-            });
-
-            bestPictures.initialize();
-
-            $('#home-searchbox-input').typeahead(
-                {
-                    autoselect: true, 
-                },
-                {
-                    name: 'best-pictures',
-                    displayKey: 'value',
-                    source: bestPictures.ttAdapter(),
-                }
-            );
-            $('#home-searchbox-input').bind('typeahead:selected', function(obj, datum) {
-                window.location.href = '/awesome?query=' + datum.value;
-            });
-        });
-    </script>
 {% endblock %}

@@ -1,6 +1,6 @@
 #header {
     background: #222;
-    padding: 10px 0;
+    /*padding: 10px 0;*/
 }
 
 #header-links {
@@ -11,6 +11,10 @@
 #header-links a {
     color: white;
     font-weight: bold;
+}
+
+.navbar {
+    margin-bottom: 0px;
 }
 
 #home-title {
