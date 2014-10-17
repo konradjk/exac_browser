@@ -62,32 +62,6 @@
                             <i class="fa fa-external-link"></i>
                         </a>
                     </dd>
-                    <dt>Pubmed Search</dt>
-                    <dd>
-                        <a href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
-                            {{ gene.gene_name }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
-                    </dd>
-                    <dt>Wikigenes</dt>
-                    <dd>
-                        <a href="http://www.wikigenes.org/?search={{ gene.gene_name }}" target="_blank">
-                            {{ gene.gene_name }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
-                    </dd>
-                    <dt>Wikipedia</dt>
-                    <dd>
-                        <a href="http://en.wikipedia.org/{{ gene.gene_name }}" target="_blank">
-                            {{ gene.gene_name }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
-                    </dd>
-                    <dt>Ensembl</dt>
-                    <dd>
-                        <a href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">{{ gene.gene_id }}</a>
-                        <i class="fa fa-external-link"></i>
-                    </dd>
                     {% if gene.omim_accession %}
                         <dt>OMIM</dt>
                         <dd>
@@ -97,20 +71,45 @@
                             </a>
                         </dd>
                     {% endif %}
-                    <dt>GTEx (Expression)</dt>
+                    <dt>Other</dt>
                     <dd>
-                        <a href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
-                            {{ gene.gene_name }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">
+                                External References
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
+                                        Ensembl <i class="fa fa-external-link"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/{{ gene.gene_name }}" target="_blank">
+                                        Wikipedia <i class="fa fa-external-link"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
+                                        PubMed Search <i class="fa fa-external-link"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="http://www.wikigenes.org/?search={{ gene.gene_name }}" target="_blank">
+                                        Wikigenes <i class="fa fa-external-link"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation">
+                                    <a role="menuitem" tabindex="-1" href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
+                                        GTEx (Expression) <i class="fa fa-external-link"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </dd>
                 </dl>
             </div>
             <div class="col-md-6">
-                <dl class="dl-horizontal">
-                    <dt>Position</dt>
-                    <dd>{{ gene.chrom }}:{{ gene.start }}-{{ gene.stop }}</dd>
-                </dl>
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
                         Transcripts

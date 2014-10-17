@@ -98,6 +98,7 @@
                 <th>Annotation</th>
                 <th>Allele Count</th>
                 <th>Allele Number</th>
+                <th>Number of Homozygotes</th>
                 <th>Allele Frequency</th>
             </tr>
         </thead>
@@ -133,6 +134,7 @@
                 </b> </td>
                 <td> {{ variant.allele_count }} </td>
                 <td> {{ variant.allele_num }} </td>
+                <td> {{ variant.hom_count }} </td>
                 <td>
                     {% if variant.allele_freq %}
                         {{ '%0.4g' % variant.allele_freq }}
