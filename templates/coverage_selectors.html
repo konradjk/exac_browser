@@ -4,11 +4,13 @@
             Coverage metric:
         </label>
         <span class="btn-group" data-toggle="buttons" id="coverage_metric_group">
-            <button class="btn btn-primary active coverage_metric_buttons" id="covered_mean_covmet_button" data-tooltip="Depth of coverage">
-                <input type="radio">Average
+            <button class="btn btn-primary active coverage_metric_buttons"
+                    id="covered_mean_covmet_button" data-tooltip="Per-base depth of &#xa;coverage. Capped at 100X">
+                    <input type="radio">Average</input>
             </button>
-            <button class="btn btn-primary coverage_metric_buttons" id="covered_covmet_button">
-                <input type="radio">Individuals over X
+            <button class="btn btn-primary coverage_metric_buttons" id="covered_covmet_button"
+                data-tooltip="Fraction of individuals with&#xa;coverage above X at each base.&#xa;Use drop down below to select X.">
+                <input type="radio">Individuals over X</input>
             </button>
         </span>
     </span>

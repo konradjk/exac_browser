@@ -19,7 +19,7 @@
             if (!d.allele_freq) {
                 return [0, '0'];
             } else if (d.allele_count == 1) {
-                return [1, 'Singleton'];
+                return [1, 'a singleton'];
             } else if (d.allele_freq < 1/10000) {
                 return [2, '<1/10000'];
             } else if (d.allele_freq < 1/1000) {
@@ -46,6 +46,9 @@
 
         var svg;
         $.each(data, function(i, d) {
+            d3.select('#variant_af_box_' + d.variant_id).attr("data-tooltip", "Shows allele frequency \n on a discrete " +
+                    "scale: \n singletons, <1/10,000, \n <1/1000, <1%, <5%, \n <50%, >50%. \n This particular variant is \n " +
+                    get_af_category(d)[1] + ".");
             svg = d3.select('#variant_af_box_' + d.variant_id)
                 .append("svg")
                 .attr("width", width)
@@ -62,10 +65,6 @@
                         .attr('width', x_scale(1) - x_scale(0))
             }
 
-            var tip = d3.tip().attr('class', 'd3-tip').html(function() {
-                return get_af_category(d)[1];
-            });
-            svg.call(tip);
 
             svg.append('rect')
                 .style('fill', 'steelblue')
@@ -74,9 +73,8 @@
                 .attr('width', function() {
                     return x_scale(get_af_category(d)[0]);
                 })
-                .attr('height', height)
-                .on('mouseover', function(d) { tip.show(d); })
-                .on('mouseout', function(d) { tip.hide(d); });
+                .attr('height', height);
+
         });
         update_variants();
         $("#export_to_csv").on('click', function (event) {
@@ -90,16 +88,20 @@
     <table id="variant_table" class="tablesorter">
         <thead>
             <tr>
-                <th>Variant</th>
+                <th class="tooltip-table-header" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
+                    Variant</th>
                 <th>Chromosome</th>
                 <th>Position</th>
-                <th>Protein Consequence</th>
-                <th>Filter</th>
-                <th>Annotation</th>
-                <th>Allele Count</th>
-                <th>Allele Number</th>
-                <th>Number of Homozygotes</th>
-                <th>Allele Frequency</th>
+                <th class="tooltip-table-header" data-tooltip="HGVS protein change annotation">
+                    Protein Consequence</th>
+                <th class="tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
+                <th class="tooltip-table-header" id="variant_table_annotation_header">Annotation</th>
+                <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">
+                    Allele Count</th>
+                <th class="tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
+                    Allele Number</th>
+                <th class="tooltip-table-header" data-tooltip="Frequency using only high-quality genotypes">
+                    Allele Frequency</th>
             </tr>
         </thead>
         <tbody>

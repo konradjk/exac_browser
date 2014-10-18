@@ -82,7 +82,7 @@
     background-color: #b5f7ff !important;
 }
 
-
+/* tooltips - based on http://cbracco.me/a-simple-css-tooltip/ */
 /* Add this attribute to the element that needs a tooltip */
 [data-tooltip] {
     position: relative;
@@ -103,12 +103,13 @@
 /* Position tooltip above the element */
 [data-tooltip]:before {
     position: absolute;
+    white-space: pre;
     bottom: 150%;
     left: 50%;
     margin-bottom: 5px;
-    margin-left: -80px;
+    margin-left: -40px;
     padding: 7px;
-    width: 160px;
+    width: auto;
     -webkit-border-radius: 3px;
     -moz-border-radius:    3px;
     border-radius:         3px;
@@ -117,7 +118,7 @@
     color: #fff;
     content: attr(data-tooltip);
     text-align: center;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.2;
 }
 
@@ -144,4 +145,17 @@
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
     filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
     opacity: 1;
+}
+
+
+/** @bw2 - class that shifts tooltip down to make it look better on variant table headers
+TODO: come up with a better way to position tooltip
+*/
+.tooltip-table-header:hover:before,
+.tooltip-table-header:hover:after,
+.tooltip-table-header:focus:before,
+.tooltip-table-header:focus:after {
+    -webkit-transform: translate(-5px, 7px);
+    -moz-transform:    translate(-5px, 7px);
+    transform:         translate(-5px, 7px);
 }

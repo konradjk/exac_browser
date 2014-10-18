@@ -20,6 +20,8 @@
             $("#variants_table_container").show();
             $("#gene_variants_table").tablesorter({widthFixed: true})
                     .tablesorterPager({container: $("#pager")});
+            $("#variant_table_annotation_header").attr("data-tooltip",
+                    "Variant Effect Predictor (VEP) \n annotation using Gencode 76.\n Worst across all transcripts of this gene.");
         });
     </script>
     <div class="container">
