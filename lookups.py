@@ -41,7 +41,9 @@ def get_variants_by_rsid(db, rsid):
         int(rsid.lstrip('rs'))
     except Exception, e:
         return None
-    return list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
+    variants = list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
+    add_consequence_to_variants(variants)
+    return variants
 
 
 def get_coverage_for_bases(db, xstart, xstop=None):
@@ -241,7 +243,7 @@ def get_variants_in_gene(db, gene_id):
     """
     variants = []
     for variant in db.variants.find({'genes': gene_id}, fields={'_id': False}):
-        add_consequence_to_variants(variant)
+        add_consequence_to_variant(variant)
         remove_extraneous_information(variant)
         variants.append(variant)
     return variants

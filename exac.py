@@ -455,7 +455,6 @@ def dbsnp_page(rsid):
     chrom = None
     start = None
     stop = None
-    add_consequence_to_variants(variants)
     return render_template(
         'region.html',
         rsid=rsid,
