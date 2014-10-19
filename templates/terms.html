@@ -27,9 +27,9 @@
                 The authors would like to thank the Exome Aggregation Consortium and the groups that provided exome variant data for comparison. A full list of contributing groups can be found at <a href="/about">http://exac.broadinstitute.org/about</a>.
                 </li>
             </ul>
-            <h4>Public Data Release</h4>
+            <h4>Data Generation</h4>
             <p>
-                The current data release (0.1) is taken from 63,352 individuals from a call set containing 91,796 exomes. For more information on the consortia that contributed individuals please see <a href="/about">the About page</a>. The full sites data set can be downloaded <a href="/downloads">here</a>.
+                The current data release (0.1) was initially generated across a combined data set of 91,796 exomes, from which 63,358 were extracted for public release based on consent, consortium permission, exome data quality, and lack of relatedness with other samples. For more information on the consortia that contributed individuals to the public release please see <a href="/about">the About page</a>. The full sites data set can be downloaded <a href="/downloads">here</a>.
             </p>
             <p>
                 Exome sequencing data was processed through a pipeline based on <a href="http://broadinstitute.github.io/picard/">Picard</a>, using base quality score recalibration and local realignment at known insertion/deletions (indels). We used the <a href="http://bio-bwa.sourceforge.net/bwa.shtml">BWA aligner</a> for mapping reads to the human genome build 37 (hg19). Genome Analysis Toolkit (GATK v3.1) HaplotypeCaller algorithm was then used to generate gVCFs for all 91,796 BAMs across a defined exome interval set and known sites were annotated with dbSNP135. The gVCFs were combined in 298 groups (~sqrt(n) gVCFs in each group) and then joint genotyping of SNPs and Indels were performed on all groups.
