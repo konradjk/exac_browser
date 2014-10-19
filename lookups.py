@@ -68,6 +68,7 @@ def get_coverage_for_bases(db, xstart, xstop=None):
             ret.append({'xpos': i, 'pos': xpos_to_pos(i)})
     for item in ret:
         item['has_coverage'] = 'mean' in item
+        del item['xpos']
     return ret
 
 
