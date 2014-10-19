@@ -2,8 +2,6 @@
 {% include 'variant_selectors.html' %}
 <script>
     $(document).ready(function() {
-        window.table_variants = {{ table_variants|tojson|safe }};
-
         $("#variants_loading").hide();
         $("#variants_table_container").show();
         $("#variant_table").tablesorter({
