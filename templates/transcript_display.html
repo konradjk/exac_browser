@@ -61,11 +61,7 @@ function gene_chart(data, new_data, variant_data, _transcript) {
         }).y0( function(d) {
             return gene_chart_height;
         }).y1( function(d) {
-            if (d.has_coverage) {
-                return y(d[metric]);
-            } else {
-                return y(0);
-            }
+            return y(d[metric]);
         });
 
     svg.append("path")
@@ -90,7 +86,7 @@ function gene_chart(data, new_data, variant_data, _transcript) {
             }
         })
         .attr("cy", gene_chart_height + 3)
-        .attr('r', function(d) { return (d.has_coverage) ? 2 : 0; });
+        .attr('r', 2 );
 
     d3.select('#gene_plot_container').append("br"); //make sure track_svg is below graph and not to the right of it
 
@@ -288,11 +284,7 @@ function change_coverage_chart(data, new_data, variant_data, _transcript, scale_
         }).y0( function(d) {
             return gene_chart_height;
         }).y1( function(d) {
-            if (d.has_coverage) {
-                return y(d[metric]);
-            } else {
-                return y(0);
-            }
+            return y(d[metric]);
         });
 
 {#    var new_data = create_new_data(data);#}
@@ -376,11 +368,13 @@ function create_new_data(data, coords) {
         var x = {'has_coverage': false};
         x[coords] = i;
         //Check the previous base to see if this is the beginning of an exon
-        if (i in data_object && data_object[i].has_coverage && !(i-1 in data_object && data_object[i-1].has_coverage)) {
+{#        if (i in data_object && data_object[i].has_coverage && !(i-1 in data_object && data_object[i-1].has_coverage)) {#}
+        if (i in data_object && !(i-1 in data_object)) {
             new_data.push(x);
         }
         //Check the previous base to see if this is the end of an exon
-        if (!(i in data_object && data_object[i].has_coverage) && i-1 in data_object && data_object[i-1].has_coverage) {
+{#        if (!(i in data_object && data_object[i].has_coverage) && i-1 in data_object && data_object[i-1].has_coverage) {#}
+        if (!(i in data_object) && i-1 in data_object) {
             x[coords] = i-1;
             new_data.push(x);
         }
