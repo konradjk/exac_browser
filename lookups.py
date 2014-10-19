@@ -86,28 +86,15 @@ def get_coverage_for_transcript(db, xstart, xstop=None):
     #return [c for c in coverage_array if c['has_coverage']]
 
 
-def get_awesomebar_suggestions(db, query):
+def get_awesomebar_suggestions(g, query):
     """
     This generates autocomplete suggestions when user
     query is the string that user types
     If it is the prefix for a gene, return list of gene names
     """
     regex = re.compile('^' + re.escape(query), re.IGNORECASE)
-    genes = db.genes.find({'gene_name': {
-        '$regex': regex,
-    }}, fields={'gene_name': True}).limit(20)
-    if genes is None:
-        genes = []
-    gene_names = sorted([gene['gene_name'] for gene in genes])
-
-    genes_by_other_name = db.genes.find({'other_names': {
-        '$regex': regex,
-    }}, fields={'other_names': True}).limit(20)
-    if genes_by_other_name is None:
-        genes_by_other_name = []
-    other_names = [gene['other_names'] for gene in genes_by_other_name]
-    other_names = sorted([name for names in other_names for name in names if regex.match(name)])
-    return gene_names + other_names
+    results = [r for r in g.autocomplete_strings if regex.match(r)][:20]
+    return results
 
 
 # 1:1-1000

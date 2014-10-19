@@ -15,6 +15,11 @@ def load_db():
     exac.load_db()
 
 
+@manager.command
+def create_cache():
+    exac.create_cache()
+
+
 if __name__ == "__main__":
     manager.run()
 

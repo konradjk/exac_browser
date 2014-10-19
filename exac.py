@@ -236,6 +236,25 @@ def load_db():
     #progress.finish()
 
 
+def create_cache():
+    """
+    This is essentially a compile step that generates all cached resources.
+    Creates files like autocomplete_entries.txt
+    Should be run on every redeploy.
+    """
+    # create autocomplete_entries.txt
+    autocomplete_strings = []
+    for gene in get_db().genes.find():
+        autocomplete_strings.append(gene['gene_name'])
+        if 'other_names' in gene:
+            autocomplete_strings.extend(gene['other_names'])
+    f = open(os.path.join(os.path.dirname(__file__), 'autocomplete_strings.txt'), 'w')
+    for s in autocomplete_strings:
+        f.write(s+'\n')
+    f.close()
+
+
+
 def get_db():
     """
     Opens a new database connection if there is none yet for the
@@ -260,8 +279,9 @@ def homepage():
 
 @app.route('/autocomplete/<query>')
 def awesome_autocomplete(query):
-    db = get_db()
-    suggestions = lookups.get_awesomebar_suggestions(db, query)
+    if not hasattr(g, 'autocomplete_strings'):
+        g.autocomplete_strings = [s.strip() for s in open(os.path.join(os.path.dirname(__file__), 'autocomplete_strings.txt'))]
+    suggestions = lookups.get_awesomebar_suggestions(g, query)
     return Response(json.dumps([{'value': s} for s in suggestions]),  mimetype='application/json')
 
 
