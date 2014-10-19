@@ -3,7 +3,7 @@
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
         window.transcript = {{ transcript_json|safe }};
-        window.variants_in_transcript = {{ variants_in_transcript_json|safe }};
+        window.table_variants = {{ variants_in_transcript_json|safe }};
         window.coverage_stats = {{ coverage_stats_json|safe }};
         window.lof_variants = {{ lof_variants_json|safe }};
         window.gene = {{ gene_json|safe }};
@@ -39,10 +39,7 @@
             </div>
             <div class="row">
                 {% if variants_in_transcript %}
-                    {% with %}
-                        {% set table_variants = variants_in_transcript %}
-                        {% include 'variant_table.html' %}
-                    {% endwith %}
+                    {% include 'variant_table.html' %}
                 {% else %}
                     No variants in this gene.
                 {% endif %}
