@@ -347,20 +347,12 @@ def gene_page(gene_id):
         coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
         add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
 
-        lof_variants = [
-            x for x in variants_in_gene
-            if any([y['LoF'] in ('HC', 'LC') for y in x['vep_annotations'] if y['Gene'] == gene_id])
-        ]
-        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants if x['filter'] == 'PASS'])
-
         t = render_template(
             'gene.html',
             gene=gene,
             transcript=transcript,
             variants_in_gene=variants_in_gene,
             variants_in_transcript=variants_in_transcript,
-            lof_variants_in_gene=lof_variants,
-            composite_lof_frequency=composite_lof_frequency,
             transcripts_in_gene=transcripts_in_gene,
             coverage_stats=coverage_stats
         )
@@ -383,12 +375,6 @@ def transcript_page(transcript_id):
 
         coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
 
-        lof_variants = [
-            x for x in variants_in_transcript
-            if any([y['LoF'] == 'HC' for y in x['vep_annotations'] if y['Feature'] == transcript_id])
-        ]
-        composite_lof_frequency = sum([x['allele_freq'] for x in lof_variants if x['filter'] == 'PASS'])
-
         add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
         add_consequence_to_variants(variants_in_transcript)
 
@@ -398,10 +384,6 @@ def transcript_page(transcript_id):
             transcript_json=json.dumps(transcript),
             variants_in_transcript=variants_in_transcript,
             variants_in_transcript_json=json.dumps(variants_in_transcript),
-            lof_variants=lof_variants,
-            lof_variants_json=json.dumps(lof_variants),
-            composite_lof_frequency=composite_lof_frequency,
-            composite_lof_frequency_json=json.dumps(composite_lof_frequency),
             coverage_stats=coverage_stats,
             coverage_stats_json=json.dumps(coverage_stats),
             gene=gene,
