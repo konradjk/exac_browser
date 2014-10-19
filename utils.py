@@ -52,7 +52,6 @@ def xpos_to_pos(xpos):
 def add_consequence_to_variants(variant_list):
     for variant in variant_list:
         worst_csq = worst_csq_with_vep(variant['vep_annotations'])
-        print worst_csq
         variant['major_consequence'] = worst_csq['major_consequence']
         variant['HGVSp'] = worst_csq['HGVSp']
         if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
