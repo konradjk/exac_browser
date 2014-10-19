@@ -54,7 +54,6 @@ def get_coverage_for_bases(db, xstart, xstop=None):
     """
     if xstop is None:
         xstop = xstart
-    # coverages = list(db.base_coverage.find({'xpos': {'$gte': xstart, '$lte': xstop}}, fields={'_id': False}))
     coverages = {
         doc['xpos']: doc for doc in db.base_coverage.find(
             {'xpos': {'$gte': xstart, '$lte': xstop}},
@@ -65,12 +64,11 @@ def get_coverage_for_bases(db, xstart, xstop=None):
     for i in range(xstart, xstop+1):
         if i in coverages:
             ret.append(coverages[i])
-        # else:
-        #     ret.append({'xpos': i, 'pos': xpos_to_pos(i)})
-    # for item in ret:
-    #     item['has_coverage'] = 'mean' in item
+        else:
+            ret.append({'xpos': i, 'pos': xpos_to_pos(i)})
+    for item in ret:
+        item['has_coverage'] = 'mean' in item
     return ret
-    # return coverages
 
 
 def get_coverage_for_transcript(db, xstart, xstop=None):
@@ -84,8 +82,8 @@ def get_coverage_for_transcript(db, xstart, xstop=None):
     """
     coverage_array = get_coverage_for_bases(db, xstart, xstop)
     # only return coverages that have coverage (if that makes any sense?)
-    return coverage_array
-    # return [c for c in coverage_array if c['has_coverage']]
+    # return coverage_array
+    return [c for c in coverage_array if c['has_coverage']]
 
 
 def get_awesomebar_suggestions(g, query):
