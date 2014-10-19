@@ -124,15 +124,18 @@ def get_variants_from_sites_vcf(sites_vcf):
             if 'DP_MID' in info_field:
                 mids_all = info_field['DP_MID'].split(',')[0]
                 hists_all = info_field['DP_HIST'].split(',')[0]
-                mids = info_field['DP_MID'].split(',')[i+1]
-                hists = info_field['DP_HIST'].split(',')[i+1]
-                variant['genotype_depths'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
+                #mids = info_field['DP_MID'].split(',')[i+1]
+                #hists = info_field['DP_HIST'].split(',')[i+1]
+                #variant['genotype_depths'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
+                # Rolling back to sites-only for now
+                variant['genotype_depths'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|')))]
             if 'GQ_MID' in info_field:
                 mids_all = info_field['GQ_MID'].split(',')[0]
                 hists_all = info_field['GQ_HIST'].split(',')[0]
-                mids = info_field['GQ_MID'].split(',')[i+1]
-                hists = info_field['GQ_HIST'].split(',')[i+1]
-                variant['genotype_qualities'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
+                #mids = info_field['GQ_MID'].split(',')[i+1]
+                #hists = info_field['GQ_HIST'].split(',')[i+1]
+                #variant['genotype_qualities'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
+                variant['genotype_qualities'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|')))]
 
             yield variant
 
