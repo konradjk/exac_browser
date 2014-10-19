@@ -36,7 +36,7 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_split*')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
@@ -271,7 +271,7 @@ def awesome():
     query = request.args.get('query')
     datatype, identifier = lookups.get_awesomebar_result(db, query)
 
-    print "Requested %s %s" % (datatype, identifier)
+    print "Searched for %s %s" % (datatype, identifier)
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
     elif datatype == 'transcript':
