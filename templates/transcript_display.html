@@ -61,7 +61,7 @@ function gene_chart(data, new_data, variant_data, _transcript) {
         }).y0( function(d) {
             return gene_chart_height;
         }).y1( function(d) {
-            return (metric in d) ? y(d[metric]) : 0;
+            return (metric in d) ? y(d[metric]) : gene_chart_height;
         });
 
     svg.append("path")
