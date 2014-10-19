@@ -82,8 +82,8 @@ def get_coverage_for_transcript(db, xstart, xstop=None):
     """
     coverage_array = get_coverage_for_bases(db, xstart, xstop)
     # only return coverages that have coverage (if that makes any sense?)
-    return coverage_array
-    #return [c for c in coverage_array if c['has_coverage']]
+    #return coverage_array
+    return [c for c in coverage_array if c['has_coverage']]
 
 
 def get_awesomebar_suggestions(g, query):
