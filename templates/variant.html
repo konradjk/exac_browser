@@ -63,12 +63,12 @@
             });
 
             if (window.variant != null && 'genotype_depths' in window.variant) {
-                draw_quality_histogram(window.variant.genotype_depths);
+                draw_quality_histogram(window.variant.genotype_depths[0]);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
 {#                    var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;#}
 {#                    draw_quality_histogram(window.variant[v][f]);#}
-                    draw_quality_histogram(window.variant[v]);
+                    draw_quality_histogram(window.variant[v][0]);
                 });
                 $('#quality_full_site_button').change(function() {
                     setTimeout( function() {
