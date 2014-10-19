@@ -54,13 +54,13 @@ def get_coverage_for_bases(db, xstart, xstop=None):
     """
     if xstop is None:
         xstop = xstart
-    coverages = list(db.base_coverage.find({'xpos': {'$gte': xstart, '$lte': xstop}}, fields={'_id': False}))
-    # coverages = {
-    #     doc['xpos']: doc for doc in db.base_coverage.find(
-    #         {'xpos': {'$gte': xstart, '$lte': xstop}},
-    #         fields={'_id': False}
-    #     )
-    # }
+    # coverages = list(db.base_coverage.find({'xpos': {'$gte': xstart, '$lte': xstop}}, fields={'_id': False}))
+    coverages = {
+        doc['xpos']: doc for doc in db.base_coverage.find(
+            {'xpos': {'$gte': xstart, '$lte': xstop}},
+            fields={'_id': False}
+        )
+    }
     ret = []
     for i in range(xstart, xstop+1):
         if i in coverages:
