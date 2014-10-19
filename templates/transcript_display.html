@@ -284,11 +284,7 @@ function change_coverage_chart(data, new_data, variant_data, _transcript, scale_
         }).y0( function(d) {
             return gene_chart_height;
         }).y1( function(d) {
-            if (metric in d) {
-                return y(d[metric]);
-            } else {
-                return 0;
-            }
+            return (metric in d) ? y(d[metric]) : gene_chart_height;
         });
 
 {#    var new_data = create_new_data(data);#}
