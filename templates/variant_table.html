@@ -100,7 +100,7 @@
                     Allele Count</th>
                 <th class="tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
                     Allele Number</th>
-                <th>Number of Homozygotes</th>
+{#                <th>Number of Homozygotes</th>#}
                 <th class="tooltip-table-header" data-tooltip="Frequency using only &#xa; high-quality genotypes">
                     Allele Frequency</th>
             </tr>
@@ -137,7 +137,7 @@
                 </b> </td>
                 <td> {{ variant.allele_count }} </td>
                 <td> {{ variant.allele_num }} </td>
-                <td> {{ variant.hom_count }} </td>
+{#                <td> {{ variant.hom_count }} </td>#}
                 <td>
                     {% if variant.allele_freq %}
                         {{ '%0.4g' % variant.allele_freq }}
