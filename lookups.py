@@ -235,6 +235,7 @@ def remove_extraneous_information(variant):
     del variant['xpos']
     del variant['xstart']
     del variant['xstop']
+    del variant['site_quality']
     del variant['vep_annotations']
 
 

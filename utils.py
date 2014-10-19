@@ -56,8 +56,9 @@ def add_consequence_to_variants(variant_list):
 
 def add_consequence_to_variant(variant):
     worst_csq = worst_csq_with_vep(variant['vep_annotations'])
+    if worst_csq is None: return
     variant['major_consequence'] = worst_csq['major_consequence']
-    variant['HGVSp'] = worst_csq['HGVSp']
+    variant['HGVSp'] = get_proper_hgvs(worst_csq['HGVSp'])
     if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
         variant['category'] = 'lof_variant'
     elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
@@ -177,7 +178,7 @@ def worst_csq_with_vep(annotation_list):
     :param annotation_list:
     :return worst_annotation:
     """
-    if len(annotation_list) == 0: return []
+    if len(annotation_list) == 0: return None
     worst = annotation_list[0]
     for annotation in annotation_list:
         if compare_two_consequences(annotation['Consequence'], worst['Consequence']) < 0:
