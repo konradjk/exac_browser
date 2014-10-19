@@ -141,7 +141,6 @@ function draw_quality_histogram(data) {
         .range([0, quality_chart_width]);
 
     var bar_width = x(data[1][0]) - x(data[0][0]);
-    console.log(data[1][0] - data[0][0]);
     var y = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[1]; }), d3.max(data, function(d) { return d[1]; })])
         .range([quality_chart_height, 0]);

@@ -59,7 +59,7 @@
                 $('#' + v + '_container').show();
             });
             $('#frequency_table').tablesorter({
-                sortList: [[3,1], [0,0]]
+                sortList: [[4,1], [0,0]]
             });
 
             if (window.variant != null && 'genotype_depths' in window.variant) {
@@ -220,6 +220,7 @@
                                     <tr>
                                         <th>Population</th>
                                         <th>Allele Count</th>
+                                        <th>Allele Number</th>
                                         <th>Number of Homozygotes</th>
                                         <th>Allele Frequency</th>
                                     </tr>
@@ -229,6 +230,7 @@
                                         <tr>
                                             <td>{{ pop }}</td>
                                             <td>{{ variant.pop_acs[pop] }}</td>
+                                            <td>{{ variant.pop_ans[pop] }}</td>
                                             {% if pop != 'Other' %}
                                                 <td>{{ variant.pop_homs[pop] }}</td>
                                             {% else %}
@@ -246,6 +248,7 @@
                                     <tr>
                                         <td><b>Total</b></td>
                                         <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
+                                        <td><b>{{ variant.pop_ans.values()|sum }}</b></td>
                                         <td><b>{{ variant.pop_homs.values()|sum - variant.pop_homs['Other'] }}</b></td>
                                         <td><b>{{ '%0.4g' % variant.allele_freq }}</b></td>
                                     </tr>

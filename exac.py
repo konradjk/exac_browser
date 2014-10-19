@@ -138,11 +138,11 @@ def load_db():
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     for gene in get_genes_from_gencode_gtf(gtf_file):
         db.genes.insert(gene, w=0)
-        progress.update(gtf_file.fileobj.tell())
-    progress.finish()
+        #progress.update(gtf_file.fileobj.tell())
+    #progress.finish()
     gtf_file.close()
 
     db.genes.ensure_index('gene_id')
@@ -152,12 +152,12 @@ def load_db():
     # and now transcripts
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
     for transcript in get_transcripts_from_gencode_gtf(gtf_file):
         db.transcripts.insert(transcript, w=0)
-        progress.update(gtf_file.fileobj.tell())
+        #progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
-    progress.finish()
+    #progress.finish()
 
     db.transcripts.ensure_index('transcript_id')
     db.transcripts.ensure_index('gene_id')
@@ -165,19 +165,19 @@ def load_db():
     # Building up gene definitions
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
     current_entry = 0
     exons = []
     for exon in get_exons_from_gencode_gtf(gtf_file):
         current_entry += 1
         exons.append(exon)
         db.exons.insert(exon, w=0)
-        progress.update(gtf_file.fileobj.tell())
+        #progress.update(gtf_file.fileobj.tell())
         if not current_entry % 1000:
             db.base_coverage.insert(exons, w=0)
             exons = []
     gtf_file.close()
-    progress.finish()
+    #progress.finish()
 
     db.exons.ensure_index('exon_id')
     db.exons.ensure_index('transcript_id')
@@ -185,7 +185,7 @@ def load_db():
 
     canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
     size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
     for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
         gene = db.genes.find_one({
             'gene_id': gene
@@ -194,13 +194,13 @@ def load_db():
             continue
         gene['canonical_transcript'] = transcript
         db.genes.save(gene)
-        progress.update(canonical_transcript_file.fileobj.tell())
+        #progress.update(canonical_transcript_file.fileobj.tell())
     canonical_transcript_file.close()
-    progress.finish()
+    #progress.finish()
 
     omim_file = gzip.open(app.config['OMIM_FILE'])
     size = os.path.getsize(app.config['OMIM_FILE'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
     for fields in get_omim_associations(omim_file):
         if fields is None:
             continue
@@ -213,13 +213,13 @@ def load_db():
         gene['omim_accession'] = accession
         gene['omim_description'] = description
         db.genes.save(gene)
-        progress.update(omim_file.fileobj.tell())
+        #progress.update(omim_file.fileobj.tell())
     omim_file.close()
-    progress.finish()
+    #progress.finish()
 
     dbnsfp_file = gzip.open(app.config['DBNSFP_FILE'])
     size = os.path.getsize(app.config['DBNSFP_FILE'])
-    progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
     for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
         gene = db.genes.find_one({
             'gene_id': dbnsfp_gene['ensembl_gene']
@@ -231,9 +231,9 @@ def load_db():
         for other_name in dbnsfp_gene['gene_other_names']:
             gene['other_names'].append(other_name)
         db.genes.save(gene)
-        progress.update(dbnsfp_file.fileobj.tell())
+        #progress.update(dbnsfp_file.fileobj.tell())
     dbnsfp_file.close()
-    progress.finish()
+    #progress.finish()
 
 
 def get_db():
