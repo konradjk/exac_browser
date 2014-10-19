@@ -271,6 +271,7 @@ def awesome():
     query = request.args.get('query')
     datatype, identifier = lookups.get_awesomebar_result(db, query)
 
+    print "Requested %s %s" % (datatype, identifier)
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
     elif datatype == 'transcript':

@@ -81,7 +81,8 @@ def get_proper_hgvs(csq):
     if csq['Consequence'] != 'synonymous_variant' or csq['HGVSp'] == '':
         return csq['HGVSp'].split(':')[-1]
     else:
-        return "p." + protein_letters_1to3[csq['Amino_acids']] + csq['Protein_position'] + protein_letters_1to3[csq['Amino_acids']]
+        amino_acids = ''.join([protein_letters_1to3[x] for x in csq['Amino_acids']])
+        return "p." + amino_acids + csq['Protein_position'] + amino_acids
 
 csq_order = ["transcript_ablation",
 "splice_donor_variant",
