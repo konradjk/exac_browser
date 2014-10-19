@@ -216,6 +216,7 @@ def get_variants_in_region(db, chrom, start, stop):
         'xstart': {'$lte': xstop},  # start of variant should be before (or equal to) end of region
         'xstop': {'$gte': xstart},  # opposite of above
     }, fields={'_id': False}, limit=SEARCH_LIMIT)
+    add_consequence_to_variants(variants)
     return list(variants)
 
 
@@ -232,18 +233,7 @@ def remove_extraneous_information(variant):
     del variant['xpos']
     del variant['xstart']
     del variant['xstop']
-    csq = variant['vep_annotations']
-    variant['vep_annotations'] = [
-        {
-            'Consequence': x['Consequence'],
-            'Gene': x['Gene'],
-            'Feature': x['Feature'],
-            'LoF': x['LoF'],
-            'HGVSp': get_proper_hgvs(x),
-            'HGVSc': x['HGVSc']
-        }
-        for x in csq
-    ]
+    del variant['vep_annotations']
 
 
 def get_variants_in_gene(db, gene_id):
@@ -251,6 +241,7 @@ def get_variants_in_gene(db, gene_id):
     """
     variants = []
     for variant in db.variants.find({'genes': gene_id}, fields={'_id': False}):
+        add_consequence_to_variants(variant)
         remove_extraneous_information(variant)
         variants.append(variant)
     return variants
@@ -268,6 +259,7 @@ def get_variants_in_transcript(db, transcript_id):
     variants = []
     for variant in db.variants.find({'transcripts': transcript_id}, fields={'_id': False}):
         variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Feature'] == transcript_id]
+        add_consequence_to_variant(variant)
         remove_extraneous_information(variant)
         variants.append(variant)
     return variants

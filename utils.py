@@ -51,18 +51,22 @@ def xpos_to_pos(xpos):
 
 def add_consequence_to_variants(variant_list):
     for variant in variant_list:
-        worst_csq = worst_csq_with_vep(variant['vep_annotations'])
-        variant['major_consequence'] = worst_csq['major_consequence']
-        variant['HGVSp'] = worst_csq['HGVSp']
-        if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
-            variant['category'] = 'lof_variant'
-        elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
-            # Should be noted that this grabs inframe deletion, etc.
-            variant['category'] = 'missense_variant'
-        elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["synonymous_variant"]:
-            variant['category'] = 'synonymous_variant'
-        else:
-            variant['category'] = 'other_variant'
+        add_consequence_to_variant(variant)
+
+
+def add_consequence_to_variant(variant):
+    worst_csq = worst_csq_with_vep(variant['vep_annotations'])
+    variant['major_consequence'] = worst_csq['major_consequence']
+    variant['HGVSp'] = worst_csq['HGVSp']
+    if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
+        variant['category'] = 'lof_variant'
+    elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
+        # Should be noted that this grabs inframe deletion, etc.
+        variant['category'] = 'missense_variant'
+    elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["synonymous_variant"]:
+        variant['category'] = 'synonymous_variant'
+    else:
+        variant['category'] = 'other_variant'
 
 
 protein_letters_1to3 = {
@@ -173,6 +177,7 @@ def worst_csq_with_vep(annotation_list):
     :param annotation_list:
     :return worst_annotation:
     """
+    if len(annotation_list) == 0: return []
     worst = annotation_list[0]
     for annotation in annotation_list:
         if compare_two_consequences(annotation['Consequence'], worst['Consequence']) < 0:

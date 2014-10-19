@@ -338,7 +338,6 @@ def gene_page(gene_id):
     t = cache.get(cache_key)
     if t is None:
         variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
-        add_consequence_to_variants(variants_in_gene)
         transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
         # Get some canonical transcript and corresponding info
@@ -347,7 +346,6 @@ def gene_page(gene_id):
         variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
         coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
         add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-        add_consequence_to_variants(variants_in_transcript)
 
         lof_variants = [
             x for x in variants_in_gene
@@ -439,7 +437,6 @@ def region_page(region_id):
     xstart = xbrowse.get_xpos(chrom, start)
     xstop = xbrowse.get_xpos(chrom, stop)
     coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
-    add_consequence_to_variants(variants_in_region)
     return render_template(
         'region.html',
         genes_in_region=genes_in_region,
