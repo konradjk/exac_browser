@@ -261,11 +261,12 @@ def create_cache():
     # get list of genes ordered by num_variants
     for gene_id in GENES_TO_CACHE:
         try:
-            f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
-            f.write(gene_page(gene_id))
-            f.close()
+            page_content = gene_page(gene_id)
         except:
-            pass
+            continue
+        f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
+        f.write(page_content)
+        f.close()
 
 
 def get_db():
