@@ -396,7 +396,6 @@ def transcript_page(transcript_id):
         coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
 
         add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-        add_consequence_to_variants(variants_in_transcript)
 
         t = render_template(
             'transcript.html',
