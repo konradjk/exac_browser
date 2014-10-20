@@ -366,6 +366,12 @@ def variant_page(variant_str):
 
 @app.route('/gene/<gene_id>')
 def gene_page(gene_id):
+    if gene_id in GENES_TO_CACHE:
+        return open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id))).read()
+    else:
+        return get_gene_page_content(gene_id)
+
+def get_gene_page_content(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
     if gene_id in GENES_TO_CACHE:
