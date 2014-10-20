@@ -132,6 +132,8 @@ def load_db():
     print 'Done loading. Took %s seconds' % (time.time() - start_time)
 
     db.variants.ensure_index('xpos')
+    db.variants.ensure_index('xstart')
+    db.variants.ensure_index('xstop')
     db.variants.ensure_index('rsid')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
