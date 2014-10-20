@@ -171,9 +171,8 @@ function gene_chart(data, new_data, variant_data, _transcript) {
                     .replace('5 prime', "5'")
                     .replace('nc ', "non-coding ");
             var output = csq + '<br/>' + d.chrom + ':' + d.pos + ' ' + d.ref + '&#8594;' + d.alt;
-            output += '<br/>' + d.vep_annotations[0].HGVSc.split(':')[1];
-            if (d.major_consequence == 'missense_variant') {
-                output += '<br/>' + d.vep_annotations[0].HGVSp.split(':')[1];
+            if (d.major_consequence == 'missense_variant' || d.major_consequence == 'synonymous_variant') {
+                output += '<br/>' + d.HGVSp;
             }
             output += '<br/>Frequency: ' + d.allele_freq.toPrecision(3);
             return output;
