@@ -261,8 +261,9 @@ def create_cache():
     # get list of genes ordered by num_variants
     for gene_id in GENES_TO_CACHE:
         try:
-            page_content = gene_page(gene_id)
-        except:
+            page_content = get_gene_page_content(gene_id)
+        except Exception:
+            print Exception
             continue
         f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
         f.write(page_content)
@@ -374,8 +375,6 @@ def gene_page(gene_id):
 def get_gene_page_content(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
-    if gene_id in GENES_TO_CACHE:
-        return open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id))).read()
     cache_key = 't-gene-{}'.format(gene_id)
     t = cache.get(cache_key)
     if t is None:
