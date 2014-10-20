@@ -439,37 +439,41 @@ def transcript_page(transcript_id):
 def region_page(region_id):
     db = get_db()
     region = region_id.split('-')
-    chrom = region[0]
-    start = None
-    stop = None
-    if len(region) == 3:
-        chrom, start, stop = region
-        start = int(start)
-        stop = int(stop)
-    if start is None or stop - start > REGION_LIMIT:
-        return render_template(
+    cache_key = 't-region-{}'.format(region_id)
+    t = cache.get(cache_key)
+    if t is None:
+        chrom = region[0]
+        start = None
+        stop = None
+        if len(region) == 3:
+            chrom, start, stop = region
+            start = int(start)
+            stop = int(stop)
+        if start is None or stop - start > REGION_LIMIT:
+            return render_template(
+                'region.html',
+                genes_in_region=None,
+                variants_in_region=None,
+                chrom=chrom,
+                start=start,
+                stop=stop,
+                coverage=None
+            )
+        genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
+        variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
+        xstart = xbrowse.get_xpos(chrom, start)
+        xstop = xbrowse.get_xpos(chrom, stop)
+        coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
+        t = render_template(
             'region.html',
-            genes_in_region=None,
-            variants_in_region=None,
+            genes_in_region=genes_in_region,
+            variants_in_region=variants_in_region,
             chrom=chrom,
             start=start,
             stop=stop,
-            coverage=None
+            coverage=coverage_array
         )
-    genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
-    variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
-    xstart = xbrowse.get_xpos(chrom, start)
-    xstop = xbrowse.get_xpos(chrom, stop)
-    coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
-    return render_template(
-        'region.html',
-        genes_in_region=genes_in_region,
-        variants_in_region=variants_in_region,
-        chrom=chrom,
-        start=start,
-        stop=stop,
-        coverage=coverage_array
-    )
+    return t
 
 
 @app.route('/dbsnp/<rsid>')
