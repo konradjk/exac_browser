@@ -377,6 +377,8 @@ def gene_page(gene_id):
 def get_gene_page_content(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
+    if gene is None:
+        abort(404)
     cache_key = 't-gene-{}'.format(gene_id)
     t = cache.get(cache_key)
     if t is None:
@@ -496,6 +498,7 @@ def dbsnp_page(rsid):
 
 
 @app.route('/error/<query>')
+@app.errorhandler(404)
 def error_page(query):
     unsupported = "TTN" if query in lookups.UNSUPPORTED_QUERIES else None
 
