@@ -36,14 +36,15 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_split*')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage_split*')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
 ))
-
+GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
+GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
 
 def connect_db():
     """
@@ -253,6 +254,18 @@ def create_cache():
         f.write(s+'\n')
     f.close()
 
+    # create static gene pages for genes in
+    if not os.path.exists(GENE_CACHE_DIR):
+        os.makedirs(GENE_CACHE_DIR)
+
+    # get list of genes ordered by num_variants
+    for gene_id in GENES_TO_CACHE:
+        try:
+            f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
+            f.write(gene_page(gene_id))
+            f.close()
+        except:
+            pass
 
 
 def get_db():
@@ -354,6 +367,8 @@ def variant_page(variant_str):
 def gene_page(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
+    if gene_id in GENES_TO_CACHE:
+        return open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id))).read()
     cache_key = 't-gene-{}'.format(gene_id)
     t = cache.get(cache_key)
     if t is None:
