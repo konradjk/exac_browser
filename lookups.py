@@ -205,10 +205,10 @@ def get_variants_in_region(db, chrom, start, stop):
     """
     xstart = get_xpos(chrom, start)
     xstop = get_xpos(chrom, stop)
-    variants = db.variants.find({
+    variants = list(db.variants.find({
         'xstart': {'$lte': xstop},  # start of variant should be before (or equal to) end of region
         'xstop': {'$gte': xstart},  # opposite of above
-    }, fields={'_id': False}, limit=SEARCH_LIMIT)
+    }, fields={'_id': False}, limit=SEARCH_LIMIT))
     add_consequence_to_variants(variants)
     return list(variants)
 

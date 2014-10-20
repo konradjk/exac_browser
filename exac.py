@@ -36,14 +36,15 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites_split*')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage_split*')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
 ))
-
+GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
+GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
 
 def connect_db():
     """
@@ -131,6 +132,8 @@ def load_db():
     print 'Done loading. Took %s seconds' % (time.time() - start_time)
 
     db.variants.ensure_index('xpos')
+    db.variants.ensure_index('xstart')
+    db.variants.ensure_index('xstop')
     db.variants.ensure_index('rsid')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
@@ -253,6 +256,20 @@ def create_cache():
         f.write(s+'\n')
     f.close()
 
+    # create static gene pages for genes in
+    if not os.path.exists(GENE_CACHE_DIR):
+        os.makedirs(GENE_CACHE_DIR)
+
+    # get list of genes ordered by num_variants
+    for gene_id in GENES_TO_CACHE:
+        try:
+            page_content = get_gene_page_content(gene_id)
+        except Exception:
+            print Exception
+            continue
+        f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
+        f.write(page_content)
+        f.close()
 
 
 def get_db():
@@ -352,8 +369,16 @@ def variant_page(variant_str):
 
 @app.route('/gene/<gene_id>')
 def gene_page(gene_id):
+    if gene_id in GENES_TO_CACHE:
+        return open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id))).read()
+    else:
+        return get_gene_page_content(gene_id)
+
+def get_gene_page_content(gene_id):
     db = get_db()
     gene = lookups.get_gene(db, gene_id)
+    if gene is None:
+        abort(404)
     cache_key = 't-gene-{}'.format(gene_id)
     t = cache.get(cache_key)
     if t is None:
@@ -416,37 +441,41 @@ def transcript_page(transcript_id):
 def region_page(region_id):
     db = get_db()
     region = region_id.split('-')
-    chrom = region[0]
-    start = None
-    stop = None
-    if len(region) == 3:
-        chrom, start, stop = region
-        start = int(start)
-        stop = int(stop)
-    if start is None or stop - start > REGION_LIMIT:
-        return render_template(
+    cache_key = 't-region-{}'.format(region_id)
+    t = cache.get(cache_key)
+    if t is None:
+        chrom = region[0]
+        start = None
+        stop = None
+        if len(region) == 3:
+            chrom, start, stop = region
+            start = int(start)
+            stop = int(stop)
+        if start is None or stop - start > REGION_LIMIT:
+            return render_template(
+                'region.html',
+                genes_in_region=None,
+                variants_in_region=None,
+                chrom=chrom,
+                start=start,
+                stop=stop,
+                coverage=None
+            )
+        genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
+        variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
+        xstart = xbrowse.get_xpos(chrom, start)
+        xstop = xbrowse.get_xpos(chrom, stop)
+        coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
+        t = render_template(
             'region.html',
-            genes_in_region=None,
-            variants_in_region=None,
+            genes_in_region=genes_in_region,
+            variants_in_region=variants_in_region,
             chrom=chrom,
             start=start,
             stop=stop,
-            coverage=None
+            coverage=coverage_array
         )
-    genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
-    variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
-    xstart = xbrowse.get_xpos(chrom, start)
-    xstop = xbrowse.get_xpos(chrom, stop)
-    coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
-    return render_template(
-        'region.html',
-        genes_in_region=genes_in_region,
-        variants_in_region=variants_in_region,
-        chrom=chrom,
-        start=start,
-        stop=stop,
-        coverage=coverage_array
-    )
+    return t
 
 
 @app.route('/dbsnp/<rsid>')
@@ -469,6 +498,7 @@ def dbsnp_page(rsid):
 
 
 @app.route('/error/<query>')
+@app.errorhandler(404)
 def error_page(query):
     unsupported = "TTN" if query in lookups.UNSUPPORTED_QUERIES else None
 

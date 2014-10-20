@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)http://exac.broadinstitute.org/error/asdjflkj -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>ExAC Browser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/typeaheadjs.css">
+    <link rel="stylesheet" type="text/css" href="/static/font-awesome.min.css">
+    <script async="" src="/static/analytics.js"></script><script type="text/javascript" src="/static/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/typeahead.bundle.min.js"></script>
+
+    <script type="text/javascript" src="/static/jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="/static/jquery.tablesorter.pager.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/theme.default.css">
+    <script type="text/javascript" src="/static/underscore-min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+
+
+
+    <script type="text/javascript" src="/static/d3.v3.min.js"></script>
+    <script type="text/javascript" src="/static/index.js"></script>
+    <script type="text/javascript" src="/static/exac.js"></script>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55729303-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            var bestPictures = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              remote: '/autocomplete/%QUERY'
+            });
+
+            bestPictures.initialize();
+
+            $('.awesomebar').typeahead(
+                {
+                    autoselect: true,
+                },
+                {
+                    name: 'best-pictures',
+                    displayKey: 'value',
+                    source: bestPictures.ttAdapter(),
+                }
+            );
+            $('.awesomebar').bind('typeahead:selected', function(obj, datum) {
+                window.location.href = '/awesome?query=' + datum.value;
+            });
+        });
+    </script>
+  <style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+.en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+}
+
+.en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+}
+</style></head>
+
+<body>
+    <div class="container">
+        <br><br>
+        <center>
+        <h4>We are currently unable to generate this page. Please try back soon.</h4><br>
+        <img class="error_image" src="/static/images/ashg_500.png">
+        <br><br>
+        
+          To report a bug, please file an issue on <a href="https://github.com/konradjk/exac_browser/issues">Github</a>.<br>
+        
+        </center>
+    </div>
+
+
+</body></html>
