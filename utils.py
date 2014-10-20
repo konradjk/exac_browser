@@ -51,19 +51,23 @@ def xpos_to_pos(xpos):
 
 def add_consequence_to_variants(variant_list):
     for variant in variant_list:
-        worst_csq = worst_csq_with_vep(variant['vep_annotations'])
-        print worst_csq
-        variant['major_consequence'] = worst_csq['major_consequence']
-        variant['HGVSp'] = worst_csq['HGVSp']
-        if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
-            variant['category'] = 'lof_variant'
-        elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
-            # Should be noted that this grabs inframe deletion, etc.
-            variant['category'] = 'missense_variant'
-        elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["synonymous_variant"]:
-            variant['category'] = 'synonymous_variant'
-        else:
-            variant['category'] = 'other_variant'
+        add_consequence_to_variant(variant)
+
+
+def add_consequence_to_variant(variant):
+    worst_csq = worst_csq_with_vep(variant['vep_annotations'])
+    if worst_csq is None: return
+    variant['major_consequence'] = worst_csq['major_consequence']
+    variant['HGVSp'] = get_proper_hgvs(worst_csq)
+    if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
+        variant['category'] = 'lof_variant'
+    elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
+        # Should be noted that this grabs inframe deletion, etc.
+        variant['category'] = 'missense_variant'
+    elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["synonymous_variant"]:
+        variant['category'] = 'synonymous_variant'
+    else:
+        variant['category'] = 'other_variant'
 
 
 protein_letters_1to3 = {
@@ -82,7 +86,8 @@ def get_proper_hgvs(csq):
     if csq['Consequence'] != 'synonymous_variant' or csq['HGVSp'] == '':
         return csq['HGVSp'].split(':')[-1]
     else:
-        return "p." + protein_letters_1to3[csq['Amino_acids']] + csq['Protein_position'] + protein_letters_1to3[csq['Amino_acids']]
+        amino_acids = ''.join([protein_letters_1to3[x] for x in csq['Amino_acids']])
+        return "p." + amino_acids + csq['Protein_position'] + amino_acids
 
 csq_order = ["transcript_ablation",
 "splice_donor_variant",
@@ -173,6 +178,7 @@ def worst_csq_with_vep(annotation_list):
     :param annotation_list:
     :return worst_annotation:
     """
+    if len(annotation_list) == 0: return None
     worst = annotation_list[0]
     for annotation in annotation_list:
         if compare_two_consequences(annotation['Consequence'], worst['Consequence']) < 0:

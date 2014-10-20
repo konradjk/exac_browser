@@ -41,7 +41,9 @@ def get_variants_by_rsid(db, rsid):
         int(rsid.lstrip('rs'))
     except Exception, e:
         return None
-    return list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
+    variants = list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
+    add_consequence_to_variants(variants)
+    return variants
 
 
 def get_coverage_for_bases(db, xstart, xstop=None):
@@ -66,6 +68,7 @@ def get_coverage_for_bases(db, xstart, xstop=None):
             ret.append({'xpos': i, 'pos': xpos_to_pos(i)})
     for item in ret:
         item['has_coverage'] = 'mean' in item
+        del item['xpos']
     return ret
 
 
@@ -80,32 +83,22 @@ def get_coverage_for_transcript(db, xstart, xstop=None):
     """
     coverage_array = get_coverage_for_bases(db, xstart, xstop)
     # only return coverages that have coverage (if that makes any sense?)
-    return coverage_array
-    #return [c for c in coverage_array if c['has_coverage']]
+    # return coverage_array
+    covered = [c for c in coverage_array if c['has_coverage']]
+    for c in covered:
+        del c['has_coverage']
+    return covered
 
 
-def get_awesomebar_suggestions(db, query):
+def get_awesomebar_suggestions(g, query):
     """
     This generates autocomplete suggestions when user
     query is the string that user types
     If it is the prefix for a gene, return list of gene names
     """
     regex = re.compile('^' + re.escape(query), re.IGNORECASE)
-    genes = db.genes.find({'gene_name': {
-        '$regex': regex,
-    }}, fields={'gene_name': True}).limit(20)
-    if genes is None:
-        genes = []
-    gene_names = sorted([gene['gene_name'] for gene in genes])
-
-    genes_by_other_name = db.genes.find({'other_names': {
-        '$regex': regex,
-    }}, fields={'other_names': True}).limit(20)
-    if genes_by_other_name is None:
-        genes_by_other_name = []
-    other_names = [gene['other_names'] for gene in genes_by_other_name]
-    other_names = sorted([name for names in other_names for name in names if regex.match(name)])
-    return gene_names + other_names
+    results = [r for r in g.autocomplete_strings if regex.match(r)][:20]
+    return results
 
 
 # 1:1-1000
@@ -216,6 +209,7 @@ def get_variants_in_region(db, chrom, start, stop):
         'xstart': {'$lte': xstop},  # start of variant should be before (or equal to) end of region
         'xstop': {'$gte': xstart},  # opposite of above
     }, fields={'_id': False}, limit=SEARCH_LIMIT)
+    add_consequence_to_variants(variants)
     return list(variants)
 
 
@@ -232,18 +226,8 @@ def remove_extraneous_information(variant):
     del variant['xpos']
     del variant['xstart']
     del variant['xstop']
-    csq = variant['vep_annotations']
-    variant['vep_annotations'] = [
-        {
-            'Consequence': x['Consequence'],
-            'Gene': x['Gene'],
-            'Feature': x['Feature'],
-            'LoF': x['LoF'],
-            'HGVSp': get_proper_hgvs(x),
-            'HGVSc': x['HGVSc']
-        }
-        for x in csq
-    ]
+    del variant['site_quality']
+    del variant['vep_annotations']
 
 
 def get_variants_in_gene(db, gene_id):
@@ -251,6 +235,7 @@ def get_variants_in_gene(db, gene_id):
     """
     variants = []
     for variant in db.variants.find({'genes': gene_id}, fields={'_id': False}):
+        add_consequence_to_variant(variant)
         remove_extraneous_information(variant)
         variants.append(variant)
     return variants
@@ -268,6 +253,7 @@ def get_variants_in_transcript(db, transcript_id):
     variants = []
     for variant in db.variants.find({'transcripts': transcript_id}, fields={'_id': False}):
         variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Feature'] == transcript_id]
+        add_consequence_to_variant(variant)
         remove_extraneous_information(variant)
         variants.append(variant)
     return variants

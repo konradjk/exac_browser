@@ -59,16 +59,16 @@
                 $('#' + v + '_container').show();
             });
             $('#frequency_table').tablesorter({
-                sortList: [[3,1], [0,0]]
+                sortList: [[4,1], [0,0]]
             });
 
             if (window.variant != null && 'genotype_depths' in window.variant) {
-                draw_quality_histogram(window.variant.genotype_depths);
+                draw_quality_histogram(window.variant.genotype_depths[0]);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
 {#                    var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;#}
 {#                    draw_quality_histogram(window.variant[v][f]);#}
-                    draw_quality_histogram(window.variant[v]);
+                    draw_quality_histogram(window.variant[v][0]);
                 });
                 $('#quality_full_site_button').change(function() {
                     setTimeout( function() {
@@ -125,7 +125,7 @@
                         </dd>
                         <dt>ClinVar</dt>
                         <dd>
-                            <a href="http://www.ncbi.nlm.nih.gov/clinvar?term=({{ variant.chrom }}%5BChromosome%5D)%20AND%20{{ variant.pos }}%5BBase%20Position%5D">
+                            <a href="http://www.ncbi.nlm.nih.gov/clinvar?term=({{ variant.chrom }}%5BChromosome%5D)%20AND%20{{ variant.pos }}%5BBase%20Position%5D" target="_blank">
                                 Click to search for variant in Clinvar
                                 <i class="fa fa-external-link"></i>
                             </a>
@@ -220,6 +220,7 @@
                                     <tr>
                                         <th>Population</th>
                                         <th>Allele Count</th>
+                                        <th>Allele Number</th>
                                         <th>Number of Homozygotes</th>
                                         <th>Allele Frequency</th>
                                     </tr>
@@ -229,6 +230,7 @@
                                         <tr>
                                             <td>{{ pop }}</td>
                                             <td>{{ variant.pop_acs[pop] }}</td>
+                                            <td>{{ variant.pop_ans[pop] }}</td>
                                             {% if pop != 'Other' %}
                                                 <td>{{ variant.pop_homs[pop] }}</td>
                                             {% else %}
@@ -246,6 +248,7 @@
                                     <tr>
                                         <td><b>Total</b></td>
                                         <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
+                                        <td><b>{{ variant.pop_ans.values()|sum }}</b></td>
                                         <td><b>{{ variant.pop_homs.values()|sum - variant.pop_homs['Other'] }}</b></td>
                                         <td><b>{{ '%0.4g' % variant.allele_freq }}</b></td>
                                     </tr>

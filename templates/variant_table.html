@@ -1,13 +1,13 @@
 {% block variant_table %}
 {% include 'variant_selectors.html' %}
+{% include "variant_table_template.html" %}
 <script>
     $(document).ready(function() {
-        window.table_variants = {{ table_variants|tojson|safe }};
-
         $("#variants_loading").hide();
         $("#variants_table_container").show();
+        window.variants_template = _.template($('#variant-table-template').html());
+        $('#variants_table_container').html(variants_template({table_variants: table_variants}));
         $("#variant_table").tablesorter({
-            widthFixed: true,
             sortList: [[1,0], [2,0], [7,1]]
         });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
@@ -84,86 +84,8 @@
 </script>
 <div id="variants_loading">Loading variants...</div>
 <div id="variants_table_container" style="display: none;">
-    <a class="btn btn-success" id="export_to_csv">Export table to CSV</a>
-    <table id="variant_table" class="tablesorter">
-        <thead>
-            <tr>
-                <th class="tooltip-table-header" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
-                    Variant</th>
-                <th>Chromosome</th>
-                <th>Position</th>
-                <th class="tooltip-table-header" data-tooltip="HGVS protein change annotation">
-                    Protein Consequence</th>
-                <th class="tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
-                <th class="tooltip-table-header" id="variant_table_annotation_header">Annotation</th>
-                <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">
-                    Allele Count</th>
-                <th class="tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
-                    Allele Number</th>
-                <th>Number of Homozygotes</th>
-                <th class="tooltip-table-header" data-tooltip="Frequency using only &#xa; high-quality genotypes">
-                    Allele Frequency</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for variant in table_variants %}
-            <tr class="table_variant" id="variant_{{ variant.variant_id }}"
-                category="{{ variant.category }}" filter_status="{{ variant.filter }}" frequency="{{ variant.allele_freq }}">
-                <td>
-                    <a href="/variant/{{ variant.chrom }}-{{ variant.pos }}-{{ variant.ref }}-{{ variant.alt }}">
-                    {{ variant.chrom }}:{{ variant.pos }}
-                    {% if variant.ref|length > 20 %}
-                        {{ variant.ref[1:20] }}...
-                    {% else %}
-                        {{ variant.ref }}
-                    {% endif %} /
-                    {% if variant.alt|length > 20 %}
-                        {{ variant.alt[1:20] }}...
-                    {% else %}
-                        {{ variant.alt }}
-                    {% endif %}
-                    {% if variant.rsid != '.' %}
-                        ({{ variant.rsid }})
-                    {% endif %}
 
-                    </a>
-                </td>
-                <td> {{ variant.chrom }}</td>
-                <td> {{ variant.pos }}</td>
-                <td> {{ variant.HGVSp }}</td>
-                <td> {{ variant.filter }} </td>
-                <td class="{{ variant.category }}"><b>
-                    {{ variant.major_consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}
-                </b> </td>
-                <td> {{ variant.allele_count }} </td>
-                <td> {{ variant.allele_num }} </td>
-                <td> {{ variant.hom_count }} </td>
-                <td>
-                    {% if variant.allele_freq %}
-                        {{ '%0.4g' % variant.allele_freq }}
-                    {% else %}
-                        {{ variant.allele_freq }}
-                    {% endif %}
-                    <div id="variant_af_box_{{ variant.variant_id }}" style="float: right;"></div>
-                </td>
-            </tr>
-        {% endfor %}
-        <tbody>
-    </table>
-    <div id="pager" class="pager">
-        <form>
-            <i class="fa fa-caret-square-o-left fa-2x first link"></i>
-            <i class="fa fa-caret-left fa-2x prev link"></i>
-            <input type="text" class="pagedisplay" style="display: none;"/>
-            <i class="fa fa-caret-right fa-2x next link"></i>
-            <i class="fa fa-caret-square-o-right fa-2x last link"></i>
-            <select class="pagesize">
-                <option selected="selected" value="10">10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-                <option value="100000">All</option>
-            </select>
-        </form>
-    </div>
+
+
 </div>
 {% endblock %}
