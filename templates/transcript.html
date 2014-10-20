@@ -4,6 +4,7 @@
     <script type="text/javascript">
         window.transcript = {{ transcript_json|safe }};
         window.table_variants = {{ variants_in_transcript_json|safe }};
+        window.variants_in_transcript = window.table_variants;
         window.coverage_stats = {{ coverage_stats_json|safe }};
         window.gene = {{ gene_json|safe }};
         $(document).ready(function() {
