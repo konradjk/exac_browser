@@ -20,6 +20,9 @@
     {% include 'coverage_selectors.html' %}
     <br/>
     <div id="gene_plot_container_container" style="width:1200px;">
+        <div id="loading_coverage">
+            Loading coverage...
+        </div>
         <span id="gene_plot_axis_container" style="width:50px; display: inline-block;"></span>
         <span id="gene_plot_container" style="overflow-x:scroll; width:1100px; display: inline-block;"></span>
     </div>
@@ -407,6 +410,7 @@ $(document).ready(function() {
         if (window.variants_in_transcript.length) {
             update_variants();
         }
+        $('#loading_coverage').hide();
     } else {
         $('#gene_plot').hide();
         $('#not_covered').show();
