@@ -47,7 +47,7 @@
             <td> <%= variant.HGVSp %></td>
             <td> <%= variant.filter %> </td>
             <td class="<%= variant.category %>"><b>
-                <%= variant.major_consequence.replace('_variant', '').replace('utr', 'UTR').replace('3_prime', "3'").replace('5_prime', "5'").replace('_', ' ').replace('nc ', "non-coding ") %>
+                <%= variant.major_consequence.replace('_variant', '').replace(/_/g, ' ').replace('utr', 'UTR').replace('3 prime', "3'").replace('5 prime', "5'").replace('nc ', "non-coding ") %>
             </b> </td>
             <td> <%= variant.allele_count %> </td>
             <td> <%= variant.allele_num %> </td>

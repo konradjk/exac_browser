@@ -75,7 +75,8 @@ protein_letters_1to3 = {
     'F': 'Phe', 'G': 'Gly', 'H': 'His', 'I': 'Ile',
     'K': 'Lys', 'L': 'Leu', 'M': 'Met', 'N': 'Asn',
     'P': 'Pro', 'Q': 'Gln', 'R': 'Arg', 'S': 'Ser',
-    'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr'
+    'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr',
+    'X': 'Ter'
 }
 
 
@@ -83,11 +84,13 @@ def get_proper_hgvs(csq):
     """
     Takes consequence dictionary, returns proper HGVS for matting for synonymous variants
     """
-    if csq['Consequence'] != 'synonymous_variant' or csq['HGVSp'] == '':
-        return csq['HGVSp'].split(':')[-1]
-    else:
-        amino_acids = ''.join([protein_letters_1to3[x] for x in csq['Amino_acids']])
-        return "p." + amino_acids + csq['Protein_position'] + amino_acids
+    if '%3D' in csq['HGVSp']:
+        try:
+            amino_acids = ''.join([protein_letters_1to3[x] for x in csq['Amino_acids']])
+            return "p." + amino_acids + csq['Protein_position'] + amino_acids
+        except Exception, e:
+            print csq
+    return csq['HGVSp'].split(':')[-1]
 
 csq_order = ["transcript_ablation",
 "splice_donor_variant",
