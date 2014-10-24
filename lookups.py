@@ -1,5 +1,4 @@
 import re
-import itertools
 from xbrowse import get_xpos
 from utils import *
 

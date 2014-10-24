@@ -376,6 +376,13 @@ function update_variants() {
         $('[category=missense_variant]' + filter).show();
     }
     $('[category=lof_variant]' + filter).show();
+    if ($('tr[style!="display: none;"]').length == 1) {
+        $('#variants_table_empty').show();
+        $('#variants_table_container').hide();
+    } else {
+        $('#variants_table_empty').hide();
+        $('#variants_table_container').show();
+    }
 }
 
 function get_af_bounds(data) {
