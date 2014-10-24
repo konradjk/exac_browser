@@ -11,16 +11,22 @@ from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 from flask.ext.compress import Compress
+from flask_errormail import mail_on_500
 
 from flask import Response
 from collections import defaultdict
 from werkzeug.contrib.cache import SimpleCache
 
-from multiprocessing import Process, cpu_count
+from multiprocessing import Process
 import glob
 import time
 
+ADMINISTRATORS = (
+    'exac.browser.errors@gmail.com',
+)
+
 app = Flask(__name__)
+mail_on_500(app, ADMINISTRATORS)
 Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
@@ -36,7 +42,7 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sitesa*')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites*')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
