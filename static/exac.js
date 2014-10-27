@@ -399,14 +399,17 @@ function get_af_bounds(data) {
     return [min_af, max_af];
 }
 
-// Coverage charts
-gene_chart_margin = {top: 10, right: 0, bottom: 5, left: 30},
-    gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
-    gene_chart_width = 1100 - gene_chart_margin.left - gene_chart_margin.right;
+total_width = $(window).width();
+
+gene_chart_margin = {top: 10, right: 0, bottom: 5, left: 30};
+if ($(window).width() < 768) {
+    gene_chart_margin.left = 10;
+}
+gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, left: gene_chart_margin.left},
+    gene_chart_width = total_width - gene_chart_margin.left - gene_chart_margin.right;
 
 lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
     gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
-
 
 function change_track_chart_variant_size(variant_data, change_to, container) {
     var svg_outer = d3.select(container).select('#track');

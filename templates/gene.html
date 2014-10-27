@@ -27,7 +27,7 @@
         <h1>Gene: {{ gene.gene_name }}</h1>
         <hr/>
         <div class="row">
-            <div class="col-md-6 col-xs-10">
+            <div class="col-md-6 col-xs-10 col-xs-offset-1">
                 <dl class="dl-horizontal">
                     {% if gene.full_gene_name %}
                         <dt>{{ gene.gene_name }}</dt>
@@ -49,20 +49,22 @@
                     </script>
 {#                    <dt>LoF rate</dt>#}
 {#                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>#}
-                    <dt>UCSC Browser</dt>
-                    <dd>
-                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                            {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
-                    </dd>
-                    <dt>GeneCards</dt>
-                    <dd>
-                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
-                            {{ gene.gene_name }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
-                    </dd>
+                    <span class="hidden-xs">
+                        <dt>UCSC Browser</dt>
+                        <dd>
+                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                                {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </dd>
+                        <dt>GeneCards</dt>
+                        <dd>
+                            <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                                {{ gene.gene_name }}
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </dd>
+                    </span>
                     {% if gene.omim_accession %}
                         <dt>OMIM</dt>
                         <dd>
@@ -80,6 +82,20 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
+                                <span class="visible-xs-block">
+                                    <li role="presentation">
+                                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                                            UCSC Browser
+                                            <i class="fa fa-external-link"></i>
+                                        </a>
+                                    </li>
+                                    <li role="presentation">
+                                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                                            GeneCards
+                                            <i class="fa fa-external-link"></i>
+                                        </a>
+                                    </li>
+                                </span>
                                 <li role="presentation">
                                     <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
                                         Ensembl <i class="fa fa-external-link"></i>
@@ -110,7 +126,7 @@
                     </dd>
                 </dl>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 hidden-xs">
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
                         Transcripts
@@ -134,7 +150,7 @@
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <h3>Gene summary</h3>
-                <h4>(Coverage shown for <a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">canonical transcript</a>: {{ transcript.transcript_id }})</h4>
+                <h4>(<span class="hidden-xs">Coverage shown for </span><a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">canonical transcript</a>: {{ transcript.transcript_id }})</h4>
                 <div class="row">
                     {% include 'transcript_display.html' %}
                 </div>
