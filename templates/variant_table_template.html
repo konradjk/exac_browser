@@ -1,19 +1,19 @@
 <script type="text/template" id="variant-table-template">
-<a class="btn btn-success" id="export_to_csv">Export table to CSV</a>
+<a class="btn btn-success hidden-xs" id="export_to_csv">Export table to CSV</a>
 <table id="variant_table" class="tablesorter">
     <thead>
         <tr>
             <th class="tooltip-table-header" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
                 Variant</th>
-            <th>Chromosome</th>
-            <th>Position</th>
-            <th class="tooltip-table-header" data-tooltip="HGVS protein change annotation">
+            <th class='hidden-xs'>Chromosome</th>
+            <th class='hidden-xs'>Position</th>
+            <th class="hidden-xs tooltip-table-header" data-tooltip="HGVS protein change annotation">
                 Protein Consequence</th>
-            <th class="tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
+            <th class="hidden-xs tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
             <th class="tooltip-table-header" id="variant_table_annotation_header">Annotation</th>
             <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">
                 Allele Count</th>
-            <th class="tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
+            <th class="hidden-xs tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
                 Allele Number</th>
 {#                <th>Number of Homozygotes</th>#}
             <th class="tooltip-table-header" data-tooltip="Frequency using only &#xa; high-quality genotypes">
@@ -42,15 +42,15 @@
                 <% } %>
                 </a>
             </td>
-            <td> <%= variant.chrom %></td>
-            <td> <%= variant.pos %></td>
-            <td> <%= variant.HGVSp %></td>
-            <td> <%= variant.filter %> </td>
+            <td class='hidden-xs'> <%= variant.chrom %></td>
+            <td class='hidden-xs'> <%= variant.pos %></td>
+            <td class='hidden-xs'> <%= variant.HGVSp %></td>
+            <td class='hidden-xs'> <%= variant.filter %> </td>
             <td class="<%= variant.category %>"><b>
                 <%= variant.major_consequence.replace('_variant', '').replace(/_/g, ' ').replace('utr', 'UTR').replace('3 prime', "3'").replace('5 prime', "5'").replace('nc ', "non-coding ") %>
             </b> </td>
             <td> <%= variant.allele_count %> </td>
-            <td> <%= variant.allele_num %> </td>
+            <td class='hidden-xs'> <%= variant.allele_num %> </td>
         {#                <td> <%= variant.hom_count %> </td>#}
             <td>
                 <% if (variant.allele_freq) { %>

@@ -23,11 +23,11 @@
                     "Variant Effect Predictor (VEP) \n annotation using Gencode 76.\n Worst across all transcripts of this gene.");
         });
     </script>
-    <div class="container">
+    <div class="container-fluid">
         <h1>Gene: {{ gene.gene_name }}</h1>
         <hr/>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6 col-xs-10">
                 <dl class="dl-horizontal">
                     {% if gene.full_gene_name %}
                         <dt>{{ gene.gene_name }}</dt>
@@ -132,17 +132,19 @@
             </div>
         </div>
         <div class="row">
-            <h3>Gene summary</h3>
-            <h4>(Coverage shown for <a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">canonical transcript</a>: {{ transcript.transcript_id }})</h4>
-            <div class="row">
-                {% include 'transcript_display.html' %}
-            </div>
-            <div class="row">
-                {% if variants_in_gene %}
-                    {% include 'variant_table.html' %}
-                {% else %}
-                    No variants in this gene.
-                {% endif %}
+            <div class="col-md-10 col-md-offset-1">
+                <h3>Gene summary</h3>
+                <h4>(Coverage shown for <a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">canonical transcript</a>: {{ transcript.transcript_id }})</h4>
+                <div class="row">
+                    {% include 'transcript_display.html' %}
+                </div>
+                <div class="row">
+                    {% if variants_in_gene %}
+                        {% include 'variant_table.html' %}
+                    {% else %}
+                        No variants in this gene.
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <div id="gene_plot">
-    <span>
+    <span class="hidden-xs">
         <label for="display_coverage_metric_group">
             Display:
         </label>
@@ -24,8 +24,8 @@
             Loading coverage...
             <br/><br/>
         </div>
-        <span id="gene_plot_axis_container" style="width:50px; display: inline-block;"></span>
-        <span id="gene_plot_container" style="overflow-x:scroll; width:1100px; display: inline-block;"></span>
+        <span id="gene_plot_axis_container" class="hidden-xs" style="width:50px; display: inline-block;"></span>
+        <span id="gene_plot_container" style="overflow-x:scroll; display: inline-block;"></span>
     </div>
 </div>
 <div id="not_covered" style="display: none;">
@@ -56,6 +56,7 @@ function gene_chart(data, new_data, variant_data, _transcript) {
         .attr("width", chart_width + gene_chart_margin.left + gene_chart_margin.right)
         .attr("height", gene_chart_height + gene_chart_margin.top + gene_chart_margin.bottom)
         .attr('id', 'inner_svg')
+        .attr('class', 'hidden-xs')
         .append("g")
         .attr('id', 'inner_graph')
         .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
