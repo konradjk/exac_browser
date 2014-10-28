@@ -399,9 +399,9 @@ function get_af_bounds(data) {
     return [min_af, max_af];
 }
 
-total_width = $(window).width();
+total_width = $(window).width()*0.9;
 
-gene_chart_margin = {top: 10, right: 0, bottom: 5, left: 30};
+gene_chart_margin = {top: 10, right: 10, bottom: 5, left: 30};
 if ($(window).width() < 768) {
     gene_chart_margin.left = 10;
 }
