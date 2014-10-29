@@ -186,7 +186,6 @@ def load_db():
     size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     for gene in get_genes_from_gencode_gtf(gtf_file):
-        db.genes.insert(gene, w=0)
         gene_id = gene['gene_id']
         if gene_id in canonical_transcripts:
             gene['canonical_transcript'] = canonical_transcripts[gene_id]
@@ -196,6 +195,7 @@ def load_db():
         if gene_id in dbnsfp_info:
             gene['full_gene_name'] = dbnsfp_info[gene_id][0]
             gene['other_names'] = dbnsfp_info[gene_id][1]
+        db.genes.insert(gene, w=0)
         #progress.update(gtf_file.fileobj.tell())
     #progress.finish()
     gtf_file.close()
@@ -226,10 +226,9 @@ def load_db():
     for exon in get_exons_from_gencode_gtf(gtf_file):
         current_entry += 1
         exons.append(exon)
-        db.exons.insert(exon, w=0)
         #progress.update(gtf_file.fileobj.tell())
         if not current_entry % 1000:
-            db.base_coverage.insert(exons, w=0)
+            db.exons.insert(exons, w=0)
             exons = []
     gtf_file.close()
     #progress.finish()
