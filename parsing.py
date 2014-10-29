@@ -9,7 +9,7 @@ from utils import get_minimal_representation
 
 POPS = {
     'AFR': 'African',
-    'AMR': 'American',
+    'AMR': 'Latino',
     'EAS': 'East Asian',
     'FIN': 'European (Finnish)',
     'NFE': 'European (Non-Finnish)',
@@ -59,6 +59,10 @@ def get_variants_from_sites_vcf(sites_vcf):
         line = line.strip('\n')
         if line.startswith('##INFO=<ID=CSQ'):
             vep_field_names = line.split('Format: ')[-1].strip('">').split('|')
+        if line.startswith('##INFO=<ID=DP_MID'):
+            dp_mids = map(int, line.split('Mids: ')[-1].strip('">').split('|'))
+        if line.startswith('##INFO=<ID=GQ_MID'):
+            gq_mids = map(int, line.split('Mids: ')[-1].strip('">').split('|'))
         if line.startswith('#'):
             continue
 
@@ -121,21 +125,12 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
 
-            if 'DP_MID' in info_field:
-                mids_all = info_field['DP_MID'].split(',')[0]
-                hists_all = info_field['DP_HIST'].split(',')[0]
-                #mids = info_field['DP_MID'].split(',')[i+1]
-                #hists = info_field['DP_HIST'].split(',')[i+1]
-                #variant['genotype_depths'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
-                # Rolling back to sites-only for now
-                variant['genotype_depths'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|')))]
-            if 'GQ_MID' in info_field:
-                mids_all = info_field['GQ_MID'].split(',')[0]
-                hists_all = info_field['GQ_HIST'].split(',')[0]
-                #mids = info_field['GQ_MID'].split(',')[i+1]
-                #hists = info_field['GQ_HIST'].split(',')[i+1]
-                #variant['genotype_qualities'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|'))), zip(map(float, mids.split('|')), map(int, hists.split('|')))]
-                variant['genotype_qualities'] = [zip(map(float, mids_all.split('|')), map(int, hists_all.split('|')))]
+            if 'DP_HIST' in info_field:
+                hists_all = info_field['DP_HIST'].split(',')
+                variant['genotype_depths'] = [zip(dp_mids, x) for x in hists_all]
+            if 'GQ_HIST' in info_field:
+                hists_all = info_field['GQ_HIST'].split(',')
+                variant['genotype_qualities'] = [zip(gq_mids, x) for x in hists_all]
 
             yield variant
 
