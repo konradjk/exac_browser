@@ -52,6 +52,7 @@ app.config.update(dict(
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
 
+
 def connect_db():
     """
     Connects to the specific database.
@@ -379,6 +380,7 @@ def gene_page(gene_id):
         return open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id))).read()
     else:
         return get_gene_page_content(gene_id)
+
 
 def get_gene_page_content(gene_id):
     db = get_db()
