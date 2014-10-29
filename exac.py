@@ -107,7 +107,7 @@ def load_db():
     """
     db = get_db()
 
-    # Initialize database 
+    # Initialize database
     # Don't need to explicitly create tables with mongo, just indices
 
     db.variants.drop()
@@ -145,12 +145,57 @@ def load_db():
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
 
+    canonical_transcripts = {}
+    canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
+    size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
+    for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
+        canonical_transcripts[gene] = transcript
+        #progress.update(canonical_transcript_file.fileobj.tell())
+    canonical_transcript_file.close()
+    #progress.finish()
+
+    omim_annotations = {}
+    omim_file = gzip.open(app.config['OMIM_FILE'])
+    size = os.path.getsize(app.config['OMIM_FILE'])
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
+    for fields in get_omim_associations(omim_file):
+        if fields is None:
+            continue
+        gene, transcript, accession, description = fields
+        omim_annotations[gene] = (accession, description)
+        #progress.update(omim_file.fileobj.tell())
+    omim_file.close()
+    #progress.finish()
+
+    dbnsfp_info = {}
+    dbnsfp_file = gzip.open(app.config['DBNSFP_FILE'])
+    size = os.path.getsize(app.config['DBNSFP_FILE'])
+    #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
+    for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
+        other_names = []
+        for other_name in dbnsfp_gene['gene_other_names']:
+            other_names.append(other_name)
+        dbnsfp_info[dbnsfp_gene['ensembl_gene']] = (dbnsfp_gene['gene_full_name'], other_names)
+        #progress.update(dbnsfp_file.fileobj.tell())
+    dbnsfp_file.close()
+    #progress.finish()
+
     # grab genes from GTF
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     for gene in get_genes_from_gencode_gtf(gtf_file):
         db.genes.insert(gene, w=0)
+        gene_id = gene['gene_id']
+        if gene_id in canonical_transcripts:
+            gene['canonical_transcript'] = canonical_transcripts[gene_id]
+        if gene_id in omim_annotations:
+            gene['omim_accession'] = omim_annotations[gene_id][0]
+            gene['omim_description'] = omim_annotations[gene_id][1]
+        if gene_id in dbnsfp_info:
+            gene['full_gene_name'] = dbnsfp_info[gene_id][0]
+            gene['other_names'] = dbnsfp_info[gene_id][1]
         #progress.update(gtf_file.fileobj.tell())
     #progress.finish()
     gtf_file.close()
@@ -193,57 +238,6 @@ def load_db():
     db.exons.ensure_index('transcript_id')
     db.exons.ensure_index('gene_id')
 
-    canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
-    size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
-    for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
-        gene = db.genes.find_one({
-            'gene_id': gene
-        })
-        if not gene:
-            continue
-        gene['canonical_transcript'] = transcript
-        db.genes.save(gene)
-        #progress.update(canonical_transcript_file.fileobj.tell())
-    canonical_transcript_file.close()
-    #progress.finish()
-
-    omim_file = gzip.open(app.config['OMIM_FILE'])
-    size = os.path.getsize(app.config['OMIM_FILE'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
-    for fields in get_omim_associations(omim_file):
-        if fields is None:
-            continue
-        gene, transcript, accession, description = fields
-        gene = db.genes.find_one({
-            'gene_id': gene
-        })
-        if not gene:
-            continue
-        gene['omim_accession'] = accession
-        gene['omim_description'] = description
-        db.genes.save(gene)
-        #progress.update(omim_file.fileobj.tell())
-    omim_file.close()
-    #progress.finish()
-
-    dbnsfp_file = gzip.open(app.config['DBNSFP_FILE'])
-    size = os.path.getsize(app.config['DBNSFP_FILE'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
-    for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
-        gene = db.genes.find_one({
-            'gene_id': dbnsfp_gene['ensembl_gene']
-        })
-        if not gene:
-            continue
-        gene['full_gene_name'] = dbnsfp_gene['gene_full_name']
-        gene['other_names'] = []
-        for other_name in dbnsfp_gene['gene_other_names']:
-            gene['other_names'].append(other_name)
-        db.genes.save(gene)
-        #progress.update(dbnsfp_file.fileobj.tell())
-    dbnsfp_file.close()
-    #progress.finish()
 
 
 def create_cache():
