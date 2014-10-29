@@ -246,7 +246,13 @@
                                         <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
                                         <td><b>{{ variant.pop_ans.values()|sum }}</b></td>
                                         <td><b>{{ variant.pop_homs.values()|sum }}</b></td>
-                                        <td><b>{{ '%0.4g' % variant.allele_freq }}</b></td>
+                                        <td><b>
+                                            {% if variant.allele_freq %}
+                                                {{ '%0.4g' % variant.allele_freq }}
+                                            {% else %}
+                                                NA
+                                            {% endif %}
+                                        </b></td>
                                     </tr>
                                 </tfoot>
                             </table>
