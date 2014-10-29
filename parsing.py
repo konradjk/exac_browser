@@ -59,10 +59,10 @@ def get_variants_from_sites_vcf(sites_vcf):
         line = line.strip('\n')
         if line.startswith('##INFO=<ID=CSQ'):
             vep_field_names = line.split('Format: ')[-1].strip('">').split('|')
-        if line.startswith('##INFO=<ID=DP_MID'):
-            dp_mids = map(int, line.split('Mids: ')[-1].strip('">').split('|'))
-        if line.startswith('##INFO=<ID=GQ_MID'):
-            gq_mids = map(int, line.split('Mids: ')[-1].strip('">').split('|'))
+        if line.startswith('##INFO=<ID=DP_HIST'):
+            dp_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
+        if line.startswith('##INFO=<ID=GQ_HIST'):
+            gq_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
         if line.startswith('#'):
             continue
 
@@ -120,17 +120,17 @@ def get_variants_from_sites_vcf(sites_vcf):
 
             variant['pop_acs']['Other'] = int(info_field['AC_Adj'].split(',')[i]) - sum(variant['pop_acs'].values())
             variant['pop_ans']['Other'] = int(info_field['AN_Adj']) - sum(variant['pop_ans'].values())
-            variant['pop_homs']['Other'] = int(info_field['AC_Hom']) - sum(variant['pop_homs'].values())
+            variant['pop_homs']['Other'] = int(info_field['AC_Hom'].split(',')[i]) - sum(variant['pop_homs'].values())
 
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
 
             if 'DP_HIST' in info_field:
                 hists_all = info_field['DP_HIST'].split(',')
-                variant['genotype_depths'] = [zip(dp_mids, x) for x in hists_all]
+                variant['genotype_depths'] = [zip(dp_mids, map(int, x.split('|'))) for x in hists_all]
             if 'GQ_HIST' in info_field:
                 hists_all = info_field['GQ_HIST'].split(',')
-                variant['genotype_qualities'] = [zip(gq_mids, x) for x in hists_all]
+                variant['genotype_qualities'] = [zip(gq_mids, map(int, x.split('|'))) for x in hists_all]
 
             yield variant
 
