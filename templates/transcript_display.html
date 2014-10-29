@@ -393,6 +393,7 @@ function create_new_data(data, coords) {
 }
 
 $(document).ready(function() {
+    $('#gene_plot_container').css('width', $(window).width()*10/12 + "px");
     precalc_coding_coordinates(window.transcript, window.coverage_stats, 'pos');
     precalc_coding_coordinates(window.transcript, window.variants_in_transcript, 'pos');
 
