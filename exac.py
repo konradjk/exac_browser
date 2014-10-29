@@ -230,6 +230,7 @@ def load_db():
         if not current_entry % 1000:
             db.exons.insert(exons, w=0)
             exons = []
+    if len(exons) > 0: db.exons.insert(exons, w=0)
     gtf_file.close()
     #progress.finish()
 
