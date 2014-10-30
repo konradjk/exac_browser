@@ -370,7 +370,7 @@ def variant_page(variant_str):
     if 'vep_annotations' in variant:
         variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
         ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
-        ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs).split(',') # Close but not quite there
+        ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
         consequences = defaultdict(lambda: defaultdict(list))
         for annotation in variant['vep_annotations']:
             consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
