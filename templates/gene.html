@@ -51,22 +51,20 @@
                     </script>
 {#                    <dt>LoF rate</dt>#}
 {#                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>#}
-                    <span class="hidden-xs">
-                        <dt>UCSC Browser</dt>
-                        <dd>
-                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                                {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
-                                <i class="fa fa-external-link"></i>
-                            </a>
-                        </dd>
-                        <dt>GeneCards</dt>
-                        <dd>
-                            <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
-                                {{ gene.gene_name }}
-                                <i class="fa fa-external-link"></i>
-                            </a>
-                        </dd>
-                    </span>
+                    <dt class="hidden-xs">UCSC Browser</dt>
+                    <dd class="hidden-xs">
+                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                            {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
+                    <dt class="hidden-xs">GeneCards</dt>
+                    <dd class="hidden-xs">
+                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                            {{ gene.gene_name }}
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </dd>
                     {% if gene.omim_accession %}
                         <dt>OMIM</dt>
                         <dd>
@@ -84,20 +82,18 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
-                                <span class="visible-xs-block">
-                                    <li role="presentation">
-                                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                                            UCSC Browser
-                                            <i class="fa fa-external-link"></i>
-                                        </a>
-                                    </li>
-                                    <li role="presentation">
-                                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
-                                            GeneCards
-                                            <i class="fa fa-external-link"></i>
-                                        </a>
-                                    </li>
-                                </span>
+                                <li role="presentation" class="visible-xs-block">
+                                    <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                                        UCSC Browser
+                                        <i class="fa fa-external-link"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation" class="visible-xs-block">
+                                    <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                                        GeneCards
+                                        <i class="fa fa-external-link"></i>
+                                    </a>
+                                </li>
                                 <li role="presentation">
                                     <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
                                         Ensembl <i class="fa fa-external-link"></i>

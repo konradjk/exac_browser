@@ -260,13 +260,13 @@
                     </div>
                     <div id="quality_metrics_container">
                         <h3>Quality Metrics</h3>
-{#                        <span class="label label-info">Note:</span> (Site-level metrics; allele-specific coming soon)#}
                         <label>
-                            <input type="checkbox" id="quality_full_site_button" value=""> Full site metrics
+                            <input type="checkbox" id="quality_full_site_button" value=""
+                                   data-tooltip="Toggle to display metrics for full site"> Full site metrics
                         </label>
                         <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
                             <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button"
-                                    data-tooltip="Per sample depth. Capped at 250X">
+                                    data-tooltip="Per sample depth. Capped at 100X">
                                 <input type="radio"> Depth
                             </button>
                             <button class="btn btn-primary quality_display_buttons" id="genotype_qualities_button"
