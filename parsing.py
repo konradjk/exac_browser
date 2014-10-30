@@ -170,6 +170,7 @@ def get_genes_from_gencode_gtf(gtf_file):
         gene = {
             'gene_id': gene_id,
             'gene_name': info['gene_name'],
+            'gene_name_upper': info['gene_name'].upper(),
             'chrom': chrom,
             'start': start,
             'stop': stop,

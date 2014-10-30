@@ -178,9 +178,7 @@ def load_db():
     size = os.path.getsize(app.config['DBNSFP_FILE'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
     for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
-        other_names = []
-        for other_name in dbnsfp_gene['gene_other_names']:
-            other_names.append(other_name)
+        other_names = [other_name.upper() for other_name in dbnsfp_gene['gene_other_names']]
         dbnsfp_info[dbnsfp_gene['ensembl_gene']] = (dbnsfp_gene['gene_full_name'], other_names)
         #progress.update(dbnsfp_file.fileobj.tell())
     dbnsfp_file.close()
@@ -210,8 +208,11 @@ def load_db():
 
     start_time = time.time()
     db.genes.ensure_index('gene_id')
+    db.genes.ensure_index('gene_name_upper')
     db.genes.ensure_index('gene_name')
     db.genes.ensure_index('other_names')
+    db.genes.ensure_index('xstart')
+    db.genes.ensure_index('xstop')
     print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
 
     # and now transcripts
