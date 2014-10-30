@@ -13,7 +13,8 @@ POPS = {
     'EAS': 'East Asian',
     'FIN': 'European (Finnish)',
     'NFE': 'European (Non-Finnish)',
-    'SAS': 'South Asian'
+    'SAS': 'South Asian',
+    'OTH': 'Other'
 }
 
 
@@ -117,10 +118,6 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
             variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
             variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
-
-            variant['pop_acs']['Other'] = int(info_field['AC_Adj'].split(',')[i]) - sum(variant['pop_acs'].values())
-            variant['pop_ans']['Other'] = int(info_field['AN_Adj']) - sum(variant['pop_ans'].values())
-            variant['pop_homs']['Other'] = int(info_field['AC_Hom'].split(',')[i]) - sum(variant['pop_homs'].values())
 
             variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})

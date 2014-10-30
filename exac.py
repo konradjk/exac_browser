@@ -531,5 +531,15 @@ def terms_page():
     return render_template('terms.html')
 
 
+@app.route('/contact')
+def contact_page():
+    return render_template('contact.html')
+
+
+@app.route('/faq')
+def faq_page():
+    return render_template('faq.html')
+
+
 if __name__ == "__main__":
     app.run()
