@@ -124,9 +124,11 @@ def load_db():
         p.start()
         procs.append(p)
     [p.join() for p in procs]
-    print 'Done loading. Took %s seconds' % (time.time() - start_time)
+    print 'Done loading coverage. Took %s seconds' % (time.time() - start_time)
 
+    start_time = time.time()
     db.base_coverage.ensure_index('xpos')
+    print 'Done indexing coverage. Took %s seconds' % (time.time() - start_time)
 
     # grab variants from sites VCF
     start_time = time.time()
@@ -136,15 +138,18 @@ def load_db():
         p.start()
         procs.append(p)
     [p.join() for p in procs]
-    print 'Done loading. Took %s seconds' % (time.time() - start_time)
+    print 'Done loading variants. Took %s seconds' % (time.time() - start_time)
 
+    start_time = time.time()
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('xstart')
     db.variants.ensure_index('xstop')
     db.variants.ensure_index('rsid')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
+    print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
 
+    start_time = time.time()
     canonical_transcripts = {}
     canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
     size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
@@ -180,8 +185,10 @@ def load_db():
         #progress.update(dbnsfp_file.fileobj.tell())
     dbnsfp_file.close()
     #progress.finish()
+    print 'Done loading metadata. Took %s seconds' % (time.time() - start_time)
 
     # grab genes from GTF
+    start_time = time.time()
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
@@ -199,12 +206,16 @@ def load_db():
         #progress.update(gtf_file.fileobj.tell())
     #progress.finish()
     gtf_file.close()
+    print 'Done loading genes. Took %s seconds' % (time.time() - start_time)
 
+    start_time = time.time()
     db.genes.ensure_index('gene_id')
     db.genes.ensure_index('gene_name')
     db.genes.ensure_index('other_names')
+    print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
 
     # and now transcripts
+    start_time = time.time()
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
@@ -213,11 +224,15 @@ def load_db():
         #progress.update(gtf_file.fileobj.tell())
     gtf_file.close()
     #progress.finish()
+    print 'Done loading transcripts. Took %s seconds' % (time.time() - start_time)
 
+    start_time = time.time()
     db.transcripts.ensure_index('transcript_id')
     db.transcripts.ensure_index('gene_id')
+    print 'Done indexing transcript table. Took %s seconds' % (time.time() - start_time)
 
     # Building up gene definitions
+    start_time = time.time()
     gtf_file = gzip.open(app.config['GENCODE_GTF'])
     size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
@@ -233,11 +248,13 @@ def load_db():
     if len(exons) > 0: db.exons.insert(exons, w=0)
     gtf_file.close()
     #progress.finish()
+    print 'Done loading exons. Took %s seconds' % (time.time() - start_time)
 
+    start_time = time.time()
     db.exons.ensure_index('exon_id')
     db.exons.ensure_index('transcript_id')
     db.exons.ensure_index('gene_id')
-
+    print 'Done indexing exon table. Took %s seconds' % (time.time() - start_time)
 
 
 def create_cache():
