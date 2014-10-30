@@ -16,8 +16,6 @@
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.min.css') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 
-{#    <script type="text/javascript" src="https://www.google.com/jsapi"></script>#}
-{#    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
     <script type="text/javascript" src="{{  url_for('static', filename='exac.js') }}"></script>
@@ -31,6 +29,14 @@
         ga('send', 'pageview');
     </script>
     <script type="text/javascript">
+        number_of_samples = 61486;
+        release_number = 0.2;
+        number_of_samples_full = 91796;
+        $(document).ready(function() {
+            $('.number_samples').html(Number(number_of_samples).toLocaleString('en'));
+            $('.number_samples_full').html(Number(number_of_samples_full).toLocaleString('en'));
+            $('.release_number').html(Number(release_number).toLocaleString('en'));
+        });
         $(function() {
             var bestPictures = new Bloodhound({
               datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
@@ -55,7 +61,6 @@
             });
         });
     </script>
-  </head>
 </head>
 <body>
 <nav class="navbar navbar-default" role="navigation" style="background: #222;">

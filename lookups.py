@@ -154,7 +154,7 @@ def get_awesomebar_result(db, query):
     gene = get_gene_by_name(db, query)
     if gene:
         return 'gene', gene['gene_id']
-    
+
     # Ensembl formatted queries
     if query.startswith('ENS'):
         # Gene
