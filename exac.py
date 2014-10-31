@@ -373,6 +373,7 @@ def variant_page(variant_str):
                 consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
+        print 'Rendering variant: %s' % variant_str
         return render_template(
             'variant.html',
             variant=variant,
@@ -382,8 +383,7 @@ def variant_page(variant_str):
             ordered_csqs=ordered_csqs
         )
     except Exception, e:
-        print 'Failed on variant:', variant_str
-        print e
+        print 'Failed on variant:', variant_str, ';Error=', e
         abort(404)
 
 
@@ -424,10 +424,10 @@ def get_gene_page_content(gene_id):
                 coverage_stats=coverage_stats
             )
             cache.set(cache_key, t, timeout=1000*60)
+        print 'Rendering gene: %s' % gene_id
         return t
     except Exception, e:
-        print 'Failed on gene:', gene_id
-        print e
+        print 'Failed on gene:', gene_id, ';Error=', e
         abort(404)
 
 
@@ -461,10 +461,10 @@ def transcript_page(transcript_id):
                 gene_json=json.dumps(gene),
             )
             cache.set(cache_key, t, timeout=1000*60)
+        print 'Rendering transcript: %s' % transcript_id
         return t
     except Exception, e:
-        print 'Failed on transcript:', transcript_id
-        print e
+        print 'Failed on transcript:', transcript_id, ';Error=', e
         abort(404)
 
 
@@ -507,10 +507,10 @@ def region_page(region_id):
                 stop=stop,
                 coverage=coverage_array
             )
+        print 'Rendering region: %s' % region_id
         return t
     except Exception, e:
-        print 'Failed on region:', region_id
-        print e
+        print 'Failed on region:', region_id, ';Error=', e
         abort(404)
 
 
@@ -522,6 +522,7 @@ def dbsnp_page(rsid):
         chrom = None
         start = None
         stop = None
+        print 'Rendering rsid: %s' % rsid
         return render_template(
             'region.html',
             rsid=rsid,
@@ -533,8 +534,7 @@ def dbsnp_page(rsid):
             genes_in_region=None
         )
     except Exception, e:
-        print 'Failed on rsid:', rsid
-        print e
+        print 'Failed on rsid:', rsid, ';Error=', e
         abort(404)
 
 
