@@ -21,6 +21,18 @@
     margin-bottom: 0px;
 }
 
+.navbar .navbar-form{
+    padding: 0 15px;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.nav>li>a {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
 #home-title {
     text-align: center;
     padding: 30px;

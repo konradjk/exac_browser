@@ -66,24 +66,25 @@
 <nav class="navbar navbar-default" role="navigation" style="background: #222;">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/" style="color: white; font-weight: bold; float: left; font-size: 15px;">ExAC Browser (Beta)</a>
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+            <button type="button" class="navbar-toggle pull-right" data-toggle="collapse" data-target="#navbar-collapse">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
+            <a class="navbar-brand" href="/" style="color: white; font-weight: bold; float: left; font-size: 15px;">ExAC Browser Beta</a>
+            <div class="col-xs-5">
+                <form action="/awesome" class="navbar-form" role="search">
+                    <div class="form-group" id="navbar-awesomebar">
+                        <input type="submit" style="display: none;"/>
+                        <input id="navbar-searchbox-input" name="query" class="form-control awesomebar" type="text" placeholder="Gene, transcript, variant, or region"/>
+                        <input type="submit" style="position: absolute; left: -9999px"/>
+                    </div>
+                </form>
+            </div>
         </div>
-
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-collapse">
-            <form action="/awesome" class="navbar-form navbar-left" role="search">
-                <div class="form-group" id="navbar-awesomebar">
-                    <input type="submit" style="display: none;"/>
-                    <input id="navbar-searchbox-input" name="query" class="form-control awesomebar" type="text" placeholder="Gene, transcript, variant, or region"/>
-                    <input type="submit" style="position: absolute; left: -9999px"/>
-                </div>
-            </form>
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/about" style="color: white; font-weight: bold;">About</a></li>
                 <li><a href="/downloads" style="color: white; font-weight: bold;">Downloads</a></li>
