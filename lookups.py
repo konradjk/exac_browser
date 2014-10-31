@@ -164,7 +164,8 @@ def get_awesomebar_result(db, query):
             return 'transcript', transcript['transcript_id']
 
     # From here on out, only region queries
-    query = query.lstrip('CHR')
+    if query.startswith('CHR'):
+        query = query.lstrip('CHR')
     # Region
     m = R1.match(query)
     if m:
