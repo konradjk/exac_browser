@@ -350,40 +350,41 @@ def variant_page(variant_str):
     try:
         chrom, pos, ref, alt = variant_str.split('-')
         pos = int(pos)
-    except ValueError:
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = xbrowse.get_xpos(chrom, pos)
+        variant = lookups.get_variant(db, xpos, ref, alt)
+
+        if variant is None:
+            variant = {
+                'chrom': chrom,
+                'pos': pos,
+                'xpos': xpos,
+                'ref': ref,
+                'alt': alt
+            }
+        consequences = None
+        ordered_csqs = None
+        if 'vep_annotations' in variant:
+            variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+            ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
+            ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
+            consequences = defaultdict(lambda: defaultdict(list))
+            for annotation in variant['vep_annotations']:
+                consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
+        base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
+        any_covered = any([x['has_coverage'] for x in base_coverage])
+        return render_template(
+            'variant.html',
+            variant=variant,
+            base_coverage=base_coverage,
+            consequences=consequences,
+            any_covered=any_covered,
+            ordered_csqs=ordered_csqs
+        )
+    except Exception, e:
+        print 'Failed on variant:', variant_str
+        print e
         abort(404)
-
-    # pos, ref, alt = get_minimal_representation(pos, ref, alt)
-    xpos = xbrowse.get_xpos(chrom, pos)
-    variant = lookups.get_variant(db, xpos, ref, alt)
-
-    if variant is None:
-        variant = {
-            'chrom': chrom,
-            'pos': pos,
-            'xpos': xpos,
-            'ref': ref,
-            'alt': alt
-        }
-    consequences = None
-    ordered_csqs = None
-    if 'vep_annotations' in variant:
-        variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
-        ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
-        ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
-        consequences = defaultdict(lambda: defaultdict(list))
-        for annotation in variant['vep_annotations']:
-            consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
-    base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
-    any_covered = any([x['has_coverage'] for x in base_coverage])
-    return render_template(
-        'variant.html',
-        variant=variant,
-        base_coverage=base_coverage,
-        consequences=consequences,
-        any_covered=any_covered,
-        ordered_csqs=ordered_csqs
-    )
 
 
 @app.route('/gene/<gene_id>')
@@ -396,125 +397,145 @@ def gene_page(gene_id):
 
 def get_gene_page_content(gene_id):
     db = get_db()
-    gene = lookups.get_gene(db, gene_id)
-    if gene is None:
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+        cache_key = 't-gene-{}'.format(gene_id)
+        t = cache.get(cache_key)
+        if t is None:
+            variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+            transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
+
+            # Get some canonical transcript and corresponding info
+            transcript_id = gene['canonical_transcript']
+            transcript = lookups.get_transcript(db, transcript_id)
+            variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+            coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+            add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+
+            t = render_template(
+                'gene.html',
+                gene=gene,
+                transcript=transcript,
+                variants_in_gene=variants_in_gene,
+                variants_in_transcript=variants_in_transcript,
+                transcripts_in_gene=transcripts_in_gene,
+                coverage_stats=coverage_stats
+            )
+            cache.set(cache_key, t, timeout=1000*60)
+        return t
+    except Exception, e:
+        print 'Failed on gene:', gene_id
+        print e
         abort(404)
-    cache_key = 't-gene-{}'.format(gene_id)
-    t = cache.get(cache_key)
-    if t is None:
-        variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
-        transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
-
-        # Get some canonical transcript and corresponding info
-        transcript_id = gene['canonical_transcript']
-        transcript = lookups.get_transcript(db, transcript_id)
-        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
-        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
-
-        t = render_template(
-            'gene.html',
-            gene=gene,
-            transcript=transcript,
-            variants_in_gene=variants_in_gene,
-            variants_in_transcript=variants_in_transcript,
-            transcripts_in_gene=transcripts_in_gene,
-            coverage_stats=coverage_stats
-        )
-        cache.set(cache_key, t, timeout=1000*60)
-    return t
 
 
 @app.route('/transcript/<transcript_id>')
 def transcript_page(transcript_id):
     db = get_db()
-    transcript = lookups.get_transcript(db, transcript_id)
+    try:
+        transcript = lookups.get_transcript(db, transcript_id)
 
-    cache_key = 't-transcript-{}'.format(transcript_id)
-    t = cache.get(cache_key)
-    if t is None: 
-    
-        gene = lookups.get_gene(db, transcript['gene_id'])
-        gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
-        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+        cache_key = 't-transcript-{}'.format(transcript_id)
+        t = cache.get(cache_key)
+        if t is None:
 
-        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+            gene = lookups.get_gene(db, transcript['gene_id'])
+            gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
+            variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
 
-        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+            coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
 
-        t = render_template(
-            'transcript.html',
-            transcript=transcript,
-            transcript_json=json.dumps(transcript),
-            variants_in_transcript=variants_in_transcript,
-            variants_in_transcript_json=json.dumps(variants_in_transcript),
-            coverage_stats=coverage_stats,
-            coverage_stats_json=json.dumps(coverage_stats),
-            gene=gene,
-            gene_json=json.dumps(gene),
-        )
-        cache.set(cache_key, t, timeout=1000*60)
-    return t
+            add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+
+            t = render_template(
+                'transcript.html',
+                transcript=transcript,
+                transcript_json=json.dumps(transcript),
+                variants_in_transcript=variants_in_transcript,
+                variants_in_transcript_json=json.dumps(variants_in_transcript),
+                coverage_stats=coverage_stats,
+                coverage_stats_json=json.dumps(coverage_stats),
+                gene=gene,
+                gene_json=json.dumps(gene),
+            )
+            cache.set(cache_key, t, timeout=1000*60)
+        return t
+    except Exception, e:
+        print 'Failed on transcript:', transcript_id
+        print e
+        abort(404)
 
 
 @app.route('/region/<region_id>')
 def region_page(region_id):
     db = get_db()
-    region = region_id.split('-')
-    cache_key = 't-region-{}'.format(region_id)
-    t = cache.get(cache_key)
-    if t is None:
-        chrom = region[0]
-        start = None
-        stop = None
-        if len(region) == 3:
-            chrom, start, stop = region
-            start = int(start)
-            stop = int(stop)
-        if start is None or stop - start > REGION_LIMIT:
-            return render_template(
+    try:
+        region = region_id.split('-')
+        cache_key = 't-region-{}'.format(region_id)
+        t = cache.get(cache_key)
+        if t is None:
+            chrom = region[0]
+            start = None
+            stop = None
+            if len(region) == 3:
+                chrom, start, stop = region
+                start = int(start)
+                stop = int(stop)
+            if start is None or stop - start > REGION_LIMIT:
+                return render_template(
+                    'region.html',
+                    genes_in_region=None,
+                    variants_in_region=None,
+                    chrom=chrom,
+                    start=start,
+                    stop=stop,
+                    coverage=None
+                )
+            genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
+            variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
+            xstart = xbrowse.get_xpos(chrom, start)
+            xstop = xbrowse.get_xpos(chrom, stop)
+            coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
+            t = render_template(
                 'region.html',
-                genes_in_region=None,
-                variants_in_region=None,
+                genes_in_region=genes_in_region,
+                variants_in_region=variants_in_region,
                 chrom=chrom,
                 start=start,
                 stop=stop,
-                coverage=None
+                coverage=coverage_array
             )
-        genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
-        variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
-        xstart = xbrowse.get_xpos(chrom, start)
-        xstop = xbrowse.get_xpos(chrom, stop)
-        coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
-        t = render_template(
-            'region.html',
-            genes_in_region=genes_in_region,
-            variants_in_region=variants_in_region,
-            chrom=chrom,
-            start=start,
-            stop=stop,
-            coverage=coverage_array
-        )
-    return t
+        return t
+    except Exception, e:
+        print 'Failed on region:', region_id
+        print e
+        abort(404)
 
 
 @app.route('/dbsnp/<rsid>')
 def dbsnp_page(rsid):
     db = get_db()
-    variants = lookups.get_variants_by_rsid(db, rsid)
-    chrom = None
-    start = None
-    stop = None
-    return render_template(
-        'region.html',
-        rsid=rsid,
-        variants_in_region=variants,
-        chrom=chrom,
-        start=start,
-        stop=stop,
-        coverage=None,
-        genes_in_region=None
-    )
+    try:
+        variants = lookups.get_variants_by_rsid(db, rsid)
+        chrom = None
+        start = None
+        stop = None
+        return render_template(
+            'region.html',
+            rsid=rsid,
+            variants_in_region=variants,
+            chrom=chrom,
+            start=start,
+            stop=stop,
+            coverage=None,
+            genes_in_region=None
+        )
+    except Exception, e:
+        print 'Failed on rsid:', rsid
+        print e
+        abort(404)
 
 
 @app.route('/error/<query>')
