@@ -123,10 +123,10 @@ def get_variants_from_sites_vcf(sites_vcf):
             variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
 
             if 'DP_HIST' in info_field:
-                hists_all = [info_field['DP_HIST'].split(',')[0], info_field['DP_HIST'].split(',')[i]]
+                hists_all = [info_field['DP_HIST'].split(',')[0], info_field['DP_HIST'].split(',')[i+1]]
                 variant['genotype_depths'] = [zip(dp_mids, map(int, x.split('|'))) for x in hists_all]
             if 'GQ_HIST' in info_field:
-                hists_all = [info_field['GQ_HIST'].split(',')[0], info_field['GQ_HIST'].split(',')[i]]
+                hists_all = [info_field['GQ_HIST'].split(',')[0], info_field['GQ_HIST'].split(',')[i+1]]
                 variant['genotype_qualities'] = [zip(gq_mids, map(int, x.split('|'))) for x in hists_all]
 
             yield variant
