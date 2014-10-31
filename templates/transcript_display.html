@@ -133,11 +133,13 @@ function gene_chart(data, new_data, variant_data, _transcript) {
         })
 {#        .attr("rx", 6)#}
 {#        .attr("ry", 6)#}
-        .attr("width", function(d, i) { return exon_x_scale(d.stop-d.start+1); })
-        .attr("height", function(d, i) {
+        .attr("width", function(d, i) {
             if (get_coding_coordinate(_transcript, d.start, true) == -100) {
-                return 0;
+                return exon_x_scale(175);
             }
+            return exon_x_scale(d.stop-d.start+1);
+        })
+        .attr("height", function(d, i) {
             if (d.feature_type == 'CDS') {
                 return lower_gene_chart_height;
             } else {
@@ -327,11 +329,13 @@ function change_coverage_chart(data, new_data, variant_data, _transcript, scale_
         .transition()
         .duration(500)
         .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
-        .attr("width", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.stop, skip_utrs) - get_coding_coordinate(_transcript, d.start, skip_utrs) + 1); })
-        .attr("height", function(d, i) {
+        .attr("width", function(d, i) {
             if (get_coding_coordinate(_transcript, d.start, skip_utrs) == -100) {
-                return 0;
+                return exon_x_scale(175);
             }
+            return exon_x_scale(d.stop-d.start+1);
+        })
+        .attr("height", function(d, i) {
             if (d.feature_type == 'CDS') {
                 return lower_gene_chart_height;
             } else {
@@ -393,7 +397,11 @@ function create_new_data(data, coords) {
 }
 
 $(document).ready(function() {
-    $('#gene_plot_container').css('width', $(window).width()*10/12 + "px");
+    if ($(window).width() < 768) {
+        $('#gene_plot_container').css('width', $(window).width() + "px");
+    } else {
+        $('#gene_plot_container').css('width', $(window).width()*10/12 + "px");
+    }
     precalc_coding_coordinates(window.transcript, window.coverage_stats, 'pos');
     precalc_coding_coordinates(window.transcript, window.variants_in_transcript, 'pos');
 
