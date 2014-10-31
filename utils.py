@@ -76,7 +76,7 @@ protein_letters_1to3 = {
     'K': 'Lys', 'L': 'Leu', 'M': 'Met', 'N': 'Asn',
     'P': 'Pro', 'Q': 'Gln', 'R': 'Arg', 'S': 'Ser',
     'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr',
-    'X': 'Ter'
+    'X': 'Ter', '*': 'Ter'
 }
 
 
@@ -89,7 +89,7 @@ def get_proper_hgvs(csq):
             amino_acids = ''.join([protein_letters_1to3[x] for x in csq['Amino_acids']])
             return "p." + amino_acids + csq['Protein_position'] + amino_acids
         except Exception, e:
-            print csq
+            print 'Could not create HGVS for: %s' % csq
     return csq['HGVSp'].split(':')[-1]
 
 csq_order = ["transcript_ablation",

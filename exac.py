@@ -327,7 +327,7 @@ def awesome():
     query = request.args.get('query')
     datatype, identifier = lookups.get_awesomebar_result(db, query)
 
-    print "Searched for %s %s" % (datatype, identifier)
+    print "Searched for %s: %s" % (datatype, identifier)
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
     elif datatype == 'transcript':
@@ -383,7 +383,7 @@ def variant_page(variant_str):
             ordered_csqs=ordered_csqs
         )
     except Exception, e:
-        print 'Failed on variant:', variant_str, ';Error=', e
+        print 'Failed on variant:', variant_str, '; Error=', e
         abort(404)
 
 
