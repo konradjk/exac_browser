@@ -4,7 +4,7 @@ import pymongo
 import gzip
 from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
     get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
-    get_base_coverage_from_file, get_omim_associations, get_dbnsfp_info
+    get_base_coverage_from_file, get_omim_associations, get_dbnsfp_info, get_snp_from_dbsnp_file
 import lookups
 import xbrowse
 from utils import *
@@ -256,6 +256,24 @@ def load_db():
     db.exons.ensure_index('transcript_id')
     db.exons.ensure_index('gene_id')
     print 'Done indexing exon table. Took %s seconds' % (time.time() - start_time)
+
+    start_time = time.time()
+    dbsnp_file = gzip.open(app.config['DBSNP_FILE'])
+    current_entry = 0
+    snps = []
+    for snp in get_snp_from_dbsnp_file(dbsnp_file):
+        current_entry += 1
+        snps.append(snp)
+        if not current_entry % 1000:
+            db.snps.insert(snp, w=0)
+            snps = []
+    db.snps.insert(snps, w=0)
+    dbsnp_file.close()
+    print 'Done loading SNPs. Took %s seconds' % (time.time() - start_time)
+
+    start_time = time.time()
+    db.snps.ensure_index('rsid')
+    print 'Done indexing SNP table. Took %s seconds' % (time.time() - start_time)
 
 
 def create_cache():
