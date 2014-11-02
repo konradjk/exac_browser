@@ -3,3 +3,5 @@ static/.DS_Store
 static/tablesorter-master
 .idea/
 *.pyc
+misc/
+.gitignore
