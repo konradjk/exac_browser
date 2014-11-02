@@ -370,6 +370,7 @@ def variant_page(variant_str):
             ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
             consequences = defaultdict(lambda: defaultdict(list))
             for annotation in variant['vep_annotations']:
+                annotation['HGVS'] = get_proper_hgvs(annotation)
                 consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])

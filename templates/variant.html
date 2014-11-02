@@ -159,7 +159,7 @@
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                         <div class="panel-group" id="annotation_accordion">
                             {% for consequence in ordered_csqs %}
-                                <h4>{{ consequence }}</h4>
+                                <h4>{{ consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}</h4>
                                 <ul>
                                     {% for gene in consequences[consequence] %}
                                         <li>
@@ -184,6 +184,27 @@
                                                                     {% if annotation.CANONICAL == 'YES' %}
                                                                         *
                                                                     {% endif %}
+                                                                    {% if consequence == 'missense_variant' %}
+                                                                        ({{ annotation.HGVS }})<br/>
+                                                                        &nbsp; &nbsp; &nbsp; Polyphen:
+                                                                        <span class=
+                                                                            {% if annotation.PolyPhen.split('(')[0] == 'benign' %}
+                                                                                "bg-success"
+                                                                            {% elif annotation.PolyPhen.split('(')[0] == 'possibly_damaging' %}
+                                                                                "bg-warning"
+                                                                            {% elif annotation.PolyPhen.split('(')[0] == 'probably_damaging' %}
+                                                                                "bg-danger"
+                                                                            {% endif %}>
+                                                                        {{ annotation.PolyPhen.split('(')[0] }}</span>
+                                                                        ; SIFT:
+                                                                        <span class=
+                                                                            {% if annotation.SIFT.split('(')[0] == 'tolerated' %}
+                                                                                "bg-success"
+                                                                            {% elif annotation.SIFT.split('(')[0] == 'deleterious' %}
+                                                                                "bg-danger"
+                                                                            {% endif %}>
+                                                                        {{ annotation.SIFT.split('(')[0] }}</span>
+                                                                    {% endif %}
                                                                 </a>
                                                             </li>
                                                         {% endfor %}
@@ -194,6 +215,13 @@
                                                     {{ consequences[consequence][gene][0].Feature }}
                                                     {% if consequences[consequence][gene][0].CANONICAL == 'YES' %}
                                                         *
+                                                    {% endif %}
+                                                    {% if consequence == 'missense_variant' %}
+                                                        ({{ consequences[consequence][gene][0].HGVS }})
+                                                        <br/>
+                                                        PolyPhen: {{ consequence[consequence][gene][0].PolyPhen }}
+                                                        <br/>
+                                                        SIFT: {{ consequence[consequence][gene][0].SIFT }}
                                                     {% endif %}
                                                 </a>
                                             {% endif %}
@@ -262,7 +290,7 @@
                         <h3>Quality Metrics</h3>
                         <label>
                             <input type="checkbox" id="quality_full_site_button" value=""
-                                   data-tooltip="Toggle to display metrics for full site"> Full site metrics
+                                   data-tooltip="Toggle to display metrics for full site &#xa;(Default: only individuals with the variant are displayed)"> Full site metrics
                         </label>
                         <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
                             <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button"
