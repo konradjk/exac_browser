@@ -219,9 +219,9 @@
                                                     {% if consequence == 'missense_variant' %}
                                                         ({{ consequences[consequence][gene][0].HGVS }})
                                                         <br/>
-                                                        PolyPhen: {{ consequence[consequence][gene][0].PolyPhen }}
+                                                        PolyPhen: {{ consequences[consequence][gene][0].PolyPhen }}
                                                         <br/>
-                                                        SIFT: {{ consequence[consequence][gene][0].SIFT }}
+                                                        SIFT: {{ consequences[consequence][gene][0].SIFT }}
                                                     {% endif %}
                                                 </a>
                                             {% endif %}
