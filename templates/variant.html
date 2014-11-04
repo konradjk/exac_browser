@@ -187,23 +187,24 @@
                                                                     {% if consequence == 'missense_variant' %}
                                                                         ({{ annotation.HGVS }})<br/>
                                                                         &nbsp; &nbsp; &nbsp; Polyphen:
+                                                                        {% set polyphen = annotation.PolyPhen.split('(')[0] %}
                                                                         <span class=
-                                                                            {% if annotation.PolyPhen.split('(')[0] == 'benign' %}
+                                                                            {% if polyphen == 'benign' %}
                                                                                 "bg-success"
-                                                                            {% elif annotation.PolyPhen.split('(')[0] == 'possibly_damaging' %}
+                                                                            {% elif polyphen == 'possibly_damaging' %}
                                                                                 "bg-warning"
-                                                                            {% elif annotation.PolyPhen.split('(')[0] == 'probably_damaging' %}
+                                                                            {% elif polyphen == 'probably_damaging' %}
                                                                                 "bg-danger"
                                                                             {% endif %}>
-                                                                        {{ annotation.PolyPhen.split('(')[0] }}</span>
-                                                                        ; SIFT:
+                                                                        {{ polyphen }}</span>; SIFT:
+                                                                        {% set sift = annotation.SIFT.split('(')[0] %}
                                                                         <span class=
-                                                                            {% if annotation.SIFT.split('(')[0] == 'tolerated' %}
+                                                                            {% if sift == 'tolerated' %}
                                                                                 "bg-success"
-                                                                            {% elif annotation.SIFT.split('(')[0] == 'deleterious' %}
+                                                                            {% elif sift == 'deleterious' %}
                                                                                 "bg-danger"
                                                                             {% endif %}>
-                                                                        {{ annotation.SIFT.split('(')[0] }}</span>
+                                                                        {{ sift }}</span>
                                                                     {% endif %}
                                                                 </a>
                                                             </li>
@@ -218,11 +219,26 @@
                                                     {% endif %}
                                                 </a>
                                                 {% if consequence == 'missense_variant' %}
-                                                    ({{ consequences[consequence][gene][0].HGVS }})
-                                                    <br/>
-                                                    PolyPhen: {{ consequences[consequence][gene][0].PolyPhen }}
-                                                    <br/>
-                                                    SIFT: {{ consequences[consequence][gene][0].SIFT }}
+                                                    ({{ consequences[consequence][gene][0].HGVS }})<br/>
+                                                    &nbsp; &nbsp; &nbsp; Polyphen:
+                                                    {% set polyphen = consequences[consequence][gene][0].PolyPhen.split('(')[0] %}
+                                                    <span class=
+                                                        {% if polyphen == 'benign' %}
+                                                            "bg-success"
+                                                        {% elif polyphen == 'possibly_damaging' %}
+                                                            "bg-warning"
+                                                        {% elif polyphen == 'probably_damaging' %}
+                                                            "bg-danger"
+                                                        {% endif %}>
+                                                    {{ polyphen }}</span>; SIFT:
+                                                    {% set sift = consequences[consequence][gene][0].SIFT.split('(')[0] %}
+                                                    <span class=
+                                                        {% if sift == 'tolerated' %}
+                                                            "bg-success"
+                                                        {% elif sift == 'deleterious' %}
+                                                            "bg-danger"
+                                                        {% endif %}>
+                                                    {{ sift }}</span>
                                                 {% endif %}
                                             {% endif %}
                                         </li>
