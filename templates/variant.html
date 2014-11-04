@@ -216,14 +216,14 @@
                                                     {% if consequences[consequence][gene][0].CANONICAL == 'YES' %}
                                                         *
                                                     {% endif %}
-                                                    {% if consequence == 'missense_variant' %}
-                                                        ({{ consequences[consequence][gene][0].HGVS }})
-                                                        <br/>
-                                                        PolyPhen: {{ consequences[consequence][gene][0].PolyPhen }}
-                                                        <br/>
-                                                        SIFT: {{ consequences[consequence][gene][0].SIFT }}
-                                                    {% endif %}
                                                 </a>
+                                                {% if consequence == 'missense_variant' %}
+                                                    ({{ consequences[consequence][gene][0].HGVS }})
+                                                    <br/>
+                                                    PolyPhen: {{ consequences[consequence][gene][0].PolyPhen }}
+                                                    <br/>
+                                                    SIFT: {{ consequences[consequence][gene][0].SIFT }}
+                                                {% endif %}
                                             {% endif %}
                                         </li>
                                     {% endfor %}
