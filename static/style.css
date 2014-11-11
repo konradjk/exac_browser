@@ -54,6 +54,14 @@
     white-space: normal;
 }
 
+.tt-query {
+  color: #000;
+}
+
+.tt-hint {
+  color: #999;
+}
+
 .lof_variant {
     color: #cd2932 !important;
     fill: #cd2932 !important;

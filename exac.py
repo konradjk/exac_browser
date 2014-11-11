@@ -289,7 +289,7 @@ def create_cache():
         if 'other_names' in gene:
             autocomplete_strings.extend(gene['other_names'])
     f = open(os.path.join(os.path.dirname(__file__), 'autocomplete_strings.txt'), 'w')
-    for s in autocomplete_strings:
+    for s in sorted(autocomplete_strings):
         f.write(s+'\n')
     f.close()
 
