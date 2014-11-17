@@ -81,7 +81,7 @@
         });
     </script>
     <div class="container">
-        <h1>Variant: {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
+        <h1><span class="hidden-xs">Variant: </span>{{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
         <hr/>
 
         {% if variant.orig_alt_alleles|length > 1 %}
@@ -243,6 +243,7 @@
                                 </ul>
                             {% endfor %}
                         </div>
+                        <small><span class="label label-info">Note:</span> This list may not include additional transcripts in the same gene that the variant does not overlap.</small>
                     {% else %}
                         No annotations were found for this variant.
                     {% endif %}
