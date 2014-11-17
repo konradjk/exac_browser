@@ -66,16 +66,13 @@
                 draw_quality_histogram(window.variant.genotype_depths[1]);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
-                    var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;
+                    var f = $('.quality_full_site_buttons.active').attr('id') == 'variant_site_button' ? 0 : 1;
                     draw_quality_histogram(window.variant[v][f]);
-{#                    draw_quality_histogram(window.variant[v][0]);#}
                 });
-                $('#quality_full_site_button').change(function() {
-                    setTimeout( function() {
-                        var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
-                        var f = $('#quality_full_site_button').is(':checked') ? 0 : 1;
-                        draw_quality_histogram(window.variant[v][f]);
-                    }, 10)
+                $('.quality_full_site_buttons').change(function() {
+                    var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
+                    var f = $(this).attr('id') == 'variant_site_button' ? 0 : 1;
+                    draw_quality_histogram(window.variant[v][f]);
                 });
             } else {
                 $('#quality_metrics_container').hide();
@@ -304,10 +301,16 @@
                     </div>
                     <div id="quality_metrics_container">
                         <h3>Quality Metrics</h3>
-                        <label>
-                            <input type="checkbox" id="quality_full_site_button" value=""
-                                   data-tooltip="Toggle to display metrics for full site &#xa;(Default: only individuals with the variant are displayed)"> Full site metrics
-                        </label>
+                        <span class="btn-group" data-toggle="buttons" id="quality_full_site_button_group">
+                            <button class="btn btn-primary active quality_full_site_buttons" id="variant_carriers_button"
+                                    data-tooltip="Show metric for only individuals with this allele.">
+                                <input type="radio"> Variant carriers
+                            </button>
+                            <button class="btn btn-primary quality_full_site_buttons" id="variant_site_button"
+                                    data-tooltip="Show metric for all individuals (at this site, whether or not they have this allele).">
+                                <input type="radio" > All individuals
+                            </button>
+                        </span>
                         <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
                             <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button"
                                     data-tooltip="Per sample depth. Capped at 100X">
