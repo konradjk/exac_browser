@@ -82,7 +82,7 @@ protein_letters_1to3 = {
 
 def get_proper_hgvs(csq):
     """
-    Takes consequence dictionary, returns proper HGVS for matting for synonymous variants
+    Takes consequence dictionary, returns proper variant formatting for synonymous variants
     """
     if '%3D' in csq['HGVSp']:
         try:
@@ -185,6 +185,8 @@ def worst_csq_with_vep(annotation_list):
     worst = annotation_list[0]
     for annotation in annotation_list:
         if compare_two_consequences(annotation['Consequence'], worst['Consequence']) < 0:
+            worst = annotation
+        elif compare_two_consequences(annotation['Consequence'], worst['Consequence']) == 0 and annotation['CANONICAL'] == 'YES':
             worst = annotation
     worst['major_consequence'] = worst_csq_from_csq(worst['Consequence'])
     return worst
