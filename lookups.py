@@ -45,6 +45,16 @@ def get_variants_by_rsid(db, rsid):
     return variants
 
 
+def get_variants_from_dbsnp(db, rsid):
+    if not rsid.startswith('rs'):
+        return None
+    try:
+        int(rsid.lstrip('rs'))
+    except Exception, e:
+        return None
+    return []
+
+
 def get_coverage_for_bases(db, xstart, xstop=None):
     """
     Get the coverage for the list of bases given by xstart->xstop, inclusive
@@ -136,6 +146,12 @@ def get_awesomebar_result(db, query):
 
     # Variant
     variant = get_variants_by_rsid(db, query.lower())
+    if variant:
+        if len(variant) == 1:
+            return 'variant', variant[0]['variant_id']
+        else:
+            return 'dbsnp_variant_set', variant[0]['rsid']
+    variant = get_variants_from_dbsnp(db, query.lower())
     if variant:
         if len(variant) == 1:
             return 'variant', variant[0]['variant_id']

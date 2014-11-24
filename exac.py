@@ -48,6 +48,7 @@ app.config.update(dict(
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage_split*')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
+    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'snp141.txt.gz') # wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
 ))
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
@@ -101,21 +102,10 @@ def load_coverage(coverage_fname, db, start_time):
     #progress.finish()
 
 
-def load_db():
-    """
-    Load the database
-    """
+def load_base_coverage():
     db = get_db()
 
-    # Initialize database
-    # Don't need to explicitly create tables with mongo, just indices
-
-    db.variants.drop()
-    db.genes.drop()
-    db.transcripts.drop()
-    db.exons.drop()
     db.base_coverage.drop()
-
     # load coverage first; variant info will depend on coverage
     start_time = time.time()
     procs = []
@@ -130,6 +120,11 @@ def load_db():
     db.base_coverage.ensure_index('xpos')
     print 'Done indexing coverage. Took %s seconds' % (time.time() - start_time)
 
+
+def load_variants_file():
+    db = get_db()
+
+    db.variants.drop()
     # grab variants from sites VCF
     start_time = time.time()
     procs = []
@@ -149,6 +144,13 @@ def load_db():
     db.variants.ensure_index('transcripts')
     print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
 
+
+def load_gene_models():
+    db = get_db()
+
+    db.genes.drop()
+    db.transcripts.drop()
+    db.exons.drop()
     start_time = time.time()
     canonical_transcripts = {}
     canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
@@ -213,7 +215,7 @@ def load_db():
     db.genes.ensure_index('other_names')
     db.genes.ensure_index('xstart')
     db.genes.ensure_index('xstop')
-    print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
+    print 'Done indexing gene table. Took %s seconds' % (time.time() - start_time)
 
     # and now transcripts
     start_time = time.time()
@@ -257,6 +259,11 @@ def load_db():
     db.exons.ensure_index('gene_id')
     print 'Done indexing exon table. Took %s seconds' % (time.time() - start_time)
 
+
+def load_dbsnp():
+    db = get_db()
+
+    db.dbsnp.drop()
     start_time = time.time()
     dbsnp_file = gzip.open(app.config['DBSNP_FILE'])
     current_entry = 0
@@ -265,15 +272,28 @@ def load_db():
         current_entry += 1
         snps.append(snp)
         if not current_entry % 1000:
-            db.snps.insert(snp, w=0)
+            db.dbsnp.insert(snp, w=0)
             snps = []
-    db.snps.insert(snps, w=0)
+    db.dbsnp.insert(snps, w=0)
     dbsnp_file.close()
-    print 'Done loading SNPs. Took %s seconds' % (time.time() - start_time)
+    print 'Done loading dbSNP. Took %s seconds' % (time.time() - start_time)
 
     start_time = time.time()
-    db.snps.ensure_index('rsid')
-    print 'Done indexing SNP table. Took %s seconds' % (time.time() - start_time)
+    db.dbsnp.ensure_index('rsid')
+    print 'Done indexing dbSNP table. Took %s seconds' % (time.time() - start_time)
+
+
+def load_db():
+    """
+    Load the database
+    """
+    # Initialize database
+    # Don't need to explicitly create tables with mongo, just indices
+
+    load_base_coverage()
+    load_variants_file()
+    load_gene_models()
+    load_dbsnp()
 
 
 def create_cache():
