@@ -102,6 +102,10 @@
     background-color: #b5f7ff !important;
 }
 
+th.allele_frequency_column {
+    width: 150px;
+}
+
 /* tooltips - based on http://cbracco.me/a-simple-css-tooltip/ */
 /* Add this attribute to the element that needs a tooltip */
 [data-tooltip] {

@@ -5,7 +5,7 @@
         <tr>
             <th class="tooltip-table-header" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
                 Variant</th>
-            <th class='hidden-xs'>Chromosome</th>
+            <th class='hidden-xs'>Chrom</th>
             <th class='hidden-xs'>Position</th>
             <th class="hidden-xs tooltip-table-header" data-tooltip="HGVS protein change annotation">
                 Protein Consequence</th>
@@ -15,8 +15,8 @@
                 Allele Count</th>
             <th class="hidden-xs tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
                 Allele Number</th>
-            <th>Number of Homozygotes</th>
-            <th class="tooltip-table-header" data-tooltip="Frequency using only &#xa; high-quality genotypes">
+            <th class="hidden-xs tooltip-table-header" data-tooltip="Number of homozygous individuals for this alternate allele">Number of Homozygotes</th>
+            <th class="tooltip-table-header allele_frequency_column" data-tooltip="Frequency using only &#xa; high-quality genotypes">
                 Allele Frequency</th>
         </tr>
     </thead>
@@ -53,7 +53,7 @@
             </b> </td>
             <td> <%= variant.allele_count %> </td>
             <td class='hidden-xs'> <%= variant.allele_num %> </td>
-            <td> <%= variant.hom_count %> </td>
+            <td class="hidden-xs"> <%= variant.hom_count %> </td>
             <td>
                 <% if (variant.allele_freq) { %>
                     <%= variant.allele_freq.toPrecision(4) %>
