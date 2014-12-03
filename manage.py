@@ -16,6 +16,26 @@ def load_db():
 
 
 @manager.command
+def load_base_coverage():
+    exac.load_base_coverage()
+
+
+@manager.command
+def load_variants_file():
+    exac.load_variants_file()
+
+
+@manager.command
+def load_gene_models():
+    exac.load_gene_models()
+
+
+@manager.command
+def load_dbsnp():
+    exac.load_dbsnp()
+
+
+@manager.command
 def create_cache():
     exac.create_cache()
 
