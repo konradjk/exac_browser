@@ -231,10 +231,10 @@ def get_variants_in_region(db, chrom, start, stop):
 def remove_extraneous_information(variant):
     del variant['genotype_depths']
     del variant['genotype_qualities']
-    del variant['pop_acs']
-    del variant['pop_ans']
+    #del variant['pop_acs']
+    #del variant['pop_ans']
     variant['hom_count'] = sum(variant['pop_homs'].values())
-    del variant['pop_homs']
+    #del variant['pop_homs']
     del variant['transcripts']
     del variant['genes']
     del variant['orig_alt_alleles']

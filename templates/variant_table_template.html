@@ -3,12 +3,16 @@
 <table id="variant_table" class="tablesorter">
     <thead>
         <tr>
-            <th class="tooltip-table-header" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
+            <th class="tooltip-table-header omit_csv" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
                 Variant</th>
             <th class='hidden-xs'>Chrom</th>
             <th class='hidden-xs'>Position</th>
+            <td class="hidden">RSID</td>
+            <th class="hidden">Reference</th>
+            <th class="hidden">Alternate</th>
             <th class="hidden-xs tooltip-table-header" data-tooltip="HGVS protein change annotation">
                 Protein Consequence</th>
+            <th class="hidden">Transcript Consequence</th>
             <th class="hidden-xs tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
             <th class="tooltip-table-header" data-tooltip="Variant Effect Predictor (VEP) &#xa; annotation using Gencode 75.&#xa; Worst across all transcripts of this gene.">Annotation</th>
             <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">
@@ -18,13 +22,34 @@
             <th class="hidden-xs tooltip-table-header" data-tooltip="Number of homozygous individuals for this alternate allele">Number of Homozygotes</th>
             <th class="tooltip-table-header allele_frequency_column" data-tooltip="Frequency using only &#xa; high-quality genotypes">
                 Allele Frequency</th>
+            <th class="hidden">Allele Count African</th>
+            <th class="hidden">Allele Number African</th>
+            <th class="hidden">Homozygote Count African</th>
+            <th class="hidden">Allele Count East Asian</th>
+            <th class="hidden">Allele Number East Asian</th>
+            <th class="hidden">Homozygote Count East Asian</th>
+            <th class="hidden">Allele Count European (Non-Finnish)</th>
+            <th class="hidden">Allele Number European (Non-Finnish)</th>
+            <th class="hidden">Homozygote Count European (Non-Finnish)</th>
+            <th class="hidden">Allele Count Finnish</th>
+            <th class="hidden">Allele Number Finnish</th>
+            <th class="hidden">Homozygote Count Finnish</th>
+            <th class="hidden">Allele Count Latino</th>
+            <th class="hidden">Allele Number Latino</th>
+            <th class="hidden">Homozygote Count Latino</th>
+            <th class="hidden">Allele Count Other</th>
+            <th class="hidden">Allele Number Other</th>
+            <th class="hidden">Homozygote Count Other</th>
+            <th class="hidden">Allele Count South Asian</th>
+            <th class="hidden">Allele Number South Asian</th>
+            <th class="hidden">Homozygote Count South Asian</th>
         </tr>
     </thead>
     <tbody>
     <% _.each(table_variants, function(variant) { %>
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
             category="<%= variant.category %>" filter_status="<%= variant.filter %>" frequency="<%= variant.allele_freq %>">
-            <td>
+            <td class="omit_csv">
                 <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>">
                 <%= variant.chrom %>:<%= variant.pos %>
                 <% if (variant.ref.length > 20) { %>
@@ -44,7 +69,11 @@
             </td>
             <td class='hidden-xs'> <%= variant.chrom %></td>
             <td class='hidden-xs'> <%= variant.pos %></td>
+            <td class="hidden"><%= variant.rsid %></td>
+            <th class="hidden"> <%= variant.ref %></th>
+            <th class="hidden"> <%= variant.alt %></th>
             <td class='hidden-xs'> <%= variant.HGVSp %></td>
+            <td class='hidden'> <%= variant.HGVSc %></td>
             <td class='hidden-xs'> <%= variant.filter %> </td>
             <td class="<%= variant.category %>"><b>
                 <% if (variant.major_consequence) { %>
@@ -62,6 +91,27 @@
                 <% } %>
                 <div id="variant_af_box_<%= variant.variant_id %>" style="float: right;"></div>
             </td>
+            <td class="hidden"> <%= variant.pop_acs["African"] %></td>
+            <td class="hidden"> <%= variant.pop_ans["African"] %></td>
+            <td class="hidden"> <%= variant.pop_homs["African"] %></td>
+            <td class="hidden"> <%= variant.pop_acs["East Asian"] %></td>
+            <td class="hidden"> <%= variant.pop_ans["East Asian"] %></td>
+            <td class="hidden"> <%= variant.pop_homs["East Asian"] %></td>
+            <td class="hidden"> <%= variant.pop_acs["European (Non-Finnish)"] %></td>
+            <td class="hidden"> <%= variant.pop_ans["European (Non-Finnish)"] %></td>
+            <td class="hidden"> <%= variant.pop_homs["European (Non-Finnish)"] %></td>
+            <td class="hidden"> <%= variant.pop_acs["European (Finnish)"] %></td>
+            <td class="hidden"> <%= variant.pop_ans["European (Finnish)"] %></td>
+            <td class="hidden"> <%= variant.pop_homs["European (Finnish)"] %></td>
+            <td class="hidden"> <%= variant.pop_acs["Latino"] %></td>
+            <td class="hidden"> <%= variant.pop_ans["Latino"] %></td>
+            <td class="hidden"> <%= variant.pop_homs["Latino"] %></td>
+            <td class="hidden"> <%= variant.pop_acs["Other"] %></td>
+            <td class="hidden"> <%= variant.pop_ans["Other"] %></td>
+            <td class="hidden"> <%= variant.pop_homs["Other"] %></td>
+            <td class="hidden"> <%= variant.pop_acs["South Asian"] %></td>
+            <td class="hidden"> <%= variant.pop_ans["South Asian"] %></td>
+            <td class="hidden"> <%= variant.pop_homs["South Asian"] %></td>
         </tr>
     <% }); %>
     </tbody>
