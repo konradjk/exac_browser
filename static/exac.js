@@ -496,7 +496,7 @@ function exportTableToCSV($table, filename) {
         // Grab text from table into CSV formatted string
         csv = '"' + $rows.map(function (i, row) {
             var $row = $(row),
-                $cols = $row.find('td,th');
+                $cols = $row.find('td,th').not('.omit_csv');
 
             return $cols.map(function (j, col) {
                 var $col = $(col),
