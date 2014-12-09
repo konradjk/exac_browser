@@ -8,7 +8,7 @@
         window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
         window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
         window.coverage_stats = {{ coverage_stats|tojson|safe }};
-
+        window.page_name = window.gene.gene_id;
     </script>
     <style>
 

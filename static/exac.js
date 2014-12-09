@@ -520,3 +520,13 @@ function exportTableToCSV($table, filename) {
             'target': '_blank'
     });
 }
+function pad_2(number) { return (number < 10 ? '0' : '') + number; }
+
+function date_format(date) {
+     return date.getFullYear() + '_' +
+         pad_2(date.getMonth()+1) + '_' +
+         pad_2(date.getDate()) + '_' +
+            pad_2(date.getHours()) + '_' +
+            pad_2(date.getMinutes()) + '_' +
+            pad_2(date.getSeconds()) ;
+}
