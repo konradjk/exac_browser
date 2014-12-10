@@ -1,6 +1,8 @@
+import itertools
 import json
 import os
 import pymongo
+import pysam
 import gzip
 from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
     get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
@@ -42,7 +44,9 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites*')),
+    LOAD_DB_PARALLEL_PROCESSES=6,  # parallelized by contigs, so good to make this = x where x*N = 24 (eg. 1,2,3,4,6,8)
+    #SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites*')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.*.sites.vep.vcf.gz')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
@@ -61,25 +65,28 @@ def connect_db():
     client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
     return client[app.config['DB_NAME']]
 
+def variant_parser(tabix_file, contigs_to_load, start_time):
+    """
+    Args:
+        tabix_file: A pysam.TabixFile object for the VCF to be loaded
+        contigs_to_load: list of chromosome names from which to load variants (can be any subset of tabix_file.contigs)
+        start_time: time object used for logging
+    Yields:
+        a variant represented as a dictionary
+    """
+    for contig in contigs_to_load:
+        vcf_header_iterator = tabix_file.header
+        vcf_records_iterator = tabix_file.fetch(contig, 0, 10**9, multiple_iterators=True)
 
-def load_variants(sites_file, db, start_time):
-    batch_size = 1000
-    sites_vcf = gzip.open(sites_file)
-    #size = os.path.getsize(sites_file)
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Variants')
-    current_entry = 0
-    variants = []
-    for variant in get_variants_from_sites_vcf(sites_vcf):
-        current_entry += 1
-        #progress.update(sites_vcf.fileobj.tell())
-        variants.append(variant)
-        if not current_entry % batch_size:
-            db.variants.insert(variants, w=0)
-            variants = []
-            if not current_entry % 10000:
-                print '%s up to %s (%s seconds so far)' % (sites_file, current_entry, (time.time() - start_time))
-    if len(variants) > 0: db.variants.insert(variants, w=0)
-    #progress.finish()
+        current_entry = 0
+        for variant in get_variants_from_sites_vcf(itertools.chain(vcf_header_iterator, vcf_records_iterator)):
+            current_entry += 1
+            yield variant
+
+            if current_entry % 10000 == 0:
+                print '%s variant at chrom %s: %s  (%s seconds so far)' % (
+                    tabix_file.filename, variant['chrom'], variant['pos'], (time.time() - start_time))
+        print("Finished loading %s variants from chrom %s" % (current_entry, contig))
 
 
 def load_coverage(coverage_fname, db, start_time):
@@ -122,17 +129,30 @@ def load_base_coverage():
 
 
 def load_variants_file():
-    db = get_db()
 
+    # Passes a generator to db.variants.insert(..), and lets it decide how many variants to insert at a time
+    # Based on http://api.mongodb.org/python/current/examples/bulk.html
+    def insert_variants(tabix_file, db, contigs_to_load, start_time):
+        db.variants.insert(variant_parser(tabix_file, contigs_to_load, start_time), w=0)
+
+    db = get_db()
     db.variants.drop()
+
     # grab variants from sites VCF
     start_time = time.time()
     procs = []
     for fname in app.config['SITES_VCFS']:
-        p = Process(target=load_variants, args=(fname, db, start_time,))
-        p.start()
-        procs.append(p)
-    [p.join() for p in procs]
+        f = pysam.TabixFile(fname)
+        num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
+        for i in range(num_procs):
+            contigs_for_this_proc = f.contigs[i::num_procs]
+
+            print("Creating process %(i)d to load contigs %(contigs_for_this_proc)s from %(fname)s " % locals())
+            p = Process(target=insert_variants, args=(f, db, contigs_for_this_proc, start_time))
+            p.start()
+            procs.append(p)
+        [p.join() for p in procs]
+        f.close()
     print 'Done loading variants. Took %s seconds' % (time.time() - start_time)
 
     start_time = time.time()
@@ -289,9 +309,8 @@ def load_db():
     """
     # Initialize database
     # Don't need to explicitly create tables with mongo, just indices
-
-    load_base_coverage()
     load_variants_file()
+    load_base_coverage()
     load_gene_models()
     load_dbsnp()
 
