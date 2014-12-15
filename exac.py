@@ -33,7 +33,7 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
-EXAC_FILES_DIRECTORY = '../exac_test_data/'
+EXAC_FILES_DIRECTORY = '../exac_test_data_new/'
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
@@ -44,13 +44,13 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
 
-    LOAD_DB_PARALLEL_PROCESSES=6,  # parallelized by contigs, so good to make this = x where x*N = 24 (eg. 1,2,3,4,6,8)
+    LOAD_DB_PARALLEL_PROCESSES=8,  # parallelized by contigs, so good to make this = x where x*N = 24 (eg. 1,2,3,4,6,8)
     #SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites*')),
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.*.sites.vep.vcf.gz')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.r0.2.sites.subset.vep.vcf.gz')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
-    BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage_split*')),
+    BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'Panel.*.coverage.txt.gz')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
     DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'snp141.txt.gz') # wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
 ))
@@ -84,48 +84,53 @@ def variant_parser(tabix_file, contigs_to_load, start_time):
             yield variant
 
             if current_entry % 10000 == 0:
-                print '%s variant at chrom %s: %s  (%s seconds so far)' % (
-                    tabix_file.filename, variant['chrom'], variant['pos'], (time.time() - start_time))
+                print 'Loading %s, at chrom %s: %s  (%s seconds so far)' % (
+                    os.path.basename(tabix_file.filename), variant['chrom'], variant['pos'], int(time.time()-start_time))
         print("Finished loading %s variants from chrom %s" % (current_entry, contig))
 
 
-def load_coverage(coverage_fname, db, start_time):
-    batch_size = 1000
-    #size = os.path.getsize(coverage_file)
-    coverage_file = gzip.open(coverage_fname)
-    #progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
-    current_entry = 0
-    bases = []
-    for base_coverage in get_base_coverage_from_file(coverage_file):
-        current_entry += 1
-        #progress.update(coverage_file.fileobj.tell())
-        bases.append(base_coverage)
-        if not current_entry % batch_size:
-            db.base_coverage.insert(bases, w=0)
-            bases = []
-            if not current_entry % 100000:
-                print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, (time.time() - start_time))
-    if len(bases) > 0: db.base_coverage.insert(bases, w=0)
+def coverage_parser(coverage_files, start_time):
+    for coverage_fname in coverage_files:
+        with gzip.open(coverage_fname) as coverage_file:
+            #progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
+            current_entry = 0
+            for base_coverage in get_base_coverage_from_file(coverage_file):
+                current_entry += 1
+                yield base_coverage
+                #progress.update(coverage_file.fileobj.tell())
+                if current_entry % 1000000 == 0:
+                    print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, int(time.time()-start_time))
     #progress.finish()
 
 
 def load_base_coverage():
-    db = get_db()
 
+    def load_coverage(coverage_files, db, start_time):
+        db.base_coverage.insert(coverage_parser(coverage_files, start_time), w=0)
+
+    db = get_db()
     db.base_coverage.drop()
+    print("Dropped db.base_coverage")
     # load coverage first; variant info will depend on coverage
     start_time = time.time()
+    db.base_coverage.ensure_index('xpos')
+
     procs = []
-    for fname in app.config['BASE_COVERAGE_FILES']:
-        p = Process(target=load_coverage, args=(fname, db, start_time,))
+    num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
+    for i in range(num_procs):
+        coverage_files_subset = app.config['BASE_COVERAGE_FILES'][i::num_procs]
+        p = Process(target=load_coverage, args=(coverage_files_subset, db, start_time,))
         p.start()
         procs.append(p)
+        print("Created process %(i)d to load files %(coverage_files_subset)s from %(coverage_files_subset)s" % locals())
     [p.join() for p in procs]
+
     print 'Done loading coverage. Took %s seconds' % (time.time() - start_time)
 
-    start_time = time.time()
-    db.base_coverage.ensure_index('xpos')
-    print 'Done indexing coverage. Took %s seconds' % (time.time() - start_time)
+    # Turned out calling ensure_index before loading the data was faster
+    #start_time = time.time()
+    #db.base_coverage.ensure_index('xpos')
+    #print 'Done indexing coverage. Took %s seconds' % (time.time() - start_time)
 
 
 def load_variants_file():
@@ -137,24 +142,9 @@ def load_variants_file():
 
     db = get_db()
     db.variants.drop()
+    print("Dropped db.variants")
 
     # grab variants from sites VCF
-    start_time = time.time()
-    procs = []
-    for fname in app.config['SITES_VCFS']:
-        f = pysam.TabixFile(fname)
-        num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
-        for i in range(num_procs):
-            contigs_for_this_proc = f.contigs[i::num_procs]
-
-            print("Creating process %(i)d to load contigs %(contigs_for_this_proc)s from %(fname)s " % locals())
-            p = Process(target=insert_variants, args=(f, db, contigs_for_this_proc, start_time))
-            p.start()
-            procs.append(p)
-        [p.join() for p in procs]
-        f.close()
-    print 'Done loading variants. Took %s seconds' % (time.time() - start_time)
-
     start_time = time.time()
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('xstart')
@@ -162,7 +152,30 @@ def load_variants_file():
     db.variants.ensure_index('rsid')
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
-    print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
+
+    for fname in app.config['SITES_VCFS']:
+        procs = []
+        f = pysam.TabixFile(fname)
+        num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
+        for i in range(num_procs):
+            contigs_for_this_proc = f.contigs[i::num_procs]
+            p = Process(target=insert_variants, args=(f, db, contigs_for_this_proc, start_time))
+            p.start()
+            procs.append(p)
+            print("Created process %(i)d to load contigs %(contigs_for_this_proc)s from %(fname)s " % locals())
+        [p.join() for p in procs]
+        f.close()
+    print 'Done loading variants. Took %s seconds' % (time.time() - start_time)
+
+    # Turned out calling ensure_index before loading the data was > 20% faster
+    #start_time = time.time()
+    #db.variants.ensure_index('xpos')
+    #db.variants.ensure_index('xstart')
+    #db.variants.ensure_index('xstop')
+    #db.variants.ensure_index('rsid')
+    #db.variants.ensure_index('genes')
+    #db.variants.ensure_index('transcripts')
+    #print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
 
 
 def load_gene_models():
