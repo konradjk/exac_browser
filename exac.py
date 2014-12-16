@@ -45,14 +45,18 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
     LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
-    #SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites*')),
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.r0.2.*.vep.vcf.gz')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.*.vep.vcf.gz')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'Panel.*.coverage.txt.gz')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
-    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'snp141.txt.gz') # wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
+
+    # How to get a snp141.txt.bgz file:
+    #   wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
+    #   zcat snp141.txt.gz | cut -f 1-5 | bgzip -c > snp141.txt.bgz
+    #   tabix -0 -s 2 -b 3 -e 4 snp141.txt.bgz
+    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'snp141.txt.bgz')
 ))
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
@@ -65,24 +69,49 @@ def connect_db():
     client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
     return client[app.config['DB_NAME']]
 
+def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
+    """
+    Returns a generator of parsed record objects (as returned by record_parser) for the i'th out n subset of records
+    across all the given tabix_file(s). The records are split by files and contigs within files, with 1/n of all contigs
+    from all files being assigned to this the i'th subset.
+
+    Args:
+        tabix_filenames: a list of one or more tabix-indexed files. These will be opened using pysam.Tabixfile
+        subset_i: zero-based number
+        subset_n: total number of subsets
+        record_parser: a function that takes a file-like object and returns a generator of parsed records
+    """
+    start_time = time.time()
+    open_tabix_files = [pysam.Tabixfile(tabix_filename) for tabix_filename in tabix_filenames]
+    tabix_file_contig_pairs = [(tabix_file, contig) for tabix_file in open_tabix_files for contig in tabix_file.contigs]
+    tabix_file_contig_subset = tabix_file_contig_pairs[subset_i : : subset_n]  # get every n'th tabix_file/contig pair
+    short_filenames = ", ".join(map(os.path.basename, tabix_filenames))
+    num_file_contig_pairs = len(tabix_file_contig_subset)
+    print(("Loading subset %(subset_i)s of %(subset_n)s total: %(num_file_contig_pairs)s contigs from "
+           "%(short_filenames)s") % locals())
+    counter = 0
+    for tabix_file, contig in tabix_file_contig_subset:
+        header_iterator = tabix_file.header
+        records_iterator = tabix_file.fetch(contig, 0, 10**9, multiple_iterators=True)
+        for parsed_record in record_parser(itertools.chain(header_iterator, records_iterator)):
+            counter += 1
+            yield parsed_record
+
+            if counter % 100000 == 0:
+                seconds_elapsed = int(time.time()-start_time)
+                print(("Loaded %(counter)s records from subset %(subset_i)s of %(subset_n)s from %(short_filenames)s "
+                       "(%(seconds_elapsed)s seconds)") % locals())
+
+    print("Finished loading subset %(subset_i)s from  %(short_filenames)s (%(counter)s records)" % locals())
 
 
 def load_base_coverage():
-    def coverage_parser(coverage_files, start_time):
-        for coverage_fname in coverage_files:
-            with gzip.open(coverage_fname) as coverage_file:
-                #progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
-                #current_entry = 0
-                for base_coverage in get_base_coverage_from_file(coverage_file):
-                    #current_entry += 1
-                    yield base_coverage
-                    #progress.update(coverage_file.fileobj.tell())
-                    #if current_entry % 1000000 == 0:
-                    #  print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, int(time.time()-start_time))
-        #progress.finish()
-
-    def load_coverage(coverage_files, db, start_time):
-        db.base_coverage.insert(coverage_parser(coverage_files, start_time), w=0)
+    def load_coverage(coverage_files, i, n, db):
+        coverage_generator = parse_tabix_file_subset(coverage_files, i, n, get_base_coverage_from_file)
+        try:
+            db.base_coverage.insert(coverage_generator, w=0)
+        except pymongo.errors.InvalidOperation:
+            pass  # handle error when coverage_generator is empty
 
     db = get_db()
     db.base_coverage.drop()
@@ -92,41 +121,25 @@ def load_base_coverage():
     db.base_coverage.ensure_index('xpos')
 
     procs = []
+    coverage_files = app.config['BASE_COVERAGE_FILES']
     num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
     random.shuffle(app.config['BASE_COVERAGE_FILES'])
     for i in range(num_procs):
-        coverage_files_subset = app.config['BASE_COVERAGE_FILES'][i::num_procs]
-        p = Process(target=load_coverage, args=(coverage_files_subset, db, start_time,))
+        p = Process(target=load_coverage, args=(coverage_files, i, num_procs, db))
         p.start()
         procs.append(p)
-        print("Created process %(i)d to load files %(coverage_files_subset)s from %(coverage_files_subset)s" % locals())
-    [p.join() for p in procs]
+    return procs
 
-    print 'Done loading coverage. Took %s seconds' % (time.time() - start_time)
+    #print 'Done loading coverage. Took %s seconds' % int(time.time() - start_time)
 
 
 def load_variants_file():
-
-    def variant_parser(tabix_file, contigs_to_load, start_time):
-        for contig in contigs_to_load:
-            vcf_header_iterator = tabix_file.header
-            vcf_records_iterator = tabix_file.fetch(contig, 0, 10**9, multiple_iterators=True)
-
-            current_entry = 0
-            for variant in get_variants_from_sites_vcf(itertools.chain(vcf_header_iterator, vcf_records_iterator)):
-                current_entry += 1
-                yield variant
-
-                #if current_entry % 10000 == 0:
-                #    print 'Loading %s, at chrom %s: %s  (%s seconds so far)' % (
-                #        os.path.basename(tabix_file.filename), variant['chrom'], variant['pos'], int(time.time()-start_time))
-            print("Finished loading %s variants from chrom %s" % (current_entry, contig))
-
-
-    # Passes a generator to db.variants.insert(..), and lets it decide how many variants to insert at a time
-    # Based on http://api.mongodb.org/python/current/examples/bulk.html
-    def insert_variants(tabix_file, db, contigs_to_load, start_time):
-        db.variants.insert(variant_parser(tabix_file, contigs_to_load, start_time), w=0)
+    def load_variants(sites_file, i, n, db):
+        variants_generator = parse_tabix_file_subset([sites_file], i, n, get_variants_from_sites_vcf)
+        try:
+            db.variants.insert(variants_generator, w=0)
+        except pymongo.errors.InvalidOperation:
+            pass  # handle error when variant_generator is empty
 
     db = get_db()
     db.variants.drop()
@@ -141,20 +154,19 @@ def load_variants_file():
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
 
-    for fname in app.config['SITES_VCFS']:
-        procs = []
-        f = pysam.TabixFile(fname)
-        random.shuffle(f.contigs)
-        num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
-        for i in range(num_procs):
-            contigs_for_this_proc = f.contigs[i::num_procs]
-            p = Process(target=insert_variants, args=(f, db, contigs_for_this_proc, start_time))
-            p.start()
-            procs.append(p)
-            print("Created process %(i)d to load contigs %(contigs_for_this_proc)s from %(fname)s " % locals())
-        [p.join() for p in procs]
-        f.close()
-    print 'Done loading variants. Took %s seconds' % (time.time() - start_time)
+    sites_vcfs = app.config['SITES_VCFS']
+    if len(sites_vcfs) > 1:
+        raise Exception("More than one sites vcf file found: %s" % sites_vcfs)
+
+    procs = []
+    num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
+    for i in range(num_procs):
+        p = Process(target=load_variants, args=(sites_vcfs[0], i, num_procs, db))
+        p.start()
+        procs.append(p)
+    return procs
+
+    #print 'Done loading variants. Took %s seconds' % int(time.time() - start_time)
 
 
 def load_gene_models():
@@ -197,7 +209,7 @@ def load_gene_models():
             #progress.update(dbnsfp_file.fileobj.tell())
         #progress.finish()
 
-    print 'Done loading metadata. Took %s seconds' % (time.time() - start_time)
+    print 'Done loading metadata. Took %s seconds' % int(time.time() - start_time)
 
     # grab genes from GTF
     start_time = time.time()
@@ -219,7 +231,7 @@ def load_gene_models():
             #progress.update(gtf_file.fileobj.tell())
         #progress.finish()
 
-    print 'Done loading genes. Took %s seconds' % (time.time() - start_time)
+    print 'Done loading genes. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
     db.genes.ensure_index('gene_id')
@@ -228,7 +240,7 @@ def load_gene_models():
     db.genes.ensure_index('other_names')
     db.genes.ensure_index('xstart')
     db.genes.ensure_index('xstop')
-    print 'Done indexing gene table. Took %s seconds' % (time.time() - start_time)
+    print 'Done indexing gene table. Took %s seconds' % int(time.time() - start_time)
 
     # and now transcripts
     start_time = time.time()
@@ -238,54 +250,79 @@ def load_gene_models():
         db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file)), w=0)
     #progress.update(gtf_file.fileobj.tell())
     #progress.finish()
-    print 'Done loading transcripts. Took %s seconds' % (time.time() - start_time)
+    print 'Done loading transcripts. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
     db.transcripts.ensure_index('transcript_id')
     db.transcripts.ensure_index('gene_id')
-    print 'Done indexing transcript table. Took %s seconds' % (time.time() - start_time)
+    print 'Done indexing transcript table. Took %s seconds' % int(time.time() - start_time)
 
     # Building up gene definitions
     start_time = time.time()
-    gtf_file = gzip.open(app.config['GENCODE_GTF'])
-    size = os.path.getsize(app.config['GENCODE_GTF'])
+    #size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
-    current_entry = 0
-    exons = []
-    for exon in get_exons_from_gencode_gtf(gtf_file):
-        current_entry += 1
-        exons.append(exon)
-        #progress.update(gtf_file.fileobj.tell())
-        if not current_entry % 1000:
-            db.exons.insert(exons, w=0)
-            exons = []
-    if len(exons) > 0: db.exons.insert(exons, w=0)
-    gtf_file.close()
+    with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
+        db.exons.insert((exon for exon in get_exons_from_gencode_gtf(gtf_file)), w=0)
+    #progress.update(gtf_file.fileobj.tell())
+
     #progress.finish()
-    print 'Done loading exons. Took %s seconds' % (time.time() - start_time)
+    print 'Done loading exons. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
     db.exons.ensure_index('exon_id')
     db.exons.ensure_index('transcript_id')
     db.exons.ensure_index('gene_id')
-    print 'Done indexing exon table. Took %s seconds' % (time.time() - start_time)
+    print 'Done indexing exon table. Took %s seconds' % int(time.time() - start_time)
 
+    return []
 
-def load_dbsnp():
+def load_dbsnp_file():
     db = get_db()
 
-    db.dbsnp.drop()
+    def load_dbsnp(dbsnp_file, i, n, db):
+        if os.path.isfile(dbsnp_file + ".tbi"):
+            dbsnp_record_generator = parse_tabix_file_subset([dbsnp_file], i, n, get_snp_from_dbsnp_file)
+            try:
+                db.dbsnp.insert(dbsnp_record_generator, w=0)
+            except pymongo.errors.InvalidOperation:
+                pass  # handle error when coverage_generator is empty
 
-    print "Loading dbsnp from %s " % app.config['DBSNP_FILE']
-    start_time = time.time()
+        else:
+            with gzip.open(dbsnp_file) as f:
+                db.dbsnp.insert((snp for snp in get_snp_from_dbsnp_file(f)), w=0)
+
+    db.dbsnp.drop()
     db.dbsnp.ensure_index('rsid')
-    with gzip.open(app.config['DBSNP_FILE']) as dbsnp_file:
-        db.dbsnp.insert((snp for snp in get_snp_from_dbsnp_file(dbsnp_file)), w=0)
-    print 'Done loading dbSNP. Took %s seconds' % (time.time() - start_time)
+    start_time = time.time()
+    dbsnp_file = app.config['DBSNP_FILE']
+
+    print "Loading dbsnp from %s" % dbsnp_file
+    if os.path.isfile(dbsnp_file + ".tbi"):
+        num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
+    else:
+        # see if non-tabixed .gz version exists
+        if os.path.isfile(dbsnp_file):
+            print(("WARNING: %(dbsnp_file)s.tbi index file not found. Will use single thread to load dbsnp."
+                "To create a tabix-indexed dbsnp file based on UCSC dbsnp, do: \n"
+                "   wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz \n"
+                "   gzcat snp141.txt.gz | cut -f 1-5 | bgzip -c > snp141.txt.bgz \n"
+                "   tabix -0 -s 2 -b 3 -e 4 snp141.txt.bgz") % locals())
+            num_procs = 1
+        else:
+            raise Exception("dbsnp file %s(dbsnp_file)s not found." % locals())
+
+    procs = []
+    for i in range(num_procs):
+        p = Process(target=load_dbsnp, args=(dbsnp_file, i, num_procs, db))
+        p.start()
+        procs.append(p)
+
+    return procs
+    #print 'Done loading dbSNP. Took %s seconds' % int(time.time() - start_time)
 
     #start_time = time.time()
     #db.dbsnp.ensure_index('rsid')
-    #print 'Done indexing dbSNP table. Took %s seconds' % (time.time() - start_time)
+    #print 'Done indexing dbSNP table. Took %s seconds' % int(time.time() - start_time)
 
 
 def load_db():
@@ -294,15 +331,13 @@ def load_db():
     """
     # Initialize database
     # Don't need to explicitly create tables with mongo, just indices
-    procs = []
-    for load_function in [load_dbsnp, load_variants_file, load_base_coverage, load_gene_models]:
-        p = Process(target=load_function)
-        p.start()
-        procs.append(p)
-        print("Started process for: " + load_function.__name__)
+    all_procs = []
+    for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models]:
+        procs = load_function()
+        all_procs.extend(procs)
+        print("Started %s processes to run %s" % (len(procs), load_function.__name__))
 
-    [p.join() for p in procs]
-
+    [p.join() for p in all_procs]
 
 def create_cache():
     """

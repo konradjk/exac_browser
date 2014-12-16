@@ -4,7 +4,6 @@ Utils for reading flat files that are loaded into database
 import re
 import traceback
 import xbrowse
-from collections import OrderedDict
 from utils import get_minimal_representation
 
 POPS = {
@@ -36,6 +35,7 @@ def get_base_coverage_from_file(base_coverage_file):
         '100': 0.0,
     }
     """
+
     float_header_fields = ['mean', 'median', '1', '5', '10', '15', '20', '25', '30', '50', '100']
     for line in base_coverage_file:
         if line.startswith('#'):
