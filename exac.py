@@ -66,7 +66,6 @@ def connect_db():
     return client[app.config['DB_NAME']]
 
 
-
 def load_base_coverage():
     def coverage_parser(coverage_files, start_time):
         for coverage_fname in coverage_files:
@@ -163,6 +162,7 @@ def load_gene_models():
     db.genes.drop()
     db.transcripts.drop()
     db.exons.drop()
+    print 'Dropped db.genes, db.transcripts, and db.exons.'
 
     start_time = time.time()
 

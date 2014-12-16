@@ -132,7 +132,7 @@ def get_variants_from_sites_vcf(sites_vcf):
                     variant['genotype_qualities'] = [zip(gq_mids, map(int, x.split('|'))) for x in hists_all]
 
                 yield variant
-        except:
+        except Exception:
             print("Error parsing vcf line: " + line)
             traceback.print_exc()
             break
