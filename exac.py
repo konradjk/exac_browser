@@ -9,6 +9,7 @@ from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
     get_base_coverage_from_file, get_omim_associations, get_dbnsfp_info, get_snp_from_dbsnp_file
 import lookups
 import xbrowse
+import random
 from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
@@ -92,6 +93,7 @@ def load_base_coverage():
 
     procs = []
     num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
+    random.shuffle(app.config['BASE_COVERAGE_FILES'])
     for i in range(num_procs):
         coverage_files_subset = app.config['BASE_COVERAGE_FILES'][i::num_procs]
         p = Process(target=load_coverage, args=(coverage_files_subset, db, start_time,))
