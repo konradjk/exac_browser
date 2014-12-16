@@ -11,7 +11,7 @@
             $("#variant_table_annotation_header").attr("data-tooltip",
                     "Variant Effect Predictor (VEP)\n annotation using Gencode 76");
         });
-        window.page_name = window.transcript.transcript_id;
+        window.page_name = window.gene.symbol + '_' + window.transcript.transcript_id;
     </script>
     <div class="container">
         <h1>{{ gene.gene_name }}</h1>
@@ -46,7 +46,9 @@
             </div>
             <div class="row">
                 {% if variants_in_transcript %}
-                    {% include 'variant_table.html' %}
+                    {% with chrom = variants_in_transcript[0].chrom %}
+                        {% include 'variant_table.html' %}
+                    {% endwith %}
                 {% else %}
                     No variants in this gene.
                 {% endif %}

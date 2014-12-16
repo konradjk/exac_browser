@@ -19,8 +19,13 @@
                 Allele Count</th>
             <th class="hidden-xs tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
                 Allele Number</th>
-            <th class="hidden-xs tooltip-table-header" data-tooltip="Number of homozygous individuals for this alternate allele">Number of Homozygotes</th>
-            <th class="tooltip-table-header allele_frequency_column" data-tooltip="Frequency using only &#xa; high-quality genotypes">
+            {% if chrom != 'Y' %}
+                <th class="hidden-xs tooltip-table-header" data-tooltip="Number of homozygous individuals for this alternate allele">Number of Homozygotes</th>
+            {% endif %}
+            {% if chrom == 'X' or chrom == 'Y' %}
+                <th class="hidden-xs tooltip-table-header" data-tooltip="Number of hemizygous individuals for this alternate allele">Number of Hemizygotes</th>
+            {% endif %}
+            <th class="tooltip-table-header allele_frequency_column" data-tooltip="Frequency using only &#xa; high-quality genotypes &#xa; The graphic displays &#xa; allele frequency on a  &#xa; discrete scale: Singletons, &#xa; <1/10,000, <1/1000, <1%, &#xa; <5%, <50%, >50%">
                 Allele Frequency</th>
             <th class="hidden">Allele Count African</th>
             <th class="hidden">Allele Number African</th>
@@ -82,7 +87,12 @@
             </b> </td>
             <td> <%= variant.allele_count %> </td>
             <td class='hidden-xs'> <%= variant.allele_num %> </td>
-            <td class="hidden-xs"> <%= variant.hom_count %> </td>
+            {% if chrom != 'Y' %}
+                <td class="hidden-xs"> <%= variant.hom_count %> </td>
+            {% endif %}
+            {% if chrom == 'X' or chrom == 'Y' %}
+                <td class="hidden-xs"> <%= variant.hemi_count %> </td>
+            {% endif %}
             <td>
                 <% if (variant.allele_freq) { %>
                     <%= variant.allele_freq.toPrecision(4) %>
@@ -116,19 +126,4 @@
     <% }); %>
     </tbody>
 </table>
-<div id="pager" class="pager">
-    <form>
-        <i class="fa fa-caret-square-o-left fa-2x first link"></i>
-        <i class="fa fa-caret-left fa-2x prev link"></i>
-        <input type="text" class="pagedisplay" style="display: none;"/>
-        <i class="fa fa-caret-right fa-2x next link"></i>
-        <i class="fa fa-caret-square-o-right fa-2x last link"></i>
-        <select class="pagesize">
-            <option selected="selected" value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100000">All</option>
-        </select>
-    </form>
-</div>
 </script>
