@@ -33,7 +33,7 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
-EXAC_FILES_DIRECTORY = '../exac_test_data_new/'
+EXAC_FILES_DIRECTORY = '../exac_test_data/'
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
@@ -43,10 +43,9 @@ app.config.update(dict(
     DB_NAME='exac', 
     DEBUG=True,
     SECRET_KEY='development key',
-
-    LOAD_DB_PARALLEL_PROCESSES=8,  # parallelized by contigs, so good to make this = x where x*N = 24 (eg. 1,2,3,4,6,8)
+    LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
     #SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'sites*')),
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.r0.2.sites.subset.vep.vcf.gz')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.r0.2.*.vep.vcf.gz')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
@@ -65,45 +64,21 @@ def connect_db():
     client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
     return client[app.config['DB_NAME']]
 
-def variant_parser(tabix_file, contigs_to_load, start_time):
-    """
-    Args:
-        tabix_file: A pysam.TabixFile object for the VCF to be loaded
-        contigs_to_load: list of chromosome names from which to load variants (can be any subset of tabix_file.contigs)
-        start_time: time object used for logging
-    Yields:
-        a variant represented as a dictionary
-    """
-    for contig in contigs_to_load:
-        vcf_header_iterator = tabix_file.header
-        vcf_records_iterator = tabix_file.fetch(contig, 0, 10**9, multiple_iterators=True)
-
-        current_entry = 0
-        for variant in get_variants_from_sites_vcf(itertools.chain(vcf_header_iterator, vcf_records_iterator)):
-            current_entry += 1
-            yield variant
-
-            if current_entry % 10000 == 0:
-                print 'Loading %s, at chrom %s: %s  (%s seconds so far)' % (
-                    os.path.basename(tabix_file.filename), variant['chrom'], variant['pos'], int(time.time()-start_time))
-        print("Finished loading %s variants from chrom %s" % (current_entry, contig))
-
-
-def coverage_parser(coverage_files, start_time):
-    for coverage_fname in coverage_files:
-        with gzip.open(coverage_fname) as coverage_file:
-            #progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
-            current_entry = 0
-            for base_coverage in get_base_coverage_from_file(coverage_file):
-                current_entry += 1
-                yield base_coverage
-                #progress.update(coverage_file.fileobj.tell())
-                if current_entry % 1000000 == 0:
-                    print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, int(time.time()-start_time))
-    #progress.finish()
 
 
 def load_base_coverage():
+    def coverage_parser(coverage_files, start_time):
+        for coverage_fname in coverage_files:
+            with gzip.open(coverage_fname) as coverage_file:
+                #progress = xbrowse.utils.get_progressbar(size, 'Parsing coverage')
+                #current_entry = 0
+                for base_coverage in get_base_coverage_from_file(coverage_file):
+                    #current_entry += 1
+                    yield base_coverage
+                    #progress.update(coverage_file.fileobj.tell())
+                    #if current_entry % 1000000 == 0:
+                    #  print '%s up to %s (%s seconds so far)' % (coverage_fname, current_entry, int(time.time()-start_time))
+        #progress.finish()
 
     def load_coverage(coverage_files, db, start_time):
         db.base_coverage.insert(coverage_parser(coverage_files, start_time), w=0)
@@ -127,13 +102,24 @@ def load_base_coverage():
 
     print 'Done loading coverage. Took %s seconds' % (time.time() - start_time)
 
-    # Turned out calling ensure_index before loading the data was faster
-    #start_time = time.time()
-    #db.base_coverage.ensure_index('xpos')
-    #print 'Done indexing coverage. Took %s seconds' % (time.time() - start_time)
-
 
 def load_variants_file():
+
+    def variant_parser(tabix_file, contigs_to_load, start_time):
+        for contig in contigs_to_load:
+            vcf_header_iterator = tabix_file.header
+            vcf_records_iterator = tabix_file.fetch(contig, 0, 10**9, multiple_iterators=True)
+
+            current_entry = 0
+            for variant in get_variants_from_sites_vcf(itertools.chain(vcf_header_iterator, vcf_records_iterator)):
+                current_entry += 1
+                yield variant
+
+                #if current_entry % 10000 == 0:
+                #    print 'Loading %s, at chrom %s: %s  (%s seconds so far)' % (
+                #        os.path.basename(tabix_file.filename), variant['chrom'], variant['pos'], int(time.time()-start_time))
+            print("Finished loading %s variants from chrom %s" % (current_entry, contig))
+
 
     # Passes a generator to db.variants.insert(..), and lets it decide how many variants to insert at a time
     # Based on http://api.mongodb.org/python/current/examples/bulk.html
@@ -167,16 +153,6 @@ def load_variants_file():
         f.close()
     print 'Done loading variants. Took %s seconds' % (time.time() - start_time)
 
-    # Turned out calling ensure_index before loading the data was > 20% faster
-    #start_time = time.time()
-    #db.variants.ensure_index('xpos')
-    #db.variants.ensure_index('xstart')
-    #db.variants.ensure_index('xstop')
-    #db.variants.ensure_index('rsid')
-    #db.variants.ensure_index('genes')
-    #db.variants.ensure_index('transcripts')
-    #print 'Done indexing variant table. Took %s seconds' % (time.time() - start_time)
-
 
 def load_gene_models():
     db = get_db()
@@ -184,61 +160,62 @@ def load_gene_models():
     db.genes.drop()
     db.transcripts.drop()
     db.exons.drop()
+
     start_time = time.time()
+
+    #size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
     canonical_transcripts = {}
-    canonical_transcript_file = gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE'])
-    size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
-    for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
-        canonical_transcripts[gene] = transcript
-        #progress.update(canonical_transcript_file.fileobj.tell())
-    canonical_transcript_file.close()
-    #progress.finish()
+    with gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE']) as canonical_transcript_file:
+        #progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
+        for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
+            canonical_transcripts[gene] = transcript
+            #progress.update(canonical_transcript_file.fileobj.tell())
+        #progress.finish()
 
+    #size = os.path.getsize(app.config['OMIM_FILE'])
     omim_annotations = {}
-    omim_file = gzip.open(app.config['OMIM_FILE'])
-    size = os.path.getsize(app.config['OMIM_FILE'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
-    for fields in get_omim_associations(omim_file):
-        if fields is None:
-            continue
-        gene, transcript, accession, description = fields
-        omim_annotations[gene] = (accession, description)
-        #progress.update(omim_file.fileobj.tell())
-    omim_file.close()
-    #progress.finish()
+    with gzip.open(app.config['OMIM_FILE']) as omim_file:
+        #progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
+        for fields in get_omim_associations(omim_file):
+            if fields is None:
+                continue
+            gene, transcript, accession, description = fields
+            omim_annotations[gene] = (accession, description)
+            #progress.update(omim_file.fileobj.tell())
+        #progress.finish()
 
+    #size = os.path.getsize(app.config['DBNSFP_FILE'])
     dbnsfp_info = {}
-    dbnsfp_file = gzip.open(app.config['DBNSFP_FILE'])
-    size = os.path.getsize(app.config['DBNSFP_FILE'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
-    for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
-        other_names = [other_name.upper() for other_name in dbnsfp_gene['gene_other_names']]
-        dbnsfp_info[dbnsfp_gene['ensembl_gene']] = (dbnsfp_gene['gene_full_name'], other_names)
-        #progress.update(dbnsfp_file.fileobj.tell())
-    dbnsfp_file.close()
-    #progress.finish()
+    with gzip.open(app.config['DBNSFP_FILE']) as dbnsfp_file:
+        #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
+        for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
+            other_names = [other_name.upper() for other_name in dbnsfp_gene['gene_other_names']]
+            dbnsfp_info[dbnsfp_gene['ensembl_gene']] = (dbnsfp_gene['gene_full_name'], other_names)
+            #progress.update(dbnsfp_file.fileobj.tell())
+        #progress.finish()
+
     print 'Done loading metadata. Took %s seconds' % (time.time() - start_time)
 
     # grab genes from GTF
     start_time = time.time()
-    gtf_file = gzip.open(app.config['GENCODE_GTF'])
-    size = os.path.getsize(app.config['GENCODE_GTF'])
+
+    #size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
-    for gene in get_genes_from_gencode_gtf(gtf_file):
-        gene_id = gene['gene_id']
-        if gene_id in canonical_transcripts:
-            gene['canonical_transcript'] = canonical_transcripts[gene_id]
-        if gene_id in omim_annotations:
-            gene['omim_accession'] = omim_annotations[gene_id][0]
-            gene['omim_description'] = omim_annotations[gene_id][1]
-        if gene_id in dbnsfp_info:
-            gene['full_gene_name'] = dbnsfp_info[gene_id][0]
-            gene['other_names'] = dbnsfp_info[gene_id][1]
-        db.genes.insert(gene, w=0)
-        #progress.update(gtf_file.fileobj.tell())
-    #progress.finish()
-    gtf_file.close()
+    with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
+        for gene in get_genes_from_gencode_gtf(gtf_file):
+            gene_id = gene['gene_id']
+            if gene_id in canonical_transcripts:
+                gene['canonical_transcript'] = canonical_transcripts[gene_id]
+            if gene_id in omim_annotations:
+                gene['omim_accession'] = omim_annotations[gene_id][0]
+                gene['omim_description'] = omim_annotations[gene_id][1]
+            if gene_id in dbnsfp_info:
+                gene['full_gene_name'] = dbnsfp_info[gene_id][0]
+                gene['other_names'] = dbnsfp_info[gene_id][1]
+            db.genes.insert(gene, w=0)
+            #progress.update(gtf_file.fileobj.tell())
+        #progress.finish()
+
     print 'Done loading genes. Took %s seconds' % (time.time() - start_time)
 
     start_time = time.time()
@@ -252,13 +229,11 @@ def load_gene_models():
 
     # and now transcripts
     start_time = time.time()
-    gtf_file = gzip.open(app.config['GENCODE_GTF'])
-    size = os.path.getsize(app.config['GENCODE_GTF'])
+    #size = os.path.getsize(app.config['GENCODE_GTF'])
     #progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
-    for transcript in get_transcripts_from_gencode_gtf(gtf_file):
-        db.transcripts.insert(transcript, w=0)
-        #progress.update(gtf_file.fileobj.tell())
-    gtf_file.close()
+    with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
+        db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file)), w=0)
+    #progress.update(gtf_file.fileobj.tell())
     #progress.finish()
     print 'Done loading transcripts. Took %s seconds' % (time.time() - start_time)
 
@@ -297,23 +272,17 @@ def load_dbsnp():
     db = get_db()
 
     db.dbsnp.drop()
-    start_time = time.time()
-    dbsnp_file = gzip.open(app.config['DBSNP_FILE'])
-    current_entry = 0
-    snps = []
-    for snp in get_snp_from_dbsnp_file(dbsnp_file):
-        current_entry += 1
-        snps.append(snp)
-        if not current_entry % 1000:
-            db.dbsnp.insert(snp, w=0)
-            snps = []
-    db.dbsnp.insert(snps, w=0)
-    dbsnp_file.close()
-    print 'Done loading dbSNP. Took %s seconds' % (time.time() - start_time)
 
+    print "Loading dbsnp from %s " % app.config['DBSNP_FILE']
     start_time = time.time()
     db.dbsnp.ensure_index('rsid')
-    print 'Done indexing dbSNP table. Took %s seconds' % (time.time() - start_time)
+    with gzip.open(app.config['DBSNP_FILE']) as dbsnp_file:
+        db.dbsnp.insert((snp for snp in get_snp_from_dbsnp_file(dbsnp_file)), w=0)
+    print 'Done loading dbSNP. Took %s seconds' % (time.time() - start_time)
+
+    #start_time = time.time()
+    #db.dbsnp.ensure_index('rsid')
+    #print 'Done indexing dbSNP table. Took %s seconds' % (time.time() - start_time)
 
 
 def load_db():
@@ -322,10 +291,14 @@ def load_db():
     """
     # Initialize database
     # Don't need to explicitly create tables with mongo, just indices
-    load_variants_file()
-    load_base_coverage()
-    load_gene_models()
-    load_dbsnp()
+    procs = []
+    for load_function in [load_dbsnp, load_variants_file, load_base_coverage, load_gene_models]:
+        p = Process(target=load_function)
+        p.start()
+        procs.append(p)
+        print("Started process for: " + load_function.__name__)
+
+    [p.join() for p in procs]
 
 
 def create_cache():
