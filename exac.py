@@ -144,6 +144,7 @@ def load_variants_file():
     for fname in app.config['SITES_VCFS']:
         procs = []
         f = pysam.TabixFile(fname)
+        random.shuffle(f.contigs)
         num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
         for i in range(num_procs):
             contigs_for_this_proc = f.contigs[i::num_procs]
