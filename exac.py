@@ -45,7 +45,7 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
     LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC.*.vep.vcf.gz')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC*.vep.vcf.gz')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
@@ -68,6 +68,7 @@ def connect_db():
     """
     client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
     return client[app.config['DB_NAME']]
+
 
 def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
     """
@@ -103,6 +104,7 @@ def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
                        "(%(seconds_elapsed)s seconds)") % locals())
 
     print("Finished loading subset %(subset_i)s from  %(short_filenames)s (%(counter)s records)" % locals())
+
 
 def load_base_coverage():
     def load_coverage(coverage_files, i, n, db):
