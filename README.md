@@ -1,4 +1,10 @@
+Usage
+=======
 
+*If you would like to use the ExAC browser, the most recent stable version is hosted at http://exac.broadinstitute.org*
+
+Advanced: The following instructions are useful for cloning the browser (e.g. to load custom sites/coverage data).
+Most users will not need to go through this process.
 
 Installation
 =======
@@ -10,17 +16,15 @@ Create a directory to put all this stuff in. This will serve as the parent direc
     mkdir exac
     cd exac
 
-First (as this can run in parallel), get the datasets that the browser uses and put them into an 'exac_test_data' directory:
+First (as this can run in parallel), get the datasets that the browser uses and put them into an 'exac_data' directory:
 
-    mkdir exac_test_data
-    cd exac_test_data
-    scp tin:/humgen/atgu1/fs03/konradk/exac_browser/exac_browser.tar.gz .
+    wget http://broadinstitute.org/~konradk/exac_browser/exac_browser.tar.gz .
     tar zxvf exac_browser.tar.gz
     cd ..
 
 Now clone the repo: 
 
-    git clone https://github.com/brettpthomas/exac_browser.git
+    git clone https://github.com/konradjk/exac_browser.git
 
 ### Dependencies
 
@@ -68,8 +72,7 @@ Note that this installs xBrowse too.
 At this point, it's probably worth quickly checking out the code structure if you haven't already :)
 
 Now we must load the database from those flat files.
-This is a single command.
-It can take a while, but there are some cute progress bars to keep you company:
+This is a single command, but it can take a while (can take advantage of parallel loads by modifying LOAD\_DB\_PARALLEL\_PROCESSES in exac.py):
 
     python manage.py load_db
     # TODO: ./manage.py doesn't work for some reason - I guess numbered args are used somewhere.
