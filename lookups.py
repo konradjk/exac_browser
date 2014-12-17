@@ -30,7 +30,12 @@ def get_transcript(db, transcript_id):
 
 
 def get_variant(db, xpos, ref, alt):
-    return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
+    variant = db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
+    if variant['rsid'] == '.' or variant['rsid'] is None:
+        rsid = db.dbsnp.find_one({'xpos': xpos})
+        if rsid:
+            variant['rsid'] = rsid['rsid']
+    return variant
 
 
 def get_variants_by_rsid(db, rsid):
@@ -52,6 +57,11 @@ def get_variants_from_dbsnp(db, rsid):
         int(rsid.lstrip('rs'))
     except Exception, e:
         return None
+    position = db.dbsnp.find_one({'rsid': rsid})
+    variants = list(db.variants.find({'xpos': {'$lte': position['xpos'], '$gte': position['xpos']}}, fields={'_id': False}))
+    if variants:
+        add_consequence_to_variants(variants)
+        return variants
     return []
 
 
