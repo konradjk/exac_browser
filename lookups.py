@@ -58,10 +58,11 @@ def get_variants_from_dbsnp(db, rsid):
     except Exception, e:
         return None
     position = db.dbsnp.find_one({'rsid': rsid})
-    variants = list(db.variants.find({'xpos': {'$lte': position['xpos'], '$gte': position['xpos']}}, fields={'_id': False}))
-    if variants:
-        add_consequence_to_variants(variants)
-        return variants
+    if position:
+        variants = list(db.variants.find({'xpos': {'$lte': position['xpos'], '$gte': position['xpos']}}, fields={'_id': False}))
+        if variants:
+            add_consequence_to_variants(variants)
+            return variants
     return []
 
 
