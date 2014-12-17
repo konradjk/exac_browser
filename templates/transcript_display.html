@@ -1,3 +1,9 @@
+<dl class="dl-horizontal">
+    <dt><span style="text-transform:capitalize" id="avg_coverage_type">Mean</span> coverage</dt>
+    <dd><span id="avg_coverage"></span></dd>
+    <dt>Individuals over <span id="avg_coverage_type_x">30X</span></dt>
+    <dd><span id="avg_coverage_x"></span></dd>
+</dl>
 <div id="gene_plot">
     <span class="hidden-xs">
         <label for="display_coverage_metric_group">
@@ -396,6 +402,14 @@ function create_new_data(data, coords) {
     return new_data;
 }
 
+function coverage_sum(key) {
+    var total = 0;
+    $.map(window.coverage_stats, function(entry) {
+        total += entry[key];
+    });
+    return (total/window.coverage_stats.length).toPrecision(4);
+}
+
 $(document).ready(function() {
     if ($(window).width() < 768) {
         $('#gene_plot_container').css('width', $(window).width() + "px");
@@ -414,6 +428,8 @@ $(document).ready(function() {
     window.coverage_stats = _.filter(window.coverage_stats, function(d) {
         return d.pos_coding != undefined;
     });
+    $('#avg_coverage').html(coverage_sum('mean'));
+    $('#avg_coverage_x').html(coverage_sum('30')*100 + '%');
 
     var new_data = create_new_data(window.coverage_stats, 'pos_coding');
     var new_data_skip_utr = create_new_data(window.coverage_stats, 'pos_coding_noutr');
@@ -447,12 +463,16 @@ $(document).ready(function() {
         var detail = $('.display_coverage_metric_buttons.active').attr('id').replace('display_coverage_', '').replace('_button', '');
         var include_utrs = $('#include_utrs_checkbox').is(':checked');
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
+        $('#avg_coverage_type_x').html($(this).val());
+        $('#avg_coverage_x').html(coverage_sum($(this).val().replace('X', ''))*100 + '%');
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, $(this).val().replace('X', ''), !include_utrs, '#gene_plot_container');
     });
     $('#average_select').change(function () {
         var detail = $('.display_coverage_metric_buttons.active').attr('id').replace('display_coverage_', '').replace('_button', '');
         var include_utrs = $('#include_utrs_checkbox').is(':checked');
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
+        $('#avg_coverage_type').html($(this).val());
+        $('#avg_coverage').html(coverage_sum($(this).val()));
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, $(this).val(), !include_utrs, '#gene_plot_container');
     });
     $('#include_utrs_checkbox').change(function () {
