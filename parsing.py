@@ -4,7 +4,7 @@ Utils for reading flat files that are loaded into database
 import re
 import traceback
 import xbrowse
-from utils import get_minimal_representation
+from utils import *
 
 POPS = {
     'AFR': 'African',
@@ -15,19 +15,6 @@ POPS = {
     'SAS': 'South Asian',
     'OTH': 'Other'
 }
-METRICS = [
-    'BaseQRankSum',
-    'ClippingRankSum',
-    'DP',
-    'FS',
-    'InbreedingCoeff',
-    'MQ',
-    'MQ0',
-    'MQRankSum',
-    'QD',
-    'ReadPosRankSum',
-    'VQSLOD'
-]
 
 
 def get_base_coverage_from_file(base_coverage_file):

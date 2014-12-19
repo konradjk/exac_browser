@@ -239,6 +239,26 @@ def get_variants_in_region(db, chrom, start, stop):
     return list(variants)
 
 
+def get_metrics(db, variant):
+    metrics = {}
+    for metric in METRICS:
+        metrics[metric] = db.metrics.find_one({'metric': metric}, fields={'_id': False})
+
+    metric = None
+    if variant['allele_count'] == 1:
+        metric = 'singleton'
+    elif variant['allele_count'] == 2:
+        metric = 'doubleton'
+    else:
+        for af in AF_BUCKETS:
+            if variant['allele_count']/variant['allele_num'] < af:
+                metric = af
+                break
+    if metric is not None:
+        metrics['binned'] = db.metrics.find_one({'metric': 'binned_%s' % metric}, fields={'_id': False})
+    return metrics
+
+
 def remove_extraneous_information(variant):
     del variant['genotype_depths']
     del variant['genotype_qualities']

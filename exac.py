@@ -385,7 +385,6 @@ def precalculate_metrics():
     binned_metrics = defaultdict(list)
     progress = 0
     start_time = time.time()
-    af_buckets = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1]
     for variant in db.variants.find():
         for metric, value in variant['quality_metrics'].iteritems():
             metrics[metric].append(float(value))
@@ -397,7 +396,7 @@ def precalculate_metrics():
         elif variant['allele_count'] == 2:
             binned_metrics['doubleton'].append(qual)
         else:
-            for af in af_buckets:
+            for af in AF_BUCKETS:
                 if variant['allele_count']/variant['allele_num'] < af:
                     binned_metrics[af].append(qual)
                     break
@@ -416,7 +415,7 @@ def precalculate_metrics():
             'hist': list(hist[0])
         })
     for metric in binned_metrics:
-        hist = numpy.histogram(binned_metrics[metric], bins=40)
+        hist = numpy.histogram(map(numpy.log, binned_metrics[metric]), bins=40)
         edges = hist[1]
         mids = [(edges[i]+edges[i+1])/2 for i in range(len(edges)-1)]
         db.metrics.insert({
@@ -511,9 +510,8 @@ def variant_page(variant_str):
                 consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
-        metrics = {}
-        for metric in db.metrics.find(fields={'_id': False}):
-            metrics[metric['metric']] = metric
+        metrics = lookups.get_metrics(db, variant)
+
         print 'Rendering variant: %s' % variant_str
         return render_template(
             'variant.html',
