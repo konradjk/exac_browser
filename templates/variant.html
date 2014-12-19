@@ -64,26 +64,36 @@
             });
 
             if (window.variant != null && 'genotype_depths' in window.variant) {
-                draw_quality_histogram(window.variant.genotype_depths[1], '#quality_display_container');
+                draw_quality_histogram(window.variant.genotype_depths[1], '#quality_display_container', false);
                 $('.quality_display_buttons').change(function() {
                     var v = $(this).attr('id').replace('_button', '');
                     var f = $('.quality_full_site_buttons.active').attr('id') == 'variant_site_button' ? 0 : 1;
-                    draw_quality_histogram(window.variant[v][f], '#quality_display_container');
+                    draw_quality_histogram(window.variant[v][f], '#quality_display_container', false);
                 });
                 $('.quality_full_site_buttons').change(function() {
                     var v = $('.quality_display_buttons.active').attr('id').replace('_button', '');
                     var f = $(this).attr('id') == 'variant_site_button' ? 0 : 1;
-                    draw_quality_histogram(window.variant[v][f], '#quality_display_container');
+                    draw_quality_histogram(window.variant[v][f], '#quality_display_container', false);
                 });
 
                 // Quality metric histograms
-                draw_quality_histogram(_.zip(window.metrics['BaseQRankSum']['mids'], window.metrics['BaseQRankSum']['hist']), '#quality_metric_container');
+                var data = _.zip(_.map(window.metrics['Site Quality']['mids'], Math.exp), window.metrics['Site Quality']['hist']);
+                console.log(data);
+                draw_quality_histogram(data, '#quality_metric_container', true);
                 var pos = $('#quality_metric_select').val().split(': ')[1];
-                add_line_to_quality_histogram(_.zip(window.metrics['BaseQRankSum']['mids'], window.metrics['BaseQRankSum']['hist']), pos, '#quality_metric_container');
+                add_line_to_quality_histogram(data, pos, '#quality_metric_container', true);
                 $('#quality_metric_select').change(function() {
                     var v = $(this).val().split(': ');
-                    draw_quality_histogram(_.zip(window.metrics[v[0]]['mids'], window.metrics[v[0]]['hist']), '#quality_metric_container');
-                    add_line_to_quality_histogram(_.zip(window.metrics[v[0]]['mids'], window.metrics[v[0]]['hist']), v[1], '#quality_metric_container');
+                    var log = false;
+                    var data;
+                    if (v[0] == 'Site Quality') {
+                        data = _.zip(_.map(window.metrics[v[0]]['mids'], Math.exp), window.metrics[v[0]]['hist']);
+                        log = true;
+                    } else {
+                        data = _.zip(window.metrics[v[0]]['mids'], window.metrics[v[0]]['hist']);
+                    }
+                    draw_quality_histogram(data, '#quality_metric_container', log);
+                    add_line_to_quality_histogram(data, v[1], '#quality_metric_container', log);
                 });
             } else {
                 $('#quality_metrics_container').hide();
@@ -172,7 +182,9 @@
                                         <div class="row">
                                             <div class="col-md-10 col-md-offset-1">
                                                 <div id="quality_metric_container"></div>
+                                                <small><span class="label label-info">Note:</span> These are site-level quality metrics: they may be unpredictable for multi-allelic sites.</small>
                                                 <select id="quality_metric_select" class="form-control">
+                                                    <option><small>Site Quality: {{ variant.site_quality }}</small></option>
                                                     {% for metric in variant.quality_metrics %}
                                                         <option><small>{{ metric }}: {{ variant.quality_metrics[metric] }}</small></option>
                                                     {% endfor %}

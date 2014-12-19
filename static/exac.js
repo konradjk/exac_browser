@@ -132,7 +132,7 @@ quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
     quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
 
 
-function draw_quality_histogram(data, container) {
+function draw_quality_histogram(data, container, log) {
     //Takes histogram data as a list of [midpoint, value] and puts into container
     //If data already in container, transitions to new data
     if (container == '#quality_metric_container') {
@@ -144,10 +144,24 @@ function draw_quality_histogram(data, container) {
             quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right,
             quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
     }
-    var x = d3.scale.linear()
-        .domain([d3.min(data, function(d) { return d[0]; }), d3.max(data, function(d) { return d[0]; })])
-        .range([0, quality_chart_width]);
-
+    var x;
+    if (log) {
+        x = d3.scale.log()
+            .domain([d3.min(data, function (d) {
+                return d[0];
+            }), d3.max(data, function (d) {
+                return d[0];
+            })])
+            .range([0, quality_chart_width]);
+    } else {
+        x = d3.scale.linear()
+            .domain([d3.min(data, function (d) {
+                return d[0];
+            }), d3.max(data, function (d) {
+                return d[0];
+            })])
+            .range([0, quality_chart_width]);
+    }
     var bar_width = x(data[1][0]) - x(data[0][0]);
     var y = d3.scale.linear()
         .domain([d3.min(data, function(d) { return d[1]; }), d3.max(data, function(d) { return d[1]; })])
@@ -241,16 +255,30 @@ function draw_quality_histogram(data, container) {
     }
 }
 
-function add_line_to_quality_histogram(data, position, container) {
+function add_line_to_quality_histogram(data, position, container, log) {
     //Takes dataset (for range) and datapoint and draws line in container
     //If line is already in container, transitions to new line
     quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 60},
             quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right,
             quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
-    var x = d3.scale.linear()
-        .domain([d3.min(data, function(d) { return d[0]; }), d3.max(data, function(d) { return d[0]; })])
-        .range([0, quality_chart_width]);
-
+    var x;
+    if (log) {
+        x = d3.scale.log()
+            .domain([d3.min(data, function (d) {
+                return d[0];
+            }), d3.max(data, function (d) {
+                return d[0];
+            })])
+            .range([0, quality_chart_width]);
+    } else {
+        x = d3.scale.linear()
+            .domain([d3.min(data, function (d) {
+                return d[0];
+            }), d3.max(data, function (d) {
+                return d[0];
+            })])
+            .range([0, quality_chart_width]);
+    }
     var svg = d3.select(container).select('svg').select('#inner_graph');
     if (svg.selectAll('.line').length == 0 || svg.selectAll('.line')[0].length == 0) {
         var lines = svg.selectAll(".line")

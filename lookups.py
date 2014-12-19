@@ -255,7 +255,7 @@ def get_metrics(db, variant):
                 metric = af
                 break
     if metric is not None:
-        metrics['binned'] = db.metrics.find_one({'metric': 'binned_%s' % metric}, fields={'_id': False})
+        metrics['Site Quality'] = db.metrics.find_one({'metric': 'binned_%s' % metric}, fields={'_id': False})
     return metrics
 
 
