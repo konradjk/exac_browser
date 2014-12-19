@@ -278,6 +278,7 @@ def load_gene_models():
 
     return []
 
+
 def load_dbsnp_file():
     db = get_db()
 
@@ -341,6 +342,7 @@ def load_db():
 
     [p.join() for p in all_procs]
 
+
 def create_cache():
     """
     This is essentially a compile step that generates all cached resources.
@@ -372,6 +374,58 @@ def create_cache():
         f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
         f.write(page_content)
         f.close()
+
+
+def precalculate_metrics():
+    import numpy
+    db = get_db()
+    db.metrics.drop()
+    print 'Dropped metrics database. Reading %s variants...' % db.variants.count()
+    metrics = defaultdict(list)
+    binned_metrics = defaultdict(list)
+    progress = 0
+    start_time = time.time()
+    af_buckets = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1]
+    for variant in db.variants.find():
+        for metric, value in variant['quality_metrics'].iteritems():
+            metrics[metric].append(float(value))
+        qual = float(variant['site_quality'])
+        metrics['site_quality'].append(qual)
+        if variant['allele_num'] == 0: continue
+        if variant['allele_count'] == 1:
+            binned_metrics['singleton'].append(qual)
+        elif variant['allele_count'] == 2:
+            binned_metrics['doubleton'].append(qual)
+        else:
+            for af in af_buckets:
+                if variant['allele_count']/variant['allele_num'] < af:
+                    binned_metrics[af].append(qual)
+                    break
+        progress += 1
+        if not progress % 100000:
+            print 'Read %s variants. Took %s seconds' % (progress, int(time.time() - start_time))
+    print 'Done reading variants. Calculating metrics...'
+    for metric in metrics:
+        hist = numpy.histogram(metrics[metric], bins=40)
+        edges = hist[1]
+        # mids = [(edges[i]+edges[i+1])/2 for i in range(len(edges)-1)]
+        lefts = [edges[i] for i in range(len(edges)-1)]
+        db.metrics.insert({
+            'metric': metric,
+            'mids': lefts,
+            'hist': list(hist[0])
+        })
+    for metric in binned_metrics:
+        hist = numpy.histogram(binned_metrics[metric], bins=40)
+        edges = hist[1]
+        mids = [(edges[i]+edges[i+1])/2 for i in range(len(edges)-1)]
+        db.metrics.insert({
+            'metric': 'binned_%s' % metric,
+            'mids': mids,
+            'hist': list(hist[0])
+        })
+    db.metrics.ensure_index('metric')
+    print 'Done pre-calculating metrics!'
 
 
 def get_db():
@@ -457,6 +511,9 @@ def variant_page(variant_str):
                 consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
+        metrics = {}
+        for metric in db.metrics.find(fields={'_id': False}):
+            metrics[metric['metric']] = metric
         print 'Rendering variant: %s' % variant_str
         return render_template(
             'variant.html',
@@ -464,7 +521,8 @@ def variant_page(variant_str):
             base_coverage=base_coverage,
             consequences=consequences,
             any_covered=any_covered,
-            ordered_csqs=ordered_csqs
+            ordered_csqs=ordered_csqs,
+            metrics=metrics
         )
     except Exception, e:
         print 'Failed on variant:', variant_str, '; Error=', e

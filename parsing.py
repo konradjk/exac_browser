@@ -26,8 +26,7 @@ METRICS = [
     'MQRankSum',
     'QD',
     'ReadPosRankSum',
-    'VQSLOD',
-    'culprit'
+    'VQSLOD'
 ]
 
 

@@ -31,14 +31,18 @@ def load_gene_models():
 
 
 @manager.command
-def load_dbsnp():
-    exac.load_dbsnp()
+def load_dbsnp_file():
+    exac.load_dbsnp_file()
 
 
 @manager.command
 def create_cache():
     exac.create_cache()
 
+
+@manager.command
+def precalculate_metrics():
+    exac.precalculate_metrics()
 
 if __name__ == "__main__":
     manager.run()
