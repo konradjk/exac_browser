@@ -146,6 +146,29 @@
                         </dt>
                         <dd>{{ variant.filter }}</dd>
                     </dl>
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-1"
+                            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="quality_collapse_heading">
+                                        <h5 class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#quality_collapse" aria-expanded="false" aria-controls="quality_collapse">
+                                                Additional Quality Metrics
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    <div id="quality_collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="quality_collapse_heading">
+                                        <br/>
+                                        <dl class="dl-horizontal">
+                                            {% for metric in variant.quality_metrics %}
+                                                <dt>{{ metric }}</dt>
+                                                <dd>{{ variant.quality_metrics[metric] }}</dd>
+                                            {% endfor %}
+                                        </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <hr/>
