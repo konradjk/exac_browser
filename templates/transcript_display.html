@@ -30,8 +30,8 @@
         </div>
         <span id="gene_plot_axis_container" class="hidden-xs" style="width:50px; display: inline-block;"></span>
         <span id="gene_plot_container" style="overflow-x:scroll; display: inline-block;"></span>
-        <a id="gene_plot_container_png" target="_blank" download="{{ plot_id }}">Save this image</a>
-        <canvas id="gene_plot_container_canvas" style="display: none;"></canvas>
+        <a class="btn btn-success" id="coverage_plot_download" target="_blank" download="{{ plot_id }}_coverage">Save coverage plot</a>
+        <a class="btn btn-success" id="exon_plot_download" target="_blank" download="{{ plot_id }}_exon">Save exon image</a>
     </div>
 </div>
 <div id="not_covered" style="display: none;">
@@ -244,7 +244,10 @@ function gene_chart(data, new_data, variant_data, _transcript) {
             } else {
                 return variant_size_scale(d.allele_freq);
             }
-        });
+        })
+        // Workaround for exporting d3 to SVG (other delcaration in style.css).
+        .attr('stroke', variant_colors)
+        .attr('fill', variant_colors);
         //Rectangle
 //        .append("rect")
 //        .attr("class", "track_variant")
@@ -265,6 +268,16 @@ function gene_chart(data, new_data, variant_data, _transcript) {
 //        .attr("rx", 6)
 //        .attr("ry", 6);
 
+}
+
+function variant_colors(d) {
+    if (d.category == 'lof_variant') {
+        return '#cd2932';
+    } else if (d.category == 'missense_variant') {
+        return '#a96500';
+    } else if (d.category == 'synonymous_variant') {
+        return '#157e28';
+    }
 }
 
 function change_coverage_chart(data, new_data, variant_data, _transcript, scale_type, metric, skip_utrs, container) {
@@ -512,6 +525,7 @@ $(document).ready(function() {
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
     });
-    set_plot_image('gene_plot_container');
+    $("#coverage_plot_download").attr('href', set_plot_image('gene_plot_container', 0));
+    $("#exon_plot_download").attr('href', set_plot_image('gene_plot_container', 1));
 });
 </script>
