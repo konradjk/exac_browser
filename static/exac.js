@@ -633,3 +633,12 @@ function date_format(date) {
             pad_2(date.getMinutes()) + '_' +
             pad_2(date.getSeconds()) ;
 }
+
+function set_plot_image(container) {
+    var $container = $('#' + container);
+    var content = $container.html().trim();
+    var canvas = document.getElementById(container + '_canvas');
+    canvg(canvas, content);
+    var theImage = canvas.toDataURL('image/png');
+    $('#' + container + '_png').attr('href', theImage);
+}

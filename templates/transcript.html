@@ -42,7 +42,9 @@
         </div>
         <div class="row">
             <div class="row">
-                {% include 'transcript_display.html' %}
+                {% with plot_id = transcript.transcript_id %}
+                    {% include 'transcript_display.html' %}
+                {% endwith %}
             </div>
             <div class="row">
                 {% if variants_in_transcript %}

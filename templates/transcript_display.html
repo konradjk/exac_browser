@@ -1,8 +1,6 @@
 <dl class="dl-horizontal">
     <dt><span style="text-transform:capitalize" id="avg_coverage_type">Mean</span> coverage</dt>
     <dd><span id="avg_coverage"></span></dd>
-    <dt>Individuals over <span id="avg_coverage_type_x">30X</span></dt>
-    <dd><span id="avg_coverage_x"></span></dd>
 </dl>
 <div id="gene_plot">
     <span class="hidden-xs">
@@ -32,6 +30,8 @@
         </div>
         <span id="gene_plot_axis_container" class="hidden-xs" style="width:50px; display: inline-block;"></span>
         <span id="gene_plot_container" style="overflow-x:scroll; display: inline-block;"></span>
+        <a id="gene_plot_container_png" target="_blank" download="{{ plot_id }}">Save this image</a>
+        <canvas id="gene_plot_container_canvas" style="display: none;"></canvas>
     </div>
 </div>
 <div id="not_covered" style="display: none;">
@@ -512,5 +512,6 @@ $(document).ready(function() {
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
     });
+    set_plot_image('gene_plot_container');
 });
 </script>
