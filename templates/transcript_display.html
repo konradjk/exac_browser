@@ -423,6 +423,11 @@ function coverage_sum(key) {
     return (total/window.coverage_stats.length).toPrecision(4);
 }
 
+function refresh_links() {
+    $("#coverage_plot_download").attr('href', set_plot_image('gene_plot_container', 0));
+    $("#exon_plot_download").attr('href', set_plot_image('gene_plot_container', 1));
+}
+
 $(document).ready(function() {
     if ($(window).width() < 768) {
         $('#gene_plot_container').css('width', $(window).width() + "px");
@@ -471,6 +476,7 @@ $(document).ready(function() {
         var include_utrs = $('#include_utrs_checkbox').is(':checked');
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
+        refresh_links();
     });
     $('#over_x_select').change(function () {
         var detail = $('.display_coverage_metric_buttons.active').attr('id').replace('display_coverage_', '').replace('_button', '');
@@ -479,6 +485,7 @@ $(document).ready(function() {
         $('#avg_coverage_type_x').html($(this).val());
         $('#avg_coverage_x').html(coverage_sum($(this).val().replace('X', ''))*100 + '%');
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, $(this).val().replace('X', ''), !include_utrs, '#gene_plot_container');
+        refresh_links();
     });
     $('#average_select').change(function () {
         var detail = $('.display_coverage_metric_buttons.active').attr('id').replace('display_coverage_', '').replace('_button', '');
@@ -487,6 +494,7 @@ $(document).ready(function() {
         $('#avg_coverage_type').html($(this).val());
         $('#avg_coverage').html(coverage_sum($(this).val()));
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, $(this).val(), !include_utrs, '#gene_plot_container');
+        refresh_links();
     });
     $('#include_utrs_checkbox').change(function () {
         setTimeout(function() {
@@ -496,6 +504,7 @@ $(document).ready(function() {
             var include_utrs = $('#include_utrs_checkbox').is(':checked');
             var plot_data = include_utrs ? new_data : new_data_skip_utr;
             change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
+            refresh_links();
         }, 10);
     });
 
@@ -504,11 +513,15 @@ $(document).ready(function() {
         setTimeout(function () {
             var v = $('#inverted_checkbox').is(':checked');
             change_track_chart_variant_size(window.variants_in_transcript, v, '#gene_plot_container');
+            refresh_links();
         }, 10);
     });
 
     $('.consequence_display_buttons, #filtered_checkbox').change(function () {
-        setTimeout(update_variants, 10);
+        setTimeout(function() {
+            update_variants();
+            refresh_links();
+        }, 10);
     });
 
     $('.display_coverage_metric_buttons').change(function () {
@@ -524,8 +537,8 @@ $(document).ready(function() {
         var include_utrs = $('#include_utrs_checkbox').is(':checked');
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
+        refresh_links();
     });
-    $("#coverage_plot_download").attr('href', set_plot_image('gene_plot_container', 0));
-    $("#exon_plot_download").attr('href', set_plot_image('gene_plot_container', 1));
+    refresh_links();
 });
 </script>
