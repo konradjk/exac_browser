@@ -3,87 +3,12 @@
 {% include "variant_table_template.html" %}
 <script>
     $(document).ready(function() {
-
-        // This list is simply copied from utils.py.
-        // Obviously that's not ideal, but I wanted to keep this diff isolated.
-        // I'm also not sure how you want to serve additional context to the client -
-        // yet another template variable also seems suboptimal.
-        // xBrowse has a variable DICTIONARY in global scope where we store stuff like this -
-        // might want to try that!
-        var csq_order = ["transcript_ablation",
-            "splice_donor_variant",
-            "splice_acceptor_variant",
-            "stop_gained",
-            "frameshift_variant",
-            "stop_lost",
-            "initiator_codon_variant",
-            "transcript_amplification",
-            "inframe_insertion",
-            "inframe_deletion",
-            "missense_variant",
-            "splice_region_variant",
-            "incomplete_terminal_codon_variant",
-            "stop_retained_variant",
-            "synonymous_variant",
-            "coding_sequence_variant",
-            "mature_miRNA_variant",
-            "5_prime_UTR_variant",
-            "3_prime_UTR_variant",
-            "non_coding_transcript_exon_variant",
-            "non_coding_exon_variant",
-            "intron_variant",
-            "NMD_transcript_variant",
-            "non_coding_transcript_variant",
-            "nc_transcript_variant",
-            "upstream_gene_variant",
-            "downstream_gene_variant",
-            "TFBS_ablation",
-            "TFBS_amplification",
-            "TF_binding_site_variant",
-            "regulatory_region_ablation",
-            "regulatory_region_amplification",
-            "regulatory_region_variant",
-            "feature_elongation",
-            "feature_truncation",
-            "intergenic_variant",
-        ""];
-
-        // Make a map of consequence -> index
-        // That'll be the actual sort key, so lower i => more severe consequence
-        var csq_order_index = {};
-        _.each(csq_order, function(c, i) {
-            csq_order_index[c] = i;
-        });
-
-        // Here we add a new sort parser - its global identifier is 'consequence'
-        $.tablesorter.addParser({
-            id: 'consequence',
-            is: function(s) {
-                return false;  // don't auto-detect parser
-            },
-            // this is the actual
-            format: function(s, table, cell) {
-                // I added the "original" VEP consequence as a data attribute to the table cell
-                // This is what we use to look up the consequence order
-                var original_csq = $(cell).data('consequence');
-                return csq_order_index[original_csq];
-            },
-            type: 'numeric'
-        });
-
         $("#variants_loading").hide();
         $("#variants_table_container").show();
         window.variants_template = _.template($('#variant-table-template').html());
         $('#variants_table_container').html(variants_template({table_variants: table_variants}));
         $("#variant_table").tablesorter({
-            sortList: [[1,0], [2,0], [9,1]],
-            // Here's where we tell tablesorter to use our new consequence sorter on the 9th column
-            // 2-minute minor on Konrad for having hidden columns
-            headers: {
-                9: {
-                    sorter: 'consequence',
-                }
-            }
+            sortList: [[1,0], [2,0], [9,1]]
         });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
 {#        if (window.table_variants.length <= 10) {#}
