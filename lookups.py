@@ -171,9 +171,12 @@ def get_awesomebar_result(db, query):
     # variant = get_variant(db, )
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
+    gene = get_gene_by_name(db, query)
+    if gene:
+        return 'gene', gene['gene_id']
+
     # From here out, all should be uppercase (gene, tx, region, variant_id)
     query = query.upper()
-
     gene = get_gene_by_name(db, query)
     if gene:
         return 'gene', gene['gene_id']
