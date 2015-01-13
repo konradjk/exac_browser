@@ -296,6 +296,7 @@ def load_dbsnp_file():
 
     db.dbsnp.drop()
     db.dbsnp.ensure_index('rsid')
+    db.dbsnp.ensure_index('xpos')
     start_time = time.time()
     dbsnp_file = app.config['DBSNP_FILE']
 
