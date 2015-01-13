@@ -399,7 +399,7 @@ def precalculate_metrics():
             binned_metrics['doubleton'].append(qual)
         else:
             for af in AF_BUCKETS:
-                if variant['allele_count']/variant['allele_num'] < af:
+                if float(variant['allele_count'])/variant['allele_num'] < af:
                     binned_metrics[af].append(qual)
                     break
         progress += 1
