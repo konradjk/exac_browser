@@ -53,6 +53,16 @@
     }
     </style>
     <script>
+        var af_buckets = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1];
+        function get_af_bucket_text(bin) {
+            if (bin == 'singleton' || bin == 'doubleton') {
+                return 'This is the site quality distribution for all ' + bin + 's in ExAC.';
+            } else if (bin == '0.0001') {
+                return 'This is the site quality distribution for all variants with AF < ' + bin + ' in ExAC.';
+            } else {
+                return 'This is the site quality distribution for all variants with ' + af_buckets[af_buckets.indexOf(bin) - 1] + ' < AF < ' + bin + ' in ExAC.';
+            }
+        }
         $(document).ready(function() {
             $('.frequency_display_buttons').change(function() {
                 $('.frequency_displays').hide();
@@ -80,6 +90,8 @@
                 var data = _.zip(_.map(window.metrics['Site Quality']['mids'], Math.exp), window.metrics['Site Quality']['hist']);
                 console.log(data);
                 draw_quality_histogram(data, '#quality_metric_container', true);
+                var bin = window.metrics['Site Quality']['metric'].split('_')[1];
+                $('#site_quality_note').html(get_af_bucket_text(bin));
                 var pos = $('#quality_metric_select').val().split(': ')[1];
                 add_line_to_quality_histogram(data, pos, '#quality_metric_container', true);
                 $('#quality_metric_select').change(function() {
@@ -89,8 +101,11 @@
                     if (v[0] == 'Site Quality') {
                         data = _.zip(_.map(window.metrics[v[0]]['mids'], Math.exp), window.metrics[v[0]]['hist']);
                         log = true;
+                        var bin = window.metrics['Site Quality']['metric'].split('_')[1];
+                        $('#site_quality_note').html(get_af_bucket_text(bin));
                     } else {
                         data = _.zip(window.metrics[v[0]]['mids'], window.metrics[v[0]]['hist']);
+                        $('#site_quality_note').html('');
                     }
                     draw_quality_histogram(data, '#quality_metric_container', log);
                     add_line_to_quality_histogram(data, v[1], '#quality_metric_container', log);
@@ -182,6 +197,7 @@
                                         <div class="row">
                                             <div class="col-md-10 col-md-offset-1">
                                                 <div id="quality_metric_container"></div>
+                                                <small><div id="site_quality_note"></div></small>
                                                 <small><span class="label label-info">Note:</span> These are site-level quality metrics: they may be unpredictable for multi-allelic sites.</small>
                                                 <select id="quality_metric_select" class="form-control">
                                                     <option><small>Site Quality: {{ variant.site_quality }}</small></option>

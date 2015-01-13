@@ -258,7 +258,7 @@ def get_metrics(db, variant):
         metric = 'doubleton'
     else:
         for af in AF_BUCKETS:
-            if variant['allele_count']/variant['allele_num'] < af:
+            if float(variant['allele_count'])/variant['allele_num'] < af:
                 metric = af
                 break
     if metric is not None:
