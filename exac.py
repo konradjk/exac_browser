@@ -22,6 +22,7 @@ from werkzeug.contrib.cache import SimpleCache
 
 from multiprocessing import Process
 import glob
+import traceback
 import time
 
 ADMINISTRATORS = (
@@ -524,7 +525,7 @@ def variant_page(variant_str):
             metrics=metrics
         )
     except Exception, e:
-        print 'Failed on variant:', variant_str, '; Error=', e
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
         abort(404)
 
 

@@ -31,6 +31,8 @@ def get_transcript(db, transcript_id):
 
 def get_variant(db, xpos, ref, alt):
     variant = db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
+    if variant is None or 'rsid' not in variant:
+        return variant
     if variant['rsid'] == '.' or variant['rsid'] is None:
         rsid = db.dbsnp.find_one({'xpos': xpos})
         if rsid:
@@ -243,6 +245,8 @@ def get_variants_in_region(db, chrom, start, stop):
 
 
 def get_metrics(db, variant):
+    if 'allele_count' not in variant:
+        return None
     metrics = {}
     for metric in METRICS:
         metrics[metric] = db.metrics.find_one({'metric': metric}, fields={'_id': False})
