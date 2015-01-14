@@ -208,16 +208,19 @@ function draw_quality_histogram(data, container, log) {
                 .attr("transform", function(d) {
                     return "rotate(-45)"
                 });
+            svg.append("g")
+                .attr("class", "y axis")
+                .style("font-size", "10px")
+                .call(yAxis);
         } else {
             svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + quality_chart_height + ")")
                 .call(xAxis);
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
         }
-
-        svg.append("g")
-            .attr("class", "y axis")
-            .call(yAxis);
     } else {
         svg = d3.select(container).select('svg').select('#inner_graph');
 

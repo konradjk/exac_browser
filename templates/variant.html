@@ -60,7 +60,7 @@
             } else if (bin == '0.0001') {
                 return 'This is the site quality distribution for all variants with AF < ' + bin + ' in ExAC.';
             } else {
-                return 'This is the site quality distribution for all variants with ' + af_buckets[af_buckets.indexOf(bin) - 1] + ' < AF < ' + bin + ' in ExAC.';
+                return 'This is the site quality distribution for all variants with ' + af_buckets[af_buckets.indexOf(parseFloat(bin)) - 1] + ' < AF < ' + bin + ' in ExAC.';
             }
         }
         $(document).ready(function() {
