@@ -381,8 +381,7 @@ def create_cache():
 def precalculate_metrics():
     import numpy
     db = get_db()
-    db.metrics.drop()
-    print 'Dropped metrics database. Reading %s variants...' % db.variants.count()
+    print 'Reading %s variants...' % db.variants.count()
     metrics = defaultdict(list)
     binned_metrics = defaultdict(list)
     progress = 0
@@ -405,7 +404,9 @@ def precalculate_metrics():
         progress += 1
         if not progress % 100000:
             print 'Read %s variants. Took %s seconds' % (progress, int(time.time() - start_time))
-    print 'Done reading variants. Calculating metrics...'
+    print 'Done reading variants. Dropping metrics database... '
+    db.metrics.drop()
+    print 'Dropped metrics database. Calculating metrics...'
     for metric in metrics:
         hist = numpy.histogram(metrics[metric], bins=40)
         edges = hist[1]
