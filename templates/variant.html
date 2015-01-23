@@ -328,13 +328,19 @@
                     <div id="frequency_info_container">
                         <div class="section_header">Population Frequencies</div>
                         <div id="frequency_table_container" class="frequency_displays">
+                            {% with chrom = variant.chrom %}
                             <table id="frequency_table">
                                 <thead>
                                     <tr>
                                         <th>Population</th>
                                         <th>Allele Count</th>
                                         <th>Allele Number</th>
-                                        <th>Number of Homozygotes</th>
+                                        {% if chrom != 'Y' %}
+                                            <th>Number of Homozygotes</th>
+                                        {% endif %}
+                                        {% if chrom == 'X' or chrom == 'Y' %}
+                                            <th>Number of Hemizygotes</th>
+                                        {% endif %}
                                         <th>Allele Frequency</th>
                                     </tr>
                                 </thead>
@@ -344,7 +350,12 @@
                                             <td>{{ pop }}</td>
                                             <td>{{ variant.pop_acs[pop] }}</td>
                                             <td>{{ variant.pop_ans[pop] }}</td>
-                                            <td>{{ variant.pop_homs[pop] }}</td>
+                                            {% if chrom != 'Y' %}
+                                                <td>{{ variant.pop_homs[pop] }}</td>
+                                            {% endif %}
+                                            {% if chrom == 'X' or chrom == 'Y' %}
+                                                <td>{{ variant.pop_hemis[pop] }}</td>
+                                            {% endif %}
                                             {% if variant.pop_ans[pop] > 0 %}
                                                 <td>{{ '%0.4g' % (variant.pop_acs[pop]/variant.pop_ans[pop]) }}</td>
                                             {% else %}
@@ -358,7 +369,12 @@
                                         <td><b>Total</b></td>
                                         <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
                                         <td><b>{{ variant.pop_ans.values()|sum }}</b></td>
-                                        <td><b>{{ variant.pop_homs.values()|sum }}</b></td>
+                                        {% if chrom != 'Y' %}
+                                            <td><b>{{ variant.pop_homs.values()|sum }}</b></td>
+                                        {% endif %}
+                                        {% if chrom == 'X' or chrom == 'Y' %}
+                                            <td><b>{{ variant.pop_hemis.values()|sum }}</b></td>
+                                        {% endif %}
                                         <td><b>
                                             {% if variant.allele_freq %}
                                                 {{ '%0.4g' % variant.allele_freq }}
@@ -369,6 +385,7 @@
                                     </tr>
                                 </tfoot>
                             </table>
+                            {% endwith %}
                         </div>
                     </div>
                     <div id="quality_metrics_container">
