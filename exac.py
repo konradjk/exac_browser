@@ -57,7 +57,11 @@ app.config.update(dict(
     #   wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
     #   zcat snp141.txt.gz | cut -f 1-5 | bgzip -c > snp141.txt.bgz
     #   tabix -0 -s 2 -b 3 -e 4 snp141.txt.bgz
-    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'snp141.txt.bgz')
+
+    #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/database/organism_data/human_9606/b142_SNPChrPosOnRef_106.bcp.gz
+    #   zcat b142_SNPChrPosOnRef_106.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
+    #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
+    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz')
 ))
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}

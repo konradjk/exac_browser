@@ -36,7 +36,7 @@ def get_variant(db, xpos, ref, alt):
     if variant['rsid'] == '.' or variant['rsid'] is None:
         rsid = db.dbsnp.find_one({'xpos': xpos})
         if rsid:
-            variant['rsid'] = rsid['rsid']
+            variant['rsid'] = 'rs%s' % rsid['rsid']
     return variant
 
 
