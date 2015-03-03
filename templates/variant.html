@@ -273,6 +273,8 @@
                                                                                 "bg-danger"
                                                                             {% endif %}>
                                                                         {{ sift }}</span>
+                                                                    {% else if consequence == 'stop_gained' %}
+                                                                        ({{ annotation.HGVS }})
                                                                     {% endif %}
                                                                 </a>
                                                             </li>
