@@ -58,8 +58,8 @@ app.config.update(dict(
     #   zcat snp141.txt.gz | cut -f 1-5 | bgzip -c > snp141.txt.bgz
     #   tabix -0 -s 2 -b 3 -e 4 snp141.txt.bgz
 
-    #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/database/organism_data/human_9606/b142_SNPChrPosOnRef_106.bcp.gz
-    #   zcat b142_SNPChrPosOnRef_106.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
+    #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b142_GRCh37p13/database/organism_data/b142_SNPChrPosOnRef_105.bcp.gz
+    #   zcat b142_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
     #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
     DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz')
 ))
@@ -725,6 +725,27 @@ def contact_page():
 @app.route('/faq')
 def faq_page():
     return render_template('faq.html')
+
+
+@app.route('/text')
+def text_page():
+    db = get_db()
+    query = request.args.get('text')
+    datatype, identifier = lookups.get_awesomebar_result(db, query)
+    if datatype in ['gene', 'transcript']:
+        gene = lookups.get_gene(db, identifier)
+        link = "http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr%(chrom)s%%3A%(start)s-%(stop)s" % gene
+        output = '''Searched for %s. Found %s.
+%s; Canonical: %s.
+%s''' % (query, identifier, gene['full_gene_name'], gene['canonical_transcript'], link)
+        output += '' if 'omim_accession' not in gene else '''
+In OMIM: %(omim_description)s
+http://omim.org/entry/%(omim_accession)s''' % gene
+        return output
+    elif datatype == 'error':
+        return "Gene/transcript %s not found" % query
+    else:
+        return "Search types other than gene transcript not yet supported"
 
 
 if __name__ == "__main__":

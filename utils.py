@@ -7,7 +7,6 @@ METRICS = [
     'FS',
     'InbreedingCoeff',
     'MQ',
-    'MQ0',
     'MQRankSum',
     'QD',
     'ReadPosRankSum',
