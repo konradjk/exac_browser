@@ -288,7 +288,7 @@ def get_snp_from_dbsnp_file(dbsnp_file):
         rsid = int(fields[0])
         chrom = fields[1].rstrip('T')
         if chrom == 'PAR': continue
-        start = int(fields[2])
+        start = int(fields[2]) + 1
         snp = {
             'xpos': xbrowse.get_xpos(chrom, start),
             'rsid': rsid
