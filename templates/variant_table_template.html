@@ -55,7 +55,7 @@
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
             category="<%= variant.category %>" filter_status="<%= variant.filter %>" frequency="<%= variant.allele_freq %>">
             <td class="omit_csv">
-                <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>">
+                <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank">
                 <%= variant.chrom %>:<%= variant.pos %>
                 <% if (variant.ref.length > 20) { %>
                     <%= variant.ref.slice(0,20) %>...

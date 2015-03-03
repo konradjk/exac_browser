@@ -158,7 +158,7 @@
                         </dd>
                         <dt>ClinVar</dt>
                         <dd>
-                            {% if variant.rsid and variant.rsid != "." %}
+                            {% if not variant.rsid or variant.rsid == "." %}
                                 <a href="http://www.ncbi.nlm.nih.gov/clinvar?term=({{ variant.chrom }}%5BChromosome%5D)%20AND%20{{ variant.pos }}%5BBase%20Position%5D" target="_blank">
                             {% else %}
                                 <a href="http://www.ncbi.nlm.nih.gov/clinvar?term={{ variant.rsid }}%5BVariant%20ID%5D">
