@@ -154,7 +154,7 @@ def get_awesomebar_result(db, query):
     """
     query = query.strip()
     print 'Query: %s' % query
-    if query in UNSUPPORTED_QUERIES:
+    if query.upper() in UNSUPPORTED_QUERIES:
         return 'error', query
 
     # Variant
@@ -214,7 +214,7 @@ def get_awesomebar_result(db, query):
     if m:
         return 'variant', '{}-{}-{}-{}'.format(m.group(1), m.group(2), m.group(3), m.group(4))
 
-    return 'error', query
+    return 'not_found', query
 
 
 def get_genes_in_region(db, chrom, start, stop):

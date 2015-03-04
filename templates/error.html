@@ -3,13 +3,13 @@
     <div class="container">
         <br><br>
         <center>
-        <h2>404 Error</h2>
+        <h2>{% if not unsupported %}404 {% endif %}Error</h2>
         <h4>This page does not exist.</h4><br>
         <img class="error_image" src="{{ url_for('static', filename='images/exac_404_ripped_page.jpg') }}" />
         <br><br>
         {% if unsupported %}
             <h4>
-                {{ query }} is ridiculously large and WILL crash your browser.
+                {{ unsupported }} is ridiculously large and WILL crash your browser.
                 <br/>
                 Until we have fixed this issue, searches for {{query}} are unsupported at this time.
                 <br/>

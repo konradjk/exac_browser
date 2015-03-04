@@ -483,6 +483,8 @@ def awesome():
         return redirect('/dbsnp/{}'.format(identifier))
     elif datatype == 'error':
         return redirect('/error/{}'.format(identifier))
+    elif datatype == 'not_found':
+        return redirect('/not_found/{}'.format(identifier))
     else:
         raise Exception
 
@@ -685,10 +687,18 @@ def dbsnp_page(rsid):
         abort(404)
 
 
+@app.route('/not_found/<query>')
+def not_found_page(query):
+    return render_template(
+        'not_found.html',
+        query=query
+    )
+
+
 @app.route('/error/<query>')
 @app.errorhandler(404)
 def error_page(query):
-    unsupported = "TTN" if query in lookups.UNSUPPORTED_QUERIES else None
+    unsupported = "TTN" if query.upper() in lookups.UNSUPPORTED_QUERIES else None
 
     return render_template(
         'error.html',
@@ -742,7 +752,7 @@ def text_page():
 In OMIM: %(omim_description)s
 http://omim.org/entry/%(omim_accession)s''' % gene
         return output
-    elif datatype == 'error':
+    elif datatype == 'error' or datatype == 'not_found':
         return "Gene/transcript %s not found" % query
     else:
         return "Search types other than gene transcript not yet supported"
