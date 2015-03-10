@@ -702,7 +702,7 @@ def error_page(query):
         unsupported = "TTN" if query.upper() in lookups.UNSUPPORTED_QUERIES else None
     else:
         unsupported = None
-    
+
     return render_template(
         'error.html',
         query=query,
