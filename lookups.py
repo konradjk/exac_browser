@@ -56,7 +56,7 @@ def get_variants_from_dbsnp(db, rsid):
     if not rsid.startswith('rs'):
         return None
     try:
-        int(rsid.lstrip('rs'))
+        rsid = int(rsid.lstrip('rs'))
     except Exception, e:
         return None
     position = db.dbsnp.find_one({'rsid': rsid})
