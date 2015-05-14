@@ -210,6 +210,9 @@ function gene_chart(data, new_data, variant_data, _transcript) {
         .attr('category', function(d) {
             return d.category;
         })
+        .attr('variant_id', function(d) {
+            return d.variant_id;
+        })
         .on('mouseover', function(d) {
             $('#variant_' + d.variant_id).find('td').addClass('table_hover');
             tip.show(d);
