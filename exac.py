@@ -698,11 +698,10 @@ def not_found_page(query):
 @app.route('/error/<query>')
 @app.errorhandler(404)
 def error_page(query):
-    if type(query) == str:
+    if type(query) == str or type(query) == unicode:
         unsupported = "TTN" if query.upper() in lookups.UNSUPPORTED_QUERIES else None
     else:
         unsupported = None
-
     return render_template(
         'error.html',
         query=query,
