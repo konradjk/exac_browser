@@ -7,3 +7,4 @@ pysam
 Flask-Compress==1.0.2
 Flask-ErrorMail==0.2.2
 numpy
+slugify
