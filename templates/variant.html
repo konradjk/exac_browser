@@ -431,5 +431,88 @@
                 {% endif %}
             </div>
         </div>
+        {% if read_viz|length > 0  %}
+          <div class="row">
+	    <br><br>
+	    <div class="col-md-4 col-md-offset-1">
+	      <a href='#igv-container' id='reset-read-viz'>reset position to {{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}</a>
+	    </div><div class="col-md-7">
+	      {% if read_viz['het']|length > 1  %}
+	         <a href='#igv-container' id='load-all-het'>load {{ read_viz['het']|length - 1 }} more het samples</a>
+	      {% endif %}
+	      {% if read_viz['hom']|length > 1  %}
+	         <a href='#igv-container' id='load-all-hom'>load {{ read_viz['hom']|length - 1 }} more hom samples</a>
+	      {% endif %}
+	      </center>
+	    </div>
+	    <br>
+            <div class="col-md-12">
+	      <div id="igv-container"></div>
+	    </div>
+          </div>
+
+	  <!-- IGV dependencies -->
+
+	  <!-- jQuery and jQuery UI -->
+	  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	  <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/> <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+	  <!-- Google Fonts and Font awesome -->
+	  <link rel="stylesheet" type="text/css" href='//fonts.googleapis.com/css?family=PT+Sans:400,700'> <link rel="stylesheet" type="text/css" href='//fonts.googleapis.com/css?family=Open+Sans'>
+	  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+
+	  <!-- Bootstrap JS - for demo only, NOT REQUIRED FOR IGV -->
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.2/js/jquery.tablesorter.js"></script>
+
+	  <link rel="stylesheet" type="text/css" href="http://igv.org/web/beta/igv-beta.css">
+	  <script type="text/javascript" src="http://igv.org/web/beta/igv-beta.min.js"></script>
+
+	  <script type="text/javascript">
+	    var div = $("#igv-container")[0];
+
+	    var read_viz_data = {{ read_viz | tojson | safe }};
+	    
+	    var tracks = [{ url: '/static/read_viz/gencode.v19.sorted.bed', name: "gencode v19" }];
+
+	    if(read_viz_data["het"] && read_viz_data["het"].length > 0) {
+	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["het"][0], name: 'het #1' });
+	    }
+
+	    if(read_viz_data["hom"] && read_viz_data["hom"].length > 0) {
+	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["hom"][0], name: 'hom #1' });
+	    }
+	  
+	    var locus = '{{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}';
+	    var options = {
+               showCommandBar: true,
+	       genome: 'hg19', 
+               locus: locus,
+    	       showKaryo: false,
+	       tracks: tracks,
+	    };
+
+	    browser = igv.createBrowser(div, options);
+
+	    $('#reset-read-viz').click(function() {
+	       igv.browser.search(locus);
+	    });
+	    
+	    $('#load-all-het').one('click', function() {
+		for(var i = 1; i < read_viz_data['het'].length; i+= 1)  {
+			igv.browser.loadTrack({  url: '/static/read_viz/'+read_viz_data['het'][i], label: 'het #'+(i+1)});
+		}
+	     });
+  
+             $('#load-all-hom').one('click', function() {		       
+	        for(var i = 1; i < read_viz_data['hom'].length; i+= 1)  {
+			igv.browser.loadTrack({  url: '/static/read_viz/'+read_viz_data['hom'][i], label: 'hom #'+(i+1)});
+		}
+   	     });
+
+	  </script>
+	{% endif %}
     </div>
+
+
 {% endblock %}

@@ -22,6 +22,7 @@ from werkzeug.contrib.cache import SimpleCache
 
 from multiprocessing import Process
 import glob
+import sqlite3
 import traceback
 import time
 
@@ -61,11 +62,13 @@ app.config.update(dict(
     #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b142_GRCh37p13/database/organism_data/b142_SNPChrPosOnRef_105.bcp.gz
     #   zcat b142_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
     #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
-    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz')
+    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz'),
+    
+    READ_VIZ_DB_PATH=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'exac_v3_variants.db'),
 ))
+
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
-
 
 def connect_db():
     """
@@ -521,6 +524,17 @@ def variant_page(variant_str):
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
 
+        # get the reassembled bam paths for this variant out of the read viz db
+        read_viz_db = sqlite3.connect(app.config["READ_VIZ_DB_PATH"])
+        reassembled_het_hom_bams = read_viz_db.execute("select reassembled_bams_het, reassembled_bams_hom from t where chrom=? and minrep_pos=? and minrep_ref=? and minrep_alt=?", (chrom, pos, ref, alt)).fetchone()
+        reassembled_bams = {}
+        if reassembled_het_hom_bams is not None:
+            if reassembled_het_hom_bams[0]:
+                reassembled_bams['het'] = reassembled_het_hom_bams[0].split(',')
+            if reassembled_het_hom_bams[1]:
+                reassembled_bams['hom'] = reassembled_het_hom_bams[1].split(',')
+
+        print reassembled_bams
         print 'Rendering variant: %s' % variant_str
         return render_template(
             'variant.html',
@@ -529,7 +543,8 @@ def variant_page(variant_str):
             consequences=consequences,
             any_covered=any_covered,
             ordered_csqs=ordered_csqs,
-            metrics=metrics
+            metrics=metrics,
+            read_viz=reassembled_bams,
         )
     except Exception, e:
         print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
@@ -761,4 +776,4 @@ http://omim.org/entry/%(omim_accession)s''' % gene
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)
