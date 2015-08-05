@@ -24,6 +24,7 @@ from multiprocessing import Process
 import glob
 import traceback
 import time
+import sys
 
 ADMINISTRATORS = (
     'exac.browser.errors@gmail.com',
@@ -357,14 +358,17 @@ def create_cache():
     """
     # create autocomplete_entries.txt
     autocomplete_strings = []
+    print >> sys.stderr, "Getting gene names..."
     for gene in get_db().genes.find():
         autocomplete_strings.append(gene['gene_name'])
         if 'other_names' in gene:
             autocomplete_strings.extend(gene['other_names'])
+    print >> sys.stderr, "Done! Writing..."
     f = open(os.path.join(os.path.dirname(__file__), 'autocomplete_strings.txt'), 'w')
     for s in sorted(autocomplete_strings):
         f.write(s+'\n')
     f.close()
+    print >> sys.stderr, "Done! Getting largest genes..."
 
     # create static gene pages for genes in
     if not os.path.exists(GENE_CACHE_DIR):
@@ -380,6 +384,7 @@ def create_cache():
         f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
         f.write(page_content)
         f.close()
+    print >> sys.stderr, "Done!"
 
 
 def precalculate_metrics():
