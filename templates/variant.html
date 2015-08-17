@@ -133,6 +133,11 @@
             </ul>
             <hr/>
         {% endif %}
+        {% if variant.allele_num < 97129.6 %}
+            <p><span class="label label-warning">Warning!</span> This variant is only covered in {{ (variant.allele_num/2)|int }} individuals (adjusted allele number = {{ variant.allele_num }}).<br/>
+            This means that the site is covered in fewer than 80% of the individuals in ExAC, which may indicate a low-quality site.</p>
+            <hr/>
+        {% endif %}
 
 {#          Upper display #}
         {% if variant.variant_id %}
