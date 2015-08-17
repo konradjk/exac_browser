@@ -73,6 +73,7 @@ def add_consequence_to_variant(variant):
     variant['major_consequence'] = worst_csq['major_consequence']
     variant['HGVSp'] = get_proper_hgvs(worst_csq)
     variant['HGVSc'] = worst_csq['HGVSc']
+    variant['CANONICAL'] = worst_csq['CANONICAL']
     if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
         variant['category'] = 'lof_variant'
     elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
