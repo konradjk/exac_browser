@@ -80,6 +80,16 @@ This is a single command, but it can take a while (can take advantage of paralle
 You won't have to run this often - most changes won't require rebuilding the database.
 That said, this is (and will remain) idempotent,
 so you can run it again at any time if you think something might be wrong - it will reload the database from scratch.
+You can also reload parts of the database using any of the following commands:
+
+    python manage.py load_variants_file
+    python manage.py load_dbsnp_file
+    python manage.py load_base_coverage
+    python manage.py load_gene_models
+
+Then, you need to create a cache for autocomplete and large gene purposes:
+
+    python manage.py create_cache
 
 ### Running the site
 
