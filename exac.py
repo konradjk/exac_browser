@@ -4,9 +4,7 @@ import os
 import pymongo
 import pysam
 import gzip
-from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
-    get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
-    get_base_coverage_from_file, get_omim_associations, get_dbnsfp_info, get_snp_from_dbsnp_file
+from parsing import *
 import lookups
 import xbrowse
 import random
@@ -341,6 +339,10 @@ def load_db():
     """
     # Initialize database
     # Don't need to explicitly create tables with mongo, just indices
+    confirm = raw_input('This will drop the database and reload. Are you sure you want to continue? [no] ')
+    if not confirm.startswith('y'):
+        print('Exiting...')
+        sys.exit(1)
     all_procs = []
     for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models]:
         procs = load_function()
@@ -348,6 +350,9 @@ def load_db():
         print("Started %s processes to run %s" % (len(procs), load_function.__name__))
 
     [p.join() for p in all_procs]
+    print('Done! Creating cache...')
+    create_cache()
+    print('Done!')
 
 
 def create_cache():
