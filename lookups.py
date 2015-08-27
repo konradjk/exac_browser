@@ -166,10 +166,7 @@ def get_awesomebar_result(db, query):
             return 'dbsnp_variant_set', variant[0]['rsid']
     variant = get_variants_from_dbsnp(db, query.lower())
     if variant:
-        if len(variant) == 1:
-            return 'variant', variant[0]['variant_id']
-        else:
-            return 'dbsnp_variant_set', variant[0]['rsid']
+        return 'variant', variant[0]['variant_id']
     # variant = get_variant(db, )
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
