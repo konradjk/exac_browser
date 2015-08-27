@@ -103,18 +103,21 @@
                 $('#site_quality_note').html(get_af_bucket_text(bin));
                 var pos = $('#quality_metric_select').val().split(': ')[1];
                 add_line_to_quality_histogram(data, pos, '#quality_metric_container', true);
+                var log_these = ['Site Quality'];//, 'FS', 'DP'];
                 $('#quality_metric_select').change(function() {
                     var v = $(this).val().split(': ');
                     var log = false;
+                    $('#site_quality_note').html('');
                     var data;
-                    if (v[0] == 'Site Quality') {
+                    if (log_these.indexOf(v[0]) > -1) {
                         data = _.zip(_.map(window.metrics[v[0]]['mids'], Math.exp), window.metrics[v[0]]['hist']);
                         log = true;
-                        var bin = window.metrics['Site Quality']['metric'].split('_')[1];
-                        $('#site_quality_note').html(get_af_bucket_text(bin));
                     } else {
                         data = _.zip(window.metrics[v[0]]['mids'], window.metrics[v[0]]['hist']);
-                        $('#site_quality_note').html('');
+                    }
+                    if (v[0] == 'Site Quality') {
+                        var bin = window.metrics['Site Quality']['metric'].split('_')[1];
+                        $('#site_quality_note').html(get_af_bucket_text(bin));
                     }
                     draw_quality_histogram(data, '#quality_metric_container', log, v[0], 'Variants');
                     add_line_to_quality_histogram(data, v[1], '#quality_metric_container', log);

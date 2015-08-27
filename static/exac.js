@@ -132,16 +132,26 @@ quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
     quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
 
 
-function draw_quality_histogram(data, container, log, xlabel, ylabel) {
-    //Takes histogram data as a list of [midpoint, value] and puts into container
-    //If data already in container, transitions to new data
+function get_margins_and_offsets(container) {
     quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 60};
     quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
     if (container == '#quality_metric_container') {
+        quality_chart_margin.left = 70;
+        //quality_chart_margin.bottom = 70;
         quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right;
+        xoffset = 50;
+        yoffset = 60;
     } else {
         quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right;
+        xoffset = 40;
+        yoffset = 50;
     }
+}
+
+function draw_quality_histogram(data, container, log, xlabel, ylabel) {
+    //Takes histogram data as a list of [midpoint, value] and puts into container
+    //If data already in container, transitions to new data
+    get_margins_and_offsets(container);
     var x;
     if (log) {
         x = d3.scale.log()
@@ -186,7 +196,7 @@ function draw_quality_histogram(data, container, log, xlabel, ylabel) {
             .attr("text-anchor", "middle")
             .style("font-size", "12px")
             .attr("x", quality_chart_width/2)
-            .attr("y", quality_chart_height + 40)
+            .attr("y", quality_chart_height + xoffset)
             .text(xlabel);
         svg.append("text")
             .attr("class", "y label")
@@ -194,7 +204,7 @@ function draw_quality_histogram(data, container, log, xlabel, ylabel) {
             .style("font-size", "12px")
             .attr("transform", "rotate(-90)")
             .attr("x", -quality_chart_height/2)
-            .attr("y", -50)
+            .attr("y", -yoffset)
             .text(ylabel);
         var bar = svg.selectAll(".bar")
             .data(data)
@@ -277,9 +287,7 @@ function draw_quality_histogram(data, container, log, xlabel, ylabel) {
 function add_line_to_quality_histogram(data, position, container, log) {
     //Takes dataset (for range) and datapoint and draws line in container
     //If line is already in container, transitions to new line
-    quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 60},
-            quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right,
-            quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
+    get_margins_and_offsets(container);
     var x;
     if (log) {
         x = d3.scale.log()
