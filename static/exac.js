@@ -132,17 +132,15 @@ quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
     quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
 
 
-function draw_quality_histogram(data, container, log) {
+function draw_quality_histogram(data, container, log, xlabel, ylabel) {
     //Takes histogram data as a list of [midpoint, value] and puts into container
     //If data already in container, transitions to new data
+    quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 60};
+    quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
     if (container == '#quality_metric_container') {
-        quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 60},
-            quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right,
-            quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
+        quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right;
     } else {
-        quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
-            quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right,
-            quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
+        quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right;
     }
     var x;
     if (log) {
@@ -183,7 +181,21 @@ function draw_quality_histogram(data, container, log) {
             .append("g")
             .attr('id', 'inner_graph')
             .attr("transform", "translate(" + quality_chart_margin.left + "," + quality_chart_margin.top + ")");
-
+        svg.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .attr("x", quality_chart_width/2)
+            .attr("y", quality_chart_height + 40)
+            .text(xlabel);
+        svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -quality_chart_height/2)
+            .attr("y", -50)
+            .text(ylabel);
         var bar = svg.selectAll(".bar")
             .data(data)
             .enter().append("g")
@@ -247,6 +259,10 @@ function draw_quality_histogram(data, container, log) {
             .transition()
             .call(yAxis);
 
+        svg.select('.x.label')
+            .text(xlabel);
+        svg.select('.y.label')
+            .text(ylabel);
         svg.selectAll('rect')
             .data(data)
             .transition()
