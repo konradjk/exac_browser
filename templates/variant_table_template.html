@@ -86,7 +86,7 @@
                 <% if (variant.HGVSp != '') { %>
                     <%= variant.HGVSp %><% if (variant.CANONICAL != 'YES') { %>*<% } %>
                 <% } else { %>
-                    <% if (variant.major_consequence == 'splice_donor_variant' | variant.major_consequence == 'splice_accpetor_variant' | variant.major_consequence == 'splice_region_variant') { %>
+                    <% if (variant.major_consequence == 'splice_donor_variant' | variant.major_consequence == 'splice_acceptor_variant' | variant.major_consequence == 'splice_region_variant') { %>
                         <% if (variant.HGVSc.length > 20) { %>
                             <%= variant.HGVSc.slice(0,20) %>...
                         <% } else { %>
