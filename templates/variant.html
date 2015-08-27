@@ -69,8 +69,15 @@
                 var v = $(this).attr('id').replace('_button', '');
                 $('#' + v + '_container').show();
             });
+
             $('#frequency_table').tablesorter({
-                sortList: [[4,1], [0,0]]
+                stringTo: 'bottom',
+                sortList: [[4,1], [0,0]],
+                headers: {
+                    4: {
+                        sorter: 'digit'
+                    }
+                }
             });
 
             if (window.variant != null && 'genotype_depths' in window.variant) {
