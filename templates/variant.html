@@ -97,13 +97,12 @@
 
                 // Quality metric histograms
                 var data = _.zip(_.map(window.metrics['Site Quality']['mids'], Math.exp), window.metrics['Site Quality']['hist']);
-                console.log(data);
                 draw_quality_histogram(data, '#quality_metric_container', true, 'Site Quality', 'Variants');
                 var bin = window.metrics['Site Quality']['metric'].split('_')[1];
                 $('#site_quality_note').html(get_af_bucket_text(bin));
                 var pos = $('#quality_metric_select').val().split(': ')[1];
                 add_line_to_quality_histogram(data, pos, '#quality_metric_container', true);
-                var log_these = ['Site Quality'];//, 'FS', 'DP'];
+                var log_these = ['Site Quality', 'DP'];
                 $('#quality_metric_select').change(function() {
                     var v = $(this).val().split(': ');
                     var log = false;

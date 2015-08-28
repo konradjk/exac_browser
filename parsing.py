@@ -142,6 +142,7 @@ def get_variants_from_sites_vcf(sites_vcf):
             traceback.print_exc()
             break
 
+
 def get_canonical_transcripts(canonical_transcript_file):
     for line in canonical_transcript_file:
         gene, transcript = line.strip().split()

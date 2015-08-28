@@ -139,7 +139,7 @@ function get_margins_and_offsets(container) {
         quality_chart_margin.left = 70;
         //quality_chart_margin.bottom = 70;
         quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right;
-        xoffset = 50;
+        xoffset = 45;
         yoffset = 60;
     } else {
         quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right;
@@ -288,24 +288,28 @@ function add_line_to_quality_histogram(data, position, container, log) {
     //Takes dataset (for range) and datapoint and draws line in container
     //If line is already in container, transitions to new line
     get_margins_and_offsets(container);
-    var x;
+    var low_value = d3.min(data, function (d) { return d[0]; });
+    var high_value = d3.max(data, function (d) { return d[0]; });
     if (log) {
-        x = d3.scale.log()
-            .domain([d3.min(data, function (d) {
-                return d[0];
-            }), d3.max(data, function (d) {
-                return d[0];
-            })])
+        xscale = d3.scale.log()
+            .domain([low_value, high_value])
             .range([0, quality_chart_width]);
     } else {
-        x = d3.scale.linear()
-            .domain([d3.min(data, function (d) {
-                return d[0];
-            }), d3.max(data, function (d) {
-                return d[0];
-            })])
+        xscale = d3.scale.linear()
+            .domain([low_value, high_value])
             .range([0, quality_chart_width]);
     }
+    x = function(d) {
+        var pos;
+        if (d > high_value) {
+            pos = xscale(high_value);
+        } else if (d < low_value) {
+            pos = xscale(low_value);
+        } else {
+            pos = xscale(d);
+        }
+        return pos;
+    };
     var svg = d3.select(container).select('svg').select('#inner_graph');
     if (svg.selectAll('.line').length == 0 || svg.selectAll('.line')[0].length == 0) {
         var lines = svg.selectAll(".line")

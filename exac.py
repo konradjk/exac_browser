@@ -422,7 +422,18 @@ def precalculate_metrics():
     db.metrics.drop()
     print 'Dropped metrics database. Calculating metrics...'
     for metric in metrics:
-        hist = numpy.histogram(metrics[metric], bins=40)
+        bin_range = None
+        data = map(numpy.log, metrics[metric]) if metric == 'DP' else metrics[metric]
+        if metric == 'FS':
+            bin_range = (0, 20)
+        elif metric == 'VQSLOD':
+            bin_range = (-20, 20)
+        elif metric == 'InbreedingCoeff':
+            bin_range = (0, 1)
+        if bin_range is not None:
+            data = [x if (x > bin_range[0]) else bin_range[0] for x in data]
+            data = [x if (x < bin_range[1]) else bin_range[1] for x in data]
+        hist = numpy.histogram(data, bins=40, range=bin_range)
         edges = hist[1]
         # mids = [(edges[i]+edges[i+1])/2 for i in range(len(edges)-1)]
         lefts = [edges[i] for i in range(len(edges)-1)]
