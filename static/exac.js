@@ -321,9 +321,11 @@ function add_line_to_quality_histogram(data, position, container, log) {
 }
 
 function draw_region_coverage(raw_data, metric, ref) {
+    region_chart_width = 500;
+    region_chart_margin = {top: 10, right: 50, bottom: 55, left: 50};
     if (raw_data.length > 1) {
         var data = raw_data;
-        var chart_width = _.min([quality_chart_width, data.length*30]);
+        var chart_width = _.min([region_chart_width, data.length*30]);
         var x = d3.scale.linear()
             .domain([0, data.length])
             .range([0, chart_width]);
@@ -344,11 +346,11 @@ function draw_region_coverage(raw_data, metric, ref) {
 
         if (svg.selectAll('rect').length == 0 || svg.selectAll('rect')[0].length == 0) {
             svg = d3.select('#region_coverage').append("svg")
-            .attr("width", chart_width  + quality_chart_margin.left + quality_chart_margin.right)
-            .attr("height", quality_chart_height + quality_chart_margin.top + quality_chart_margin.bottom)
+            .attr("width", chart_width  + region_chart_margin.left + region_chart_margin.right)
+            .attr("height", quality_chart_height + region_chart_margin.top + region_chart_margin.bottom)
             .append("g")
             .attr('id', 'inner_graph')
-            .attr("transform", "translate(" + quality_chart_margin.left + "," + quality_chart_margin.top + ")");
+            .attr("transform", "translate(" + region_chart_margin.left + "," + region_chart_margin.top + ")");
 
             var bar = svg.selectAll(".bar")
                 .data(data)
@@ -391,6 +393,7 @@ function draw_region_coverage(raw_data, metric, ref) {
                 .attr("y", function(d) { return y(d[metric]); });
         }
     } else {
+        PADDING = 1;
         var data1 = {};
         $.each(raw_data[0], function(d, i) {
             var num = parseInt(d);
@@ -404,10 +407,10 @@ function draw_region_coverage(raw_data, metric, ref) {
 
         var coverages = Object.keys(data1);
         var other_labels = Object.keys(data2);
-        var all_labels = coverages.concat([''], other_labels);
+        var all_labels = coverages.concat(Array.apply(null, Array(PADDING)).map(String.prototype.valueOf,""), other_labels);
 
-        var chart_width = quality_chart_width;
-        var total_data_length = coverages.length + other_labels.length + 1;
+        var chart_width = region_chart_width;
+        var total_data_length = coverages.length + other_labels.length + PADDING;
         var x = d3.scale.linear()
             .domain([0, total_data_length])
             .range([0, chart_width]);
@@ -422,7 +425,7 @@ function draw_region_coverage(raw_data, metric, ref) {
 
         var xAxis = d3.svg.axis()
             .scale(x)
-            .tickFormat(function(d) { return all_labels[d]; })
+            .tickFormat(function(d) { return all_labels[d - 1]; })
             .orient("bottom");
 
         var yAxis1 = d3.svg.axis()
@@ -435,11 +438,11 @@ function draw_region_coverage(raw_data, metric, ref) {
 
         svg = d3.select('#region_coverage').append("svg")
             .attr('id', 'inner_svg')
-            .attr("width", chart_width + quality_chart_margin.left + quality_chart_margin.right)
-            .attr("height", quality_chart_height + quality_chart_margin.top + quality_chart_margin.bottom)
+            .attr("width", chart_width + region_chart_margin.left + region_chart_margin.right)
+            .attr("height", quality_chart_height + region_chart_margin.top + region_chart_margin.bottom)
             .append("g")
             .attr('id', 'inner_graph')
-            .attr("transform", "translate(" + quality_chart_margin.left + "," + quality_chart_margin.top + ")");
+            .attr("transform", "translate(" + region_chart_margin.left + "," + region_chart_margin.top + ")");
 
         var bar = svg.selectAll(".bar")
             .data(coverages)
@@ -465,7 +468,7 @@ function draw_region_coverage(raw_data, metric, ref) {
             .attr("class", "bar");
 
         bar.append("rect")
-            .attr("x", function(d, i) { return x(i + coverages.length + 1); })
+            .attr("x", function(d, i) { return x(i + coverages.length + PADDING); })
             .attr("width", chart_width/total_data_length)
             .attr("height", function(d) { return quality_chart_height - y2(data2[d]); })
             .attr("y", function(d) { return y2(data2[d]); });
@@ -479,7 +482,29 @@ function draw_region_coverage(raw_data, metric, ref) {
             .attr("transform", "translate(" + chart_width + " ,0)")
             .call(yAxis2);
 
-        d3.select('#region_coverage').append("text").text("Axis");
+        svg.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .attr("x", region_chart_width/3)
+            .attr("y", quality_chart_height + 50)
+            .text(">= Coverage");
+        svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -quality_chart_height/2)
+            .attr("y", -40)
+            .text("Fraction individuals covered");
+        svg.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "middle")
+            .style("font-size", "12px")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -quality_chart_height/2)
+            .attr("y", region_chart_width+40)
+            .text("Depth");
     }
 }
 
