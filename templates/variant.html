@@ -128,11 +128,13 @@
         });
     </script>
     <div class="container">
-        <h1><span class="hidden-xs">Variant: </span>{{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
-        <hr/>
-        {% if variant.allele_num %}
+        <div class="row">
+            <div class="col-md-6">
+                <h1><span class="hidden-xs">Variant: </span>{{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
+            </div>
+            <div class="col-md-6">
             {% if variant.orig_alt_alleles|length > 1 %}
-                <p><span class="label label-info">Note:</span> This variant is multiallelic! The other alt alleles are:</p>
+                <h5><span class="label label-info">Note:</span> This variant is multiallelic! The other alt alleles are:</h5>
                 <ul>
                     {% for allele in variant.orig_alt_alleles %}
                         {% if allele != variant.variant_id %}
@@ -142,8 +144,12 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
-                <hr/>
             {% endif %}
+            </div>
+        </div>
+        <hr/>
+        {% if variant.variant_id %}
+
             {% if variant.allele_num < 97129.6 %}
                 <p><span class="label label-warning">Warning!</span> This variant is only covered in {{ (variant.allele_num/2)|int }} individuals (adjusted allele number = {{ variant.allele_num }}).<br/>
                 This means that the site is covered in fewer than 80% of the individuals in ExAC, which may indicate a low-quality site.</p>
@@ -155,6 +161,14 @@
                 <div class="row">
                     <div class="col-md-6">
                         <dl class="dl-horizontal">
+                            <dt>
+                                {% if variant.filter != "PASS" %}
+                                    <span class="label label-danger">Filter Status</span>
+                                {% else %}
+                                    Filter Status
+                                {% endif %}
+                            </dt>
+                            <dd>{{ variant.filter }}</dd>
                             <dt>dbSNP</dt>
                             {% if variant.rsid and variant.rsid != "." %}
                                 <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
@@ -186,26 +200,54 @@
                         </dl>
                     </div>
                     <div class="col-md-6">
-                        <dl class="dl-horizontal">
-                            <dt>Site Quality</dt>
-                            <dd>{{ variant.site_quality }}</dd>
-                            <dt>
-                                {% if variant.filter != "PASS" %}
-                                    <span class="label label-danger">Filter Status</span>
-                                {% else %}
-                                    Filter Status
-                                {% endif %}
-                            </dt>
-                            <dd>{{ variant.filter }}</dd>
-                        </dl>
                         <div class="row">
                             <div class="col-md-8 col-md-offset-1">
                                 <div class="panel-group" id="metrics_outer_accordion" role="tablist" aria-multiselectable="true">
                                     <div class="panel panel-default">
+                                        <div class="panel-heading" role="tab" id="gt_quality_collapse_heading"   style="height: auto">
+                                            <div class="panel-title">
+                                                <a data-toggle="collapse" data-parent="#accordion" href="#gt_quality_collapse" aria-expanded="false" aria-controls="gt_quality_collapse">
+                                                    <small>Genotype Quality Metrics</small>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div id="gt_quality_collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="gt_quality_collapse_heading">
+                                            <div class="row">
+                                                <div class="col-md-10 col-md-offset-1">
+                                                    <div id="quality_metrics_container">
+                                                        <span class="btn-group" data-toggle="buttons" id="quality_full_site_button_group">
+                                                            <button class="btn btn-primary btn-sm active quality_full_site_buttons" id="variant_carriers_button"
+                                                                    data-tooltip="Show metric for only individuals with this allele.">
+                                                                <input type="radio"> Variant carriers
+                                                            </button>
+                                                            <button class="btn btn-primary btn-sm quality_full_site_buttons" id="variant_site_button"
+                                                                    data-tooltip="Show metric for all individuals (at this site, whether or not they have this allele).">
+                                                                <input type="radio" > All individuals
+                                                            </button>
+                                                        </span>
+                                                        <div id="quality_display_container" class="d3_graph"></div>
+                                                        <small><span class="label label-info">Note:</span> Plot may include low-quality genotypes that were excluded from allele counts in the table above</small>
+                                                        <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" >
+                                                            <button class="btn btn-primary btn-sm active quality_display_buttons" id="genotype_depths_button"
+                                                                    data-tooltip="Per sample depth. Capped at 100X">
+                                                                <input type="radio"> Depth
+                                                            </button>
+                                                            <button class="btn btn-primary btn-sm quality_display_buttons" id="genotype_qualities_button"
+                                                                    data-tooltip="Per sample genotype quality.">
+                                                                <input type="radio" > Genotype Quality
+                                                            </button>
+                                                        </span>
+                                                    </div>
+                                                    <br/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-default">
                                         <div class="panel-heading" role="tab" id="quality_collapse_heading"   style="height: auto">
                                             <div class="panel-title">
                                                 <a data-toggle="collapse" data-parent="#accordion" href="#quality_collapse" aria-expanded="false" aria-controls="quality_collapse">
-                                                    <small>Additional Quality Metrics</small>
+                                                    <small>Site Quality Metrics</small>
                                                 </a>
                                             </div>
                                         </div>
@@ -242,95 +284,146 @@
                         {% if variant.vep_annotations %}
                             <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                             <div class="panel-group" id="annotation_accordion">
-                                {% for consequence in ordered_csqs %}
-                                    <h4>{{ consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}</h4>
-                                    <ul>
-                                        {% for gene in consequences[consequence] %}
-                                            <li>
-                                                 <a href="/gene/{{ gene }}">
-                                                {% if consequences[consequence][gene][0].SYMBOL %}
-                                                    {{ consequences[consequence][gene][0].SYMBOL }}
-                                                {% else %}
-                                                    {{ gene }}
-                                                {% endif %}
-                                                </a>
-                                                {% if consequences[consequence][gene]|length > 1 %}
-                                                    <span class="dropdown">
-                                                        <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
-                                                            Transcripts
-                                                            <span class="caret"></span>
-                                                        </button>
-                                                        <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
-                                                            {% for annotation in consequences[consequence][gene] %}
-                                                                <li role="presentation">
-                                                                    <a role="menuitem" tabindex="-1" href="/transcript/{{ annotation.Feature }}">
-                                                                        {{ annotation.Feature }}
-                                                                        {% if annotation.CANONICAL == 'YES' %}
-                                                                            *
-                                                                        {% endif %}
-                                                                        {% if consequence == 'missense_variant' %}
-                                                                            ({{ annotation.HGVS }})<br/>
-                                                                            &nbsp; &nbsp; &nbsp; Polyphen:
-                                                                            {% set polyphen = annotation.PolyPhen.split('(')[0] %}
-                                                                            <span class=
-                                                                                {% if polyphen == 'benign' %}
-                                                                                    "bg-success"
-                                                                                {% elif polyphen == 'possibly_damaging' %}
-                                                                                    "bg-warning"
-                                                                                {% elif polyphen == 'probably_damaging' %}
-                                                                                    "bg-danger"
-                                                                                {% endif %}>
-                                                                            {{ polyphen }}</span>; SIFT:
-                                                                            {% set sift = annotation.SIFT.split('(')[0] %}
-                                                                            <span class=
-                                                                                {% if sift == 'tolerated' %}
-                                                                                    "bg-success"
-                                                                                {% elif sift == 'deleterious' %}
-                                                                                    "bg-danger"
-                                                                                {% endif %}>
-                                                                            {{ sift }}</span>
-                                                                        {% elif consequence == 'stop_gained' %}
-                                                                            ({{ annotation.HGVS }})
-                                                                        {% endif %}
-                                                                    </a>
-                                                                </li>
-                                                            {% endfor %}
-                                                        </ul>
-                                                    </span>
-                                                {% else %}
-                                                     - <a href="/transcript/{{ consequences[consequence][gene][0].Feature }}">
-                                                        {{ consequences[consequence][gene][0].Feature }}
-                                                        {% if consequences[consequence][gene][0].CANONICAL == 'YES' %}
-                                                            *
-                                                        {% endif %}
-                                                    </a>
-                                                    {% if consequence == 'missense_variant' %}
-                                                        ({{ consequences[consequence][gene][0].HGVS }})<br/>
-                                                        &nbsp; &nbsp; &nbsp; Polyphen:
-                                                        {% set polyphen = consequences[consequence][gene][0].PolyPhen.split('(')[0] %}
-                                                        <span class=
-                                                            {% if polyphen == 'benign' %}
-                                                                "bg-success"
-                                                            {% elif polyphen == 'possibly_damaging' %}
-                                                                "bg-warning"
-                                                            {% elif polyphen == 'probably_damaging' %}
-                                                                "bg-danger"
-                                                            {% endif %}>
-                                                        {{ polyphen }}</span>; SIFT:
-                                                        {% set sift = consequences[consequence][gene][0].SIFT.split('(')[0] %}
-                                                        <span class=
-                                                            {% if sift == 'tolerated' %}
-                                                                "bg-success"
-                                                            {% elif sift == 'deleterious' %}
-                                                                "bg-danger"
-                                                            {% endif %}>
-                                                        {{ sift }}</span>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                    {% for consequence in ordered_csqs[1:((ordered_csqs|length / 2)|int + 1)] %}
+                                        <h4>{{ consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}</h4>
+                                        <ul>
+                                            {% for gene in consequences[consequence] %}
+                                                <li>
+                                                    <a href="/gene/{{ gene }}">
+                                                    {% if consequences[consequence][gene][0].SYMBOL %}
+                                                        {{ consequences[consequence][gene][0].SYMBOL }}
+                                                    {% else %}
+                                                        {{ gene }}
                                                     {% endif %}
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endfor %}
+                                                    </a>
+                                                    {% if consequences[consequence][gene]|length > 1 %}
+                                                        <span class="dropdown">
+                                                            <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
+                                                                Transcripts
+                                                                <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
+                                                                {% for annotation in consequences[consequence][gene] %}
+                                                                    <li role="presentation">
+                                                                        <a role="menuitem" tabindex="-1" href="/transcript/{{ annotation.Feature }}">
+                                                                            {{ annotation.Feature }}
+                                                                            {% if annotation.CANONICAL == 'YES' %}
+                                                                                *
+                                                                            {% endif %}
+                                                                            {% if consequence == 'missense_variant' %}
+                                                                                ({{ annotation.HGVS }})<br/>
+                                                                                &nbsp; &nbsp; &nbsp; Polyphen:
+                                                                                {% set polyphen = annotation.PolyPhen.split('(')[0] %}
+                                                                                {% set pp_label = "bg-success" if polyphen == 'benign' else ("bg-warning" if polyphen == 'possibly_damaging' else "bg-danger") %}
+                                                                                {% set sift = annotation.SIFT.split('(')[0] %}
+                                                                                {% set sift_label = "bg-success" if sift == 'tolerated' else "bg-danger" %}
+                                                                                <span class={{ pp_label }}>{{ polyphen }}</span>; SIFT:
+                                                                                <span class={{ sift_label }}>{{ sift }}</span>
+                                                                            {% elif consequence == 'stop_gained' %}
+                                                                                ({{ annotation.HGVS }})
+                                                                            {% endif %}
+                                                                        </a>
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </span>
+                                                    {% else %}
+                                                         - <a href="/transcript/{{ consequences[consequence][gene][0].Feature }}">
+                                                            {{ consequences[consequence][gene][0].Feature }}
+                                                            {% if consequences[consequence][gene][0].CANONICAL == 'YES' %}
+                                                                *
+                                                            {% endif %}
+                                                        </a>
+                                                        {% if consequence == 'missense_variant' %}
+                                                            ({{ annotation.HGVS }})<br/>
+                                                            &nbsp; &nbsp; &nbsp; Polyphen:
+                                                            {% set polyphen = annotation.PolyPhen.split('(')[0] %}
+                                                            {% set pp_label = "bg-success" if polyphen == 'benign' else ("bg-warning" if polyphen == 'possibly_damaging' else "bg-danger") %}
+                                                            {% set sift = annotation.SIFT.split('(')[0] %}
+                                                            {% set sift_label = "bg-success" if sift == 'tolerated' else "bg-danger" %}
+                                                            <span class={{ pp_label }}>{{ polyphen }}</span>; SIFT:
+                                                            <span class={{ sift_label }}>{{ sift }}</span>
+                                                        {% elif consequence == 'stop_gained' %}
+                                                            ({{ annotation.HGVS }})
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endfor %}
+                                    </div>
+                                    <div class="col-md-6">
+                                    {% for consequence in ordered_csqs[((ordered_csqs|length / 2)|int + 1):(ordered_csqs|length)] %}
+                                        <h4>{{ consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}</h4>
+                                        <ul>
+                                            {% for gene in consequences[consequence] %}
+                                                <li>
+                                                    <a href="/gene/{{ gene }}">
+                                                    {% if consequences[consequence][gene][0].SYMBOL %}
+                                                        {{ consequences[consequence][gene][0].SYMBOL }}
+                                                    {% else %}
+                                                        {{ gene }}
+                                                    {% endif %}
+                                                    </a>
+                                                    {% if consequences[consequence][gene]|length > 1 %}
+                                                        <span class="dropdown">
+                                                            <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
+                                                                Transcripts
+                                                                <span class="caret"></span>
+                                                            </button>
+                                                            <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
+                                                                {% for annotation in consequences[consequence][gene] %}
+                                                                    <li role="presentation">
+                                                                        <a role="menuitem" tabindex="-1" href="/transcript/{{ annotation.Feature }}">
+                                                                            {{ annotation.Feature }}
+                                                                            {% if annotation.CANONICAL == 'YES' %}
+                                                                                *
+                                                                            {% endif %}
+                                                                            {% if consequence == 'missense_variant' %}
+                                                                                ({{ annotation.HGVS }})<br/>
+                                                                                &nbsp; &nbsp; &nbsp; Polyphen:
+                                                                                {% set polyphen = annotation.PolyPhen.split('(')[0] %}
+                                                                                {% set pp_label = "bg-success" if polyphen == 'benign' else ("bg-warning" if polyphen == 'possibly_damaging' else "bg-danger") %}
+                                                                                {% set sift = annotation.SIFT.split('(')[0] %}
+                                                                                {% set sift_label = "bg-success" if sift == 'tolerated' else "bg-danger" %}
+                                                                                <span class={{ pp_label }}>{{ polyphen }}</span>; SIFT:
+                                                                                <span class={{ sift_label }}>{{ sift }}</span>
+                                                                            {% elif consequence == 'stop_gained' %}
+                                                                                ({{ annotation.HGVS }})
+                                                                            {% endif %}
+                                                                        </a>
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </span>
+                                                    {% else %}
+                                                         - <a href="/transcript/{{ consequences[consequence][gene][0].Feature }}">
+                                                            {{ consequences[consequence][gene][0].Feature }}
+                                                            {% if consequences[consequence][gene][0].CANONICAL == 'YES' %}
+                                                                *
+                                                            {% endif %}
+                                                        </a>
+                                                        {% if consequence == 'missense_variant' %}
+                                                            ({{ annotation.HGVS }})<br/>
+                                                            &nbsp; &nbsp; &nbsp; Polyphen:
+                                                            {% set polyphen = annotation.PolyPhen.split('(')[0] %}
+                                                            {% set pp_label = "bg-success" if polyphen == 'benign' else ("bg-warning" if polyphen == 'possibly_damaging' else "bg-danger") %}
+                                                            {% set sift = annotation.SIFT.split('(')[0] %}
+                                                            {% set sift_label = "bg-success" if sift == 'tolerated' else "bg-danger" %}
+                                                            <span class={{ pp_label }}>{{ polyphen }}</span>; SIFT:
+                                                            <span class={{ sift_label }}>{{ sift }}</span>
+                                                        {% elif consequence == 'stop_gained' %}
+                                                            ({{ annotation.HGVS }})
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endfor %}
+                                    </div>
+                                </div>
                             </div>
                             <small><span class="label label-info">Note:</span> This list may not include additional transcripts in the same gene that the variant does not overlap.</small>
                         {% else %}
@@ -405,32 +498,6 @@
                                 </table>
                                 {% endwith %}
                             </div>
-                        </div>
-                        <div id="quality_metrics_container">
-                            <h3>Quality Metrics</h3>
-                            <span class="btn-group" data-toggle="buttons" id="quality_full_site_button_group">
-                                <button class="btn btn-primary active quality_full_site_buttons" id="variant_carriers_button"
-                                        data-tooltip="Show metric for only individuals with this allele.">
-                                    <input type="radio"> Variant carriers
-                                </button>
-                                <button class="btn btn-primary quality_full_site_buttons" id="variant_site_button"
-                                        data-tooltip="Show metric for all individuals (at this site, whether or not they have this allele).">
-                                    <input type="radio" > All individuals
-                                </button>
-                            </span>
-                            <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" style="float: right;">
-                                <button class="btn btn-primary active quality_display_buttons" id="genotype_depths_button"
-                                        data-tooltip="Per sample depth. Capped at 100X">
-                                    <input type="radio"> Depth
-                                </button>
-                                <button class="btn btn-primary quality_display_buttons" id="genotype_qualities_button"
-                                        data-tooltip="Per sample genotype quality.">
-                                    <input type="radio" > Genotype Quality
-                                </button>
-                            </span>
-                            <div id="quality_display_container" class="d3_graph"></div>
-                            <small><span class="label label-info">Note:</span> Plot may include low-quality genotypes that were excluded from allele counts in the table above</small>
-                            <br/><br/>
                         </div>
                     {% else %}
                         {% if any_covered %}

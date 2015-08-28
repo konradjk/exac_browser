@@ -127,31 +127,15 @@ window.precalc_coding_coordinates = function(_transcript, objects, key) {
  *
  */
 
-quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 50},
-    quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right,
-    quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
-
-
-function get_margins_and_offsets(container) {
-    quality_chart_margin = {top: 10, right: 30, bottom: 50, left: 60};
-    quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
-    if (container == '#quality_metric_container') {
-        quality_chart_margin.left = 70;
-        //quality_chart_margin.bottom = 70;
-        quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right;
-        xoffset = 45;
-        yoffset = 60;
-    } else {
-        quality_chart_width = 500 - quality_chart_margin.left - quality_chart_margin.right;
-        xoffset = 40;
-        yoffset = 50;
-    }
-}
+quality_chart_margin = {top: 10, right: 30, bottom: 45, left: 65};
+quality_chart_height = 250 - quality_chart_margin.top - quality_chart_margin.bottom;
+quality_chart_width = 300 - quality_chart_margin.left - quality_chart_margin.right;
+xoffset = 40;
+yoffset = 55;
 
 function draw_quality_histogram(data, container, log, xlabel, ylabel) {
     //Takes histogram data as a list of [midpoint, value] and puts into container
     //If data already in container, transitions to new data
-    get_margins_and_offsets(container);
     var x;
     if (log) {
         x = d3.scale.log()
@@ -287,7 +271,6 @@ function draw_quality_histogram(data, container, log, xlabel, ylabel) {
 function add_line_to_quality_histogram(data, position, container, log) {
     //Takes dataset (for range) and datapoint and draws line in container
     //If line is already in container, transitions to new line
-    get_margins_and_offsets(container);
     var low_value = d3.min(data, function (d) { return d[0]; });
     var high_value = d3.max(data, function (d) { return d[0]; });
     if (log) {
