@@ -9,27 +9,25 @@
         window.metrics = {{ metrics|tojson|safe }};
 
         $(document).ready(function() {
-{#            if (!window.variant) {#}
-                draw_region_coverage(window.base_coverage, 'mean', window.variant.ref);
-                $('.coverage_metric_buttons').change(function () {
-                    var v = $(this).attr('id').replace('_covmet_button', '');
-                    $('.coverage_subcat_selectors').hide();
-                    if (v == 'covered') {
-                        $('#over_x_select_container').show();
-                        v = $('#over_x_select').val();
-                    } else {
-                        $('#average_select_container').show();
-                        v = $("#average_select").val();
-                    }
-                    draw_region_coverage(window.base_coverage, v, window.variant.ref);
-                });
-                $('#over_x_select').change(function () {
-                    draw_region_coverage(window.base_coverage, $(this).val(), window.variant.ref);
-                });
-                $('#average_select').change(function () {
-                    draw_region_coverage(window.base_coverage, $(this).val(), window.variant.ref);
-                });
-{#            }#}
+            draw_region_coverage(window.base_coverage, 'mean', window.variant.ref);
+            $('.coverage_metric_buttons').change(function () {
+                var v = $(this).attr('id').replace('_covmet_button', '');
+                $('.coverage_subcat_selectors').hide();
+                if (v == 'covered') {
+                    $('#over_x_select_container').show();
+                    v = $('#over_x_select').val();
+                } else {
+                    $('#average_select_container').show();
+                    v = $("#average_select").val();
+                }
+                draw_region_coverage(window.base_coverage, v, window.variant.ref);
+            });
+            $('#over_x_select').change(function () {
+                draw_region_coverage(window.base_coverage, $(this).val(), window.variant.ref);
+            });
+            $('#average_select').change(function () {
+                draw_region_coverage(window.base_coverage, $(this).val(), window.variant.ref);
+            });
         });
     </script>
     <style>

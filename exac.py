@@ -653,7 +653,7 @@ def region_page(region_id):
                 chrom, start, stop = region
                 start = int(start)
                 stop = int(stop)
-            if start is None or stop - start > REGION_LIMIT:
+            if start is None or stop - start > REGION_LIMIT or stop < start:
                 return render_template(
                     'region.html',
                     genes_in_region=None,
@@ -663,6 +663,9 @@ def region_page(region_id):
                     stop=stop,
                     coverage=None
                 )
+            if start == stop:
+                start -= 20
+                stop += 20
             genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
             variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
             xstart = xbrowse.get_xpos(chrom, start)

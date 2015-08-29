@@ -9,7 +9,7 @@
         window.stop = {{ stop|tojson|safe }};
 
         $(document).ready(function() {
-            if (window.coverage_stats != null && stop - start > 1) {
+            if (window.coverage_stats != null) {
                 region_chart(window.coverage_stats, window.variants);
                 update_variants();
             }
@@ -24,16 +24,22 @@
             <h1>Region: {{ chrom }} / {{ start }} / {{ stop }}</h1>
         {% endif %}
         <br/>
-        {% if stop != None and stop-start > 100000 %}
-            <p>
-                <span class="label label-danger">Warning:</span> Your region is too large. Please submit a region of at most 100 kb.
-            </p>
-            <p>
-                If you require larger regions, please see our <a href="/downloads">Downloads</a> page for raw data.
-            </p>
+        {% if stop != None %}
+            {% if stop-start > 100000 %}
+                <p>
+                    <span class="label label-danger">Warning:</span> Your region is too large. Please submit a region of at most 100 kb.
+                </p>
+                <p>
+                    If you require larger regions, please see our <a href="/downloads">Downloads</a> page for raw data.
+                </p>
+            {% elif stop < start %}
+                <p>
+                    Invalid region! Ends ({{ stop }}) before it begins ({{ start }}).
+                </p>
+            {% endif %}
         {% endif %}
         {% if genes_in_region %}
-            {% if stop != None and stop - start > 1 %}
+            {% if stop != None %}
                 <h3>Coverage summary</h3>
                 <div class="row">
                     {% include 'region_display.html' %}
