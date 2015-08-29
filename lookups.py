@@ -1,5 +1,4 @@
 import re
-from xbrowse import get_xpos
 from utils import *
 
 SEARCH_LIMIT = 10000

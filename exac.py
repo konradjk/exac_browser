@@ -6,7 +6,6 @@ import pysam
 import gzip
 from parsing import *
 import lookups
-import xbrowse
 import random
 from utils import *
 
@@ -122,7 +121,6 @@ def load_base_coverage():
     db.base_coverage.drop()
     print("Dropped db.base_coverage")
     # load coverage first; variant info will depend on coverage
-    start_time = time.time()
     db.base_coverage.ensure_index('xpos')
 
     procs = []
@@ -151,7 +149,6 @@ def load_variants_file():
     print("Dropped db.variants")
 
     # grab variants from sites VCF
-    start_time = time.time()
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('xstart')
     db.variants.ensure_index('xstop')
@@ -184,44 +181,29 @@ def load_gene_models():
 
     start_time = time.time()
 
-    #size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
     canonical_transcripts = {}
     with gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE']) as canonical_transcript_file:
-        #progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
         for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
             canonical_transcripts[gene] = transcript
-            #progress.update(canonical_transcript_file.fileobj.tell())
-        #progress.finish()
 
-    #size = os.path.getsize(app.config['OMIM_FILE'])
     omim_annotations = {}
     with gzip.open(app.config['OMIM_FILE']) as omim_file:
-        #progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
         for fields in get_omim_associations(omim_file):
             if fields is None:
                 continue
             gene, transcript, accession, description = fields
             omim_annotations[gene] = (accession, description)
-            #progress.update(omim_file.fileobj.tell())
-        #progress.finish()
 
-    #size = os.path.getsize(app.config['DBNSFP_FILE'])
     dbnsfp_info = {}
     with gzip.open(app.config['DBNSFP_FILE']) as dbnsfp_file:
-        #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
         for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
             other_names = [other_name.upper() for other_name in dbnsfp_gene['gene_other_names']]
             dbnsfp_info[dbnsfp_gene['ensembl_gene']] = (dbnsfp_gene['gene_full_name'], other_names)
-            #progress.update(dbnsfp_file.fileobj.tell())
-        #progress.finish()
 
     print 'Done loading metadata. Took %s seconds' % int(time.time() - start_time)
 
     # grab genes from GTF
     start_time = time.time()
-
-    #size = os.path.getsize(app.config['GENCODE_GTF'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         for gene in get_genes_from_gencode_gtf(gtf_file):
             gene_id = gene['gene_id']
@@ -234,8 +216,6 @@ def load_gene_models():
                 gene['full_gene_name'] = dbnsfp_info[gene_id][0]
                 gene['other_names'] = dbnsfp_info[gene_id][1]
             db.genes.insert(gene, w=0)
-            #progress.update(gtf_file.fileobj.tell())
-        #progress.finish()
 
     print 'Done loading genes. Took %s seconds' % int(time.time() - start_time)
 
@@ -250,12 +230,8 @@ def load_gene_models():
 
     # and now transcripts
     start_time = time.time()
-    #size = os.path.getsize(app.config['GENCODE_GTF'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file)), w=0)
-    #progress.update(gtf_file.fileobj.tell())
-    #progress.finish()
     print 'Done loading transcripts. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
@@ -265,13 +241,8 @@ def load_gene_models():
 
     # Building up gene definitions
     start_time = time.time()
-    #size = os.path.getsize(app.config['GENCODE_GTF'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         db.exons.insert((exon for exon in get_exons_from_gencode_gtf(gtf_file)), w=0)
-    #progress.update(gtf_file.fileobj.tell())
-
-    #progress.finish()
     print 'Done loading exons. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
@@ -517,7 +488,7 @@ def variant_page(variant_str):
         chrom, pos, ref, alt = variant_str.split('-')
         pos = int(pos)
         # pos, ref, alt = get_minimal_representation(pos, ref, alt)
-        xpos = xbrowse.get_xpos(chrom, pos)
+        xpos = get_xpos(chrom, pos)
         variant = lookups.get_variant(db, xpos, ref, alt)
 
         if variant is None:
@@ -668,8 +639,8 @@ def region_page(region_id):
                 stop += 20
             genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
             variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
-            xstart = xbrowse.get_xpos(chrom, start)
-            xstop = xbrowse.get_xpos(chrom, stop)
+            xstart = get_xpos(chrom, start)
+            xstop = get_xpos(chrom, stop)
             coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
             t = render_template(
                 'region.html',
