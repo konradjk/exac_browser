@@ -431,26 +431,31 @@
                 {% endif %}
             </div>
         </div>
-        {% if read_viz|length > 0  %}
-          <div class="row">
-	    <br><br>
-	    <div class="col-md-4 col-md-offset-1">
-	      <a href='#igv-container' id='reset-read-viz'>reset position to {{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}</a>
-	    </div><div class="col-md-7">
-	      {% if read_viz['het']|length > 1  %}
-	         <a href='#igv-container' id='load-all-het'>load {{ read_viz['het']|length - 1 }} more het samples</a>
-	      {% endif %}
-	      {% if read_viz['hom']|length > 1  %}
-	         <a href='#igv-container' id='load-all-hom'>load {{ read_viz['hom']|length - 1 }} more hom samples</a>
-	      {% endif %}
-	      </center>
-	    </div>
-	    <br>
-            <div class="col-md-12">
-	      <div id="igv-container"></div>
-	    </div>
-          </div>
 
+
+        {% if read_viz|length > 0  %}
+            <div id="igv-container"></div>
+	    <br><br>
+	    <div>
+	      <center>
+	      {% if read_viz['het']|length > 1  %}
+                  <button class="btn btn-primary quality_full_site_buttons" id="load-more-het-button">load one more het sample</button>
+	          <!-- button class="btn btn-primary quality_full_site_buttons" id="load-more-het-button" data-tooltip="Load read data for {{ read_viz['het']|length - 1 }} more heterozygous samples. Each sample will be loaded into a separate track in the IGV viewer below."> load {{ read_viz['het']|length - 1 }} more het sample{% if read_viz['het']|length > 2  %}s{% endif %} </i></button -->
+              <!--a href='#igv-container' id='load-all-het'>load {{ read_viz['het']|length - 1 }} more het samples</a-->
+	      {% endif %}
+
+   	      {% if read_viz['het']|length > 1 and read_viz['hom']|length > 1 %}  
+                  &nbsp;                   &nbsp;                   &nbsp;                   &nbsp; 
+              {% endif %}
+
+	      {% if read_viz['hom']|length > 1  %}
+                  <button class="btn btn-primary quality_full_site_buttons" id="load-more-hom-button">load one more hom sample</button>
+	          <!-- button class="btn btn-primary quality_full_site_buttons" id="load-more-hom-button" data-tooltip="Load read data for {{ read_viz['hom']|length - 1 }} more homozygous samples. Each sample will be loaded into a separate track in the IGV viewer below."> load {{ read_viz['hom']|length - 1 }} more hom sample{% if read_viz['hom']|length > 2  %}s{% endif %}</button -->
+              <!-- a href='#igv-container' id='load-all-hom'>load {{ read_viz['hom']|length - 1 }} more hom samples</a -->
+	      {% endif %}
+              </center>
+            </div>
+         
 	  <!-- IGV dependencies -->
 
 	  <!-- jQuery and jQuery UI -->
@@ -465,51 +470,114 @@
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.2/js/jquery.tablesorter.js"></script>
 
+	  <!-- igv.js -->
 	  <link rel="stylesheet" type="text/css" href="http://igv.org/web/beta/igv-beta.css">
 	  <script type="text/javascript" src="http://igv.org/web/beta/igv-beta.min.js"></script>
 
 	  <script type="text/javascript">
-	    var div = $("#igv-container")[0];
-
 	    var read_viz_data = {{ read_viz | tojson | safe }};
-	    
-	    var tracks = [{ url: '/static/read_viz/gencode.v19.sorted.bed', name: "gencode v19" }];
+
+
+
+            var tracks = [];
+	    tracks.push({ url: '/static/read_viz/gencode.v19.sorted.bed', name: "gencode v19" });
+	    tracks.push({ url: '/static/read_viz/exome_calling_regions.v1.bed', name: "exac calling intervals" });
+
+	    tracks.push({ url: '/static/read_viz/self_chain.sorted.bed', name: "self chain" });
 
 	    if(read_viz_data["het"] && read_viz_data["het"].length > 0) {
-	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["het"][0], name: 'het #1' });
-	    }
+	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["het"][0], name: 'het #1'}); //, height: 200, autoHeight: false});
+            }
 
 	    if(read_viz_data["hom"] && read_viz_data["hom"].length > 0) {
-	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["hom"][0], name: 'hom #1' });
-	    }
-	  
-	    var locus = '{{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}';
+	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["hom"][0], name: 'hom #1'}); //, height: 200, autoHeight: false});
+            }
+
+	    var tracks_counter = {"het": 1, "hom": 1};
+            var load_one_more = function(het_or_hom) {
+       	       if(read_viz_data[het_or_hom] && tracks_counter[het_or_hom] < read_viz_data[het_or_hom].length) {
+                  var c = tracks_counter[het_or_hom];
+                  igv.browser.loadTrack({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data[het_or_hom][c], name: het_or_hom+' #'+(c+1)});
+                  tracks_counter[het_or_hom] += 1;
+	          
+                  if(tracks_counter[het_or_hom] >= read_viz_data[het_or_hom].length) {
+                      $('#load-more-'+het_or_hom+'-button').prop('disabled', true)
+                  }
+	       }
+            }
+
+
+            var locus = '{{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}';
 	    var options = {
                showCommandBar: true,
 	       genome: 'hg19', 
                locus: locus,
     	       showKaryo: false,
 	       tracks: tracks,
-	    };
+            };
 
-	    browser = igv.createBrowser(div, options);
+            igv.createBrowser(  $("#igv-container")[0],  options);
 
-	    $('#reset-read-viz').click(function() {
+            //hide the IGV ideogram
+	    $(".igv-ideogram-content-div").hide();
+	    //$(".igv-logo").hide();
+	    
+            var trackLabelToggle = $('<div class="igvNavigationToggleTrackLabels">');
+
+            //var reset_button_html = "<a id='reset-locus' title='Reset position to "+locus+"'><i class='igv-app-icon fa fa-mail-reply shim-left-6'></i></a>" 
+            //$(".igvNavigationZoom").prepend("<a id='reset-locus' title='Reset position to "+locus+"'><i class='igv-app-icon fa fa-mail-reply shim-left-6'></i></a>");
+            $(".igvNavigationSearch").append("<a id='reset-locus' title='Reset position to "+locus+"'><i class='igv-app-icon fa fa-mail-reply shim-left-6'></i></a>");
+
+            //$(".igv-track-div").css('border': "1px 0px solid #000000");
+            //$(".igv-viewport-div").css('border-color', 'black').css('border-width', '10px');
+
+            //$(".igv-content-div").prop('border-width', '5px');
+            //$(".igv-content-canvas").prop('border-width', '5px');
+            //allow track height setting
+	    //$('<span>&nbsp; Track Height:</span>').insertAfter('.igv-windowsizepanel-content-div').css('position', 'relative').css('float', 'left').css('top', '7px').css('vertical-align', 'middle');
+
+           
+            // allow one more zoom in level
+            igv.browser.pixelPerBasepairThreshold = function () {
+	        return 28.0;  //default is currently 14.0
+            };
+
+
+            //click handlers
+	    $('#reset-locus').click(function() {
 	       igv.browser.search(locus);
 	    });
-	    
-	    $('#load-all-het').one('click', function() {
-		for(var i = 1; i < read_viz_data['het'].length; i+= 1)  {
-			igv.browser.loadTrack({  url: '/static/read_viz/'+read_viz_data['het'][i], label: 'het #'+(i+1)});
-		}
-	     });
-  
-             $('#load-all-hom').one('click', function() {		       
-	        for(var i = 1; i < read_viz_data['hom'].length; i+= 1)  {
-			igv.browser.loadTrack({  url: '/static/read_viz/'+read_viz_data['hom'][i], label: 'hom #'+(i+1)});
-		}
-   	     });
 
+            $('#load-more-het-button').click(function() {
+                load_one_more("het");
+
+	        //for(var i = 1; i < read_viz_data['het'].length; i+= 1)  {
+		//    igv.browser.loadTrack({  url: '/static/read_viz/'+read_viz_data['het'][i], label: 'het #'+(i+1)});
+		//}
+                //$('#load-all-het-button').prop('disabled', true).slideUp('slow');
+	    });
+  
+            $('#load-more-hom-button').click(function() {		       
+                load_one_more("hom");
+
+	        //for(var i = 1; i < read_viz_data['hom'].length; i+= 1)  {
+		//    igv.browser.loadTrack({  url: '/static/read_viz/'+read_viz_data['hom'][i], label: 'hom #'+(i+1)});
+		//}
+                //$('#load-all-hom-button').prop('disabled', true).slideUp('slow');
+   	    });
+
+            setInterval(function() {
+		igv.browser.trackViews.forEach(function (panel) {
+			if(panel.track.name) {
+   				     panel.viewportDiv.style.borderBottom = panel.viewportDiv.style.borderLeft = "1px solid #cccccc";
+                           if(panel.track.name.match("^h")) {
+			       panel.setTrackHeight(300);
+                           }
+                        }
+		        
+		});
+
+            }, 1000);
 	  </script>
 	{% endif %}
     </div>
