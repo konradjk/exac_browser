@@ -775,5 +775,12 @@ http://omim.org/entry/%(omim_accession)s''' % gene
         return "Search types other than gene transcript not yet supported"
 
 
+@app.after_request
+def apply_caching(response):
+    # prevent click-jacking vulnerability identified by BITs
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    return response
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
