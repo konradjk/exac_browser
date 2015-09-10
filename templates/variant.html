@@ -396,9 +396,10 @@
                                                         </ul>
                                                     </span>
                                                 {% else %}
-                                                     - <a href="/transcript/{{ consequences[consequence][gene][0].Feature }}">
-                                                        {{ consequences[consequence][gene][0].Feature }}
-                                                        {% if consequences[consequence][gene][0].CANONICAL == 'YES' %}
+                                                    {% set annotation = consequences[consequence][gene][0] %}
+                                                     - <a href="/transcript/{{ annotation.Feature }}">
+                                                        {{ annotation.Feature }}
+                                                        {% if annotation.CANONICAL == 'YES' %}
                                                             *
                                                         {% endif %}
                                                     </a>
