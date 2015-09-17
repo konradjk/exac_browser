@@ -25,7 +25,7 @@
             <hr/>
         </div>
         <div class="row">
-            <div class="col-md-6 col-xs-10 col-xs-offset-1 col-md-offset-0">
+            <div class="col-md-4 col-xs-10 col-xs-offset-1 col-md-offset-0">
                 <dl class="dl-horizontal">
                     {% if gene.full_gene_name %}
                         <dt>{{ gene.gene_name }}</dt>
@@ -120,7 +120,7 @@
                     </dd>
                 </dl>
             </div>
-            <div class="col-md-6 hidden-xs">
+            <div class="col-md-1 hidden-xs">
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
                         Transcripts
@@ -139,6 +139,45 @@
                         {% endfor %}
                     </ul>
                 </div>
+            </div>
+            <div class="col-md-5 col-md-offset-1">
+                {% if constraint %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="padding-top: 4px;">Constraint</th>
+                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Constraint Metric for each category &#xa; synonymous: Z score &#xa; missense: Z score&#xa; LoF: pLI">Metric</th>
+                                <th style="padding-top: 4px;">Expected</th>
+                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Note that these numbers only consider &#xa; rare (AF < 0.001) variation &#xa; Not all variants in the table &#xa; below may be included">Observed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Synonymous</td>
+                                <td>z = {{ "%0.2f" % constraint.corrected_syn }}</td>
+                                <td>{{ "%0.1f" % constraint.adj_exp_syn }}</td>
+                                <td>{{ "%0.0f" % constraint.n_syn }}</td>
+                            </tr>
+                            <tr>
+                                <td>Missense</td>
+                                <td>z = {{ "%0.2f" % constraint.corrected_mis }}</td>
+                                <td>{{ "%0.1f" % constraint.adj_exp_mis }}</td>
+                                <td>{{ "%0.0f" % constraint.n_mis }}</td>
+                            </tr>
+                            <tr>
+                                <td class="tooltip-table-header" data-tooltip="Stop-gained and essential splice site">LoF</td>
+                                <td class="tooltip-table-header" data-tooltip="Probability of LoF intolerance (see FAQ)">pLI = {% if constraint.corrected_lof > 3 %}
+                                        <span class="label label-warning">{{ "%0.2f" % constraint.corrected_lof }}</span>
+                                    {% else %}
+                                        {{ "%0.2f" % constraint.corrected_lof }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ "%0.1f" % constraint.adj_exp_lof }}</td>
+                                <td>{{ "%0.0f" % constraint.n_lof }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
         </div>
         <div class="row">

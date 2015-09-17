@@ -36,6 +36,11 @@ def load_dbsnp_file():
 
 
 @manager.command
+def load_constraint_information():
+    exac.load_constraint_information()
+
+
+@manager.command
 def create_cache():
     exac.create_cache()
 

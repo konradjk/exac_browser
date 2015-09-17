@@ -55,6 +55,7 @@ app.config.update(dict(
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage', 'Panel.*.coverage.txt.gz')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
+    CONSTRAINT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'fordist_cleaned_exac_r03_march16_z_data.txt.gz'),
 
     # How to get a snp141.txt.bgz file:
     #   wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
@@ -176,6 +177,22 @@ def load_variants_file():
     return procs
 
     #print 'Done loading variants. Took %s seconds' % int(time.time() - start_time)
+
+
+def load_constraint_information():
+    db = get_db()
+
+    db.constraint.drop()
+    print 'Dropped db.constraint.'
+
+    start_time = time.time()
+
+    with gzip.open(app.config['CONSTRAINT_FILE']) as constraint_file:
+        for transcript in get_constraint_information(constraint_file):
+            db.constraint.insert(transcript, w=0)
+
+    db.constraint.ensure_index('transcript')
+    print 'Done loading constraint info. Took %s seconds' % int(time.time() - start_time)
 
 
 def load_gene_models():
@@ -322,7 +339,7 @@ def load_db():
         print('Exiting...')
         sys.exit(1)
     all_procs = []
-    for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models]:
+    for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models, load_constraint_information]:
         procs = load_function()
         all_procs.extend(procs)
         print("Started %s processes to run %s" % (len(procs), load_function.__name__))
@@ -565,7 +582,7 @@ def variant_page(variant_str):
             metrics=metrics,
             read_viz=read_viz_dict,
         )
-    except Exception, e:
+    except Exception:
         print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
         abort(404)
 
@@ -596,6 +613,7 @@ def get_gene_page_content(gene_id):
             variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
             coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
             add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+            constraint_info = lookups.get_constraint_for_transcript(db, transcript_id)
 
             t = render_template(
                 'gene.html',
@@ -604,7 +622,8 @@ def get_gene_page_content(gene_id):
                 variants_in_gene=variants_in_gene,
                 variants_in_transcript=variants_in_transcript,
                 transcripts_in_gene=transcripts_in_gene,
-                coverage_stats=coverage_stats
+                coverage_stats=coverage_stats,
+                constraint=constraint_info
             )
             cache.set(cache_key, t, timeout=1000*60)
         print 'Rendering gene: %s' % gene_id

@@ -111,6 +111,10 @@ def get_coverage_for_transcript(db, xstart, xstop=None):
     return covered
 
 
+def get_constraint_for_transcript(db, transcript):
+    return db.constraint.find_one({'transcript': transcript}, fields={'_id': False})
+
+
 def get_awesomebar_suggestions(g, query):
     """
     This generates autocomplete suggestions when user

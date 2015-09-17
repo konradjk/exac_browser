@@ -142,6 +142,16 @@ def get_variants_from_sites_vcf(sites_vcf):
             break
 
 
+def get_constraint_information(constraint_file):
+    _, _, _, header = constraint_file.readline().strip().split(None, 3)
+    header = header.split()
+    for line in constraint_file:
+        transcript, gene, chrom, info = line.strip().split(None, 3)
+        transcript_info = dict(zip(header, map(float, info.split())))
+        transcript_info['transcript'] = transcript.split('.')[0]
+        yield transcript_info
+
+
 def get_canonical_transcripts(canonical_transcript_file):
     for line in canonical_transcript_file:
         gene, transcript = line.strip().split()
