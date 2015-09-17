@@ -1,0 +1,44 @@
+<h4>{{ consequence|replace('_variant', '')|replace('_', ' ')|replace('utr', 'UTR')|replace('3 prime', "3'")|replace('5 prime', "5'")|replace('nc ', "non-coding ") }}</h4>
+<ul>
+    {% for gene in consequences[consequence] %}
+        <li>
+            <a href="/gene/{{ gene }}">
+            {% if consequences[consequence][gene][0].SYMBOL %}
+                {{ consequences[consequence][gene][0].SYMBOL }}
+            {% else %}
+                {{ gene }}
+            {% endif %}
+            </a>
+            {% if consequences[consequence][gene]|length > 1 %}
+                <span class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
+                        Transcripts
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
+                        {% for annotation in consequences[consequence][gene] %}
+                            <li role="presentation">
+                                <a role="menuitem" tabindex="-1" href="/transcript/{{ annotation.Feature }}">
+                                    {{ annotation.Feature }}
+                                    {% if annotation.CANONICAL == 'YES' %}
+                                        *
+                                    {% endif %}
+                                    {% include 'variant_details.html' %}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </span>
+            {% else %}
+                {% set annotation = consequences[consequence][gene][0] %}
+                 - <a href="/transcript/{{ annotation.Feature }}">
+                    {{ annotation.Feature }}
+                    {% if annotation.CANONICAL == 'YES' %}
+                        *
+                    {% endif %}
+                </a>
+                {% include 'variant_details.html' %}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

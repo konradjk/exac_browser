@@ -88,14 +88,10 @@
             <th class="hidden"> <%= variant.ref %></th>
             <th class="hidden"> <%= variant.alt %></th>
             <td class='hidden-xs'>
-                <% if (variant.HGVSp != '') { %>
-                    <%= variant.HGVSp %><% if (is_gene & variant.CANONICAL != 'YES') { %>&dagger;<% } %>
-                <% } else { %>
-                    <% if (variant.major_consequence == 'splice_donor_variant' | variant.major_consequence == 'splice_acceptor_variant' | variant.major_consequence == 'splice_region_variant') { %>
-                        <% if (variant.HGVSc.length > 20) { %>
-                            <%= variant.HGVSc.slice(0,20) %>...<% } else { %>
-                            <%= variant.HGVSc %><% } %><% if (is_gene & variant.CANONICAL != 'YES') { %>&dagger;<% } %>
-                    <% } %>
+                <% if (variant.HGVS != '') { %>
+                    <% if (variant.HGVS.length > 20) { %>
+                        <%= variant.HGVS.slice(0,20) %>...<% } else { %>
+                        <%= variant.HGVS %><% } %><% if (is_gene & variant.CANONICAL != 'YES') { %>&dagger;<% } %>
                 <% } %>
             </td>
             <td class='hidden'> <%= variant.HGVSp %></td>

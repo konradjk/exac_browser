@@ -1,0 +1,21 @@
+{% if consequence == 'missense_variant' %}
+    ({{ annotation.HGVS }})<br/>
+    &nbsp; &nbsp; &nbsp; Polyphen:
+    {% set polyphen = annotation.PolyPhen.split('(')[0] %}
+    {% set pp_label = "bg-success" if polyphen == 'benign' else ("bg-warning" if polyphen == 'possibly_damaging' else "bg-danger") %}
+    {% set sift = annotation.SIFT.split('(')[0] %}
+    {% set sift_label = "bg-success" if sift == 'tolerated' else "bg-danger" %}
+    <span class={{ pp_label }}>{{ polyphen }}</span>; SIFT:
+    <span class={{ sift_label }}>{{ sift }}</span>
+{% elif annotation.LoF != '' %}
+    ({{ annotation.HGVS }})<br/>
+    &nbsp; &nbsp; &nbsp; LoF:
+    {% if annotation.LoF == 'HC' %}
+        <span class="bg-success">High-confidence</span>
+    {% else %}
+        <span class="bg-danger" data-tooltip="Filtered by LOFTEE (see FAQ)">Low-confidence ({{ annotation.LoF_filter }})</span>
+    {% endif %}
+    {% if annotation.LoF_flags != '' %}
+        <br/>&nbsp; &nbsp; &nbsp; Flag: <span class="bg-warning" data-tooltip="Flagged by LOFTEE (see FAQ)">{{ annotation.LoF_flags }}</span>
+    {% endif %}
+{% endif %}
