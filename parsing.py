@@ -4,6 +4,7 @@ Utils for reading flat files that are loaded into database
 import re
 import traceback
 from utils import *
+import copy
 
 POPS = {
     'AFR': 'African',
@@ -140,6 +141,26 @@ def get_variants_from_sites_vcf(sites_vcf):
             print("Error parsing vcf line: " + line)
             traceback.print_exc()
             break
+
+
+def get_mnp_data(mnp_file):
+    header = mnp_file.readline().strip().split('\t')
+    for line in mnp_file:
+        data = dict(zip(header, line.split('\t')))
+        chrom = data['CHROM'].split(',')[0]
+        sites = data['SITES'].split(',')
+        for site in sites:
+            all_sites = copy.deepcopy(sites)
+            all_sites.remove(site)
+            mnp = {}
+            mnp['xpos'] = get_xpos(chrom, site)
+            mnp['pos2'] = all_sites[0]
+            if len(all_sites) > 1:
+                mnp['pos3'] = all_sites[1]
+            mnp['combined_codon_change'] = data['COMBINED_CODON_CHANGE']
+            mnp['category'] = data['CATEGORY']
+            mnp['number_samples'] = 5
+            yield mnp
 
 
 def get_constraint_information(constraint_file):

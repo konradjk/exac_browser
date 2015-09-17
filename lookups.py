@@ -115,6 +115,11 @@ def get_constraint_for_transcript(db, transcript):
     return db.constraint.find_one({'transcript': transcript}, fields={'_id': False})
 
 
+def get_mnps_for_variant(db, variant):
+    mnp = db.mnps.find_one({'xpos': variant['xpos']}, fields={'_id': False})
+    return mnp
+
+
 def get_awesomebar_suggestions(g, query):
     """
     This generates autocomplete suggestions when user

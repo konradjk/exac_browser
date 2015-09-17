@@ -41,6 +41,11 @@ def load_constraint_information():
 
 
 @manager.command
+def load_mnps():
+    exac.load_mnps()
+
+
+@manager.command
 def create_cache():
     exac.create_cache()
 

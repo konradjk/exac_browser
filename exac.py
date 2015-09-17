@@ -56,6 +56,7 @@ app.config.update(dict(
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage', 'Panel.*.coverage.txt.gz')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
     CONSTRAINT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'fordist_cleaned_exac_r03_march16_z_data.txt.gz'),
+    MNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'allClass_MNPs_Filtrd3SNPDupRmvd4.txt.gz'),
 
     # How to get a snp141.txt.bgz file:
     #   wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
@@ -193,6 +194,23 @@ def load_constraint_information():
 
     db.constraint.ensure_index('transcript')
     print 'Done loading constraint info. Took %s seconds' % int(time.time() - start_time)
+
+
+def load_mnps():
+    db = get_db()
+    start_time = time.time()
+
+    db.mnps.drop()
+    print 'Dropped db.mnps.'
+
+    with gzip.open(app.config['MNP_FILE']) as mnp_file:
+        for mnp in get_mnp_data(mnp_file):
+            db.mnps.insert(mnp, w=0)
+
+    db.mnps.ensure_index('chrom')
+    db.mnps.ensure_index('pos1')
+    db.mnps.ensure_index('pos2')
+    print 'Done loading MNP info. Took %s seconds' % int(time.time() - start_time)
 
 
 def load_gene_models():
@@ -339,7 +357,7 @@ def load_db():
         print('Exiting...')
         sys.exit(1)
     all_procs = []
-    for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models, load_constraint_information]:
+    for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models, load_constraint_information, load_mnps]:
         procs = load_function()
         all_procs.extend(procs)
         print("Started %s processes to run %s" % (len(procs), load_function.__name__))
@@ -532,6 +550,7 @@ def variant_page(variant_str):
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
+        variant['mnp'] = lookups.get_mnps_for_variant(db, variant)
 
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant

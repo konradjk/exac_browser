@@ -251,7 +251,7 @@ def get_xpos(chrom, pos):
     """
     if not chrom.startswith('chr'):
         chrom = 'chr{}'.format(chrom)
-    return get_single_location(chrom, pos)
+    return get_single_location(chrom, int(pos))
 
 
 def get_minimal_representation(pos, ref, alt): 
