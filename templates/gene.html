@@ -152,9 +152,8 @@
                 </div>
                 <div class="row">
                     {% if variants_in_gene %}
-                        {% with chrom = variants_in_transcript[0].chrom %}
-                            {% include 'variant_table.html' %}
-                        {% endwith %}
+                        {% set chrom = variants_in_transcript[0].chrom %}
+                        {% include 'variant_table.html' %}
                     {% else %}
                         No variants in this gene.
                     {% endif %}

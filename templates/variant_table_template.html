@@ -5,10 +5,10 @@
 <span>
     <a class="btn btn-success hidden-xs" id="export_to_csv">Export table to CSV</a>
 </span>
-{% if is_gene %}
-<span style="float:left">
-    <small>* denotes a consequence that is for a non-canonical transcript</small>
-</span>
+{% if transcripts_in_gene is defined %}
+    <span style="float:left">
+        <small>* denotes a consequence that is for a non-canonical transcript</small>
+    </span>
 {% endif %}
 <table id="variant_table" class="tablesorter">
     <thead>
