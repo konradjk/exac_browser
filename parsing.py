@@ -285,6 +285,7 @@ def get_dbnsfp_info(dbnsfp_file):
 def get_snp_from_dbsnp_file(dbsnp_file):
     for line in dbsnp_file:
         fields = line.split('\t')
+        if len(fields) < 3: continue
         rsid = int(fields[0])
         chrom = fields[1].rstrip('T')
         if chrom == 'PAR': continue
