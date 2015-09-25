@@ -555,6 +555,7 @@ def variant_page(variant_str):
         abort(404)
 
 #variant
+@app.route('/rest/variant/variant/<variant_str>')
 @app.route('/rest/variant/<variant_str>')
 def variant_rest(variant_str):
     db = get_db()
@@ -920,6 +921,7 @@ def transcript_page(transcript_id):
         abort(404)
 
 #transcript
+@app.route('/rest/transcript/transcript/<transcript_id>')
 @app.route('/rest/transcript/<transcript_id>')
 def transcript_rest(transcript_id):
     db = get_db()
@@ -1160,7 +1162,8 @@ def dbsnp_page(rsid):
     except Exception, e:
         print 'Failed on rsid:', rsid, ';Error=', e
         abort(404)
-        
+
+@app.route('/rest/dbsnp/dbsnp/<rsid>')        
 @app.route('/rest/dbsnp/<rsid>')
 def dbsnp_rest(rsid):
     db = get_db()
