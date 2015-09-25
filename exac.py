@@ -33,7 +33,7 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
-EXAC_FILES_DIRECTORY = '../exac_data/'
+EXAC_FILES_DIRECTORY = '../exac/exac_data/'
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
@@ -456,6 +456,33 @@ def awesome_autocomplete(query):
     return Response(json.dumps([{'value': s} for s in suggestions]),  mimetype='application/json')
 
 
+@app.route('/rest/awesome')
+def restAwesome():
+    db = get_db()
+    query = request.args.get('query')
+    service = request.args.get('service')
+    datatype, identifier = lookups.get_awesomebar_result(db, query)
+
+    print "Searched for %s: %s" % (datatype, identifier)
+    if datatype == 'gene':
+        return redirect('/rest/gene/{}/{}'.format(service, identifier))
+    elif datatype == 'transcript':
+        return redirect('/transcript/{}'.format(identifier))
+    elif datatype == 'variant':
+        return redirect('/variant/{}'.format(identifier))
+    elif datatype == 'region':
+        return redirect('/region/{}'.format(identifier))
+    elif datatype == 'dbsnp_variant_set':
+        return redirect('/dbsnp/{}'.format(identifier))
+    elif datatype == 'error':
+        return redirect('/error/{}'.format(identifier))
+    elif datatype == 'not_found':
+        return redirect('/not_found/{}'.format(identifier))
+    else:
+        raise Exception
+
+
+
 @app.route('/awesome')
 def awesome():
     db = get_db()
@@ -571,6 +598,111 @@ def get_gene_page_content(gene_id):
         print 'Failed on gene:', gene_id, ';Error=', e
         abort(404)
 
+#gene_transcript
+@app.route('/rest/gene/transcript/<gene_id>')
+def rest_gene_transcript(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+        
+        # Get some canonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']
+        transcript = lookups.get_transcript(db, transcript_id)
+          
+        print 'Rendering gene transcript: %s' % gene_id
+        return Response(response=json.dumps(transcript),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on gene transcript:', gene_id, ';Error=', e
+        abort(404)
+
+#variants_in_gene
+@app.route('/rest/gene/variants_in_gene/<gene_id>')
+def rest_gene_variants_in_gene(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+       
+        variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+           
+        print 'Rendering variants in gene: %s' % gene_id
+        return Response(response=json.dumps(variants_in_gene),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variants in gene:', gene_id, ';Error=', e
+        abort(404)
+
+#variants_in_transcript
+@app.route('/rest/gene/variants_in_transcript/<gene_id>')
+def rest_gene_variants_in_transcript(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+            
+        # Get some canonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']                
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)        
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+        
+        print 'Rendering variants_in_transcript: %s' % gene_id
+        return Response(response=json.dumps(variants_in_transcript),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variants_in_transcript:', gene_id, ';Error=', e
+        abort(404)
+
+
+#transcripts_in_gene
+@app.route('/rest/gene/transcripts_in_gene/<gene_id>')
+def rest_gene_transcripts_in_gene(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+        
+       
+        transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
+ 
+        print 'Rendering transcripts_in_gene: %s' % gene_id
+        return Response(response=json.dumps(transcripts_in_gene),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on transcripts_in_gene:', gene_id, ';Error=', e
+        abort(404)
+        
+#coverage_stats
+@app.route('/rest/gene/coverage_stats/<gene_id>')
+def rest_gene_coverage_stats(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+        
+        # Get some canonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']
+        transcript = lookups.get_transcript(db, transcript_id)
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+
+        
+        print 'Rendering coverage_stats: %s' % gene_id
+        return Response(response=json.dumps(coverage_stats),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on coverage_stats:', gene_id, ';Error=', e
+        abort(404)
 
 @app.route('/transcript/<transcript_id>')
 def transcript_page(transcript_id):
