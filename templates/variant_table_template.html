@@ -1,5 +1,15 @@
+<script type="text/javascript">
+    window.is_gene = typeof window.transcripts_in_gene != 'undefined';
+</script>
 <script type="text/template" id="variant-table-template">
-<a class="btn btn-success hidden-xs" id="export_to_csv">Export table to CSV</a>
+<span>
+    <a class="btn btn-success hidden-xs" id="export_to_csv">Export table to CSV</a>
+</span>
+{% if transcripts_in_gene is defined %}
+    <span style="float:left">
+        <small>&dagger; denotes a consequence that is for a non-canonical transcript</small>
+    </span>
+{% endif %}
 <table id="variant_table" class="tablesorter">
     <thead>
         <tr>
@@ -10,8 +20,8 @@
             <td class="hidden">RSID</td>
             <th class="hidden">Reference</th>
             <th class="hidden">Alternate</th>
-            <th class="hidden-xs tooltip-table-header" data-tooltip="HGVS protein change annotation">
-                Protein Consequence</th>
+            <th class="hidden-xs tooltip-table-header" data-tooltip="HGVS annotation (protein change, where defined, or transcript change for splice variants, otherwise empty)">Consequence</th>
+            <th class="hidden">Protein Consequence</th>
             <th class="hidden">Transcript Consequence</th>
             <th class="hidden-xs tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
             <th class="tooltip-table-header" data-tooltip="Variant Effect Predictor (VEP) &#xa; annotation using Gencode 75.&#xa; Worst across all transcripts of this gene.">Annotation</th>
@@ -77,7 +87,18 @@
             <td class="hidden"><%= variant.rsid %></td>
             <th class="hidden"> <%= variant.ref %></th>
             <th class="hidden"> <%= variant.alt %></th>
-            <td class='hidden-xs'> <%= variant.HGVSp %></td>
+            <td class='hidden-xs'>
+                <% if (variant.HGVSp != '') { %>
+                    <%= variant.HGVSp %><% if (is_gene & variant.CANONICAL != 'YES') { %>&dagger;<% } %>
+                <% } else { %>
+                    <% if (variant.major_consequence == 'splice_donor_variant' | variant.major_consequence == 'splice_acceptor_variant' | variant.major_consequence == 'splice_region_variant') { %>
+                        <% if (variant.HGVSc.length > 20) { %>
+                            <%= variant.HGVSc.slice(0,20) %>...<% } else { %>
+                            <%= variant.HGVSc %><% } %><% if (is_gene & variant.CANONICAL != 'YES') { %>&dagger;<% } %>
+                    <% } %>
+                <% } %>
+            </td>
+            <td class='hidden'> <%= variant.HGVSp %></td>
             <td class='hidden'> <%= variant.HGVSc %></td>
             <td class='hidden-xs'> <%= variant.filter %> </td>
             <td class="<%= variant.category %>" data-consequence="<%= variant.major_consequence %>"><b>

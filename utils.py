@@ -72,7 +72,8 @@ def add_consequence_to_variant(variant):
     if worst_csq is None: return
     variant['major_consequence'] = worst_csq['major_consequence']
     variant['HGVSp'] = get_proper_hgvs(worst_csq)
-    variant['HGVSc'] = worst_csq['HGVSc']
+    variant['HGVSc'] = worst_csq['HGVSc'].split(':')[-1]
+    variant['CANONICAL'] = worst_csq['CANONICAL']
     if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
         variant['category'] = 'lof_variant'
     elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
@@ -215,6 +216,29 @@ def compare_two_consequences(csq1, csq2):
     elif csq_order_dict[worst_csq_from_csq(csq1)] == csq_order_dict[worst_csq_from_csq(csq2)]:
         return 0
     return 1
+
+CHROMOSOMES = ['chr%s' % x for x in range(1, 23)]
+CHROMOSOMES.extend(['chrX', 'chrY', 'chrM'])
+CHROMOSOME_TO_CODE = { item: i+1 for i, item in enumerate(CHROMOSOMES) }
+
+
+def get_single_location(chrom, pos):
+    """
+    Gets a single location from chromosome and position
+    chr must be actual chromosme code (chrY) and pos must be integer
+
+    Borrowed from xbrowse
+    """
+    return CHROMOSOME_TO_CODE[chrom] * int(1e9) + pos
+
+
+def get_xpos(chrom, pos):
+    """
+    Borrowed from xbrowse
+    """
+    if not chrom.startswith('chr'):
+        chrom = 'chr{}'.format(chrom)
+    return get_single_location(chrom, pos)
 
 
 def get_minimal_representation(pos, ref, alt): 

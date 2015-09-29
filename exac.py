@@ -4,11 +4,8 @@ import os
 import pymongo
 import pysam
 import gzip
-from parsing import get_variants_from_sites_vcf, get_canonical_transcripts, \
-    get_genes_from_gencode_gtf, get_transcripts_from_gencode_gtf, get_exons_from_gencode_gtf, \
-    get_base_coverage_from_file, get_omim_associations, get_dbnsfp_info, get_snp_from_dbsnp_file
+from parsing import *
 import lookups
-import xbrowse
 import random
 from utils import *
 
@@ -126,7 +123,6 @@ def load_base_coverage():
     db.base_coverage.drop()
     print("Dropped db.base_coverage")
     # load coverage first; variant info will depend on coverage
-    start_time = time.time()
     db.base_coverage.ensure_index('xpos')
 
     procs = []
@@ -155,7 +151,6 @@ def load_variants_file():
     print("Dropped db.variants")
 
     # grab variants from sites VCF
-    start_time = time.time()
     db.variants.ensure_index('xpos')
     db.variants.ensure_index('xstart')
     db.variants.ensure_index('xstop')
@@ -188,44 +183,29 @@ def load_gene_models():
 
     start_time = time.time()
 
-    #size = os.path.getsize(app.config['CANONICAL_TRANSCRIPT_FILE'])
     canonical_transcripts = {}
     with gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE']) as canonical_transcript_file:
-        #progress = xbrowse.utils.get_progressbar(size, 'Loading Canonical Transcripts')
         for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
             canonical_transcripts[gene] = transcript
-            #progress.update(canonical_transcript_file.fileobj.tell())
-        #progress.finish()
 
-    #size = os.path.getsize(app.config['OMIM_FILE'])
     omim_annotations = {}
     with gzip.open(app.config['OMIM_FILE']) as omim_file:
-        #progress = xbrowse.utils.get_progressbar(size, 'Loading OMIM accessions')
         for fields in get_omim_associations(omim_file):
             if fields is None:
                 continue
             gene, transcript, accession, description = fields
             omim_annotations[gene] = (accession, description)
-            #progress.update(omim_file.fileobj.tell())
-        #progress.finish()
 
-    #size = os.path.getsize(app.config['DBNSFP_FILE'])
     dbnsfp_info = {}
     with gzip.open(app.config['DBNSFP_FILE']) as dbnsfp_file:
-        #progress = xbrowse.utils.get_progressbar(size, 'Loading dbNSFP info')
         for dbnsfp_gene in get_dbnsfp_info(dbnsfp_file):
             other_names = [other_name.upper() for other_name in dbnsfp_gene['gene_other_names']]
             dbnsfp_info[dbnsfp_gene['ensembl_gene']] = (dbnsfp_gene['gene_full_name'], other_names)
-            #progress.update(dbnsfp_file.fileobj.tell())
-        #progress.finish()
 
     print 'Done loading metadata. Took %s seconds' % int(time.time() - start_time)
 
     # grab genes from GTF
     start_time = time.time()
-
-    #size = os.path.getsize(app.config['GENCODE_GTF'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Genes')
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         for gene in get_genes_from_gencode_gtf(gtf_file):
             gene_id = gene['gene_id']
@@ -238,8 +218,6 @@ def load_gene_models():
                 gene['full_gene_name'] = dbnsfp_info[gene_id][0]
                 gene['other_names'] = dbnsfp_info[gene_id][1]
             db.genes.insert(gene, w=0)
-            #progress.update(gtf_file.fileobj.tell())
-        #progress.finish()
 
     print 'Done loading genes. Took %s seconds' % int(time.time() - start_time)
 
@@ -254,12 +232,8 @@ def load_gene_models():
 
     # and now transcripts
     start_time = time.time()
-    #size = os.path.getsize(app.config['GENCODE_GTF'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Transcripts')
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file)), w=0)
-    #progress.update(gtf_file.fileobj.tell())
-    #progress.finish()
     print 'Done loading transcripts. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
@@ -269,13 +243,8 @@ def load_gene_models():
 
     # Building up gene definitions
     start_time = time.time()
-    #size = os.path.getsize(app.config['GENCODE_GTF'])
-    #progress = xbrowse.utils.get_progressbar(size, 'Loading Exons')
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         db.exons.insert((exon for exon in get_exons_from_gencode_gtf(gtf_file)), w=0)
-    #progress.update(gtf_file.fileobj.tell())
-
-    #progress.finish()
     print 'Done loading exons. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
@@ -343,6 +312,10 @@ def load_db():
     """
     # Initialize database
     # Don't need to explicitly create tables with mongo, just indices
+    confirm = raw_input('This will drop the database and reload. Are you sure you want to continue? [no] ')
+    if not confirm.startswith('y'):
+        print('Exiting...')
+        sys.exit(1)
     all_procs = []
     for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models]:
         procs = load_function()
@@ -350,6 +323,9 @@ def load_db():
         print("Started %s processes to run %s" % (len(procs), load_function.__name__))
 
     [p.join() for p in all_procs]
+    print('Done! Creating cache...')
+    create_cache()
+    print('Done!')
 
 
 def create_cache():
@@ -415,7 +391,18 @@ def precalculate_metrics():
     db.metrics.drop()
     print 'Dropped metrics database. Calculating metrics...'
     for metric in metrics:
-        hist = numpy.histogram(metrics[metric], bins=40)
+        bin_range = None
+        data = map(numpy.log, metrics[metric]) if metric == 'DP' else metrics[metric]
+        if metric == 'FS':
+            bin_range = (0, 20)
+        elif metric == 'VQSLOD':
+            bin_range = (-20, 20)
+        elif metric == 'InbreedingCoeff':
+            bin_range = (0, 1)
+        if bin_range is not None:
+            data = [x if (x > bin_range[0]) else bin_range[0] for x in data]
+            data = [x if (x < bin_range[1]) else bin_range[1] for x in data]
+        hist = numpy.histogram(data, bins=40, range=bin_range)
         edges = hist[1]
         # mids = [(edges[i]+edges[i+1])/2 for i in range(len(edges)-1)]
         lefts = [edges[i] for i in range(len(edges)-1)]
@@ -499,7 +486,7 @@ def variant_page(variant_str):
         chrom, pos, ref, alt = variant_str.split('-')
         pos = int(pos)
         # pos, ref, alt = get_minimal_representation(pos, ref, alt)
-        xpos = xbrowse.get_xpos(chrom, pos)
+        xpos = get_xpos(chrom, pos)
         variant = lookups.get_variant(db, xpos, ref, alt)
 
         if variant is None:
@@ -647,7 +634,7 @@ def region_page(region_id):
                 chrom, start, stop = region
                 start = int(start)
                 stop = int(stop)
-            if start is None or stop - start > REGION_LIMIT:
+            if start is None or stop - start > REGION_LIMIT or stop < start:
                 return render_template(
                     'region.html',
                     genes_in_region=None,
@@ -657,10 +644,13 @@ def region_page(region_id):
                     stop=stop,
                     coverage=None
                 )
+            if start == stop:
+                start -= 20
+                stop += 20
             genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
             variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
-            xstart = xbrowse.get_xpos(chrom, start)
-            xstop = xbrowse.get_xpos(chrom, stop)
+            xstart = get_xpos(chrom, start)
+            xstop = get_xpos(chrom, stop)
             coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
             t = render_template(
                 'region.html',

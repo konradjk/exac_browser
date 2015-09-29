@@ -76,12 +76,12 @@
         window.variants_template = _.template($('#variant-table-template').html());
         $('#variants_table_container').html(variants_template({table_variants: table_variants}));
         $("#variant_table").tablesorter({
-            sortList: [[1,0], [2,0], [9,1]],
+            sortList: [[1,0], [2,0], [10,1]],
             // Here's where we tell tablesorter to use our new consequence sorter on the 9th column
             // 2-minute minor on Konrad for having hidden columns
             headers: {
-                9: {
-                    sorter: 'consequence',
+                10: {
+                    sorter: 'consequence'
                 }
             }
         });

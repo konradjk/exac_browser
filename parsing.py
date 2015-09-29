@@ -3,7 +3,6 @@ Utils for reading flat files that are loaded into database
 """
 import re
 import traceback
-import xbrowse
 from utils import *
 
 POPS = {
@@ -42,7 +41,7 @@ def get_base_coverage_from_file(base_coverage_file):
             continue
         fields = line.strip('\n').split('\t')
         d = {
-            'xpos': xbrowse.get_xpos(fields[0], int(fields[1])),
+            'xpos': get_xpos(fields[0], int(fields[1])),
             'pos': int(fields[1]),
         }
         for i, k in enumerate(float_header_fields):
@@ -94,7 +93,7 @@ def get_variants_from_sites_vcf(sites_vcf):
                 variant['chrom'] = fields[0]
                 variant['pos'] = pos
                 variant['rsid'] = fields[2]
-                variant['xpos'] = xbrowse.get_xpos(variant['chrom'], variant['pos'])
+                variant['xpos'] = get_xpos(variant['chrom'], variant['pos'])
                 variant['ref'] = ref
                 variant['alt'] = alt
                 variant['xstart'] = variant['xpos']
@@ -142,6 +141,7 @@ def get_variants_from_sites_vcf(sites_vcf):
             traceback.print_exc()
             break
 
+
 def get_canonical_transcripts(canonical_transcript_file):
     for line in canonical_transcript_file:
         gene, transcript = line.strip().split()
@@ -185,8 +185,8 @@ def get_genes_from_gencode_gtf(gtf_file):
             'start': start,
             'stop': stop,
             'strand': fields[6],
-            'xstart': xbrowse.get_xpos(chrom, start),
-            'xstop': xbrowse.get_xpos(chrom, stop),
+            'xstart': get_xpos(chrom, start),
+            'xstop': get_xpos(chrom, stop),
         }
         yield gene
 
@@ -219,8 +219,8 @@ def get_transcripts_from_gencode_gtf(gtf_file):
             'start': start,
             'stop': stop,
             'strand': fields[6],
-            'xstart': xbrowse.get_xpos(chrom, start),
-            'xstop': xbrowse.get_xpos(chrom, stop),
+            'xstart': get_xpos(chrom, start),
+            'xstop': get_xpos(chrom, stop),
         }
         yield gene
 
@@ -255,8 +255,8 @@ def get_exons_from_gencode_gtf(gtf_file):
             'start': start,
             'stop': stop,
             'strand': fields[6],
-            'xstart': xbrowse.get_xpos(chrom, start),
-            'xstop': xbrowse.get_xpos(chrom, stop),
+            'xstart': get_xpos(chrom, start),
+            'xstop': get_xpos(chrom, stop),
         }
         yield exon
 
@@ -285,12 +285,13 @@ def get_dbnsfp_info(dbnsfp_file):
 def get_snp_from_dbsnp_file(dbsnp_file):
     for line in dbsnp_file:
         fields = line.split('\t')
+        if len(fields) < 3: continue
         rsid = int(fields[0])
         chrom = fields[1].rstrip('T')
         if chrom == 'PAR': continue
         start = int(fields[2]) + 1
         snp = {
-            'xpos': xbrowse.get_xpos(chrom, start),
+            'xpos': get_xpos(chrom, start),
             'rsid': rsid
         }
         yield snp
