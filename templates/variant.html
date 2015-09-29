@@ -138,7 +138,10 @@
                     {% else %}
                         This individual also has
                     {% endif %}
-                    <a href="/variant/{{ variant.chrom }}-{{ variant.mnp.pos2 }}">this variant</a>
+                    <a href="/variant/{{ variant.mnp.site2 }}">{{ variant.mnp.site2 }}</a>
+                    {% if variant.mnp.site3 %}
+                        and <a href="/variant/{{ variant.mnp.site3 }}">{{ variant.mnp.site3 }}</a>
+                    {% endif %}
                 {% endif %}
             </div>
             <div class="col-md-6">

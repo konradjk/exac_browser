@@ -147,16 +147,19 @@ def get_mnp_data(mnp_file):
     header = mnp_file.readline().strip().split('\t')
     for line in mnp_file:
         data = dict(zip(header, line.split('\t')))
-        chrom = data['CHROM'].split(',')[0]
+        chroms = data['CHROM'].split(',')
+        chrom = chroms[0]
         sites = data['SITES'].split(',')
-        for site in sites:
-            all_sites = copy.deepcopy(sites)
-            all_sites.remove(site)
+        refs = data['REF'].split(',')
+        alts = data['ALT'].split(',')
+        for i, site in enumerate(sites):
+            all_sites = zip(chroms, sites, refs, alts)
+            all_sites.remove(all_sites[i])
             mnp = {}
             mnp['xpos'] = get_xpos(chrom, site)
-            mnp['pos2'] = all_sites[0]
+            mnp['site2'] = '-'.join(all_sites[0])
             if len(all_sites) > 1:
-                mnp['pos3'] = all_sites[1]
+                mnp['site3'] = all_sites[1]
             mnp['combined_codon_change'] = data['COMBINED_CODON_CHANGE']
             mnp['category'] = data['CATEGORY']
             mnp['number_samples'] = 5
@@ -309,7 +312,7 @@ def get_dbnsfp_info(dbnsfp_file):
             'ensembl_gene': line[fields["Ensembl_gene"]],
             'gene_full_name': line[fields["Gene_full_name"]],
             'gene_other_names': other_names
-        } 
+        }
         yield gene_info
 
 
