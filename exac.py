@@ -546,7 +546,7 @@ def variant_page(variant_str):
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
-        variant['mnp'] = lookups.get_mnps_for_variant(db, variant)
+        variant['mnps'] = lookups.get_mnps_for_variant(db, variant)
 
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant

@@ -116,8 +116,7 @@ def get_constraint_for_transcript(db, transcript):
 
 
 def get_mnps_for_variant(db, variant):
-    mnp = db.mnps.find_one({'xpos': variant['xpos']}, fields={'_id': False})
-    return mnp
+    return list(db.mnps.find({'xpos': variant['xpos'], 'ref': variant['ref'], 'alt': variant['alt']}, fields={'_id': False}))
 
 
 def get_awesomebar_suggestions(g, query):

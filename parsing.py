@@ -157,6 +157,8 @@ def get_mnp_data(mnp_file):
             all_sites.remove(all_sites[i])
             mnp = {}
             mnp['xpos'] = get_xpos(chrom, site)
+            mnp['ref'] = refs[i]
+            mnp['alt'] = alts[i]
             mnp['site2'] = '-'.join(all_sites[0])
             if len(all_sites) > 1:
                 mnp['site3'] = all_sites[1]
