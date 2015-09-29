@@ -28,8 +28,12 @@ def get_transcript(db, transcript_id):
     return transcript
 
 
+def get_raw_variant(db, xpos, ref, alt, get_id=False):
+    return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': get_id})
+
+
 def get_variant(db, xpos, ref, alt):
-    variant = db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
+    variant = get_raw_variant(db, xpos, ref, alt, False)
     if variant is None or 'rsid' not in variant:
         return variant
     if variant['rsid'] == '.' or variant['rsid'] is None:
@@ -113,10 +117,6 @@ def get_coverage_for_transcript(db, xstart, xstop=None):
 
 def get_constraint_for_transcript(db, transcript):
     return db.constraint.find_one({'transcript': transcript}, fields={'_id': False})
-
-
-def get_mnps_for_variant(db, variant):
-    return list(db.mnps.find({'xpos': variant['xpos'], 'ref': variant['ref'], 'alt': variant['alt']}, fields={'_id': False}))
 
 
 def get_awesomebar_suggestions(g, query):

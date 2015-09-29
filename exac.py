@@ -196,16 +196,17 @@ def load_mnps():
     db = get_db()
     start_time = time.time()
 
-    db.mnps.drop()
-    print 'Dropped db.mnps.'
+    while db.variants.find_and_modify({'has_mnp': {'$eq' : True}}, {'$unset': {'has_mnp': '', 'mnps': ''}}):
+        pass
+    print 'Deleted MNP data.'
 
     with gzip.open(app.config['MNP_FILE']) as mnp_file:
         for mnp in get_mnp_data(mnp_file):
-            db.mnps.insert(mnp, w=0)
+            if not mnp['site2'].startswith('22-'): continue
+            variant = lookups.get_raw_variant(db, mnp['xpos'], mnp['ref'], mnp['alt'], True)
+            db.variants.find_and_modify({'_id': variant['_id']}, {'$set': {'has_mnp': True}, '$push': {'mnps': mnp}}, w=0)
 
-    db.mnps.ensure_index('chrom')
-    db.mnps.ensure_index('pos1')
-    db.mnps.ensure_index('pos2')
+    db.variants.ensure_index('has_mnp')
     print 'Done loading MNP info. Took %s seconds' % int(time.time() - start_time)
 
 
@@ -353,12 +354,14 @@ def load_db():
         print('Exiting...')
         sys.exit(1)
     all_procs = []
-    for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models, load_constraint_information, load_mnps]:
+    for load_function in [load_variants_file, load_dbsnp_file, load_base_coverage, load_gene_models, load_constraint_information]:
         procs = load_function()
         all_procs.extend(procs)
         print("Started %s processes to run %s" % (len(procs), load_function.__name__))
 
     [p.join() for p in all_procs]
+    print('Done! Loading MNPs...')
+    load_mnps()
     print('Done! Creating cache...')
     create_cache()
     print('Done!')
@@ -546,7 +549,6 @@ def variant_page(variant_str):
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
-        variant['mnps'] = lookups.get_mnps_for_variant(db, variant)
 
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant
