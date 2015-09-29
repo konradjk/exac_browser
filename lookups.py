@@ -250,7 +250,7 @@ def get_variants_in_region(db, chrom, start, stop):
 
 
 def get_metrics(db, variant):
-    if 'allele_count' not in variant:
+    if 'allele_count' not in variant or variant['allele_num'] == 0:
         return None
     metrics = {}
     for metric in METRICS:

@@ -58,11 +58,7 @@ app.config.update(dict(
     CONSTRAINT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'fordist_cleaned_exac_r03_march16_z_data.txt.gz'),
     MNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'allClass_MNPs_Filtrd3SNPDupRmvd4.txt.gz'),
 
-    # How to get a snp141.txt.bgz file:
-    #   wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/snp141.txt.gz
-    #   zcat snp141.txt.gz | cut -f 1-5 | bgzip -c > snp141.txt.bgz
-    #   tabix -0 -s 2 -b 3 -e 4 snp141.txt.bgz
-
+    # How to get a dbsnp142.txt.bgz file:
     #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b142_GRCh37p13/database/organism_data/b142_SNPChrPosOnRef_105.bcp.gz
     #   zcat b142_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
     #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
