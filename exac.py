@@ -44,7 +44,7 @@ EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',
-    DB_PORT=27017, 
+    DB_PORT=27017,
     DB_NAME='exac', 
     DEBUG=True,
     SECRET_KEY='development key',

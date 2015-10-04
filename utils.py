@@ -75,6 +75,7 @@ def add_consequence_to_variant(variant):
     variant['HGVSc'] = get_transcript_hgvs(worst_csq)
     variant['HGVS'] = get_proper_hgvs(worst_csq)
     variant['CANONICAL'] = worst_csq['CANONICAL']
+    variant['flags'] = get_flags_from_variant(variant)
     if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
         variant['category'] = 'lof_variant'
     elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
@@ -84,6 +85,16 @@ def add_consequence_to_variant(variant):
         variant['category'] = 'synonymous_variant'
     else:
         variant['category'] = 'other_variant'
+
+
+def get_flags_from_variant(variant):
+    flags = []
+    if 'mnps' in variant:
+        flags.append('MNP')
+    lof_annotations = [x for x in variant['vep_annotations'] if x['LoF'] != '']
+    if any([x['LoF'] == 'LC' for x in lof_annotations]):
+        flags.append('LC LoF')
+    return flags
 
 
 protein_letters_1to3 = {

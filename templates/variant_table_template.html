@@ -24,11 +24,10 @@
             <th class="hidden">Protein Consequence</th>
             <th class="hidden">Transcript Consequence</th>
             <th class="hidden-xs tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
-            <th class="tooltip-table-header" data-tooltip="Variant Effect Predictor (VEP) &#xa; annotation using Gencode 75.&#xa; Worst across all transcripts of this gene.">Annotation</th>
-            <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">
-                Allele Count</th>
-            <th class="hidden-xs tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">
-                Allele Number</th>
+            <th class="tooltip-table-header" data-tooltip="Variant Effect Predictor (VEP) &#xa; annotation using Gencode 81.&#xa; Worst across all transcripts of this gene.">Annotation</th>
+            <th class="tooltip-table-header" data-tooltip="Various flags (LoF from LOFTEE, MNP) &#xa; that may change annotation/confidence">Flags</th>
+            <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">Allele Count</th>
+            <th class="hidden-xs tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">Allele Number</th>
             {% if chrom != 'Y' %}
                 <th class="hidden-xs tooltip-table-header" data-tooltip="Number of homozygous individuals for this alternate allele">Number of Homozygotes</th>
             {% endif %}
@@ -102,6 +101,7 @@
                     <%= variant.major_consequence.replace('_variant', '').replace(/_/g, ' ').replace('utr', 'UTR').replace('3 prime', "3'").replace('5 prime', "5'").replace('nc ', "non-coding ") %>
                 <% } %>
             </b> </td>
+            <td style="color: #cd2932;"> <%= variant.flags.join(',') %> </td>
             <td> <%= variant.allele_count %> </td>
             <td class='hidden-xs'> <%= variant.allele_num %> </td>
             {% if chrom != 'Y' %}
