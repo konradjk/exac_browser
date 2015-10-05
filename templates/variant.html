@@ -516,25 +516,29 @@
             </div>
         </div>
 
+       {% if read_viz|length > 0  %}
 
-        {% if read_viz|length > 0  %}
+        <hr/>
+
+        <div class="row">
+	  <div class="col-md-12">
+	    <div class="section_header">Read Data</div>
+               <p>This interactive IGV visualization shows reads that went into calling this variant. For variants found in many individuals, up to 5 heterozygous and 5 homozygous samples with the highest GQ can be viewed. The reads themselves are <a href="https://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php#--bamOutput">post-HaplotypeCaller-reassembly</a> so that they accurately represent the evidence used by HaplotypeCaller to call this variant.<br>
+<br>
+
+
             <div id="igv-container"></div>
 	    <br><br>
-	    <div>
-	      <center>
-	      {% if read_viz['het']|length > 1  %}
-                  <button class="btn btn-primary quality_full_site_buttons" id="load-more-het-button">load 1 more het sample</button>
-	      {% endif %}
+	    {% if read_viz['het']|length > 1 or read_viz['hom']|length > 1 %}
+	    <center>
+            <button class="btn btn-primary quality_full_site_buttons" style="disabled:true; width:130px; height: 32px;" id="load-more-het-button">Load +1 Het</button>
+	    &nbsp; &nbsp; &nbsp; 
 
-   	      {% if read_viz['het']|length > 1 and read_viz['hom']|length > 1 %}  
-                  &nbsp;                   &nbsp;                   &nbsp;                   &nbsp; 
-              {% endif %}
-
-	      {% if read_viz['hom']|length > 1  %}
-                  <button class="btn btn-primary quality_full_site_buttons" id="load-more-hom-button">load 1 more hom sample</button>
-	      {% endif %}
-              </center>
-            </div>
+            <button class="btn btn-primary quality_full_site_buttons" style="disabled:true; width:130px; height: 32px;" id="load-more-hom-button">Load +1 Hom</button><br>
+	    </center>
+	    {% endif %}
+	    <br>
+          
          
 	  <!-- IGV dependencies -->
 
@@ -551,6 +555,8 @@
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.2/js/jquery.tablesorter.js"></script>
 
 	  <!-- igv.js -->
+	  <!-- link rel="stylesheet" type="text/css" href="/igv-css/igv.css" -->
+	  <!-- script type="text/javascript" src="/igv.min.js"></script -->
 	  <link rel="stylesheet" type="text/css" href="http://igv.org/web/beta/igv-beta.css">
 	  <script type="text/javascript" src="http://igv.org/web/beta/igv-beta.min.js"></script>
 
@@ -558,30 +564,33 @@
 	    var read_viz_data = {{ read_viz | tojson | safe }};
 
             var tracks = [];
-	    tracks.push({ url: '/static/read_viz/gencode.v19.sorted.bed', name: "gencode v19" });
-	    tracks.push({ url: '/static/read_viz/exome_calling_regions.v1.bed', name: "exac calling intervals" });
+	    tracks.push({ url: '/read_viz/gencode.v19.sorted.bed', name: "Gencode v19" });
+	    tracks.push({ url: '/read_viz/exome_calling_regions.v1.bed', name: "ExAC calling regions" });
+	    tracks.push({ url: '/read_viz/self_chain.sorted.bed', name: "UCSC self chain" });
 
-	    tracks.push({ url: '/static/read_viz/self_chain.sorted.bed', name: "self chain" });
+	    var tracks_counter = {"het": 0, "hom": 0};
+	    
+            ["het", "hom"].forEach(function(het_or_hom) {
+               if(read_viz_data[het_or_hom] && read_viz_data[het_or_hom].length > 0) {
+	          tracks.push({ type: 'bam', indexed: true, url: '/read_viz/'+read_viz_data[het_or_hom][0], name: het_or_hom+' #1'}); //, height: 200, autoHeight: false});
+                  tracks_counter[het_or_hom] += 1
+               }
 
-	    if(read_viz_data["het"] && read_viz_data["het"].length > 0) {
-	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["het"][0], name: 'het #1'}); //, height: 200, autoHeight: false});
-            }
+               disable_load_one_more = !read_viz_data[het_or_hom] || tracks_counter[het_or_hom] >= read_viz_data[het_or_hom].length
+               $('#load-more-'+het_or_hom+'-button').prop('disabled', disable_load_one_more)
+               
+            });
 
-	    if(read_viz_data["hom"] && read_viz_data["hom"].length > 0) {
-	       tracks.push({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data["hom"][0], name: 'hom #1'}); //, height: 200, autoHeight: false});
-            }
-
-	    var tracks_counter = {"het": 1, "hom": 1};
             var load_one_more = function(het_or_hom) {
        	       if(read_viz_data[het_or_hom] && tracks_counter[het_or_hom] < read_viz_data[het_or_hom].length) {
                   var c = tracks_counter[het_or_hom];
-                  igv.browser.loadTrack({ type: 'bam', indexed: true, url: '/static/read_viz/'+read_viz_data[het_or_hom][c], name: het_or_hom+' #'+(c+1)});
-                  tracks_counter[het_or_hom] += 1;
-	          
-                  if(tracks_counter[het_or_hom] >= read_viz_data[het_or_hom].length) {
-                      $('#load-more-'+het_or_hom+'-button').prop('disabled', true)
-                  }
+                  igv.browser.loadTrack({ type: 'bam', indexed: true, url: '/read_viz/'+read_viz_data[het_or_hom][c], name: het_or_hom+' #'+(c+1)});
+                  tracks_counter[het_or_hom] += 1;       
 	       }
+
+	       if(tracks_counter[het_or_hom] >= read_viz_data[het_or_hom].length) {
+                  $('#load-more-'+het_or_hom+'-button').prop('disabled', true)
+               }
             }
 
 
@@ -596,15 +605,18 @@
 
             igv.createBrowser(  $("#igv-container")[0],  options);
 
-            //hide the IGV ideogram
-	    $(".igv-ideogram-content-div").hide();
-	    //$(".igv-logo").hide();
+            //igv view customizations 
+	    $(".igv-ideogram-content-div").hide();  //hide the IGV ideogram
 	    
-            var trackLabelToggle = $('<div class="igvNavigationToggleTrackLabels">');
-            $(".igvNavigationSearch").append("<a id='reset-locus' title='Reset position to "+locus+"'><i class='igv-app-icon fa fa-mail-reply shim-left-6'></i></a>");
+            //$(".igv-logo").hide();
+
+            //var trackLabelToggle = $('<div class="igvNavigationToggleTrackLabels">');
+            $(".igvNavigationSearch").append("<a id='reset-locus' title='Reset position to "+locus+"'>"+
+               "<i class='igv-app-icon fa fa-mail-reply shim-left-6'></i>"+
+               "</a>");
          
             // allow one more zoom-in level
-            igv.browser.pixelPerBasepairThreshold = function () {
+            igv.browser.pixelPerBasepairThreshold = function() {
 	        return 28.0;  //default is currently 14.0
             };
 
@@ -617,24 +629,29 @@
                 load_one_more("het");
 	    });
   
-            $('#load-more-hom-button').click(function() {		       
+            $('#load-more-hom-button').click(function() {
                 load_one_more("hom");
    	    });
 
             setInterval(function() {
 		igv.browser.trackViews.forEach(function (panel) {
 			if(panel.track.name) {
-   				     panel.viewportDiv.style.borderBottom = panel.viewportDiv.style.borderLeft = "1px solid #cccccc";
+                           panel.viewportDiv.style.borderBottom = panel.viewportDiv.style.borderLeft = "1px solid #cccccc";
                            if(panel.track.name.match("^h")) {
 			       panel.setTrackHeight(300);
                            }
+
+                           //if(panel.track.name.match("gencode")) {
+                           //       panel.displayMode = "SQUISHED";
+                           //       panel.update();
+                           //}
                         }
 		});
-
             }, 1000);
 	  </script>
-	{% endif %}
     </div>
+  </div>
+ </div>
 
-
+{% endif %}
 {% endblock %}
