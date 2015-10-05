@@ -5,11 +5,12 @@ import pymongo
 import pysam
 import gzip
 from parsing import *
+import logging
 import lookups
 import random
 from utils import *
 
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from flask.ext.compress import Compress
 from flask_errormail import mail_on_500
 
@@ -22,6 +23,10 @@ import glob
 import sqlite3
 import traceback
 import time
+
+logging.getLogger().addHandler(logging.StreamHandler())
+logging.getLogger().setLevel(logging.INFO)
+logging.error("Reloading..")
 
 ADMINISTRATORS = (
     'exac.browser.errors@gmail.com',
@@ -765,6 +770,35 @@ http://omim.org/entry/%(omim_accession)s''' % gene
         return "Search types other than gene transcript not yet supported"
 
 
+@app.route('/read_viz/<path:path>')
+def read_viz_files(path):
+    path = os.path.join("read_viz", path)
+
+    # handle igv.js Range header which it uses to request a subset of a .bam
+    range_header = request.headers.get('Range', None)
+    if not range_header:
+        return send_from_directory(os.path.dirname(path), os.path.basename(path))
+
+    m = re.search('(\d+)-(\d*)', range_header)
+    if not m:
+        error_msg = "ERROR: unexpected range header syntax: %s" % range_header
+        logging.error(error_msg)
+        return error_msg
+
+    size = os.path.getsize(path)
+    offset = int(m.group(1))
+    length = int(m.group(2) or size) - offset
+
+    data = None
+    with open(path, 'rb') as f:
+        f.seek(offset)
+        data = f.read(length)
+
+    rv = Response(data, 206, mimetype="application/octet-stream", direct_passthrough=True)
+    rv.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(offset, offset + length - 1, size))
+    return rv
+
+
 @app.after_request
 def apply_caching(response):
     # prevent click-jacking vulnerability identified by BITs
@@ -773,4 +807,4 @@ def apply_caching(response):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=80)
