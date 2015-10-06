@@ -92,8 +92,11 @@ def get_flags_from_variant(variant):
     if 'mnps' in variant:
         flags.append('MNP')
     lof_annotations = [x for x in variant['vep_annotations'] if x['LoF'] != '']
-    if any([x['LoF'] == 'LC' for x in lof_annotations]):
+    if not len(lof_annotations): return flags
+    if all([x['LoF'] == 'LC' for x in lof_annotations]):
         flags.append('LC LoF')
+    if all([x['LoF_flags'] != '' for x in lof_annotations]):
+        flags.append('LoF flag')
     return flags
 
 

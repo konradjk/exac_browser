@@ -101,7 +101,11 @@
                     <%= variant.major_consequence.replace('_variant', '').replace(/_/g, ' ').replace('utr', 'UTR').replace('3 prime', "3'").replace('5 prime', "5'").replace('nc ', "non-coding ") %>
                 <% } %>
             </b> </td>
-            <td style="color: #cd2932;"> <%= variant.flags.join(',') %> </td>
+            <td>
+                <% _.each(variant.flags, function(flag) { %>
+                    <% if (flag == 'LoF flag') { span_tag = 'warning' } else { span_tag = 'danger' } %>
+                    <span class="label label-<%= span_tag %> tooltip-table-header" data-tooltip="Variant annotation dubious: &#xa; see variant page for details"><%= flag %></span>
+                <% }); %></td>
             <td> <%= variant.allele_count %> </td>
             <td class='hidden-xs'> <%= variant.allele_num %> </td>
             {% if chrom != 'Y' %}
