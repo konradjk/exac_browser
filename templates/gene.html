@@ -1,24 +1,5 @@
 {% extends "layout.html" %}
 {% block body %}
-    <!-- Render context vars in JS here -->
-    <script type="text/javascript">
-        window.gene = {{ gene|tojson|safe }};
-        window.transcript = {{ transcript|tojson|safe }};
-        window.table_variants = {{ variants_in_gene|tojson|safe }};
-        window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
-        window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
-        window.coverage_stats = {{ coverage_stats|tojson|safe }};
-        window.page_name = window.gene.gene_id;
-    </script>
-    <style>
-
-    </style>
-    <script>
-        $(document).ready(function() {
-            $("#variants_loading").hide();
-            $("#variants_table_container").show();
-        });
-    </script>
     <div class="container-fluid">
         <div class="col-md-10 col-xs-offset-1 col-md-offset-1">
             <h1>Gene: {{ gene.gene_name }}</h1>
@@ -35,16 +16,7 @@
                     <dd><span id="number_of_variants"></span> (Including filtered: {{ variants_in_gene|length }})</dd>
 {#                    <dt>Number of LoF variants</dt>#}
 {#                    <dd><span id="number_of_lof_variants"></span> (Including filtered: {{ lof_variants_in_gene|length }})</dd>#}
-                    <script>
-                        filtered_variants = _.filter(window.table_variants, function(d) {
-                            return d.filter == 'PASS';
-                        });
-                        $('#number_of_variants').replaceWith(filtered_variants.length);
-                        lof_filtered_variants = _.filter(window.table_variants, function(d) {
-                            return d.filter == 'PASS' && d.category == 'lof_variant';
-                        });
-                        $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
-                    </script>
+               
 {#                    <dt>LoF rate</dt>#}
 {#                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>#}
                     <dt class="hidden-xs">UCSC Browser</dt>
@@ -161,4 +133,37 @@
             </div>
         </div>
     </div>
+    
+{% endblock %}
+
+{% block additionalScript %}
+<!-- Render context vars in JS here -->
+    <script type="text/javascript">
+        window.gene = {{ gene|tojson|safe }};
+        window.transcript = {{ transcript|tojson|safe }};
+        window.table_variants = {{ variants_in_gene|tojson|safe }};
+        window.variants_in_transcript = {{ variants_in_transcript|tojson|safe }};
+        window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
+        window.coverage_stats = {{ coverage_stats|tojson|safe }};
+        window.page_name = window.gene.gene_id;
+    </script>
+    <style>
+
+    </style>
+    <script>
+        $(document).ready(function() {
+            $("#variants_loading").hide();
+            $("#variants_table_container").show();
+        });
+    </script>
+         <script>
+                        filtered_variants = _.filter(window.table_variants, function(d) {
+                            return d.filter == 'PASS';
+                        });
+                        $('#number_of_variants').replaceWith(filtered_variants.length);
+                        lof_filtered_variants = _.filter(window.table_variants, function(d) {
+                            return d.filter == 'PASS' && d.category == 'lof_variant';
+                        });
+                        $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
+                    </script>
 {% endblock %}
