@@ -8,6 +8,7 @@ from parsing import *
 import logging
 import lookups
 import random
+import sys
 from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
@@ -26,7 +27,6 @@ import time
 
 logging.getLogger().addHandler(logging.StreamHandler())
 logging.getLogger().setLevel(logging.INFO)
-logging.error("Reloading..")
 
 ADMINISTRATORS = (
     'exac.browser.errors@gmail.com',
@@ -518,7 +518,11 @@ def variant_page(variant_str):
 
         # get the reassembled bam paths for this variant out of the read viz db
         read_viz_db = sqlite3.connect(app.config["READ_VIZ_DB_PATH"])
-        reassembled_het_hom_bams = read_viz_db.execute("select reassembled_bams_het, reassembled_bams_hom from t where chrom=? and minrep_pos=? and minrep_ref=? and minrep_alt=?", (chrom, pos, ref, alt)).fetchone()
+        reassembled_het_hom_bams = read_viz_db.execute(
+            "select reassembled_bams_het, reassembled_bams_hom from t "
+            "where chrom=? and minrep_pos=? and minrep_ref=? and minrep_alt=?", (
+                chrom, pos, ref, alt)).fetchone()
+        read_viz_db.close()
         reassembled_bams = {}
         if reassembled_het_hom_bams is not None:
             if reassembled_het_hom_bams[0]:
@@ -796,6 +800,8 @@ def read_viz_files(path):
 
     rv = Response(data, 206, mimetype="application/octet-stream", direct_passthrough=True)
     rv.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(offset, offset + length - 1, size))
+
+    logging.info("GET range request: %s-%s %s" % (m.group(1), m.group(2), path))
     return rv
 
 
