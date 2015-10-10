@@ -536,23 +536,24 @@ def variant_page(variant_str):
             n_het = n_hom = None
 
         read_viz_dict = {
-            'het': {'n_expected': n_het[0] if n_het else -1, 'n_available': n_het[1] if n_het else 0,},
-            'hom': {'n_expected': n_hom[0] if n_hom else -1, 'n_available': n_hom[1] if n_hom else 0,},
+            'het': {'n_expected': n_het[0] if n_het is not None and n_het[0] is not None else -1, 'n_available': n_het[1] if n_het and n_het[1] else 0,},
+            'hom': {'n_expected': n_hom[0] if n_hom is not None and n_hom[0] is not None else -1, 'n_available': n_hom[1] if n_hom and n_hom[1] else 0,},
         }
 
         for het_or_hom in ('het', 'hom',):
+            #read_viz_dict[het_or_hom]['some_samples_missing'] = (read_viz_dict[het_or_hom]['n_expected'] > 0)    and (read_viz_dict[het_or_hom]['n_expected'] - read_viz_dict[het_or_hom]['n_available'] > 0)
+            read_viz_dict[het_or_hom]['all_samples_missing'] = (read_viz_dict[het_or_hom]['n_expected'] != 0) and (read_viz_dict[het_or_hom]['n_available'] == 0)
             read_viz_dict[het_or_hom]['readgroups'] = [
                 '%(chrom)s-%(pos)s-%(ref)s-%(alt)s_%(het_or_hom)s%(i)s' % locals()
-                    for i in range(read_viz_dict[het_or_hom]['n_available'] or 0)
+                    for i in range(read_viz_dict[het_or_hom]['n_available'])
             ]   #eg. '1-157768000-G-C_hom1',
 
             read_viz_dict[het_or_hom]['urls'] = [
                 os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
-                    for i in range(read_viz_dict[het_or_hom]['n_available'] or 0)
+                    for i in range(read_viz_dict[het_or_hom]['n_available'])
             ]
 
 
-        print read_viz_dict
         print 'Rendering variant: %s' % variant_str
         return render_template(
             'variant.html',
