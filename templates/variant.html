@@ -515,5 +515,211 @@
                 {% endif %}
             </div>
         </div>
+
+       {#% if read_viz|length > 0  %#}
+
+        <hr/>
+
+        <div class="row">
+	    <div class="col-md-12">
+	    <div class="section_header">Read Data</div>
+            <p>This interactive <a href="https://github.com/igvteam/igv.js">IGV.js</a> visualization shows reads that went into calling this variant.<br>
+                {% if not read_viz['het']['all_samples_missing'] or not read_viz['hom']['all_samples_missing'] %}
+                    <small><span class="label label-info">Note:</span> These reads are after
+                        <a href="https://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php#--bamOutput">
+                            GATK HaplotypeCaller reassembly
+                        </a> so they accurately represent what HaplotypeCaller was seeing when it called this variant.</small>
+                {% endif %}
+
+                <br><br>
+
+
+            <div id="igv-container"></div>
+	        <br><br>
+
+            <center>
+                {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] %}
+                    <h5 id='missing-data-note' style='margin-right:60%' >
+                        <span class="label label-info">Note:</span> &nbsp; Read data not yet fully available for this variant.
+                    </h5>
+                {% endif %}
+
+                <!--
+                <h5 id='missing-additional-data-note' style='display:none; margin-right:60%' >
+                    <span class="label label-info">Note:</span> &nbsp; Oops! Additional read data is not available yet.
+                </h5>
+                -->
+            </center><br>
+
+	    {% if read_viz['het']['n_available'] > 1 or read_viz['hom']['n_available'] > 1 %}
+            <center>
+                <button class="btn btn-primary quality_full_site_buttons" style="disabled:true; width:130px; height: 32px;" id="load-more-het-button">Load +1 Het</button>
+	            &nbsp; &nbsp; &nbsp;
+                <button class="btn btn-primary quality_full_site_buttons" style="disabled:true; width:130px; height: 32px;" id="load-more-hom-button">Load +1 Hom</button><br>
+	        </center>
+	    {% endif %}
+	    <br>
+
+
+	    <!-- IGV dependencies -->
+
+	    <!-- jQuery and jQuery UI -->
+	    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	    <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+        <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+	    <!-- Google Fonts and Font awesome -->
+	    <link rel="stylesheet" type="text/css" href='//fonts.googleapis.com/css?family=PT+Sans:400,700' />
+        <link rel="stylesheet" type="text/css" href='//fonts.googleapis.com/css?family=Open+Sans' />
+	    <link rel="stylesheet" type="text/css" href='//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' />
+
+	    <!-- Bootstrap JS - for demo only, NOT REQUIRED FOR IGV -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.2/js/jquery.tablesorter.js"></script>
+
+	    <!-- igv.js -->
+	    <!-- link rel="stylesheet" type="text/css" href="/igv-css/igv.css" -->
+	    <!-- script type="text/javascript" src="/igv.min.js"></script -->
+	    <link rel="stylesheet" type="text/css" href="http://igv.org/web/beta/igv-beta.css">
+	    <script type="text/javascript" src="http://igv.org/web/beta/igv-beta.min.js"></script>
+
+	    <script type="text/javascript">
+
+            // temporary implementation of filtering IGV BamTracks by a user-specified ReadGroup
+            igv.BamReader.prototype.readFeatures_original = igv.BamReader.prototype.readFeatures;
+            igv.BamReader.prototype.readFeatures = function (chr, min, max, continuation, task) {
+
+                //if a readgroup was passed to the BamTrack constructor, filter reads without this read group.
+                if(this.config.readgroup) {
+                    var readgroup = this.config.readgroup;
+                    var continuation_original = continuation;
+                    var continuationNew = function(alignments) {
+                        //filter the alignments by read group
+                        //console.log("Filtering by RG == " + readgroup );
+                        alignments = alignments.filter(function (alignment) {
+                            alignment.tags(); //parses tags from their binary representation and populates the alignment.tagDict
+                            return alignment.tagDict['RG'] == readgroup;
+                        });
+
+                        //forward the filtered aligments to the original continuation
+                        return continuation_original(alignments);
+                    };
+                }
+
+                return this.readFeatures_original(chr, min, max, continuationNew, task);
+            };
+
+            //a dict of counts: n_expected_het, n_expected_hom, n_available_het, n_available_hom
+            var read_viz_data = {{ read_viz | tojson | safe }};
+
+            //counts number of het/hom bam tracks displayed so far
+            var tracks_counter = {"het": 0, "hom": 0};
+
+            //initialize IGV tracks
+            var tracks = [];
+            tracks.push({ url: '/read_viz/gencode.v19.sorted.bed',       name: "gencode v19",  displayMode: "SQUISHED"});
+            //tracks.push({ url: '/read_viz/exome_calling_regions.v1.bed', name: "ExAC calling regions" });
+            //tracks.push({ url: '/read_viz/self_chain.sorted.bed',        name: "UCSC self chain" });
+
+            //add track #1 for het and hom (assuming they're available)
+            ["het", "hom"].forEach(function(het_or_hom) {
+               if(read_viz_data[het_or_hom]['n_available'] > 0) {
+                   tracks.push(
+                           {
+                               type: 'bam',
+                               indexed: true,
+                               url: '/read_viz/'+read_viz_data[het_or_hom]['urls'][0],
+                               name: het_or_hom+' #1',
+                               readgroup: read_viz_data[het_or_hom]['readgroups'][0],     //readgroup: '1-157768000-G-C_hom10',
+                           }
+                   ); //, height: 200, autoHeight: false});
+                   tracks_counter[het_or_hom] += 1;
+               }
+
+               disable_load_one_more = tracks_counter[het_or_hom] >= read_viz_data[het_or_hom]['n_available'];
+               $('#load-more-'+het_or_hom+'-button').prop('disabled', disable_load_one_more);
+            });
+
+            var load_one_more = function(het_or_hom) {
+                if(tracks_counter[het_or_hom] < read_viz_data[het_or_hom]['n_available']) {
+                    var i = tracks_counter[het_or_hom];
+                    console.log(read_viz_data[het_or_hom]['urls'][i]);
+                    console.log(read_viz_data[het_or_hom]['readgroups'][i]);
+                    igv.browser.loadTrack({
+                        type: 'bam',
+                        indexed: true,
+                        url: '/read_viz/'+read_viz_data[het_or_hom]['urls'][i],
+                        name: het_or_hom+' #'+(i+1),
+                        readgroup: read_viz_data[het_or_hom]['readgroups'][i],     //readgroup: '1-157768000-G-C_hom10',
+                    });
+                    tracks_counter[het_or_hom] += 1;
+                }
+
+                if(tracks_counter[het_or_hom] >= read_viz_data[het_or_hom]['n_available']) {
+                    $('#load-more-'+het_or_hom+'-button').prop('disabled', true);
+                }
+            };
+
+            //initialize IGV.js browser
+            var locus = '{{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}';
+            var options = {
+                showCommandBar: true,
+                genome: 'hg19',
+                locus: locus,
+                showKaryo: false,
+                tracks: tracks,
+            };
+
+            igv.createBrowser($("#igv-container")[0], options);
+
+
+            //IGV browser customizations
+            $(".igv-ideogram-content-div").hide();  //hide the IGV ideogram
+
+            //$(".igv-logo").hide();
+
+            $(".igvNavigationSearch").append(
+                    "<a id='reset-locus' title='Reset to original locus ("+locus+")'>"+
+                    "<i class='igv-app-icon fa fa-mail-reply shim-left-6'></i>"+
+                    "</a>");
+
+            // allow one more zoom-in level
+            igv.browser.pixelPerBasepairThreshold = function() {
+                return 28.0;  //default is currently 14.0
+            };
+
+            //click handlers
+            $('#reset-locus').click(function() {
+                igv.browser.search(locus);
+            });
+
+            $('#load-more-het-button').click(function() {
+                load_one_more("het");
+            });
+
+            $('#load-more-hom-button').click(function() {
+                load_one_more("hom");
+            });
+
+            setInterval(function() {
+                igv.browser.trackViews.forEach(function (panel) {
+                        if(panel.track.name)
+                        {
+                            //add border between tracks
+                            panel.viewportDiv.style.borderBottom = panel.viewportDiv.style.borderLeft = "1px solid #cccccc";
+
+                            //set track height
+                            if(panel.track.name.match("^h")) {
+                                panel.setTrackHeight(300);
+                                panel.track.alignmentShading= 'strand';
+                            }
+                        }
+                    });
+                }, 1000);
+	  </script>
     </div>
+  </div>
+ </div>
+
+{#% endif %#}
 {% endblock %}

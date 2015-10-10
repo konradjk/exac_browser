@@ -5,11 +5,13 @@ import pymongo
 import pysam
 import gzip
 from parsing import *
+import logging
 import lookups
 import random
+import sys
 from utils import *
 
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from flask.ext.compress import Compress
 from flask_errormail import mail_on_500
 
@@ -19,9 +21,12 @@ from werkzeug.contrib.cache import SimpleCache
 
 from multiprocessing import Process
 import glob
+import sqlite3
 import traceback
 import time
-import sys
+
+logging.getLogger().addHandler(logging.StreamHandler())
+logging.getLogger().setLevel(logging.INFO)
 
 ADMINISTRATORS = (
     'exac.browser.errors@gmail.com',
@@ -59,11 +64,13 @@ app.config.update(dict(
     #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b142_GRCh37p13/database/organism_data/b142_SNPChrPosOnRef_105.bcp.gz
     #   zcat b142_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
     #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
-    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz')
+    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz'),
+    
+    READ_VIZ_DIR= "/mongo/readviz"
 ))
+
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
-
 
 def connect_db():
     """
@@ -334,17 +341,14 @@ def create_cache():
     """
     # create autocomplete_entries.txt
     autocomplete_strings = []
-    print >> sys.stderr, "Getting gene names..."
     for gene in get_db().genes.find():
         autocomplete_strings.append(gene['gene_name'])
         if 'other_names' in gene:
             autocomplete_strings.extend(gene['other_names'])
-    print >> sys.stderr, "Done! Writing..."
     f = open(os.path.join(os.path.dirname(__file__), 'autocomplete_strings.txt'), 'w')
     for s in sorted(autocomplete_strings):
         f.write(s+'\n')
     f.close()
-    print >> sys.stderr, "Done! Getting largest genes..."
 
     # create static gene pages for genes in
     if not os.path.exists(GENE_CACHE_DIR):
@@ -360,7 +364,6 @@ def create_cache():
         f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
         f.write(page_content)
         f.close()
-    print >> sys.stderr, "Done!"
 
 
 def precalculate_metrics():
@@ -513,6 +516,44 @@ def variant_page(variant_str):
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
 
+        # check the appropriate sqlite db to get the *expected* number of
+        # available bams and *actual* number of available bams for this variant
+        sqlite_db_path = os.path.join(
+            app.config["READ_VIZ_DIR"],
+            "combined_bams",
+            chrom,
+            "combined_chr%s_%03d.db" % (chrom, pos % 1000))
+        print(sqlite_db_path)
+        try:
+            read_viz_db = sqlite3.connect(sqlite_db_path)
+            n_het = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
+                "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'het')).fetchone()
+            n_hom = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
+                "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'hom')).fetchone()
+            read_viz_db.close()
+        except Exception, e:
+            logging.error("Error when accessing sqlite db: %s - %s", sqlite_db_path, e)
+            n_het = n_hom = None
+
+        read_viz_dict = {
+            'het': {'n_expected': n_het[0] if n_het is not None and n_het[0] is not None else -1, 'n_available': n_het[1] if n_het and n_het[1] else 0,},
+            'hom': {'n_expected': n_hom[0] if n_hom is not None and n_hom[0] is not None else -1, 'n_available': n_hom[1] if n_hom and n_hom[1] else 0,},
+        }
+
+        for het_or_hom in ('het', 'hom',):
+            #read_viz_dict[het_or_hom]['some_samples_missing'] = (read_viz_dict[het_or_hom]['n_expected'] > 0)    and (read_viz_dict[het_or_hom]['n_expected'] - read_viz_dict[het_or_hom]['n_available'] > 0)
+            read_viz_dict[het_or_hom]['all_samples_missing'] = (read_viz_dict[het_or_hom]['n_expected'] != 0) and (read_viz_dict[het_or_hom]['n_available'] == 0)
+            read_viz_dict[het_or_hom]['readgroups'] = [
+                '%(chrom)s-%(pos)s-%(ref)s-%(alt)s_%(het_or_hom)s%(i)s' % locals()
+                    for i in range(read_viz_dict[het_or_hom]['n_available'])
+            ]   #eg. '1-157768000-G-C_hom1',
+
+            read_viz_dict[het_or_hom]['urls'] = [
+                os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
+                    for i in range(read_viz_dict[het_or_hom]['n_available'])
+            ]
+
+
         print 'Rendering variant: %s' % variant_str
         return render_template(
             'variant.html',
@@ -521,7 +562,8 @@ def variant_page(variant_str):
             consequences=consequences,
             any_covered=any_covered,
             ordered_csqs=ordered_csqs,
-            metrics=metrics
+            metrics=metrics,
+            read_viz=read_viz_dict,
         )
     except Exception, e:
         print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
@@ -755,5 +797,50 @@ http://omim.org/entry/%(omim_accession)s''' % gene
         return "Search types other than gene transcript not yet supported"
 
 
+@app.route('/read_viz/<path:path>')
+def read_viz_files(path):
+    full_path = os.path.abspath(os.path.join(app.config["READ_VIZ_DIR"], path))
+
+    # security check - only files under READ_VIZ_DIR should be accsessible
+    if not full_path.startswith(app.config["READ_VIZ_DIR"]):
+        return "Invalid path: %s" % path
+
+    logging.info("path: " + full_path)
+
+    # handle igv.js Range header which it uses to request a subset of a .bam
+    range_header = request.headers.get('Range', None)
+    if not range_header:
+        return send_from_directory(app.config["READ_VIZ_DIR"], path)
+
+    m = re.search('(\d+)-(\d*)', range_header)
+    if not m:
+        error_msg = "ERROR: unexpected range header syntax: %s" % range_header
+        logging.error(error_msg)
+        return error_msg
+
+    size = os.path.getsize(full_path)
+    offset = int(m.group(1))
+    length = int(m.group(2) or size) - offset
+
+    data = None
+    with open(full_path, 'rb') as f:
+        f.seek(offset)
+        data = f.read(length)
+
+    rv = Response(data, 206, mimetype="application/octet-stream", direct_passthrough=True)
+    rv.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(offset, offset + length - 1, size))
+
+    logging.info("GET range request: %s-%s %s" % (m.group(1), m.group(2), full_path))
+    return rv
+
+
+@app.after_request
+def apply_caching(response):
+    # prevent click-jacking vulnerability identified by BITs
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    return response
+
+
 if __name__ == "__main__":
     app.run()
+    #app.run(host="0.0.0.0", port=80)
