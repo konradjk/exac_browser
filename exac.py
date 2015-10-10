@@ -66,7 +66,7 @@ app.config.update(dict(
     #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
     DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz'),
     
-    READ_VIZ_DB_PATH=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'exac_v3_variants.db'),
+    READ_VIZ_DIR= "/mongo/readviz"
 ))
 
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
@@ -516,21 +516,43 @@ def variant_page(variant_str):
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
 
-        # get the reassembled bam paths for this variant out of the read viz db
-        read_viz_db = sqlite3.connect(app.config["READ_VIZ_DB_PATH"])
-        reassembled_het_hom_bams = read_viz_db.execute(
-            "select reassembled_bams_het, reassembled_bams_hom from t "
-            "where chrom=? and minrep_pos=? and minrep_ref=? and minrep_alt=?", (
-                chrom, pos, ref, alt)).fetchone()
-        read_viz_db.close()
-        reassembled_bams = {}
-        if reassembled_het_hom_bams is not None:
-            if reassembled_het_hom_bams[0]:
-                reassembled_bams['het'] = reassembled_het_hom_bams[0].split(',')
-            if reassembled_het_hom_bams[1]:
-                reassembled_bams['hom'] = reassembled_het_hom_bams[1].split(',')
+        # check the appropriate sqlite db to get the *expected* number of
+        # available bams and *actual* number of available bams for this variant
+        sqlite_db_path = os.path.join(
+            app.config["READ_VIZ_DIR"],
+            "combined_bams",
+            chrom,
+            "combined_chr%s_%03d.db" % (chrom, pos % 1000))
+        print(sqlite_db_path)
+        try:
+            read_viz_db = sqlite3.connect(sqlite_db_path)
+            n_het = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
+                "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'het')).fetchone()
+            n_hom = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
+                "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'hom')).fetchone()
+            read_viz_db.close()
+        except Exception, e:
+            logging.error("Error when accessing sqlite db: %s - %s", sqlite_db_path, e)
+            n_het = n_hom = None
 
-        print reassembled_bams
+        read_viz_dict = {
+            'het': {'n_expected': n_het[0] if n_het else -1, 'n_available': n_het[1] if n_het else 0,},
+            'hom': {'n_expected': n_hom[0] if n_hom else -1, 'n_available': n_hom[1] if n_hom else 0,},
+        }
+
+        for het_or_hom in ('het', 'hom',):
+            read_viz_dict[het_or_hom]['readgroups'] = [
+                '%(chrom)s-%(pos)s-%(ref)s-%(alt)s_%(het_or_hom)s%(i)s' % locals()
+                    for i in range(read_viz_dict[het_or_hom]['n_available'] or 0)
+            ]   #eg. '1-157768000-G-C_hom1',
+
+            read_viz_dict[het_or_hom]['urls'] = [
+                os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
+                    for i in range(read_viz_dict[het_or_hom]['n_available'] or 0)
+            ]
+
+
+        print read_viz_dict
         print 'Rendering variant: %s' % variant_str
         return render_template(
             'variant.html',
@@ -540,7 +562,7 @@ def variant_page(variant_str):
             any_covered=any_covered,
             ordered_csqs=ordered_csqs,
             metrics=metrics,
-            read_viz=reassembled_bams,
+            read_viz=read_viz_dict,
         )
     except Exception, e:
         print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
@@ -776,12 +798,18 @@ http://omim.org/entry/%(omim_accession)s''' % gene
 
 @app.route('/read_viz/<path:path>')
 def read_viz_files(path):
-    path = os.path.join("read_viz", path)
+    full_path = os.path.abspath(os.path.join(app.config["READ_VIZ_DIR"], path))
+
+    # security check - only files under READ_VIZ_DIR should be accsessible
+    if not full_path.startswith(app.config["READ_VIZ_DIR"]):
+        return "Invalid path: %s" % path
+
+    logging.info("path: " + full_path)
 
     # handle igv.js Range header which it uses to request a subset of a .bam
     range_header = request.headers.get('Range', None)
     if not range_header:
-        return send_from_directory(os.path.dirname(path), os.path.basename(path))
+        return send_from_directory(app.config["READ_VIZ_DIR"], path)
 
     m = re.search('(\d+)-(\d*)', range_header)
     if not m:
@@ -789,19 +817,19 @@ def read_viz_files(path):
         logging.error(error_msg)
         return error_msg
 
-    size = os.path.getsize(path)
+    size = os.path.getsize(full_path)
     offset = int(m.group(1))
     length = int(m.group(2) or size) - offset
 
     data = None
-    with open(path, 'rb') as f:
+    with open(full_path, 'rb') as f:
         f.seek(offset)
         data = f.read(length)
 
     rv = Response(data, 206, mimetype="application/octet-stream", direct_passthrough=True)
     rv.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(offset, offset + length - 1, size))
 
-    logging.info("GET range request: %s-%s %s" % (m.group(1), m.group(2), path))
+    logging.info("GET range request: %s-%s %s" % (m.group(1), m.group(2), full_path))
     return rv
 
 
