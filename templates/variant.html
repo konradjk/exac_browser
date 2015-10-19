@@ -459,9 +459,6 @@
         <link rel="stylesheet" type="text/css" href='//fonts.googleapis.com/css?family=Open+Sans' />
 	    <link rel="stylesheet" type="text/css" href='//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' />
 
-	    <!-- Bootstrap JS - for demo only, NOT REQUIRED FOR IGV -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.22.2/js/jquery.tablesorter.js"></script>
 
 	    <!-- igv.js -->
 	    <!-- link rel="stylesheet" type="text/css" href="/igv-css/igv.css" -->
@@ -507,44 +504,84 @@
             //tracks.push({ url: '/read_viz/exome_calling_regions.v1.bed', name: "ExAC calling regions" });
             //tracks.push({ url: '/read_viz/self_chain.sorted.bed',        name: "UCSC self chain" });
 
-            //add track #1 for het and hom (assuming they're available)
-            ["het", "hom"].forEach(function(het_or_hom) {
-               if(read_viz_data[het_or_hom]['n_available'] > 0) {
-                   tracks.push(
-                           {
-                               type: 'bam',
-                               indexed: true,
-                               url: '/read_viz/'+read_viz_data[het_or_hom]['urls'][0],
-                               name: het_or_hom+' #1',
-                               readgroup: read_viz_data[het_or_hom]['readgroups'][0],     //readgroup: '1-157768000-G-C_hom10',
-                           }
-                   ); //, height: 200, autoHeight: false});
-                   tracks_counter[het_or_hom] += 1;
-               }
+            if( location.hash == '#all' ) {
+                //add all available tracks for het and hom and hide the 'load +1' buttons
+                // this mode was requested by @konrad and @eric
+                $('#load-more-het-button').hide();
+                $('#load-more-hom-button').hide();
 
-               disable_load_one_more = tracks_counter[het_or_hom] >= read_viz_data[het_or_hom]['n_available'];
-               $('#load-more-'+het_or_hom+'-button').prop('disabled', disable_load_one_more);
-            });
+                ["het", "hom"].forEach(function (het_or_hom) {
+                    var n = read_viz_data[het_or_hom]['n_available'];
+                    for(var i = 0; i < n; i+=1) {
+                        tracks.push(
+                                {
+                                    type: 'bam',
+                                    indexed: true,
+                                    url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][i],
+                                    name: het_or_hom + ' #'+(i+1),
+                                    height: 300,
+                                    minHeight: 300,
+                                    autoHeight: false,
+                                    readgroup: read_viz_data[het_or_hom]['readgroups'][i],     //readgroup: '1-157768000-G-C_hom10',
+                                }
+                        ); //, height: 200, autoHeight: false});
+                        tracks_counter[het_or_hom] += 1;
+                    }
+                });
 
-            var load_one_more = function(het_or_hom) {
-                if(tracks_counter[het_or_hom] < read_viz_data[het_or_hom]['n_available']) {
-                    var i = tracks_counter[het_or_hom];
-                    console.log(read_viz_data[het_or_hom]['urls'][i]);
-                    console.log(read_viz_data[het_or_hom]['readgroups'][i]);
-                    igv.browser.loadTrack({
-                        type: 'bam',
-                        indexed: true,
-                        url: '/read_viz/'+read_viz_data[het_or_hom]['urls'][i],
-                        name: het_or_hom+' #'+(i+1),
-                        readgroup: read_viz_data[het_or_hom]['readgroups'][i],     //readgroup: '1-157768000-G-C_hom10',
-                    });
-                    tracks_counter[het_or_hom] += 1;
-                }
+            } else {
+                //add track #1 for het and hom (assuming they're available)
+                ["het", "hom"].forEach(function (het_or_hom) {
+                    if (read_viz_data[het_or_hom]['n_available'] > 0) {
+                        tracks.push(
+                                {
+                                    type: 'bam',
+                                    indexed: true,
+                                    url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][0],
+                                    name: het_or_hom + ' #1',
+                                    height: 300,
+                                    minHeight: 300,
+                                    autoHeight: false,
+                                    readgroup: read_viz_data[het_or_hom]['readgroups'][0],     //readgroup: '1-157768000-G-C_hom10',
+                                }
+                        ); //, height: 200, autoHeight: false});
+                        tracks_counter[het_or_hom] += 1;
+                    }
 
-                if(tracks_counter[het_or_hom] >= read_viz_data[het_or_hom]['n_available']) {
-                    $('#load-more-'+het_or_hom+'-button').prop('disabled', true);
-                }
-            };
+                    disable_load_one_more = tracks_counter[het_or_hom] >= read_viz_data[het_or_hom]['n_available'];
+                    $('#load-more-' + het_or_hom + '-button').prop('disabled', disable_load_one_more);
+                });
+
+                var load_one_more = function (het_or_hom) {
+                    if (tracks_counter[het_or_hom] < read_viz_data[het_or_hom]['n_available']) {
+                        var i = tracks_counter[het_or_hom];
+                        console.log(read_viz_data[het_or_hom]['urls'][i]);
+                        console.log(read_viz_data[het_or_hom]['readgroups'][i]);
+                        igv.browser.loadTrack({
+                            type: 'bam',
+                            indexed: true,
+                            url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][i],
+                            name: het_or_hom + ' #' + (i + 1),
+                            readgroup: read_viz_data[het_or_hom]['readgroups'][i],     //readgroup: '1-157768000-G-C_hom10',
+                        });
+                        tracks_counter[het_or_hom] += 1;
+                    }
+
+                    if (tracks_counter[het_or_hom] >= read_viz_data[het_or_hom]['n_available']) {
+                        $('#load-more-' + het_or_hom + '-button').prop('disabled', true);
+                    }
+                };
+
+                $('#load-more-het-button').click(function () {
+                    load_one_more("het");
+                });
+
+                $('#load-more-hom-button').click(function () {
+                    load_one_more("hom");
+                });
+
+
+            }
 
             //initialize IGV.js browser
             var locus = '{{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}';
@@ -579,13 +616,6 @@
                 igv.browser.search(locus);
             });
 
-            $('#load-more-het-button').click(function() {
-                load_one_more("het");
-            });
-
-            $('#load-more-hom-button').click(function() {
-                load_one_more("hom");
-            });
 
             setInterval(function() {
                 igv.browser.trackViews.forEach(function (panel) {
