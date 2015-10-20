@@ -104,7 +104,7 @@
             <td>
                 <% _.each(variant.flags, function(flag) { %>
                     <% if (flag == 'LoF flag') { span_tag = 'warning' } else { span_tag = 'danger' } %>
-                    <span class="label label-<%= span_tag %> tooltip-table-header" data-tooltip="Variant annotation dubious: &#xa; see variant page for details"><%= flag %></span>
+                    <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank"><span class="label label-<%= span_tag %> tooltip-table-header" data-tooltip="Variant annotation dubious: &#xa; see variant page for details"><%= flag %></span></a>
                 <% }); %></td>
             <td> <%= variant.allele_count %> </td>
             <td class='hidden-xs'> <%= variant.allele_num %> </td>
