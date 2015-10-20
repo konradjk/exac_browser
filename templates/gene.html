@@ -154,25 +154,35 @@
                         <tbody>
                             <tr>
                                 <td>Synonymous</td>
-                                <td>z = {{ "%0.2f" % constraint.corrected_syn }}</td>
-                                <td>{{ "%0.1f" % constraint.adj_exp_syn }}</td>
+                                <td>z = {% if constraint.syn_z > 3.09 %}
+                                    <span class="label label-danger" data-tooltip="Synonymous constraint may indicate error mode (see FAQ)">{{ "%0.2f" % constraint.syn_z }}</span>
+                                    {% else %}
+                                        {{ "%0.2f" % constraint.syn_z }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ "%0.1f" % constraint.exp_syn }}</td>
                                 <td>{{ "%0.0f" % constraint.n_syn }}</td>
                             </tr>
                             <tr>
                                 <td>Missense</td>
-                                <td>z = {{ "%0.2f" % constraint.corrected_mis }}</td>
-                                <td>{{ "%0.1f" % constraint.adj_exp_mis }}</td>
+                                <td>z = {% if constraint.mis_z > 3.09 %}
+                                    <span class="label label-warning">{{ "%0.2f" % constraint.mis_z }}</span>
+                                    {% else %}
+                                        {{ "%0.2f" % constraint.mis_z }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ "%0.1f" % constraint.exp_mis }}</td>
                                 <td>{{ "%0.0f" % constraint.n_mis }}</td>
                             </tr>
                             <tr>
                                 <td class="tooltip-table-header" data-tooltip="Stop-gained and essential splice site">LoF</td>
-                                <td class="tooltip-table-header" data-tooltip="Probability of LoF intolerance (see FAQ)">pLI = {% if constraint.corrected_lof > 3 %}
-                                        <span class="label label-warning">{{ "%0.2f" % constraint.corrected_lof }}</span>
+                                <td class="tooltip-table-header" data-tooltip="Probability of LoF intolerance (see FAQ)">pLI = {% if constraint.pLI > 0.9 %}
+                                        <span class="label label-warning">{{ "%0.2f" % constraint.pLI }}</span>
                                     {% else %}
-                                        {{ "%0.2f" % constraint.corrected_lof }}
+                                        {{ "%0.2f" % constraint.pLI }}
                                     {% endif %}
                                 </td>
-                                <td>{{ "%0.1f" % constraint.adj_exp_lof }}</td>
+                                <td>{{ "%0.1f" % constraint.exp_lof }}</td>
                                 <td>{{ "%0.0f" % constraint.n_lof }}</td>
                             </tr>
                         </tbody>
