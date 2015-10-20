@@ -566,7 +566,7 @@ def variant_page(variant_str):
                 "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'hom')).fetchone()
             read_viz_db.close()
         except Exception, e:
-            logging.error("Error when accessing sqlite db: %s - %s", sqlite_db_path, e)
+            logging.debug("Error when accessing sqlite db: %s - %s", sqlite_db_path, e)
             n_het = n_hom = None
 
         read_viz_dict = {
@@ -878,5 +878,5 @@ def apply_caching(response):
 
 
 if __name__ == "__main__":
-    app.run()
-    #app.run(host="0.0.0.0", port=80)
+    #app.run()
+    app.run(host="0.0.0.0", port=80)
