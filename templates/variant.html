@@ -411,7 +411,7 @@
 	    <div class="section_header">Read Data</div>
             <p />
             This interactive <a href="https://github.com/igvteam/igv.js">IGV.js</a> visualization shows reads that went into calling this variant.<br>
-            {% if not read_viz['het']['all_samples_missing'] or not read_viz['hom']['all_samples_missing'] %}
+            {% if read_viz['het']['n_available'] > 0 or read_viz['hom']['n_available'] >0 %}
                 <small><span class="label label-info">Note:</span> These are reassembled reads produced by
                     <a href="https://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php#--bamOutput">
                         GATK HaplotypeCaller --bamOutput
@@ -426,11 +426,15 @@
             <center>
 
                     <h5 id='missing-data-note' style='margin-right:60%' >
-                        <span class="label label-info">Note:</span> &nbsp; Read data is not yet
-                        {% if not read_viz['het']['all_samples_missing'] or not read_viz['hom']['all_samples_missing'] %}
-                            fully
+                        <span class="label label-info">Note:</span> &nbsp; Read data is not available for
+                        {% if read_viz['het']['n_available'] == 0 and read_viz['hom']['n_available'] == 0 %}
+                            this variant.
+                        {% elif read_viz['het']['all_samples_missing'] %}
+                            heterozygous samples.
+                        {% elif read_viz['hom']['all_samples_missing'] %}
+                            homozygous samples.
                         {% endif %}
-                        available for this variant.
+
                     </h5>
 
                 <!--
