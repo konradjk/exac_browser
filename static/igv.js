@@ -173,6 +173,13 @@ var igv = (function (igv) {
         nameValues = [];
 
         nameValues.push({ name: 'Read Name', value: this.readName });
+
+        // Display inserted base-pairs
+        if(this.insertions) {
+            nameValues.push({ name: 'Inserted Bases', value: this.insertions.map(function(ins) { return ins.seq; }).join(', ') });
+        }
+
+
         // Sample
         // Read group
         nameValues.push("<hr>");
@@ -188,7 +195,6 @@ var igv = (function (igv) {
         nameValues.push({ name: 'Supplementary', value: yesNo(this.isSupplementary()) });
         nameValues.push({ name: 'Duplicate', value: yesNo(this.isDuplicate()) });
         nameValues.push({ name: 'Failed QC', value: yesNo(this.isFailsVendorQualityCheck()) });
-
 
         if (this.isPaired()) {
             nameValues.push("<hr>");
@@ -1407,7 +1413,6 @@ var igv = (function (igv) {
         // filter alignments
         this.filterOption = config.filterOption || {name: "mappingQuality", params: [30, undefined]};
 
-        console.log("BAM track: ", this);
         this.featureSource = new igv.BamSource(config);
     };
 
@@ -19738,10 +19743,7 @@ var igv = (function (igv) {
         track.removable = (config.removable === undefined ? true : config.removable);      // Defaults to true
 
         track.height = config.height || ("bed" === config.type ? 100 : 50);
-        console.log("Config", config);
-        console.log("Track height", track.height);
         track.autoHeight = config.autoHeight === undefined ? (config.height === undefined) : config.autoHeight;
-        console.log("Track auto height", track.autoHeight);
         track.minHeight = config.minHeight || Math.min(25, this.height);
         track.maxHeight = config.maxHeight || Math.max(500, this.height);
 
