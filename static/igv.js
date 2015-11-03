@@ -168,17 +168,22 @@ var igv = (function (igv) {
 
     igv.BamAlignment.prototype.popupData = function (genomicLocation) {
 
-        var isFirst;
-
-        nameValues = [];
-
-        nameValues.push({ name: 'Read Name', value: this.readName });
-
-        // Display inserted base-pairs
+        // if the user clicked on a base-pair next to an insertion, show just the
+        // inserted bases in a popup (like in desktop IGV).
+        var nameValues = [];
         if(this.insertions) {
-            nameValues.push({ name: 'Inserted Bases', value: this.insertions.map(function(ins) { return ins.seq; }).join(', ') });
+            for(var i = 0; i < this.insertions.length; i += 1) {
+                var ins_start = this.insertions[i].start;
+                if(genomicLocation == ins_start || genomicLocation == ins_start - 1) {
+                    nameValues.push({name: 'Insertion', value: this.insertions[i].seq });
+                    nameValues.push({name: 'Location', value: ins_start });
+                    return nameValues;
+                }
+            }
         }
 
+        var isFirst;
+        nameValues.push({ name: 'Read Name', value: this.readName });
 
         // Sample
         // Read group
