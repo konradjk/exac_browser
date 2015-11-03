@@ -13,6 +13,7 @@ from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from flask.ext.compress import Compress
+from flask.ext.runner import Runner
 from flask_errormail import mail_on_500
 
 from flask import Response
@@ -878,5 +879,5 @@ def apply_caching(response):
 
 
 if __name__ == "__main__":
-    app.run()
-    #app.run(host="0.0.0.0", port=80)
+    runner = Runner(app)  # adds Flask command line options for setting host, port, etc.
+    runner.run()

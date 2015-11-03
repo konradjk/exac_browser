@@ -411,10 +411,10 @@
 	    <div class="section_header">Read Data</div>
             <p />
             This interactive <a href="https://github.com/igvteam/igv.js">IGV.js</a> visualization shows reads that went into calling this variant.<br>
-            {% if not read_viz['het']['all_samples_missing'] or not read_viz['hom']['all_samples_missing'] %}
-                <small><span class="label label-info">Note:</span> These reads are after
+            {% if read_viz['het']['n_available'] > 0 or read_viz['hom']['n_available'] >0 %}
+                <small><span class="label label-info">Note:</span> These are reassembled reads produced by
                     <a href="https://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php#--bamOutput">
-                        GATK HaplotypeCaller reassembly
+                        GATK HaplotypeCaller --bamOutput
                     </a> so they accurately represent what HaplotypeCaller was seeing when it called this variant.</small>
             {% endif %}
 
@@ -426,11 +426,15 @@
             <center>
 
                     <h5 id='missing-data-note' style='margin-right:60%' >
-                        <span class="label label-info">Note:</span> &nbsp; Read data is not yet
-                        {% if not read_viz['het']['all_samples_missing'] or not read_viz['hom']['all_samples_missing'] %}
-                            fully
+                        <span class="label label-info">Note:</span> &nbsp; Read data is not available for
+                        {% if read_viz['het']['n_available'] == 0 and read_viz['hom']['n_available'] == 0 %}
+                            this variant.
+                        {% elif read_viz['het']['all_samples_missing'] %}
+                            heterozygous samples.
+                        {% elif read_viz['hom']['all_samples_missing'] %}
+                            homozygous samples.
                         {% endif %}
-                        available for this variant.
+
                     </h5>
 
                 <!--
@@ -464,20 +468,39 @@
             <!-- Google Fonts and Font awesome -->
             <link rel="stylesheet" type="text/css" href='//fonts.googleapis.com/css?family=PT+Sans:400,700' />
             <link rel="stylesheet" type="text/css" href='//fonts.googleapis.com/css?family=Open+Sans' />
-            <link rel="stylesheet" type="text/css" href='//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' />
+            <!-- ALREADY LOADED BY layout.html: link rel="stylesheet" type="text/css" href='//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' / -->
 
 
             <!-- igv.js -->
             <!-- link rel="stylesheet" type="text/css" href="/igv-css/igv.css" -->
             <!-- script type="text/javascript" src="/igv.min.js"></script -->
-            <link rel="stylesheet" type="text/css" href="http://igv.org/web/beta/igv-beta.css">
-            <script type="text/javascript" src="http://igv.org/web/beta/igv-beta.min.js"></script>
+
+            <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/igv.css') }}">
+            <script type="text/javascript" src="{{ url_for('static', filename='igv.min.js') }}"></script>
+
+            <!-- link rel="stylesheet" type="text/css" href="http://igv.org/web/beta/igv-beta.css" -->
+            <!-- script type="text/javascript" src="http://igv.org/web/beta/igv-beta.min.js"></script -->
 
             <script type="text/javascript">
 
+                var get_bam_track_config = function(read_viz_data, het_or_hom, i) {
+                    return {
+                        type: 'bam',   
+                        indexed: true,
+                        alignmentShading: 'strand',
+                        url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][i],
+                        name: het_or_hom + ' #'+(i+1),
+                        height: 300,
+                        minHeight: 300,
+                        autoHeight: false,
+                        readgroup: read_viz_data[het_or_hom]['readgroups'][i],  //readgroup: '1-157768000-G-C_hom10',
+                    };
+                };
+                
+                
                 // temporary implementation of filtering IGV BamTracks by a user-specified ReadGroup
                 igv.BamReader.prototype.readFeatures_original = igv.BamReader.prototype.readFeatures;
-                igv.BamReader.prototype.readFeatures = function (chr, min, max, continuation, task) {
+                igv.BamReader.prototype.readFeatures = function(chr, min, max, continuation, task) {
 
                     //if a readgroup was passed to the BamTrack constructor, filter reads without this read group.
                     if(this.config.readgroup) {
@@ -507,7 +530,11 @@
 
                 //initialize IGV tracks
                 var tracks = [];
-                tracks.push({ url: '/read_viz/gencode.v19.sorted.bed',       name: "gencode v19",  displayMode: "SQUISHED"});
+                tracks.push({
+                    url: '/read_viz/gencode.v19.sorted.bed',
+                    name: "gencode v19",
+                    displayMode: "SQUISHED"
+                });
                 //tracks.push({ url: '/read_viz/exome_calling_regions.v1.bed', name: "ExAC calling regions" });
                 //tracks.push({ url: '/read_viz/self_chain.sorted.bed',        name: "UCSC self chain" });
 
@@ -520,18 +547,7 @@
                     ["het", "hom"].forEach(function (het_or_hom) {
                         var n = read_viz_data[het_or_hom]['n_available'];
                         for(var i = 0; i < n; i+=1) {
-                            tracks.push(
-                                    {
-                                        type: 'bam',
-                                        indexed: true,
-                                        url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][i],
-                                        name: het_or_hom + ' #'+(i+1),
-                                        height: 300,
-                                        minHeight: 300,
-                                        autoHeight: false,
-                                        readgroup: read_viz_data[het_or_hom]['readgroups'][i],     //readgroup: '1-157768000-G-C_hom10',
-                                    }
-                            ); //, height: 200, autoHeight: false});
+                            tracks.push(get_bam_track_config(read_viz_data, het_or_hom, i)); 
                             tracks_counter[het_or_hom] += 1;
                         }
                     });
@@ -540,18 +556,7 @@
                     //add track #1 for het and hom (assuming they're available)
                     ["het", "hom"].forEach(function (het_or_hom) {
                         if (read_viz_data[het_or_hom]['n_available'] > 0) {
-                            tracks.push(
-                                    {
-                                        type: 'bam',
-                                        indexed: true,
-                                        url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][0],
-                                        name: het_or_hom + ' #1',
-                                        height: 300,
-                                        minHeight: 300,
-                                        autoHeight: false,
-                                        readgroup: read_viz_data[het_or_hom]['readgroups'][0],     //readgroup: '1-157768000-G-C_hom10',
-                                    }
-                            ); //, height: 200, autoHeight: false});
+                            tracks.push(get_bam_track_config(read_viz_data, het_or_hom, 0));
                             tracks_counter[het_or_hom] += 1;
                         }
 
@@ -564,13 +569,7 @@
                             var i = tracks_counter[het_or_hom];
                             console.log(read_viz_data[het_or_hom]['urls'][i]);
                             console.log(read_viz_data[het_or_hom]['readgroups'][i]);
-                            igv.browser.loadTrack({
-                                type: 'bam',
-                                indexed: true,
-                                url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][i],
-                                name: het_or_hom + ' #' + (i + 1),
-                                readgroup: read_viz_data[het_or_hom]['readgroups'][i],     //readgroup: '1-157768000-G-C_hom10',
-                            });
+                            igv.browser.loadTrack(get_bam_track_config(read_viz_data, het_or_hom, i));
                             tracks_counter[het_or_hom] += 1;
                         }
 
@@ -586,8 +585,6 @@
                     $('#load-more-hom-button').click(function () {
                         load_one_more("hom");
                     });
-
-
                 }
 
                 //initialize IGV.js browser
@@ -623,23 +620,22 @@
                     igv.browser.search(locus);
                 });
 
+                igv.browser.trackViews.forEach(function (panel) {
+                    if(panel.track.name)
+                    {
+                        //add border between tracks
+                        panel.viewportDiv.style.borderBottom = panel.viewportDiv.style.borderLeft = "1px solid #cccccc";
 
-                setInterval(function() {
-                    igv.browser.trackViews.forEach(function (panel) {
-                            if(panel.track.name)
-                            {
-                                //add border between tracks
-                                panel.viewportDiv.style.borderBottom = panel.viewportDiv.style.borderLeft = "1px solid #cccccc";
+                    }
+                });
 
-                                //set track height
-                                if(panel.track.name.match("^h")) {
-                                    panel.setTrackHeight(300);
-                                    panel.track.alignmentShading= 'strand';
-                                }
-                            }
-                        });
-                    }, 1000);
           </script>
+            <style>
+                .igv-viewport-div {
+                    border-left: 1px solid #cccccc;
+                    border-bottom: 1px solid #cccccc;
+                }
+            </style>
     {% endif %}
     </div>
   </div>
