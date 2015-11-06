@@ -131,18 +131,16 @@
                 <h1><span class="hidden-xs">Variant: </span>{{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
                 {% if variant.mnps %}
                     {% for mnp in variant.mnps %}
-                        <h5><span class="label label-warning">Warning!</span> This variant is part of a MNP found in {{ mnp.number_samples }}
-                            individual{% if mnp.number_samples > 1 %}s{% endif %}.
-                        </h5>
-                        {% if mnp.number_samples > 1 %}
-                            These {{ mnp.number_samples }} individuals also have
+                        {% if mnp.category == 'UNCHANGED' %}
+                            <span class="label label-info">Note:</span>
                         {% else %}
-                            This individual also has
+                            <h5><span class="label label-warning">Warning!</span>
                         {% endif %}
-                        <a href="/variant/{{ mnp.site2 }}">{{ mnp.site2 }}</a>
+                        This variant is found in phase with <a href="/variant/{{ mnp.site2 }}">{{ mnp.site2 }}</a>
                         {% if mnp.site3 %}
                             and <a href="/variant/{{ mnp.site3 }}">{{ mnp.site3 }}</a>
                         {% endif %}
+                        in {{ mnp.number_samples }} individual{% if mnp.number_samples > 1 %}s{% endif %}{% if mnp.category != 'UNCHANGED' %}, altering its functional interpretation</h5>{% endif %}.
                     {% endfor %}
                 {% endif %}
             </div>

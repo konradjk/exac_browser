@@ -147,6 +147,7 @@ def get_mnp_data(mnp_file):
     header = mnp_file.readline().strip().split('\t')
     for line in mnp_file:
         data = dict(zip(header, line.split('\t')))
+        if any(map(lambda x: x == 'True', data['QUESTIONABLE_PHASING'])): continue
         chroms = data['CHROM'].split(',')
         chrom = chroms[0]
         sites = data['SITES'].split(',')
@@ -164,7 +165,7 @@ def get_mnp_data(mnp_file):
                 mnp['site3'] = all_sites[1]
             mnp['combined_codon_change'] = data['COMBINED_CODON_CHANGE']
             mnp['category'] = data['CATEGORY']
-            mnp['number_samples'] = 5
+            mnp['number_samples'] = data['NSAMPS']
             yield mnp
 
 
