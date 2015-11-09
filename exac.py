@@ -197,7 +197,7 @@ def load_mnps():
     db = get_db()
     start_time = time.time()
 
-    while db.variants.find_and_modify({'has_mnp': {'$eq' : True}}, {'$unset': {'has_mnp': '', 'mnps': ''}}):
+    while db.variants.find_and_modify({'has_mnp' : True}, {'$unset': {'has_mnp': '', 'mnps': ''}}):
         pass
     print 'Deleted MNP data.'
 
