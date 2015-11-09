@@ -90,7 +90,7 @@
                 <% if (variant.HGVS != '') { %>
                     <% if (variant.HGVS.length > 20) { %>
                         <%= variant.HGVS.slice(0,20) %>...<% } else { %>
-                        <%= variant.HGVS %><% } %><% if (is_gene & variant.CANONICAL != 'YES') { %>&dagger;<% } %>
+                        <%= variant.HGVS %><% } %><% if (is_gene & variant.CANONICAL != 'YES') { %><span class="tooltip-table-header" data-tooltip="Annotation is for non-canonical transcript">&dagger;</span><% } %>
                 <% } %>
             </td>
             <td class='hidden'> <%= variant.HGVSp %></td>
