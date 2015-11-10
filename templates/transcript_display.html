@@ -395,7 +395,8 @@ function create_new_data(data, coords) {
         data_object[d[coords]] = d;
     });
     var new_data = [];
-    for (var i = d3.min(data, function(d) { return d[coords] }); i < d3.max(data, function(d) { return d[coords] }); i++) {
+    var max_coord = d3.max(data, function(d) { return d[coords] });
+    for (var i = d3.min(data, function(d) { return d[coords] }); i < max_coord; i++) {
         var x = {'has_coverage': false};
         x[coords] = i;
         //Check the previous base to see if this is the beginning of an exon
