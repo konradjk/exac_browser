@@ -2,9 +2,6 @@ import re
 from utils import *
 
 SEARCH_LIMIT = 10000
-UNSUPPORTED_QUERIES = ['TTN', 'ENSG00000155657', 'CMD1G', 'CMH9', 'CMPD4', 'FLJ32040', 'LGMD2J', 'MYLK5', 'TMD',
-                       u'ENST00000342175', u'ENST00000359218', u'ENST00000342992', u'ENST00000460472',
-                       u'ENST00000589042', u'ENST00000591111']
 
 
 def get_gene(db, gene_id):
@@ -161,8 +158,6 @@ def get_awesomebar_result(db, query):
     """
     query = query.strip()
     print 'Query: %s' % query
-    if query.upper() in UNSUPPORTED_QUERIES:
-        return 'error', query
 
     # Variant
     variant = get_variants_by_rsid(db, query.lower())

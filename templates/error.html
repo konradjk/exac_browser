@@ -3,22 +3,11 @@
     <div class="container">
         <br><br>
         <center>
-        <h2>{% if not unsupported %}404 {% endif %}Error</h2>
+        <h2>Error</h2>
         <h4>This page does not exist.</h4><br>
         <img class="error_image" src="{{ url_for('static', filename='images/exac_404_ripped_page.jpg') }}" />
         <br><br>
-        {% if unsupported %}
-            <h4>
-                {{ unsupported }} is ridiculously large and WILL crash your browser.
-                <br/>
-                Until we have fixed this issue, searches for {{query}} are unsupported at this time.
-                <br/>
-                If you really want to see a big gene, check out <a href="/awesome?query=SYNE1">SYNE1</a> (the second biggest gene) instead.
-            </h4>
-            <br/>
-        {% else %}
-          To report a bug, please file an issue on <a href="https://github.com/konradjk/exac_browser/issues">Github</a>.<br>
-        {% endif %}
+        To report a bug, please file an issue on <a href="https://github.com/konradjk/exac_browser/issues">Github</a>.<br>
         </center>
     </div>
 

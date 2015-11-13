@@ -197,13 +197,14 @@ def load_mnps():
     db = get_db()
     start_time = time.time()
 
+    db.variants.ensure_index('has_mnp')
+    print 'Done indexing.'
     while db.variants.find_and_modify({'has_mnp' : True}, {'$unset': {'has_mnp': '', 'mnps': ''}}):
         pass
     print 'Deleted MNP data.'
 
     with gzip.open(app.config['MNP_FILE']) as mnp_file:
         for mnp in get_mnp_data(mnp_file):
-            if not mnp['site2'].startswith('22-'): continue
             variant = lookups.get_raw_variant(db, mnp['xpos'], mnp['ref'], mnp['alt'], True)
             db.variants.find_and_modify({'_id': variant['_id']}, {'$set': {'has_mnp': True}, '$push': {'mnps': mnp}}, w=0)
 
@@ -772,14 +773,9 @@ def not_found_page(query):
 @app.route('/error/<query>')
 @app.errorhandler(404)
 def error_page(query):
-    if type(query) == str or type(query) == unicode:
-        unsupported = "TTN" if query.upper() in lookups.UNSUPPORTED_QUERIES else None
-    else:
-        unsupported = None
     return render_template(
         'error.html',
-        query=query,
-        unsupported=unsupported
+        query=query
     )
 
 
