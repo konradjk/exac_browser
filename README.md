@@ -75,7 +75,6 @@ Now we must load the database from those flat files.
 This is a single command, but it can take a while (can take advantage of parallel loads by modifying LOAD\_DB\_PARALLEL\_PROCESSES in exac.py):
 
     python manage.py load_db
-    # TODO: ./manage.py doesn't work for some reason - I guess numbered args are used somewhere.
 
 You won't have to run this often - most changes won't require rebuilding the database.
 That said, this is (and will remain) idempotent,
