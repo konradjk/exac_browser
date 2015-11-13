@@ -733,6 +733,7 @@ def region_page(region_id):
                 stop=stop,
                 coverage=coverage_array
             )
+            cache.set(cache_key, t, timeout=1000*60)
         print 'Rendering region: %s' % region_id
         return t
     except Exception, e:
