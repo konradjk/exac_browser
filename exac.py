@@ -393,8 +393,8 @@ def create_cache():
     for gene_id in GENES_TO_CACHE:
         try:
             page_content = get_gene_page_content(gene_id)
-        except Exception:
-            print Exception
+        except Exception as e:
+            print e
             continue
         f = open(os.path.join(GENE_CACHE_DIR, '{}.html'.format(gene_id)), 'w')
         f.write(page_content)
@@ -601,7 +601,7 @@ def variant_page(variant_str):
             read_viz=read_viz_dict,
         )
     except Exception:
-        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        print 'Failed on variant:', variant_str, ';Error=', traceback.format_exc()
         abort(404)
 
 
@@ -647,7 +647,7 @@ def get_gene_page_content(gene_id):
         print 'Rendering gene: %s' % gene_id
         return t
     except Exception, e:
-        print 'Failed on gene:', gene_id, ';Error=', e
+        print 'Failed on gene:', gene_id, ';Error=', traceback.format_exc()
         abort(404)
 
 
@@ -684,7 +684,7 @@ def transcript_page(transcript_id):
         print 'Rendering transcript: %s' % transcript_id
         return t
     except Exception, e:
-        print 'Failed on transcript:', transcript_id, ';Error=', e
+        print 'Failed on transcript:', transcript_id, ';Error=', traceback.format_exc()
         abort(404)
 
 
@@ -733,7 +733,7 @@ def region_page(region_id):
         print 'Rendering region: %s' % region_id
         return t
     except Exception, e:
-        print 'Failed on region:', region_id, ';Error=', e
+        print 'Failed on region:', region_id, ';Error=', traceback.format_exc()
         abort(404)
 
 
@@ -757,7 +757,7 @@ def dbsnp_page(rsid):
             genes_in_region=None
         )
     except Exception, e:
-        print 'Failed on rsid:', rsid, ';Error=', e
+        print 'Failed on rsid:', rsid, ';Error=', traceback.format_exc()
         abort(404)
 
 
