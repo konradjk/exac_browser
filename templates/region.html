@@ -8,12 +8,14 @@
         window.start = {{ start|tojson|safe }};
         window.stop = {{ stop|tojson|safe }};
 
+        {% if genes_in_region and stop != None %}
         $(document).ready(function() {
             if (window.coverage_stats != null) {
                 region_chart(window.coverage_stats, window.variants);
                 update_variants();
             }
         });
+        {% endif %}
     </script>
     <div class="container">
         {% if rsid %}
@@ -63,6 +65,9 @@
                 {% set table_variants = variants_in_region %}
                 {% include 'variant_table.html' %}
             {% endwith %}
+        {% endif %}
+        {% if not variants_in_region and not genes_in_region %}
+                <p> There is nothing in this region. </p>
         {% endif %}
     </div>
 {% endblock %}
