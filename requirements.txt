@@ -7,5 +7,3 @@ flask-runner
 Flask-Compress==1.0.2
 Flask-ErrorMail==0.2.2
 numpy
-sqlite3  # used for read-viz on the variant page
-Flask-Runner
