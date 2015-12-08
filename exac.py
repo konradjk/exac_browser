@@ -165,7 +165,9 @@ def load_variants_file():
     db.variants.ensure_index('transcripts')
 
     sites_vcfs = app.config['SITES_VCFS']
-    if len(sites_vcfs) > 1:
+    if len(sites_vcfs) == 0:
+        raise IOError("No vcf file found")
+    elif len(sites_vcfs) > 1:
         raise Exception("More than one sites vcf file found: %s" % sites_vcfs)
 
     procs = []
