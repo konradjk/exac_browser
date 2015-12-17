@@ -494,7 +494,9 @@
                         readgroup: read_viz_data[het_or_hom]['readgroups'][i],  //readgroup: '1-157768000-G-C_hom10',
                     };
                 };
-                
+ 
+                // global igv settings
+                igv.CoverageMap.threshold=0.1;
                 
                 // temporary implementation of filtering IGV BamTracks by a user-specified ReadGroup
                 igv.BamReader.prototype.readFeatures_original = igv.BamReader.prototype.readFeatures;
