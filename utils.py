@@ -172,8 +172,11 @@ csq_order = ["transcript_ablation",
 "feature_truncation",
 "intergenic_variant",
 ""]
-csq_order_dict = dict(zip(csq_order, range(len(csq_order))))
-rev_csq_order_dict = dict(zip(range(len(csq_order)), csq_order))
+assert len(csq_order) == len(set(csq_order)) # No dupes!
+
+csq_order_dict = {csq:i for i,csq in enumerate(csq_order)}
+rev_csq_order_dict = dict(enumerate(csq_order))
+assert all(csq == rev_csq_order_dict[csq_order_dict[csq]] for csq in csq_order)
 
 
 def worst_csq_index(csq_list):
@@ -212,10 +215,9 @@ def worst_csq_from_csq(csq):
 
 
 def order_vep_by_csq(annotation_list):
-    output = sorted(annotation_list, cmp=lambda x, y: compare_two_consequences(x, y), key=itemgetter('Consequence'))
-    for ann in output:
+    for ann in annotation_list:
         ann['major_consequence'] = worst_csq_from_csq(ann['Consequence'])
-    return output
+    return sorted(annotation_list, key=(lambda ann:csq_order_dict[ann['major_consequence']]))
 
 
 def worst_csq_with_vep(annotation_list):
@@ -226,23 +228,18 @@ def worst_csq_with_vep(annotation_list):
     :param annotation_list:
     :return worst_annotation:
     """
-    if len(annotation_list) == 0: return None
-    worst = annotation_list[0]
-    for annotation in annotation_list:
-        if compare_two_consequences(annotation['Consequence'], worst['Consequence']) < 0:
-            worst = annotation
-        elif compare_two_consequences(annotation['Consequence'], worst['Consequence']) == 0 and annotation['CANONICAL'] == 'YES':
-            worst = annotation
+    if len(annotation_list) == 0:
+        return None
+    worst = max(annotation_list, key=annotation_severity)
     worst['major_consequence'] = worst_csq_from_csq(worst['Consequence'])
     return worst
 
-
-def compare_two_consequences(csq1, csq2):
-    if csq_order_dict[worst_csq_from_csq(csq1)] < csq_order_dict[worst_csq_from_csq(csq2)]:
-        return -1
-    elif csq_order_dict[worst_csq_from_csq(csq1)] == csq_order_dict[worst_csq_from_csq(csq2)]:
-        return 0
-    return 1
+def annotation_severity(ann):
+    "Bigger is more important."
+    rv = -csq_order_dict[worst_csq_from_csq(ann['Consequence'])]
+    if ann['CANONICAL'] == 'YES':
+        rv += 0.1
+    return rv
 
 CHROMOSOMES = ['chr%s' % x for x in range(1, 23)]
 CHROMOSOMES.extend(['chrX', 'chrY', 'chrM'])
