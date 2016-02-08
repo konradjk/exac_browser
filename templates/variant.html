@@ -295,16 +295,13 @@
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                         <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
                             <div class="row">
+                            {% for consequence_column in consequences.keys()|slice(2) %}
                                 <div class="col-md-6">
-                                {% for consequence in consequences.keys()[:((consequences|length / 2)|int + 1)] %}
+                                {% for consequence in consequence_column %}
                                     {% include 'variant_consequences.html' %}
                                 {% endfor %}
                                 </div>
-                                <div class="col-md-6">
-                                {% for consequence in consequences.keys()[((consequences|length / 2)|int + 1):] %}
-                                    {% include 'variant_consequences.html' %}
-                                {% endfor %}
-                                </div>
+                            {% endfor %}
                             </div>
                         </div>
                         <small><span class="label label-info">Note:</span> This list may not include additional transcripts in the same gene that the variant does not overlap.</small>
