@@ -295,7 +295,7 @@
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                         <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-6" style="border-right: 1px dashed #AAA;">
                                 {% for consequence in ordered_csqs[1:((ordered_csqs|length / 2)|int + 1)] %}
                                     {% include 'variant_consequences.html' %}
                                 {% endfor %}
