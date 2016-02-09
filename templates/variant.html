@@ -372,7 +372,7 @@
                                             <td><b>{{ variant.pop_hemis.values()|sum }}</b></td>
                                         {% endif %}
                                         <td><b>
-                                            {% if variant.allele_freq %}
+                                            {% if variant.allele_freq is not none %}
                                                 {{ '%0.4g' % variant.allele_freq }}
                                             {% else %}
                                                 NA
