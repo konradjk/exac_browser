@@ -19,7 +19,7 @@ from flask.ext.runner import Runner
 from flask_errormail import mail_on_500
 
 from flask import Response
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from werkzeug.contrib.cache import SimpleCache
 
 from multiprocessing import Process
@@ -547,17 +547,13 @@ def variant_page(variant_str):
                 'ref': ref,
                 'alt': alt
             }
-        consequences = None
-        ordered_csqs = None
+        consequences = OrderedDict()
         add_consequence_to_variant(variant)
         if 'vep_annotations' in variant:
             variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
-            ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
-            ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
-            consequences = defaultdict(lambda: defaultdict(list))
             for annotation in variant['vep_annotations']:
                 annotation['HGVS'] = get_proper_hgvs(annotation)
-                consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
+                consequences.setdefault(annotation['major_consequence'], {}).setdefault(annotation['Gene'], []).append(annotation)
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
@@ -607,7 +603,6 @@ def variant_page(variant_str):
             base_coverage=base_coverage,
             consequences=consequences,
             any_covered=any_covered,
-            ordered_csqs=ordered_csqs,
             metrics=metrics,
             read_viz=read_viz_dict,
         )
