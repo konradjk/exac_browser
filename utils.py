@@ -122,7 +122,7 @@ def get_transcript_hgvs(csq):
     return csq['HGVSc'].split(':')[-1]
 
 
-def get_proper_hgvs(annotation):
+def get_protein_hgvs(annotation):
     """
     Takes consequence dictionary, returns proper variant formatting for synonymous variants
     """
@@ -185,7 +185,7 @@ def worst_csq_index(csq_list):
     Return index of the worst consequence (In this case, index of 'frameshift_variant', so 4)
     Works well with worst_csq_index('non_coding_exon_variant&nc_transcript_variant'.split('&'))
     """
-    return min([csq_order_dict[ann] for csq in csq_list])
+    return min([csq_order_dict[csq] for csq in csq_list])
 
 
 def worst_csq_from_list(csq_list):

@@ -547,8 +547,8 @@ def variant_page(variant_str):
                 'ref': ref,
                 'alt': alt
             }
-
         consequences = OrderedDict()
+        add_consequence_to_variant(variant)
         if 'vep_annotations' in variant:
             variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
             for annotation in variant['vep_annotations']:
