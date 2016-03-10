@@ -65,7 +65,7 @@ Install the python requirements:
 
     pip install -r requirements.txt
 
-Note that this installs xBrowse too.
+Note that this installs xBrowse too. Some packages will require Python headers (python-dev on some systems).
 
 ### Setup
 
