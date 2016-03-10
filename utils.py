@@ -106,7 +106,7 @@ protein_letters_1to3 = {
     'K': 'Lys', 'L': 'Leu', 'M': 'Met', 'N': 'Asn',
     'P': 'Pro', 'Q': 'Gln', 'R': 'Arg', 'S': 'Ser',
     'T': 'Thr', 'V': 'Val', 'W': 'Trp', 'Y': 'Tyr',
-    'X': 'Ter', '*': 'Ter'
+    'X': 'Ter', '*': 'Ter', 'U': 'Sec'
 }
 
 
