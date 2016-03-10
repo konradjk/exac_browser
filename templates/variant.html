@@ -1,4 +1,8 @@
 {% extends "layout.html" %}
+{% block loads %}
+
+
+{% endblock %}
 {% block body %}
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
@@ -296,7 +300,7 @@
                         <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
                             <div class="row">
                                 <div class="col-md-6" style="border-right: 1px dashed #AAA;">
-                                {% for consequence in consequences.keys()[1:((consequences|length / 2)|int + 1)] %}
+                                {% for consequence in consequences.keys()[:((consequences|length / 2)|int + 1)] %}
                                     {% include 'variant_consequences.html' %}
                                 {% endfor %}
                                 </div>
