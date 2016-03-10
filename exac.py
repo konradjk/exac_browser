@@ -774,11 +774,12 @@ def dbsnp_page(rsid):
 
 
 @app.route('/not_found/<query>')
+@app.errorhandler(404)
 def not_found_page(query):
     return render_template(
         'not_found.html',
         query=query
-    )
+    ), 404
 
 
 @app.route('/error/<query>')
@@ -787,7 +788,7 @@ def error_page(query):
     return render_template(
         'error.html',
         query=query
-    )
+    ), 404
 
 
 @app.route('/downloads')
