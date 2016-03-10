@@ -147,8 +147,8 @@
                             <tr>
                                 <th style="padding-top: 4px;">Constraint <br/>from ExAC</th>
                                 <th style="padding-top: 4px; width=50%;">Expected <br/>no. variants</th>
-                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Note that these numbers only consider &#xa; rare (AF < 0.001) variation &#xa; Not all variants in the table &#xa; below may be included">Observed <br/>no. variants</th>
-                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Constraint Metric for each &#xa; category (see FAQ) &#xa; synonymous: Z score &#xa; missense: Z score&#xa; LoF: pLI">Constraint<br/>Metric</th>
+                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Note that these numbers only consider &#xa; rare (AF < 0.001) variation &#xa; Not all variants in the table &#xa; below may be included"><span class="tooltip_hover">Observed <br/>no. variants</span></th>
+                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Constraint Metric for each &#xa; category (see FAQ) &#xa; synonymous: Z score &#xa; missense: Z score&#xa; LoF: pLI"><span class="tooltip_hover">Constraint<br/>Metric</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,7 +175,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="tooltip-table-header" data-tooltip="Stop-gained and essential splice site">LoF</td>
+                                <td class="tooltip-table-header" data-tooltip="Stop-gained and essential splice site"><span class="tooltip_hover">LoF</span></td>
                                 <td>{{ "%0.1f" % constraint.exp_lof }}</td>
                                 <td>{{ "%0.0f" % constraint.n_lof }}</td>
                                 <td class="tooltip-table-header" data-tooltip="Probability of LoF intolerance (see FAQ)">{% if constraint.pLI > 0.9 %}
