@@ -75,9 +75,12 @@ def add_consequence_to_variant(variant):
     variant['HGVSc'] = get_transcript_hgvs(worst_csq)
     variant['HGVS'] = get_proper_hgvs(worst_csq)
     variant['CANONICAL'] = worst_csq['CANONICAL']
-    variant['flags'] = get_flags_from_variant(variant)
     if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
         variant['category'] = 'lof_variant'
+        for annotation in variant['vep_annotations']:
+            if annotation['LoF'] == '':
+                annotation['LoF'] = 'NC'
+                annotation['LoF_filter'] = 'Non-protein-coding gene'
     elif csq_order_dict[variant['major_consequence']] <= csq_order_dict["missense_variant"]:
         # Should be noted that this grabs inframe deletion, etc.
         variant['category'] = 'missense_variant'
@@ -85,6 +88,7 @@ def add_consequence_to_variant(variant):
         variant['category'] = 'synonymous_variant'
     else:
         variant['category'] = 'other_variant'
+    variant['flags'] = get_flags_from_variant(variant)
 
 
 def get_flags_from_variant(variant):
@@ -93,7 +97,7 @@ def get_flags_from_variant(variant):
         flags.append('MNP')
     lof_annotations = [x for x in variant['vep_annotations'] if x['LoF'] != '']
     if not len(lof_annotations): return flags
-    if all([x['LoF'] == 'LC' for x in lof_annotations]):
+    if all([x['LoF'] != 'HC' for x in lof_annotations]):
         flags.append('LC LoF')
     if all([x['LoF_flags'] != '' for x in lof_annotations]):
         flags.append('LoF flag')
