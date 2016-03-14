@@ -305,13 +305,17 @@
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                         <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
                             <div class="row">
-                                <div class="col-md-6" style="border-right: 1px dashed #AAA;">
-                                {% for consequence in consequences.keys()[:((consequences|length / 2)|int)] %}
+                                {% if consequences|length > 1 %}
+                                    <div class="col-md-6" style="border-right: 1px dashed #AAA;">
+                                {% else %}
+                                    <div class="col-md-6">
+                                {% endif %}
+                                {% for consequence in consequences.keys()[:(((consequences|length + 1) / 2)|int)] %}
                                     {% include 'variant_consequences.html' %}
                                 {% endfor %}
                                 </div>
                                 <div class="col-md-6">
-                                {% for consequence in consequences.keys()[((consequences|length / 2)|int):(consequences|length)] %}
+                                {% for consequence in consequences.keys()[(((consequences|length + 1) / 2)|int):(consequences|length)] %}
                                     {% include 'variant_consequences.html' %}
                                 {% endfor %}
                                 </div>
