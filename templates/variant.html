@@ -306,12 +306,12 @@
                         <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
                             <div class="row">
                                 <div class="col-md-6" style="border-right: 1px dashed #AAA;">
-                                {% for consequence in consequences.keys()[:((consequences|length / 2)|int + 1)] %}
+                                {% for consequence in consequences.keys()[:((consequences|length / 2)|int)] %}
                                     {% include 'variant_consequences.html' %}
                                 {% endfor %}
                                 </div>
                                 <div class="col-md-6">
-                                {% for consequence in consequences.keys()[((consequences|length / 2)|int + 1):(consequences|length)] %}
+                                {% for consequence in consequences.keys()[((consequences|length / 2)|int):(consequences|length)] %}
                                     {% include 'variant_consequences.html' %}
                                 {% endfor %}
                                 </div>
