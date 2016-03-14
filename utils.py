@@ -183,6 +183,10 @@ rev_csq_order_dict = dict(enumerate(csq_order))
 assert all(csq == rev_csq_order_dict[csq_order_dict[csq]] for csq in csq_order)
 
 
+def remove_extraneous_vep_annotations(annotation_list):
+    return [ann for ann in annotation_list if csq_order_dict[ann['Consequence']] <= csq_order_dict['intron_variant']]
+
+
 def worst_csq_index(csq_list):
     """
     Input list of consequences (e.g. ['frameshift_variant', 'missense_variant'])
@@ -230,6 +234,7 @@ def worst_csq_with_vep(annotation_list):
     worst = max(annotation_list, key=annotation_severity)
     worst['major_consequence'] = worst_csq_from_csq(worst['Consequence'])
     return worst
+
 
 def annotation_severity(annotation):
     "Bigger is more important."

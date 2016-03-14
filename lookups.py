@@ -242,6 +242,8 @@ def get_variants_in_region(db, chrom, start, stop):
         'xpos': {'$lte': xstop, '$gte': xstart}
     }, fields={'_id': False}, limit=SEARCH_LIMIT))
     add_consequence_to_variants(variants)
+    for variant in variants:
+        remove_extraneous_information(variant)
     return list(variants)
 
 
