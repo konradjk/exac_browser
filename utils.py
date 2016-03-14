@@ -138,18 +138,20 @@ def get_protein_hgvs(annotation):
             print 'Could not create HGVS for: %s' % annotation
     return annotation['HGVSp'].split(':')[-1]
 
-# Note that this is the current as of v77 with 2 included for backwards compatibility (VEP <= 75)
+# Note that this is the current as of v81 with some included for backwards compatibility (VEP <= 75)
 csq_order = ["transcript_ablation",
-"splice_donor_variant",
 "splice_acceptor_variant",
+"splice_donor_variant",
 "stop_gained",
 "frameshift_variant",
 "stop_lost",
-"initiator_codon_variant",
+"start_lost",  # new in v81
+"initiator_codon_variant",  # deprecated
 "transcript_amplification",
 "inframe_insertion",
 "inframe_deletion",
 "missense_variant",
+"protein_altering_variant",  # new in v79
 "splice_region_variant",
 "incomplete_terminal_codon_variant",
 "stop_retained_variant",
@@ -171,8 +173,8 @@ csq_order = ["transcript_ablation",
 "TF_binding_site_variant",
 "regulatory_region_ablation",
 "regulatory_region_amplification",
-"regulatory_region_variant",
 "feature_elongation",
+"regulatory_region_variant",
 "feature_truncation",
 "intergenic_variant",
 ""]
