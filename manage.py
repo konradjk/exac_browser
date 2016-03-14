@@ -28,6 +28,13 @@ def load_variants_file():
 
 
 @manager.command
+def reload_variants():
+    exac.load_variants_file()
+    exac.load_mnps()
+    exac.precalculate_metrics()
+
+
+@manager.command
 def load_gene_models():
     exac.load_gene_models()
 
