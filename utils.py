@@ -184,7 +184,7 @@ assert all(csq == rev_csq_order_dict[csq_order_dict[csq]] for csq in csq_order)
 
 
 def remove_extraneous_vep_annotations(annotation_list):
-    return [ann for ann in annotation_list if csq_order_dict[ann['Consequence']] <= csq_order_dict['intron_variant']]
+    return [ann for ann in annotation_list if worst_csq_index(ann['Consequence'].split('&')) <= csq_order_dict['intron_variant']]
 
 
 def worst_csq_index(csq_list):
