@@ -133,7 +133,8 @@ def get_awesomebar_suggestions(g, query):
 R1 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)-(\d+)$')
 R2 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)$')
 R3 = re.compile(r'^(\d+|X|Y|M|MT)$')
-R4 = re.compile(r'^(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)-([ATCG]+)-([ATCG]+)$')
+# R4 = re.compile(r'^(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)-([ATCG]+)-([ATCG]+)$')
+R4 = re.compile(r'^\s*(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)[-:\s]*([ATCG]+)\s*[-:/]\s*([ATCG]+)\s*$')
 
 
 def get_awesomebar_result(db, query):
