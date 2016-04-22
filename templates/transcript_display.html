@@ -398,7 +398,8 @@ function create_new_data(data, coords) {
         data_object[d[coords]] = d;
     });
     var new_data = [];
-    for (var i = d3.min(data, function(d) { return d[coords] }); i < d3.max(data, function(d) { return d[coords] }); i++) {
+    var max_coord = d3.max(data, function(d) { return d[coords] });
+    for (var i = d3.min(data, function(d) { return d[coords] }); i < max_coord; i++) {
         var x = {'has_coverage': false};
         x[coords] = i;
         //Check the previous base to see if this is the beginning of an exon
@@ -427,11 +428,6 @@ function coverage_sum(key) {
         total += entry[key];
     });
     return (total/window.coverage_stats.length).toPrecision(4);
-}
-
-function refresh_links() {
-    $("#coverage_plot_download").attr('href', set_plot_image('gene_plot_container', 0));
-    $("#exon_plot_download").attr('href', set_plot_image('gene_plot_container', 1));
 }
 
 $(document).ready(function() {
@@ -482,7 +478,6 @@ $(document).ready(function() {
         var include_utrs = $('#include_utrs_checkbox').is(':checked');
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
-        refresh_links();
     });
     $('#over_x_select').change(function () {
         var detail = $('.display_coverage_metric_buttons.active').attr('id').replace('display_coverage_', '').replace('_button', '');
@@ -491,7 +486,6 @@ $(document).ready(function() {
         $('#avg_coverage_type_x').html($(this).val());
         $('#avg_coverage_x').html(coverage_sum($(this).val().replace('X', ''))*100 + '%');
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, $(this).val().replace('X', ''), !include_utrs, '#gene_plot_container');
-        refresh_links();
     });
     $('#average_select').change(function () {
         var detail = $('.display_coverage_metric_buttons.active').attr('id').replace('display_coverage_', '').replace('_button', '');
@@ -500,7 +494,6 @@ $(document).ready(function() {
         $('#avg_coverage_type').html($(this).val());
         $('#avg_coverage').html(coverage_sum($(this).val()));
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, $(this).val(), !include_utrs, '#gene_plot_container');
-        refresh_links();
     });
     $('#include_utrs_checkbox').change(function () {
         setTimeout(function() {
@@ -510,7 +503,6 @@ $(document).ready(function() {
             var include_utrs = $('#include_utrs_checkbox').is(':checked');
             var plot_data = include_utrs ? new_data : new_data_skip_utr;
             change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
-            refresh_links();
         }, 10);
     });
 
@@ -519,14 +511,12 @@ $(document).ready(function() {
         setTimeout(function () {
             var v = $('#inverted_checkbox').is(':checked');
             change_track_chart_variant_size(window.variants_in_transcript, v, '#gene_plot_container');
-            refresh_links();
         }, 10);
     });
 
     $('.consequence_display_buttons, #filtered_checkbox').change(function () {
         setTimeout(function() {
             update_variants();
-            refresh_links();
         }, 10);
     });
 
@@ -543,8 +533,13 @@ $(document).ready(function() {
         var include_utrs = $('#include_utrs_checkbox').is(':checked');
         var plot_data = include_utrs ? new_data : new_data_skip_utr;
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
-        refresh_links();
     });
-    refresh_links();
+
+    $("#coverage_plot_download").on('click', function() {
+        window.location.href = set_plot_image('gene_plot_container', 0);
+    });
+    $("#exon_plot_download").on('click', function() {
+        window.location.href = set_plot_image('gene_plot_container', 1);
+    });
 });
 </script>

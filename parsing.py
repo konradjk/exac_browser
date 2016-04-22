@@ -4,6 +4,7 @@ Utils for reading flat files that are loaded into database
 import re
 import traceback
 from utils import *
+import copy
 
 POPS = {
     'AFR': 'African',
@@ -119,6 +120,10 @@ def get_variants_from_sites_vcf(sites_vcf):
                 variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
                 variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
                 variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
+                variant['ac_male'] = info_field['AC_MALE']
+                variant['ac_female'] = info_field['AC_FEMALE']
+                variant['an_male'] = info_field['AN_MALE']
+                variant['an_female'] = info_field['AN_FEMALE']
                 variant['hom_count'] = sum(variant['pop_homs'].values())
                 if variant['chrom'] in ('X', 'Y'):
                     variant['pop_hemis'] = dict([(POPS[x], int(info_field['Hemi_%s' % x].split(',')[i])) for x in POPS])
@@ -140,6 +145,42 @@ def get_variants_from_sites_vcf(sites_vcf):
             print("Error parsing vcf line: " + line)
             traceback.print_exc()
             break
+
+
+def get_mnp_data(mnp_file):
+    header = mnp_file.readline().strip().split('\t')
+    for line in mnp_file:
+        data = dict(zip(header, line.split('\t')))
+        if any(map(lambda x: x == 'True', data['QUESTIONABLE_PHASING'])): continue
+        chroms = data['CHROM'].split(',')
+        chrom = chroms[0]
+        sites = data['SITES'].split(',')
+        refs = data['REF'].split(',')
+        alts = data['ALT'].split(',')
+        for i, site in enumerate(sites):
+            all_sites = zip(chroms, sites, refs, alts)
+            all_sites.remove(all_sites[i])
+            mnp = {}
+            mnp['xpos'] = get_xpos(chrom, site)
+            mnp['ref'] = refs[i]
+            mnp['alt'] = alts[i]
+            mnp['site2'] = '-'.join(all_sites[0])
+            if len(all_sites) > 1:
+                mnp['site3'] = all_sites[1]
+            mnp['combined_codon_change'] = data['COMBINED_CODON_CHANGE']
+            mnp['category'] = data['CATEGORY']
+            mnp['number_samples'] = data['NSAMPS']
+            yield mnp
+
+
+def get_constraint_information(constraint_file):
+    _, _, _, header = constraint_file.readline().strip().split(None, 3)
+    header = header.split()
+    for line in constraint_file:
+        transcript, gene, chrom, info = line.strip().split(None, 3)
+        transcript_info = dict(zip(header, map(float, info.split())))
+        transcript_info['transcript'] = transcript.split('.')[0]
+        yield transcript_info
 
 
 def get_canonical_transcripts(canonical_transcript_file):
@@ -278,7 +319,7 @@ def get_dbnsfp_info(dbnsfp_file):
             'ensembl_gene': line[fields["Ensembl_gene"]],
             'gene_full_name': line[fields["Gene_full_name"]],
             'gene_other_names': other_names
-        } 
+        }
         yield gene_info
 
 

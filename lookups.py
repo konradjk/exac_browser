@@ -1,10 +1,8 @@
 import re
 from utils import *
+import itertools
 
 SEARCH_LIMIT = 10000
-UNSUPPORTED_QUERIES = ['TTN', 'ENSG00000155657', 'CMD1G', 'CMH9', 'CMPD4', 'FLJ32040', 'LGMD2J', 'MYLK5', 'TMD',
-                       u'ENST00000342175', u'ENST00000359218', u'ENST00000342992', u'ENST00000460472',
-                       u'ENST00000589042', u'ENST00000591111']
 
 
 def get_gene(db, gene_id):
@@ -28,8 +26,12 @@ def get_transcript(db, transcript_id):
     return transcript
 
 
+def get_raw_variant(db, xpos, ref, alt, get_id=False):
+    return db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': get_id})
+
+
 def get_variant(db, xpos, ref, alt):
-    variant = db.variants.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})
+    variant = get_raw_variant(db, xpos, ref, alt, False)
     if variant is None or 'rsid' not in variant:
         return variant
     if variant['rsid'] == '.' or variant['rsid'] is None:
@@ -111,6 +113,10 @@ def get_coverage_for_transcript(db, xstart, xstop=None):
     return covered
 
 
+def get_constraint_for_transcript(db, transcript):
+    return db.constraint.find_one({'transcript': transcript}, fields={'_id': False})
+
+
 def get_awesomebar_suggestions(g, query):
     """
     This generates autocomplete suggestions when user
@@ -118,15 +124,17 @@ def get_awesomebar_suggestions(g, query):
     If it is the prefix for a gene, return list of gene names
     """
     regex = re.compile('^' + re.escape(query), re.IGNORECASE)
-    results = [r for r in g.autocomplete_strings if regex.match(r)][:20]
-    return results
+    results = (r for r in g.autocomplete_strings if regex.match(r))
+    results = itertools.islice(results, 0, 20)
+    return list(results)
 
 
 # 1:1-1000
 R1 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)-(\d+)$')
 R2 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)$')
 R3 = re.compile(r'^(\d+|X|Y|M|MT)$')
-R4 = re.compile(r'^(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)-([ATCG]+)-([ATCG]+)$')
+# R4 = re.compile(r'^(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)-([ATCG]+)-([ATCG]+)$')
+R4 = re.compile(r'^\s*(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)[-:\s]*([ATCG]+)\s*[-:/]\s*([ATCG]+)\s*$')
 
 
 def get_awesomebar_result(db, query):
@@ -153,8 +161,6 @@ def get_awesomebar_result(db, query):
     """
     query = query.strip()
     print 'Query: %s' % query
-    if query.upper() in UNSUPPORTED_QUERIES:
-        return 'error', query
 
     # Variant
     variant = get_variants_by_rsid(db, query.lower())
@@ -237,11 +243,13 @@ def get_variants_in_region(db, chrom, start, stop):
         'xpos': {'$lte': xstop, '$gte': xstart}
     }, fields={'_id': False}, limit=SEARCH_LIMIT))
     add_consequence_to_variants(variants)
+    for variant in variants:
+        remove_extraneous_information(variant)
     return list(variants)
 
 
 def get_metrics(db, variant):
-    if 'allele_count' not in variant:
+    if 'allele_count' not in variant or variant['allele_num'] == 0:
         return None
     metrics = {}
     for metric in METRICS:

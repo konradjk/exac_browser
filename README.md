@@ -65,7 +65,7 @@ Install the python requirements:
 
     pip install -r requirements.txt
 
-Note that this installs xBrowse too.
+Note that this installs xBrowse too. Some packages will require Python headers (python-dev on some systems).
 
 ### Setup
 
@@ -85,6 +85,10 @@ You can also reload parts of the database using any of the following commands:
     python manage.py load_dbsnp_file
     python manage.py load_base_coverage
     python manage.py load_gene_models
+
+Then run:
+
+    python manage.py precalculate_metrics
 
 Then, you need to create a cache for autocomplete and large gene purposes:
 

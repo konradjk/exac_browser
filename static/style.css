@@ -77,6 +77,10 @@
     fill: #157e28 !important;
 }
 
+.tooltip_hover {
+    border-bottom: dotted 1px #000;
+}
+
 .section_header {
     font-weight: bold;
     font-size: 24px;

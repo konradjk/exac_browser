@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 from flask.ext.script import Manager
 from exac import app
 import exac
@@ -26,6 +28,13 @@ def load_variants_file():
 
 
 @manager.command
+def reload_variants():
+    exac.load_variants_file()
+    exac.load_mnps()
+    exac.precalculate_metrics()
+
+
+@manager.command
 def load_gene_models():
     exac.load_gene_models()
 
@@ -33,6 +42,16 @@ def load_gene_models():
 @manager.command
 def load_dbsnp_file():
     exac.load_dbsnp_file()
+
+
+@manager.command
+def load_constraint_information():
+    exac.load_constraint_information()
+
+
+@manager.command
+def load_mnps():
+    exac.load_mnps()
 
 
 @manager.command

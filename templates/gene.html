@@ -6,7 +6,7 @@
             <hr/>
         </div>
         <div class="row">
-            <div class="col-md-6 col-xs-10 col-xs-offset-1 col-md-offset-0">
+            <div class="col-md-4 col-xs-10 col-xs-offset-1 col-md-offset-0">
                 <dl class="dl-horizontal">
                     {% if gene.full_gene_name %}
                         <dt>{{ gene.gene_name }}</dt>
@@ -68,7 +68,7 @@
                                     </a>
                                 </li>
                                 <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/{{ gene.gene_name }}" target="_blank">
+                                    <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/wiki/{{ gene.gene_name }}" target="_blank">
                                         Wikipedia <i class="fa fa-external-link"></i>
                                     </a>
                                 </li>
@@ -92,7 +92,7 @@
                     </dd>
                 </dl>
             </div>
-            <div class="col-md-6 hidden-xs">
+            <div class="col-md-1 hidden-xs">
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
                         Transcripts
@@ -112,6 +112,56 @@
                     </ul>
                 </div>
             </div>
+            <div class="col-md-5 col-md-offset-1">
+                {% if constraint %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="padding-top: 4px;">Constraint <br/>from ExAC</th>
+                                <th style="padding-top: 4px; width=50%;">Expected <br/>no. variants</th>
+                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Note that these numbers only consider &#xa; rare (AF < 0.001) variation &#xa; Not all variants in the table &#xa; below may be included"><span class="tooltip_hover">Observed <br/>no. variants</span></th>
+                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Constraint Metric for each &#xa; category (see FAQ) &#xa; synonymous: Z score &#xa; missense: Z score&#xa; LoF: pLI"><span class="tooltip_hover">Constraint<br/>Metric</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Synonymous</td>
+                                <td>{{ "%0.1f" % constraint.exp_syn }}</td>
+                                <td>{{ "%0.0f" % constraint.n_syn }}</td>
+                                <td>z = {% if constraint.syn_z > 3.71 %}
+                                    <span class="label label-danger" data-tooltip="Synonymous constraint may indicate error mode (see FAQ)">{{ "%0.2f" % constraint.syn_z }}</span>
+                                    {% else %}
+                                        {{ "%0.2f" % constraint.syn_z }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Missense</td>
+                                <td>{{ "%0.1f" % constraint.exp_mis }}</td>
+                                <td>{{ "%0.0f" % constraint.n_mis }}</td>
+                                <td>z = {% if constraint.mis_z > 3.09 %}
+                                    <span class="label label-warning">{{ "%0.2f" % constraint.mis_z }}</span>
+                                    {% else %}
+                                        {{ "%0.2f" % constraint.mis_z }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="tooltip-table-header" data-tooltip="Stop-gained and essential splice site"><span class="tooltip_hover">LoF</span></td>
+                                <td>{{ "%0.1f" % constraint.exp_lof }}</td>
+                                <td>{{ "%0.0f" % constraint.n_lof }}</td>
+                                <td class="tooltip-table-header" data-tooltip="Probability of LoF intolerance (see FAQ)">{% if constraint.pLI > 0.9 %}
+                                        <span class="label label-warning">pLI</span>
+                                    {% else %}
+                                        pLI
+                                    {% endif %} =
+                                    {{ "%0.2f" % constraint.pLI }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
         </div>
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
@@ -123,7 +173,7 @@
                     {% endwith %}
                 </div>
                 <div class="row">
-                    {% if variants_in_gene %}
+                    {% if variants_in_transcript %}
                         {% set chrom = variants_in_transcript[0].chrom %}
                         {% include 'variant_table.html' %}
                     {% else %}
@@ -133,6 +183,7 @@
             </div>
         </div>
     </div>
+<<<<<<< HEAD
     
 {% endblock %}
 
@@ -167,3 +218,6 @@
                         $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
                     </script>
 {% endblock %}
+=======
+{% endblock %}
+>>>>>>> konradjk/master
