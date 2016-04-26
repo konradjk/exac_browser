@@ -650,6 +650,96 @@ def variant_page(variant_str):
         print 'Failed on variant:', variant_str, ';Error=', traceback.format_exc()
         abort(404)
 
+@app.route('/rest/bulk/variant/variant',  methods=['POST']) 
+def variant_variant_bulk():
+    variant_str = ''
+    db = get_db()
+    jsonPayload = request.get_json(force=True, silent=True)
+    try:
+        responseArray = {}
+        for variant_str in jsonPayload:
+            chrom, pos, ref, alt = variant_str.split('-')
+            pos = int(pos)
+            # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+            xpos = get_xpos(chrom, pos)
+            variant = lookups.get_variant(db, xpos, ref, alt)
+
+            if variant is None:
+                variant = {
+                    'chrom': chrom,
+                    'pos': pos,
+                    'xpos': xpos,
+                    'ref': ref,
+                    'alt': alt
+                }
+
+            if 'vep_annotations' in variant:
+                variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+            responseArray[variant_str] = variant
+            print 'Rendering variant: %s' % variant_str
+
+        return Response(response=json.dumps(responseArray),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+
+@app.route('/rest/bulk/variant',  methods=['POST']) 
+def variant_bulk():
+    db = get_db()
+    jsonPayload = request.get_json(force=True, silent=True)
+    try:
+        responseArray = {}
+        for variant_str in jsonPayload:
+            chrom, pos, ref, alt = variant_str.split('-')
+            pos = int(pos)
+            # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+            xpos = get_xpos(chrom, pos)
+            variant = lookups.get_variant(db, xpos, ref, alt)
+
+            if variant is None:
+                variant = {
+                    'chrom': chrom,
+                    'pos': pos,
+                    'xpos': xpos,
+                    'ref': ref,
+                    'alt': alt
+                }
+            consequences = None
+            ordered_csqs = None
+            if 'vep_annotations' in variant:
+                variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+                ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
+                ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
+                consequences = defaultdict(lambda: defaultdict(list))
+                for annotation in variant['vep_annotations']:
+                    annotation['HGVS'] = get_proper_hgvs(annotation)
+                    consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
+            base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
+            any_covered = any([x['has_coverage'] for x in base_coverage])
+            metrics = lookups.get_metrics(db, variant)
+        
+            response = {
+                'variant' : variant,
+                'base_coverage' : base_coverage,
+                'any_covered' : any_covered,
+                'consequence' : consequences,
+                'metrics' : metrics
+            }
+            responseArray[variant_str] = response
+        
+
+            print 'Rendering variant: %s' % variant_str
+            
+        return Response(response=json.dumps(responseArray),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+
+
 @app.route('/rest/variant/<variant_str>')
 def variant_rest(variant_str):
     db = get_db()
