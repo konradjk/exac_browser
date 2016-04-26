@@ -156,3 +156,9 @@ For testing, you can open up an interactive shell with:
 ###dbSNP
 
 	/rest/dbsnp/<rsid>
+
+###Bulk variant request
+A JSON Array of variant informaiton in the <variant_str> style needs to be attached as the payload of the call
+
+    POST /rest/bulk/variant
+    POST /rest/bulk/variant/variant
