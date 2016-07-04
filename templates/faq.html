@@ -36,19 +36,19 @@
             <li class="media">
                 <div class="media-body">
                     <h4 class="media-heading">How was the expected number of variants determined?</h4>
-                    We used a depth corrected probability of mutation for each gene to predict the expected variant counts. More details can be found in section 4.1 of the supplement in <a href="http://biorxiv.org/content/early/2015/10/30/030338">Lek et al</a>.
+                    We used a depth corrected probability of mutation for each gene to predict the expected variant counts. More details can be found in section 4.1 of the supplement in <a href="http://biorxiv.org/content/early/2015/10/30/030338">Lek et al</a>. Note that the expected variant counts for exons with a median depth < 1 were removed from the totals.
                 </div>
             </li>
             <li class="media">
                 <div class="media-body">
                     <h4 class="media-heading">Which variants are included in the observed counts?</h4>
-                    We included single nucleotide changes that occured in the canonical transcript and had 123 or fewer alternative alleles and a VQSLOD >= -2.632. The counts represent the number of unique variants and not the allele count of said variants.
+                    We included single nucleotide changes that occurred in the canonical transcript and had 123 or fewer alternative alleles and a VQSLOD >= -2.632. The counts represent the number of unique variants and not the allele count of said variants. Observed variant counts in exons with a median depth < 1 were removed from the totals.
                 </div>
             </li>
             <li class="media">
                 <div class="media-body">
                     <h4 class="media-heading">Why are there fewer variants in the constraint table than depicted on the gene page?</h4>
-                    We only included variants that were found in the canonical transcript of the gene. On the gene page, variants found in all transcripts are depicted.
+                    We only included variants that were found in the canonical transcript of the gene. On the gene page, variants found in all transcripts are depicted. Additionally, both observed and expected variant counts were removed for exons with a median depth < 1.
                 </div>
             </li>
             <li class="media">
