@@ -50,17 +50,34 @@ def get_base_coverage_from_file(base_coverage_file):
         yield d
 
 
-def get_variants_from_sites_vcf(sites_vcf):
+def get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name=None):
     """
     Parse exac sites VCF file and return iter of variant dicts
     sites_vcf is a file (gzipped), not file path
+    gene_ids_by_name is a dict mapping gene_name_upper to gene_id
     """
-    vep_field_names = None
+    if not gene_ids_by_name:
+        gene_ids_by_name = {}
+
+    vep_field_names = []
+    eff_field_names = []
+    lof_field_names = []
+    nmd_field_names = []
+
     for line in sites_vcf:
         try:
             line = line.strip('\n')
             if line.startswith('##INFO=<ID=CSQ'):
                 vep_field_names = line.split('Format: ')[-1].strip('">').split('|')
+            if line.startswith('##INFO=<ID=EFF'):
+                eff_field_names = [field.strip(' []()') for field in
+                    line.split("Format: 'Effect (")[-1].strip(')\' ">').split('|')]
+            if line.startswith('##INFO=<ID=LOF'):
+                lof_field_names = [field.strip(' []()') for field in
+                    line.split("Format: '")[-1].strip(" '>").split('|')]
+            if line.startswith('##INFO=<ID=NMD'):
+                nmd_field_names = [field.strip(' []()') for field in
+                    line.split("Format: '")[-1].strip(" '>").split('|')]
             if line.startswith('##INFO=<ID=DP_HIST'):
                 dp_mids = map(float, line.split('Mids: ')[-1].strip('">').split('|'))
             if line.startswith('##INFO=<ID=GQ_HIST'):
@@ -69,14 +86,24 @@ def get_variants_from_sites_vcf(sites_vcf):
                 continue
 
             # If we get here, it's a variant line
-            if vep_field_names is None:
-                raise Exception("VEP_field_names is None. Make sure VCF header is present.")
             # This elegant parsing code below is copied from https://github.com/konradjk/loftee
             fields = line.split('\t')
             info_field = dict([(x.split('=', 1)) if '=' in x else (x, x) for x in re.split(';(?=\w)', fields[7])])
-            consequence_array = info_field['CSQ'].split(',') if 'CSQ' in info_field else []
-            annotations = [dict(zip(vep_field_names, x.split('|'))) for x in consequence_array if len(vep_field_names) == len(x.split('|'))]
-            coding_annotations = [ann for ann in annotations if ann['Feature'].startswith('ENST')]
+            annotations = [dict(zip(vep_field_names, x.split('|'))) for x in info_field.get('CSQ', '').split(',')]
+            coding_annotations = [ann for ann in annotations if ann.get('Feature', '').startswith('ENST')]
+
+            eff_annotations = []
+            for eff in info_field.get('EFF', '').split(','):
+                eff = eff.strip(' )')
+                if not eff:
+                    continue
+                effect, rest = eff.split('(')
+                values = dict(zip(eff_field_names, rest.split('|')))
+                values['Effect'] = effect
+                eff_annotations.append(values)
+
+            lof_annotations = [lof.strip(' )(') for lof in info_field.get('LOF', '').split('|')]
+            nmd_annotations = [nmd.strip(' )(') for nmd in info_field.get('NMD', '').split('|')]
 
             alt_alleles = fields[4].split(',')
 
@@ -104,34 +131,59 @@ def get_variants_from_sites_vcf(sites_vcf):
                     '{}-{}-{}-{}'.format(variant['chrom'], *get_minimal_representation(fields[1], fields[3], x))
                     for x in alt_alleles
                 ]
-                variant['site_quality'] = float(fields[5])
+                try:
+                    variant['site_quality'] = float(fields[5])
+                except ValueError:
+                    variant['site_quality'] = 0
                 variant['filter'] = fields[6]
+                if variant['filter'] == '.':
+                    variant['filter'] = 'PASS'
                 variant['vep_annotations'] = vep_annotations
+                variant['eff_annotations'] = eff_annotations
+                variant['lof_annotations'] = lof_annotations
+                variant['nmd_annotations'] = nmd_annotations
 
-                variant['allele_count'] = int(info_field['AC_Adj'].split(',')[i])
-                if not variant['allele_count'] and variant['filter'] == 'PASS': variant['filter'] = 'AC_Adj0' # Temporary filter
-                variant['allele_num'] = int(info_field['AN_Adj'])
+                AC = info_field.get('AC_Adj') or info_field.get('AC')
+                AN = info_field.get('AN_Adj') or info_field.get('AN')
+                if AC and AN:
+                    # TODO XXX fix clr vcf:accumulate to emit AC per alt allele,
+                    # then switch this index back to i?
+                    variant['allele_count'] = int(AC.split(',')[0])
+                    if not variant['allele_count'] and variant['filter'] == 'PASS':
+                        variant['filter'] = 'AC_Adj0' # Temporary filter
+                    variant['allele_num'] = int(AN)
 
-                if variant['allele_num'] > 0:
-                    variant['allele_freq'] = variant['allele_count']/float(info_field['AN_Adj'])
-                else:
-                    variant['allele_freq'] = None
+                    if variant['allele_num'] > 0:
+                        variant['allele_freq'] = variant['allele_count'] / float(variant['allele_num'])
+                    else:
+                        variant['allele_freq'] = None
 
-                variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
-                variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
-                variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
-                variant['ac_male'] = info_field['AC_MALE']
-                variant['ac_female'] = info_field['AC_FEMALE']
-                variant['an_male'] = info_field['AN_MALE']
-                variant['an_female'] = info_field['AN_FEMALE']
-                variant['hom_count'] = sum(variant['pop_homs'].values())
-                if variant['chrom'] in ('X', 'Y'):
+                pop = POPS.keys()[0]
+                if ('AC_%s' % pop in info_field and 'AN_%s' % pop in info_field and 'Hom_%s' % pop in info_field):
+                    variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
+                    variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
+                    variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
+                    variant['hom_count'] = sum(variant['pop_homs'].values())
+
+                if ('AC_MALE' in info_field and 'AC_FEMALE' in info_field and
+                    'AN_MALE' in info_field and 'AN_FEMALE' in info_field):
+                    variant['ac_male'] = info_field['AC_MALE']
+                    variant['ac_female'] = info_field['AC_FEMALE']
+                    variant['an_male'] = info_field['AN_MALE']
+                    variant['an_female'] = info_field['AN_FEMALE']
+
+                if variant['chrom'] in ('X', 'Y') and 'Hemi_%s' % pop in info_field:
                     variant['pop_hemis'] = dict([(POPS[x], int(info_field['Hemi_%s' % x].split(',')[i])) for x in POPS])
                     variant['hemi_count'] = sum(variant['pop_hemis'].values())
+
                 variant['quality_metrics'] = dict([(x, info_field[x]) for x in METRICS if x in info_field])
 
-                variant['genes'] = list({annotation['Gene'] for annotation in vep_annotations})
-                variant['transcripts'] = list({annotation['Feature'] for annotation in vep_annotations})
+                variant['genes'] = list(
+                    {a['Gene'] for a in vep_annotations} |
+                    {gene_ids_by_name[a['Gene_Name'].upper()] for a in eff_annotations if a.get('Gene_Name')})
+                variant['transcripts'] = list(
+                    {a['Feature'] for a in vep_annotations} |
+                    {a['Transcript_ID'] for a in eff_annotations if 'Transcript_ID' in a})
 
                 if 'DP_HIST' in info_field:
                     hists_all = [info_field['DP_HIST'].split(',')[0], info_field['DP_HIST'].split(',')[i+1]]
@@ -144,7 +196,7 @@ def get_variants_from_sites_vcf(sites_vcf):
         except Exception:
             print("Error parsing vcf line: " + line)
             traceback.print_exc()
-            break
+            raise
 
 
 def get_mnp_data(mnp_file):
@@ -415,7 +467,11 @@ def get_snp_from_dbsnp_file(dbsnp_file):
         rsid = int(fields[0])
         chrom = fields[1].rstrip('T')
         if chrom == 'PAR': continue
-        start = int(fields[2]) + 1
+        start_str = fields[2]
+        # skip initial rows like:
+        # 869027110	1		0			
+        if not start_str: continue
+        start = int(start_str) + 1
         snp = {
             'xpos': get_xpos(chrom, start),
             'rsid': rsid

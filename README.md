@@ -85,6 +85,7 @@ You can also reload parts of the database using any of the following commands:
     python manage.py load_dbsnp_file
     python manage.py load_base_coverage
     python manage.py load_gene_models
+    python manage.py load_constraint_information
 
 Then run:
 

@@ -34,11 +34,17 @@
                         <dd>{{ gene.full_gene_name }}</dd>
                     {% endif %}
                     <dt>Number of variants</dt>
-                    <dd><span id="number_of_variants"></span> (Including filtered: {{ variants_in_gene|length }})</dd>
+                    <dd><span id="number_of_variants"></span>
+{# WHI: no filtering
+(Including filtered: {{ variants_in_gene|length }})
+#}</dd>
 		    <dt>Number of CNVs</dt>
 		    {% if constraint %}
 		       {% if constraint.n_cnv >= 0 %}
-                         <dd><span id="number_of_cnvs"></span> (Including filtered: <span id="number_all_cnvs"></span>)</dd>
+                         <dd><span id="number_of_cnvs"></span>
+{# WHI: no filtering
+ (Including filtered: <span id="number_all_cnvs"></span>)
+#}</dd>
 			 {% else %}
 			 <dd> N/A </dd>
 		         {% endif %}
@@ -61,20 +67,26 @@
                         filtered_cnvs = v[0].cnv60;
                         $('#number_of_cnvs').replaceWith(filtered_cnvs);
 
+{# WHI: no filtering
                         unfiltered_cnvs = v[0].cnv0;
                         $('#number_all_cnvs').replaceWith(unfiltered_cnvs);
+#}
 
                         filtered_dels = v[0].del60;
                         $('#number_of_dels').replaceWith(filtered_dels);
 
+{# WHI: no filtering
                         unfiltered_dels = v[0].del0;
                         $('#number_all_dels').replaceWith(unfiltered_dels);
+#}
 
                         filtered_dups = v[0].dup60;
                         $('#number_of_dups').replaceWith(filtered_dups);
 
+{# WHI: no filtering
                         unfiltered_dups = v[0].dup0;
                         $('#number_all_dups').replaceWith(unfiltered_dups);
+#}
 
                         cnv_score = v[0].cnv_score;
                         $('#cnv_score').replaceWith(cnv_score);
@@ -183,7 +195,7 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="padding-top: 4px;">Constraint <br/>from ExAC</th>
+                                <th style="padding-top: 4px;">Constraint</th>
                                 <th style="padding-top: 4px; width=50%;">Expected <br/>no. variants</th>
                                 <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Note that these numbers only consider &#xa; rare (AF < 0.001) variation &#xa; Not all variants in the table &#xa; below may be included"><span class="tooltip_hover">Observed <br/>no. variants</span></th>
                                 <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Constraint Metric for each &#xa; category (see FAQ) &#xa; synonymous: Z score &#xa; missense: Z score&#xa; LoF: pLI"><span class="tooltip_hover">Constraint<br/>Metric</span></th>
@@ -238,7 +250,7 @@
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
                 <h3>Gene summary</h3>
-                <h4>(<span class="hidden-xs">Coverage shown for </span><a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">canonical transcript</a>: {{ transcript.transcript_id }})</h4>
+                <h4><a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">Canonical transcript</a>: {{ transcript.transcript_id }}</h4>
                 <div class="row">
                     {% with plot_id = gene.gene_name %}
                         {% include 'transcript_display.html' %}

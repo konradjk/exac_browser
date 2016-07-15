@@ -13,7 +13,9 @@ gene_chart_margin = {top: 10, right: 30, bottom: 30, left: 80},
     gene_chart_width = 1100 - gene_chart_margin.left - gene_chart_margin.right;
 
 lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
-    gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
+    // No coverage for WHI data
+    gene_chart_height = 0
+    // 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
 
 function region_chart(data, variant_data) {
     var metric = 'mean';
@@ -42,6 +44,7 @@ function region_chart(data, variant_data) {
         .attr('id', 'inner_graph')
         .attr("transform", "translate(" + gene_chart_margin.left + "," + gene_chart_margin.top + ")");
 
+{# No coverage for WHI data
     svg.selectAll("bar")
         .data(data)
         .enter()
@@ -68,15 +71,18 @@ function region_chart(data, variant_data) {
                 return 0;
             }
         });
+    #}
 
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + gene_chart_height + ")")
         .call(xAxis);
 
+{# No coverage for WHI data
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
+#}
 
     var svg_outer = d3.select('#region_plot_container').append("svg")
         .attr("width", gene_chart_width + gene_chart_margin_lower.left + gene_chart_margin_lower.right)

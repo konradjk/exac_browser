@@ -30,27 +30,27 @@ logging.getLogger().addHandler(logging.StreamHandler())
 logging.getLogger().setLevel(logging.INFO)
 
 ADMINISTRATORS = (
-    'exac.browser.errors@gmail.com',
+    'ryan+exac@getcolor.com',
 )
 
-app = Flask(__name__)
+app = application = Flask(__name__)
 mail_on_500(app, ADMINISTRATORS)
 Compress(app)
 app.config['COMPRESS_DEBUG'] = True
-cache = SimpleCache()
+cache = SimpleCache(default_timeout=1)  # TODO revert to 60*60*24)
 
-EXAC_FILES_DIRECTORY = '../exac_data/'
+EXAC_FILES_DIRECTORY = 'data/'
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DB_HOST='localhost',
     DB_PORT=27017,
-    DB_NAME='exac', 
+    DB_NAME='exac',
     DEBUG=True,
     SECRET_KEY='development key',
     LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
+    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'whi_merged.vcf.gz')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
@@ -61,12 +61,12 @@ app.config.update(dict(
     CNV_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'exac-gencode-exon.cnt.final.pop3'),
     CNV_GENE_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'exac-final-cnvs.gene.rank'),
 
-    # How to get a dbsnp142.txt.bgz file:
-    #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b142_GRCh37p13/database/organism_data/b142_SNPChrPosOnRef_105.bcp.gz
-    #   zcat b142_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
-    #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
-    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz'),
-    
+    # How to get a dbsnp147.txt.bgz file:
+    #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b147_GRCh37p13/database/organism_data/b147_SNPChrPosOnRef_105.bcp.gz
+    #   zcat b147_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp147.txt.bgz
+    #   tabix -s 2 -b 3 -e 3 dbsnp147.txt.bgz
+    DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp147.txt.bgz'),
+
     READ_VIZ_DIR="/mongo/readviz"
 ))
 
@@ -97,7 +97,9 @@ def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
     open_tabix_files = [pysam.Tabixfile(tabix_filename) for tabix_filename in tabix_filenames]
     tabix_file_contig_pairs = [(tabix_file, contig) for tabix_file in open_tabix_files for contig in tabix_file.contigs]
     tabix_file_contig_subset = tabix_file_contig_pairs[subset_i : : subset_n]  # get every n'th tabix_file/contig pair
-    short_filenames = ", ".join(map(os.path.basename, tabix_filenames))
+    short_filenames = ", ".join(map(os.path.basename, tabix_filenames[:10]))
+    if len(tabix_filenames) > 10:
+        short_filenames += ", ..."
     num_file_contig_pairs = len(tabix_file_contig_subset)
     print(("Loading subset %(subset_i)s of %(subset_n)s total: %(num_file_contig_pairs)s contigs from "
            "%(short_filenames)s") % locals())
@@ -145,14 +147,17 @@ def load_base_coverage():
 
 
 def load_variants_file():
-    def load_variants(sites_file, i, n, db):
-        variants_generator = parse_tabix_file_subset([sites_file], i, n, get_variants_from_sites_vcf)
+    db = get_db()
+    gene_ids_by_name = {g['gene_name_upper']: g['gene_id'] for g in db.genes.find()}
+
+    def load_variants(files, i, n, db):
+        fn = lambda sites_vcf: get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name)
+        variants_generator = parse_tabix_file_subset(files, i, n, fn)
         try:
             db.variants.insert(variants_generator, w=0)
         except pymongo.errors.InvalidOperation:
             pass  # handle error when variant_generator is empty
 
-    db = get_db()
     db.variants.drop()
     print("Dropped db.variants")
 
@@ -167,13 +172,17 @@ def load_variants_file():
     sites_vcfs = app.config['SITES_VCFS']
     if len(sites_vcfs) == 0:
         raise IOError("No vcf file found")
-    elif len(sites_vcfs) > 1:
-        raise Exception("More than one sites vcf file found: %s" % sites_vcfs)
 
     procs = []
     num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
     for i in range(num_procs):
-        p = Process(target=load_variants, args=(sites_vcfs[0], i, num_procs, db))
+        if len(sites_vcfs) == 1:
+            p = Process(target=load_variants, args=(sites_vcfs, i, num_procs, db))
+        else:
+            batch = len(sites_vcfs) / num_procs
+            vcfs = (sites_vcfs[batch * i:] if i == num_procs - 1  # include last file
+                    else sites_vcfs[batch * i:batch * (i + 1)])
+            p = Process(target=load_variants, args=(vcfs, 0, 1, db))
         p.start()
         procs.append(p)
     return procs
@@ -451,7 +460,7 @@ def precalculate_metrics():
             metrics[metric].append(float(value))
         qual = float(variant['site_quality'])
         metrics['site_quality'].append(qual)
-        if variant['allele_num'] == 0: continue
+        if not variant.get('allele_num'): continue
         if variant['allele_count'] == 1:
             binned_metrics['singleton'].append(qual)
         elif variant['allele_count'] == 2:
@@ -575,12 +584,13 @@ def variant_page(variant_str):
                 'alt': alt
             }
         consequences = OrderedDict()
-        if 'vep_annotations' in variant:
+        if 'vep_annotations' in variant or 'eff_annotations' in variant:
             add_consequence_to_variant(variant)
             variant['vep_annotations'] = remove_extraneous_vep_annotations(variant['vep_annotations'])
             variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+            variant['eff_annotations'] = order_eff_by_csq(variant['eff_annotations'])  # Adds major_consequence
             for annotation in variant['vep_annotations']:
-                annotation['HGVS'] = get_proper_hgvs(annotation)
+                annotation['HGV2S'] = get_proper_hgvs(annotation)
                 consequences.setdefault(annotation['major_consequence'], {}).setdefault(annotation['Gene'], []).append(annotation)
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
@@ -656,7 +666,7 @@ def get_gene_page_content(gene_id):
         cache_key = 't-gene-{}'.format(gene_id)
         t = cache.get(cache_key)
         if t is None:
-            variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+            variants_in_gene = lookups.get_variants_in_gene(db, gene)
             transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
             # Get some canonical transcript and corresponding info
@@ -877,7 +887,7 @@ http://omim.org/entry/%(omim_accession)s''' % gene
 def read_viz_files(path):
     full_path = os.path.abspath(os.path.join(app.config["READ_VIZ_DIR"], path))
 
-    # security check - only files under READ_VIZ_DIR should be accsessible
+    # security check - only files under READ_VIZ_DIR should be accessible
     if not full_path.startswith(app.config["READ_VIZ_DIR"]):
         return "Invalid path: %s" % path
 

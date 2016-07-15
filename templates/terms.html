@@ -4,40 +4,7 @@
         <h1>Terms and Data Information</h1>
         <div class="row" style="font-size: 16px;">
             <h4>Terms of use</h4>
-            <p>
-                All data here are released under a <a href="http://www.wellcome.ac.uk/stellent/groups/corporatesite/@policy_communications/documents/web_document/wtd003207.pdf">Fort Lauderdale Agreement</a> for the benefit of the wider biomedical community. You can freely download and search the data, and we encourage the use and publications of frequency data for specific targeted sets of variants (for instance, assessing a set of candidate causal variants observed in a collection of rare disease patients). However, we ask that you not publish global (genome-wide) analyses of these data, or of large gene sets, until after the ExAC flagship paper has been published (estimated to be in early 2015).
-            </p>
-            <p>
-                The data are available under the <a href="http://opendatacommons.org/licenses/odbl/1.0/">ODC Open Database License (ODbL)</a> (summary available <a href="http://www.opendatacommons.org/licenses/odbl/1-0/summary/">here</a>): you are free to share and modify the ExAC data so long as you attribute any public use of the database, or works produced from the database; keep the resulting data-sets open; and offer your shared or adapted version of the dataset under the same ODbL license.
-            </p>
-            <p>
-                If you’re uncertain which category your analyses fall into, please <a href="mailto:exomeconsortium@gmail.com">email us</a>.
-            </p>
-            <h4>Citation in publications</h4>
-            <p>
-                We request that any use of data obtained from the ExAC browser cite <a href="http://biorxiv.org/content/early/2015/10/30/030338">our preprint on bioRxiv</a>.
-            </p>
-            <p>
-                We also ask that the Consortium be acknowledged as follows:
-            </p>
-            <ul>
-                <li>
-                The authors would like to thank the Exome Aggregation Consortium and the groups that provided exome variant data for comparison. A full list of contributing groups can be found at <a href="/about">http://exac.broadinstitute.org/about</a>.
-                </li>
-            </ul>
-            <h4>Data Generation</h4>
-            <p>
-                The current data release (<span class="release_number">0.2</span>) was initially generated across a combined data set of <span class="number_samples_full">91,796</span> exomes, from which <span class="number_samples">61,486</span> were extracted for public release based on consent, consortium permission, exome data quality, and lack of relatedness with other samples. For more information on the consortia that contributed individuals to the public release please see <a href="/about">the About page</a>. The full sites data set can be downloaded <a href="/downloads">here</a>.
-            </p>
-            <p>
-                Exome sequencing data was processed through a pipeline based on <a href="http://broadinstitute.github.io/picard/">Picard</a>, using base quality score recalibration and local realignment at known insertion/deletions (indels). We used the <a href="http://bio-bwa.sourceforge.net/bwa.shtml">BWA aligner</a> for mapping reads to the human genome build 37 (hg19). Genome Analysis Toolkit (GATK v3.1) HaplotypeCaller algorithm was then used to generate gVCFs for all <span class="number_samples_full">91,796</span> BAMs across a defined exome interval set and known sites were annotated with dbSNP135. The gVCFs were combined in 298 groups (~sqrt(n) gVCFs in each group) and then joint genotyping of SNPs and Indels were performed on all groups.
-            </p>
-            <p>
-                GATK Variant Quality Score Recalibration (VQSR) was used to filter variants. To train the SNP VQSR model HapMap3.3 and 1KG Omni2.5 SNP sites were used and a 99.6% sensitivity threshold was used to filter variants, while Mills et. al. 1KG gold standard and Axiom Exome Plus sites were used VQSR index model and a 95.0% sensitivity threshold was used. For more information on VQSR please refer to <a href="https://www.broadinstitute.org/gatk/guide/article?id=39">link</a>. This resulted in ~80% of bi-allelic singleton SNPs to be filtered. From analyzing TiTv, singleton transmission in trios and validated sites, the VQSLOD PASS cut off was adjusted resulting in filtering of ~90% of bi-allelic singleton SNPs. An additional inbreeding coefficient (InbreedingCoeff <= -0.2) was applied to filter sites missed by VQSR filtering. Lastly, an additional filter labelled AC_Adj0_Filter was introduced to indicate that only low quality genotype calls containing alternate alleles are present in the release subset.
-            </p>
-            <p>
-                For more information please refer to <a href="https://www.broadinstitute.org/gatk/guide/best-practices">GATK Best practices.</a>
-            </p>
+            <p>TODO</p>
         </div>
     </div>
 

@@ -31,7 +31,11 @@ def get_raw_variant(db, xpos, ref, alt, get_id=False):
 
 def get_variant(db, xpos, ref, alt):
     variant = get_raw_variant(db, xpos, ref, alt, False)
-    if variant is None or 'rsid' not in variant:
+    if variant is None:
+        return
+    # TODO: clean up
+    variant['nomenclatures'] = sorted(set(eff['Amino_Acid_Change'] for eff in variant['eff_annotations']))
+    if 'rsid' not in variant:
         return variant
     if variant['rsid'] == '.' or variant['rsid'] is None:
         rsid = db.dbsnp.find_one({'xpos': xpos})
@@ -276,24 +280,20 @@ def get_metrics(db, variant):
 
 
 def remove_extraneous_information(variant):
-    del variant['genotype_depths']
-    del variant['genotype_qualities']
-    del variant['transcripts']
-    del variant['genes']
-    del variant['orig_alt_alleles']
-    del variant['xpos']
-    del variant['xstart']
-    del variant['xstop']
-    del variant['site_quality']
-    del variant['vep_annotations']
+    for field in ('genotype_depths', 'genotype_qualities', 'transcripts',
+                  'genes', 'orig_alt_alleles', 'xpos', 'xstart', 'xstop',
+                  'site_quality', 'vep_annotations'):
+        if field in variant:
+            del variant[field]
 
 
-def get_variants_in_gene(db, gene_id):
+def get_variants_in_gene(db, gene):
     """
     """
     variants = []
-    for variant in db.variants.find({'genes': gene_id}, fields={'_id': False}):
-        variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Gene'] == gene_id]
+    for variant in db.variants.find({'genes': gene['gene_id']}, fields={'_id': False}):
+        variant['vep_annotations'] = [x for x in variant['vep_annotations'] if x['Gene'] == gene['gene_id']]
+        variant['eff_annotations'] = [x for x in variant['eff_annotations'] if x['Gene_Name'] == gene['gene_name_upper']]
         add_consequence_to_variant(variant)
         remove_extraneous_information(variant)
         variants.append(variant)

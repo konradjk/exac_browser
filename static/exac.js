@@ -602,7 +602,9 @@ gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, le
     gene_chart_width = total_width - gene_chart_margin.left - gene_chart_margin.right;
 
 lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
-    gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
+    // No coverage for WHI data
+    gene_chart_height = 0
+    // 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
 
 cnv_chart_margin = {top: 30, right: gene_chart_margin.right, bottom: gene_chart_margin.bottom, left: gene_chart_margin.left};
 if ($(window).width() < 768) {

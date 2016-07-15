@@ -64,11 +64,11 @@
         var af_buckets = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1];
         function get_af_bucket_text(bin) {
             if (bin == 'singleton' || bin == 'doubleton') {
-                return 'This is the site quality distribution for all ' + bin + 's in ExAC.';
+                return 'This is the site quality distribution for all ' + bin + 's in WHI.';
             } else if (bin == '0.0001') {
-                return 'This is the site quality distribution for all variants with AF < ' + bin + ' in ExAC.';
+                return 'This is the site quality distribution for all variants with AF < ' + bin + ' in WHI.';
             } else {
-                return 'This is the site quality distribution for all variants with ' + af_buckets[af_buckets.indexOf(parseFloat(bin)) - 1] + ' < AF < ' + bin + ' in ExAC.';
+                return 'This is the site quality distribution for all variants with ' + af_buckets[af_buckets.indexOf(parseFloat(bin)) - 1] + ' < AF < ' + bin + ' in WHI.';
             }
         }
         $(document).ready(function() {
@@ -139,6 +139,9 @@
         <div class="row">
             <div class="col-md-6">
                 <h1><span class="hidden-xs">Variant: </span>{{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
+                {% for nom in variant.nomenclatures %}
+                    {{ nom }}<br />
+                {% endfor %}
                 {% if variant.mnps %}
                     {% for mnp in variant.mnps %}
                         {% if mnp.category == 'UNCHANGED' %}
@@ -156,6 +159,7 @@
             </div>
             <div class="col-md-6">
             {% if variant.orig_alt_alleles|length > 1 %}
+{# WHI: skip multiallelic info
                 <h5><span class="label label-info">Note:</span> This variant is multiallelic! The other alt alleles are:</h5>
                 <ul>
                     {% for allele in variant.orig_alt_alleles %}
@@ -166,20 +170,25 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
+#}
             {% endif %}
             </div>
         </div>
         <hr/>
 {#      Upper display #}
         {% if variant.variant_id %}
-            {% if variant.allele_num < 97129.6 %}
+            <!-- TODO use db.variant.count() instead -->
+{# WHI: skip population coverage warning
+            {% if variant.allele_num and variant.allele_num < 97129.6 %}
                 <p><span class="label label-warning">Warning!</span> This variant is only covered in {{ (variant.allele_num/2)|int }} individuals (adjusted allele number = {{ variant.allele_num }}).<br/>
-                This means that the site is covered in fewer than 80% of the individuals in ExAC, which may indicate a low-quality site.</p>
+                This means that the site is covered in fewer than 80% of the individuals in WHI, which may indicate a low-quality site.</p>
                 <hr/>
             {% endif %}
+#}
             <div class="row">
                 <div class="col-md-6">
                     <dl class="dl-horizontal" style="margin-bottom: 0px;">
+{# WHI: everything passes filters
                         <dt>
                             {% if variant.filter != "PASS" %}
                                 <span class="label label-danger">Filter Status</span>
@@ -188,6 +197,7 @@
                             {% endif %}
                         </dt>
                         <dd>{{ variant.filter }}</dd>
+#}
                         <dt>dbSNP</dt>
                         {% if variant.rsid and variant.rsid != "." %}
                             <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
@@ -197,7 +207,11 @@
                         <dt>Allele Frequency</dt>
                         <dd>{% if variant.allele_freq %}{{ '%0.4g' % variant.allele_freq }}{% else %}NA (Allele Number = 0){% endif %}</dd>
                         <dt>Allele Count</dt>
-                        <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
+                        {% if variant.allele_count and variant.allele_num %}
+                          <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
+                        {% else %}
+                            <dd>Unknown</dd>
+                        {%endif %}
                         <dt>UCSC</dt>
                         <dd>
                             <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
@@ -301,7 +315,7 @@
                 <div id="annotation_container">
                 {% if variant.variant_id %}
                     <div class="section_header">Annotations</div>
-                    {% if variant.vep_annotations %}
+                    {% if variant.vep_annotations or variant.eff_annotations %}
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
                         <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
                             <div class="row">
@@ -326,7 +340,7 @@
                         No annotations were found for this variant.
                     {% endif %}
                 {% else %}
-                    <h3>This variant is not found in ExAC.</h3>
+                    <h3>This variant is not found in WHI.</h3>
                 {% endif %}
                 </div>
                 <div id="browser_container">
@@ -334,7 +348,6 @@
             </div>
 
             <div class="col-md-6">
-                {% if variant.pop_acs %}
                     <div id="frequency_info_container">
                         <div class="section_header">Population Frequencies</div>
                         <div id="frequency_table_container" class="frequency_displays">
@@ -374,6 +387,7 @@
                                         </tr>
                                     {% endfor %}
                                 </tbody>
+                                {% if variant.pop_acs %}
                                 <tfoot>
                                     <tr>
                                         <td><b>Total</b></td>
@@ -394,11 +408,12 @@
                                         </b></td>
                                     </tr>
                                 </tfoot>
+                                {% endif %}
                             </table>
                             {% endwith %}
                         </div>
                     </div>
-                {% else %}
+{# No coverage for WHI
                     {% if any_covered %}
                         <div class="row">
                             <span class="section_header">Coverage</span>
@@ -408,11 +423,11 @@
                         </div>
                         <div id="region_coverage"></div>
                     {% else %}
-                        <h3>This region is not covered in the ExAC dataset.</h3>
                     {% endif %}
-                {% endif %}
+#}
             </div>
         </div>
+
 
         {#% if read_viz|length > 0  %#}
 
@@ -420,20 +435,14 @@
 
         <div class="row">
 	    <div class="col-md-12">
-	    <div class="section_header">Read Data</div>
+	    <div class="section_header">Reference</div>
             <p />
-            This interactive <a href="https://github.com/igvteam/igv.js">IGV.js</a> visualization shows reads that went into calling this variant.<br>
-            {% if read_viz['het']['n_available'] > 0 or read_viz['hom']['n_available'] >0 %}
-                <small><span class="label label-info">Note:</span> These are reassembled reads produced by
-                    <a href="https://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php#--bamOutput">
-                        GATK HaplotypeCaller --bamOutput
-                    </a> so they accurately represent what HaplotypeCaller was seeing when it called this variant.</small>
-            {% endif %}
-
+            This interactive <a href="https://github.com/igvteam/igv.js">IGV.js</a> visualization shows the reference genome around this variant.<br>
             <br><br>
 
 
 
+{# We don't expose read data for WHI variants.
         {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] %}
             <center>
 
@@ -457,10 +466,11 @@
             </center><br>
 
         {% endif %}
-
+#}
             <div id="igv-container"></div>
             <br><br>
 
+{# We don't expose read data for WHI variants.
             {% if read_viz['het']['n_available'] > 1 or read_viz['hom']['n_available'] > 1 %}
                 <center>
                     <button class="btn btn-primary quality_full_site_buttons" style="disabled:true; width:130px; height: 32px;" id="load-more-het-button">Load +1 Het</button>
@@ -469,7 +479,7 @@
                 </center>
             {% endif %}
             <br>
-
+#}
 
             <!-- IGV dependencies -->
 
@@ -539,7 +549,7 @@
                     name: "gencode v19",
                     displayMode: "SQUISHED"
                 });
-                //tracks.push({ url: '/read_viz/exome_calling_regions.v1.bed', name: "ExAC calling regions" });
+                //tracks.push({ url: '/read_viz/exome_calling_regions.v1.bed', name: "WHI calling regions" });
                 //tracks.push({ url: '/read_viz/self_chain.sorted.bed',        name: "UCSC self chain" });
 
                 if( location.hash == '#all' ) {

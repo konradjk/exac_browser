@@ -40,7 +40,9 @@
         {% endif %}
         {% if genes_in_region %}
             {% if stop != None %}
+                {# No coverage for WHI data
                 <h3>Coverage summary</h3>
+                #}
                 <div class="row">
                     {% include 'region_display.html' %}
                 </div>

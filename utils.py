@@ -68,13 +68,14 @@ def add_consequence_to_variants(variant_list):
 
 
 def add_consequence_to_variant(variant):
-    worst_csq = worst_csq_with_vep(variant['vep_annotations'])
+    worst_csq = (worst_csq_with_vep(variant['vep_annotations']) or
+                 worst_csq_with_eff(variant['eff_annotations']))
     if worst_csq is None: return
     variant['major_consequence'] = worst_csq['major_consequence']
     variant['HGVSp'] = get_protein_hgvs(worst_csq)
     variant['HGVSc'] = get_transcript_hgvs(worst_csq)
     variant['HGVS'] = get_proper_hgvs(worst_csq)
-    variant['CANONICAL'] = worst_csq['CANONICAL']
+    # variant['CANONICAL'] = worst_csq['CANONICAL']
     if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
         variant['category'] = 'lof_variant'
         for annotation in variant['vep_annotations']:
@@ -96,6 +97,7 @@ def get_flags_from_variant(variant):
     if 'mnps' in variant:
         flags.append('MNP')
     lof_annotations = [x for x in variant['vep_annotations'] if x['LoF'] != '']
+                      # TODO: + lof_annotations ?
     if not len(lof_annotations): return flags
     if all([x['LoF'] != 'HC' for x in lof_annotations]):
         flags.append('LC LoF')
@@ -123,20 +125,41 @@ def get_proper_hgvs(csq):
 
 
 def get_transcript_hgvs(csq):
-    return csq['HGVSc'].split(':')[-1]
+    # VEP annotation
+    hgvsc = csq.get('HGVSc')
+    if hgvsc:
+        return hgvsc.split(':')[-1]
+
+    # EFF annotation
+    changes = csq.get('Amino_Acid_Change')
+    if changes:
+        for change in changes.split('/'):
+            if change.startswith('c.'):
+                return change
 
 
 def get_protein_hgvs(annotation):
     """
     Takes consequence dictionary, returns proper variant formatting for synonymous variants
     """
-    if '%3D' in annotation['HGVSp']: # "%3D" is "="
-        try:
-            amino_acids = ''.join([protein_letters_1to3[x] for x in annotation['Amino_acids']])
-            return "p." + amino_acids + annotation['Protein_position'] + amino_acids
-        except Exception, e:
-            print 'Could not create HGVS for: %s' % annotation
-    return annotation['HGVSp'].split(':')[-1]
+    # VEP annotation
+    hgvsp = annotation.get('HGVSp')
+    if hgvsp:
+        if '%3D' in hgvsp: # "%3D" is "="
+            try:
+                amino_acids = ''.join([protein_letters_1to3[x] for x in annotation['Amino_acids']])
+                return "p." + amino_acids + annotation['Protein_position'] + amino_acids
+            except Exception, e:
+                print 'Could not create HGVS for: %s' % annotation
+        return hgvsp.split(':')[-1]
+
+    # EFF annotation
+    changes = annotation.get('Amino_Acid_Change')
+    if changes:
+        for change in changes.split('/'):
+            if change.startswith('p.'):
+                return change
+
 
 # Note that this is the current as of v81 with some included for backwards compatibility (VEP <= 75)
 csq_order = ["transcript_ablation",
@@ -195,7 +218,8 @@ def worst_csq_index(csq_list):
     Return index of the worst consequence (In this case, index of 'frameshift_variant', so 4)
     Works well with worst_csq_index('non_coding_exon_variant&nc_transcript_variant'.split('&'))
     """
-    return min([csq_order_dict[csq] for csq in csq_list])
+    not_found = len(csq_order_dict) - 1
+    return min([csq_order_dict.get(csq, not_found) for csq in csq_list])
 
 
 def worst_csq_from_list(csq_list):
@@ -225,6 +249,16 @@ def order_vep_by_csq(annotation_list):
     return sorted(annotation_list, key=(lambda ann:csq_order_dict[ann['major_consequence']]))
 
 
+def order_eff_by_csq(annotation_list):
+    """
+    Adds "major_consequence" to each annotation.
+    Returns them ordered from most deleterious to least.
+    """
+    for ann in annotation_list:
+        ann['major_consequence'] = worst_csq_from_csq(ann['Effect'])
+    return sorted(annotation_list, key=(lambda ann:csq_order_dict[ann['major_consequence']]))
+
+
 def worst_csq_with_vep(annotation_list):
     """
     Takes list of VEP annotations [{'Consequence': 'frameshift', Feature: 'ENST'}, ...]
@@ -233,17 +267,37 @@ def worst_csq_with_vep(annotation_list):
     """
     if len(annotation_list) == 0:
         return None
-    worst = max(annotation_list, key=annotation_severity)
+    worst = max(annotation_list, key=vep_annotation_severity)
     worst['major_consequence'] = worst_csq_from_csq(worst['Consequence'])
     return worst
 
 
-def annotation_severity(annotation):
+def vep_annotation_severity(annotation):
     "Bigger is more important."
     rv = -csq_order_dict[worst_csq_from_csq(annotation['Consequence'])]
     if annotation['CANONICAL'] == 'YES':
         rv += 0.1
     return rv
+
+
+def worst_csq_with_eff(annotation_list):
+    """
+    Takes list of EFF annotations
+      [{'Effect': 'frameshift', 'Transcript_BioType: 'protein_coding'}, ...]
+    Returns most severe annotation as full EFF annotation.
+    Also tacks on "major_consequence" for that annotation (i.e. worst_csq_from_csq)
+    """
+    if len(annotation_list) == 0:
+        return None
+    worst = max(annotation_list, key=eff_annotation_severity)
+    worst['major_consequence'] = worst_csq_from_csq(worst['Effect'])
+    return worst
+
+
+def eff_annotation_severity(annotation):
+    "Bigger is more important."
+    return -csq_order_dict[worst_csq_from_csq(annotation['Effect'])]
+
 
 CHROMOSOMES = ['chr%s' % x for x in range(1, 23)]
 CHROMOSOMES.extend(['chrX', 'chrY', 'chrM'])
