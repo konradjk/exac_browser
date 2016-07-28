@@ -7,6 +7,8 @@
         window.variants_in_transcript = window.table_variants;
         window.coverage_stats = {{ coverage_stats_json|safe }};
         window.gene = {{ gene_json|safe }};
+	window.cnvs = {{ cnvs|tojson|safe }};
+        window.cnvgenes = {{ cnvgenes|tojson|safe }};
         $(document).ready(function() {
             $("#variant_table_annotation_header").attr("data-tooltip",
                     "Variant Effect Predictor (VEP)\n annotation using Gencode 76");

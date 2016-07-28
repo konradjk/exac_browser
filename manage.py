@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 from flask.ext.script import Manager
 from exac import app
 import exac
@@ -37,6 +35,21 @@ def reload_variants():
 @manager.command
 def load_gene_models():
     exac.load_gene_models()
+
+
+@manager.command
+def load_cnv_models():
+    exac.load_cnv_models()
+
+
+@manager.command
+def load_cnv_genes():
+    exac.load_cnv_genes()
+
+
+@manager.command
+def drop_cnv_genes():
+    exac.drop_cnv_genes()
 
 
 @manager.command

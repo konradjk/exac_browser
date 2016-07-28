@@ -32,14 +32,195 @@
         <span id="gene_plot_container" style="overflow-x:scroll; display: inline-block;"></span>
         <a class="btn btn-success" id="coverage_plot_download" target="_blank" download="{{ plot_id }}_coverage">Save coverage plot</a>
         <a class="btn btn-success" id="exon_plot_download" target="_blank" download="{{ plot_id }}_exon">Save exon image</a>
+        <a class="btn btn-success" id="cnv_plot_download" target="_blank" download="{{ plot_id }}_cnv">Save CNV image</a>
     </div>
 </div>
+<style>
+  .chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+  }
+</style>
+<div class="chart"></div>
 <div id="not_covered" style="display: none;">
     No coverage for this transcript.
 </div>
 <br/>
 <script>
-function gene_chart(data, new_data, variant_data, _transcript) {
+
+
+var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
+{
+// plot CNVs as separate function
+// implemented this way so that just the CNVs svg can be redrawn without fudging with any of the other bits!
+
+    var coding_coordinate_params = get_coding_coordinate_params(_transcript, skip_utrs);
+    var chart_width;
+    if (scale_type == 'overview') {
+        chart_width = gene_chart_width;
+    } else {
+        chart_width = coding_coordinate_params.size*2;
+    }
+
+    var exon_x_scale = d3.scale.linear()
+        .domain([0, coding_coordinate_params.size])
+        .range([0, chart_width]);
+
+
+    var cnv_filter_status = $('#filtered_checkbox').is(":checked");
+    var m = get_max_cnv(_cnvs, cnv_filter_status);
+
+    
+
+
+    var svg = d3.select('#gene_plot_container').append("svg")
+        .attr("width", chart_width + cnv_chart_margin.left + cnv_chart_margin.right)
+        .attr("height",100 + 40)
+        .attr('id', 'cnv_svg')
+        .append("g")
+        .attr('id', 'track')
+        .attr("transform", "translate(" + cnv_chart_margin.left + "," + 0 + ")");
+
+    var cnv_scale = d3.scale.linear()
+         .domain([(-1*(m+1)),(m+1)])
+         .range([130,30]);
+
+
+    var yAxis = d3.svg.axis()
+        .scale(cnv_scale)
+        .orient("left")
+        .tickFormat(function(d,i){return Math.abs(d)})
+        .ticks(5);
+
+    var del_tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+        var x = get_cnv_pop(_cnvs, d.start, d.stop, 'del', cnv_filter_status)
+                    .replace(/,/g, '<br/>')
+                    .replace(/:/g,': ')
+                    .replace(/\//g,' / ')
+                    .replace('|', '<br/>');
+        return x;
+    });
+    svg.call(del_tip);
+
+    var dup_tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+        var x =  get_cnv_pop(_cnvs, d.start, d.stop, 'dup', cnv_filter_status)
+                    .replace(/,/g, '<br/>')
+                    .replace(/:/g,': ')
+                    .replace(/\//g,' / ')
+                    .replace('|', '<br/>');
+        return x;
+    });
+    svg.call(dup_tip);
+
+    //deletions
+        svg.selectAll("bar")
+        .data(_transcript.exons)
+            .enter()
+            .append("rect")
+            .call(yAxis)
+            .attr('pointer-events', 'all')
+            .on('mouseover', function(d) {
+                del_tip.show(d);
+            })
+            .on('mouseout', function(d) {
+                del_tip.hide(d);
+            })
+            .attr('class', 'track_bar')
+            .style("fill", "#cd2932")
+            .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
+            .attr("y", function(d, i) { return cnv_scale(0);})
+            .attr("width", function(d, i) {
+                if (get_coding_coordinate(_transcript, d.start, true) == -100) {
+                    return exon_x_scale(175);
+                }
+                return exon_x_scale(d.stop-d.start+1);
+            })
+            .attr("height", function(d, i) {
+                if (d.feature_type == 'CDS') {
+                    return cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'del', cnv_filter_status));
+                }
+            });
+
+    // duplications
+    svg.selectAll("bar")
+            .data(_transcript.exons)
+            .enter()
+            .append("rect")
+            .attr('pointer-events', 'all')
+            .on('mouseover', function(d) {
+                dup_tip.show(d);
+            })
+            .on('mouseout', function(d) {
+                dup_tip.hide(d);
+            })
+            .attr('class', 'track_bar')
+            .style("fill", "#a96500")
+            .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
+            .attr("y", function(d, i) { return cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));})
+
+            .attr("width", function(d, i) {
+                if (get_coding_coordinate(_transcript, d.start, true) == -100) {
+                    return exon_x_scale(175);
+                }
+                return exon_x_scale(d.stop-d.start+1);
+            })
+            .attr("height", function(d, i) {
+                if (d.feature_type == 'CDS') {
+                    console.log(d);
+                    console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
+                    console.log(cnv_scale(0));
+                    console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
+                    console.log(cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status)));
+
+                    return cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
+                }
+            });
+
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+    svg.append("text")
+        .attr("x", (chart_width / 2))
+        .attr("y", 0 + (cnv_chart_margin.top / 10)*8)
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("CNV Counts (Individual events can be viewed from UCSC link above)");
+
+    //plotting lines underneath bars
+        svg.selectAll("bar")
+            .data(_transcript.exons)
+            .enter()
+            .append("rect")
+            .attr('class', 'track_bar')
+            .style("fill", "white")
+            .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
+            .attr("y", function(d, i) {
+                if (d.feature_type == 'CDS') {
+                    return cnv_scale(0);
+                }
+            })
+            .attr("width", function(d, i) {
+                if (get_coding_coordinate(_transcript, d.start, true) == -100) {
+                    return exon_x_scale(175);
+                }
+                return exon_x_scale(d.stop-d.start+1);
+            })
+            .attr("height", function(d, i) {
+                if (d.feature_type == 'CDS') {
+                    return 1;
+                }
+            });
+}
+
+
+function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
     var coords = 'pos_coding_noutr';
     var coding_coordinate_params = get_coding_coordinate_params(_transcript, true);
     var chart_width = gene_chart_width;
@@ -271,6 +452,9 @@ function gene_chart(data, new_data, variant_data, _transcript) {
 //        .attr("rx", 6)
 //        .attr("ry", 6);
 
+           // call to separate function to make the CNVs plot.
+           var detail = get_plot_detail();
+           make_cnvs_svg(_cnvs, _transcript, detail, true);
 }
 
 function variant_colors(d) {
@@ -387,6 +571,9 @@ function change_coverage_chart(data, new_data, variant_data, _transcript, scale_
         .transition()
         .duration(200)
         .call(yAxis);
+
+    $("#cnv_svg").remove();
+    make_cnvs_svg(window.cnvs, _transcript, scale_type, skip_utrs);
 }
 
 function create_new_data(data, coords) {
@@ -427,6 +614,25 @@ function coverage_sum(key) {
     return (total/window.coverage_stats.length).toPrecision(4);
 }
 
+function get_plot_detail() {
+    var details = $('.display_coverage_metric_buttons.active')
+    var detail;
+    if(details.length === 0){
+        detail = 'overview'
+    }
+    else{
+        detail = details.attr('id').replace('display_coverage_', '').replace('_button', '');
+    }
+    return detail;
+}
+
+
+function refresh_links() {
+    $("#coverage_plot_download").attr('href', set_plot_image('gene_plot_container', 0));
+    $("#exon_plot_download").attr('href', set_plot_image('gene_plot_container', 1));
+    $("#cnv_plot_download").attr('href', set_plot_image('gene_plot_container', 2));
+}
+
 $(document).ready(function() {
     if ($(window).width() < 768) {
         $('#gene_plot_container').css('width', $(window).width() + "px");
@@ -451,7 +657,7 @@ $(document).ready(function() {
     var new_data = create_new_data(window.coverage_stats, 'pos_coding');
     var new_data_skip_utr = create_new_data(window.coverage_stats, 'pos_coding_noutr');
     if (window.coverage_stats != null) {
-        gene_chart(window.coverage_stats, new_data_skip_utr, window.variants_in_transcript, window.transcript);
+        gene_chart(window.coverage_stats, new_data_skip_utr, window.variants_in_transcript, window.transcript, window.cnvs);
         if (window.variants_in_transcript.length) {
             update_variants();
         }
@@ -514,11 +720,14 @@ $(document).ready(function() {
     $('.consequence_display_buttons, #filtered_checkbox').change(function () {
         setTimeout(function() {
             update_variants();
+            update_cnvs();
+            refresh_links();
         }, 10);
     });
 
     $('.display_coverage_metric_buttons').change(function () {
         var detail = $(this).attr('id').replace('display_coverage_', '').replace('_button', '');
+        console.log(detail);
         var v = $('.coverage_metric_buttons.active').attr('id').replace('_covmet_button', '');
         if (v == 'covered') {
             $('#over_x_select_container').show();
@@ -532,11 +741,22 @@ $(document).ready(function() {
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
     });
 
-    $("#coverage_plot_download").on('click', function() {
-        window.location.href = set_plot_image('gene_plot_container', 0);
+{#    $("#coverage_plot_download").on('click', function() {#}
+{#        window.location.href = set_plot_image('gene_plot_container', 0);#}
+{#    });#}
+{#    $("#exon_plot_download").on('click', function() {#}
+{#        window.location.href = set_plot_image('gene_plot_container', 1);#}
+{#    });#}
+    //change CNVs svg
+    $('#filtered_checkbox').change(function () {
+        $("#cnv_svg").remove();
+        var include_utrs = $('#include_utrs_checkbox').is(':checked');
+        var detail = get_plot_detail();
+        
+        make_cnvs_svg(window.cnvs, window.transcript, detail, !include_utrs);
+
     });
-    $("#exon_plot_download").on('click', function() {
-        window.location.href = set_plot_image('gene_plot_container', 1);
-    });
+
+    refresh_links();
 });
 </script>
