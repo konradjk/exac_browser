@@ -562,8 +562,8 @@ def variant_page(variant_str):
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant
         sqlite_db_path = os.path.join(
-            app.config["READ_VIZ_DIR"],
-            "combined_bams",
+            app.config["READ_VIZ_DIR"],            
+            "combined_bams"+('_2016_07_01' if chrom in ('22', 'X', 'Y') else ''),
             chrom,
             "combined_chr%s_%03d.db" % (chrom, pos % 1000))
         print(sqlite_db_path)
@@ -603,7 +603,8 @@ def variant_page(variant_str):
             ]   #eg. '1-157768000-G-C_hom1',
 
             read_viz_dict[het_or_hom_or_hemi]['urls'] = [
-                os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
+                #os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
+                os.path.join('combined_bams'+('_2016_07_01' if chrom in ('22', 'X', 'Y') else ''), chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
                     for i in range(read_viz_dict[het_or_hom_or_hemi]['n_available'])
             ]
 
