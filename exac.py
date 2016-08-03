@@ -1,3 +1,4 @@
+import collections
 import itertools
 import json
 import os
@@ -10,6 +11,7 @@ import lookups
 import random
 import sys
 from utils import *
+import yaml
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
 from flask.ext.compress import Compress
@@ -36,8 +38,11 @@ ADMINISTRATORS = (
 app = application = Flask(__name__)
 mail_on_500(app, ADMINISTRATORS)
 Compress(app)
-app.config['COMPRESS_DEBUG'] = True
-cache = SimpleCache(default_timeout=1)  # TODO revert to 60*60*24)
+app.config.update({
+    'DEBUG': bool(os.getenv('FLASK_DEBUG')),
+    'COMPRESS_DEBUG': True,
+})
+cache = SimpleCache(default_timeout=1 if app.config['DEBUG'] else 0)
 
 EXAC_FILES_DIRECTORY = 'data/'
 REGION_LIMIT = 1E5
@@ -47,12 +52,12 @@ app.config.update(dict(
     DB_HOST='localhost',
     DB_PORT=27017,
     DB_NAME='exac',
-    DEBUG=True,
     SECRET_KEY='development key',
     LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
     SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'whi_merged.vcf.gz')),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
+    CANONICAL_TRANSCRIPTS_YAML=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'transcripts.yaml'),
     OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
     BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage', 'Panel.*.coverage.txt.gz')),
     DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
@@ -66,12 +71,12 @@ app.config.update(dict(
     #   zcat b147_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp147.txt.bgz
     #   tabix -s 2 -b 3 -e 3 dbsnp147.txt.bgz
     DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp147.txt.bgz'),
-
     READ_VIZ_DIR="/mongo/readviz"
 ))
 
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
+
 
 def connect_db():
     """
@@ -235,10 +240,31 @@ def load_gene_models():
 
     start_time = time.time()
 
-    canonical_transcripts = {}
+    canonical_transcripts_by_gene_id = {}
     with gzip.open(app.config['CANONICAL_TRANSCRIPT_FILE']) as canonical_transcript_file:
         for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
-            canonical_transcripts[gene] = transcript
+            canonical_transcripts_by_gene_id[gene] = transcript
+
+    canonical_transcripts_by_gene_name = {}  # value is ordered list of transcript ids
+    if os.path.isfile(app.config['CANONICAL_TRANSCRIPTS_YAML']):
+        # Expected format:
+        #
+        # GENE_NAME:  # lower case
+        #   primary_transcripts:
+        #     ENSEMBL_ID: NCBI_ID
+        #     ...
+        #   secondary_transcripts:  # optional
+        #     ENSEMBL_ID: NCBI_ID
+        #     ...
+        #
+        # TODO: preprocess transcripts.yaml into canonical_transcripts.txt.gz
+        # instead? use dbNSFP2.6_gene.gz (ideally) or gencode.gtf.gz to map gene
+        # name to id
+        with open(app.config['CANONICAL_TRANSCRIPTS_YAML']) as f:
+            for gene, categories in yaml.load(f).items():
+                canonical_transcripts_by_gene_name[gene.upper()] = \
+                    categories.get('primary_transcripts', {}).keys()
+                    # + categories.get('secondary_transcripts', {}).keys())
 
     omim_annotations = {}
     with gzip.open(app.config['OMIM_FILE']) as omim_file:
@@ -258,11 +284,15 @@ def load_gene_models():
 
     # grab genes from GTF
     start_time = time.time()
+    gene_names = {}  # maps id to name (uppercase)
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         for gene in get_genes_from_gencode_gtf(gtf_file):
             gene_id = gene['gene_id']
-            if gene_id in canonical_transcripts:
-                gene['canonical_transcript'] = canonical_transcripts[gene_id]
+            gene_name = gene['gene_name_upper']
+            if gene_name in canonical_transcripts_by_gene_name:
+                gene['canonical_transcript'] = canonical_transcripts_by_gene_name[gene_name][0]
+            elif gene_id in canonical_transcripts_by_gene_id:
+                gene['canonical_transcript'] = canonical_transcripts_by_gene_id[gene_id]
             if gene_id in omim_annotations:
                 gene['omim_accession'] = omim_annotations[gene_id][0]
                 gene['omim_description'] = omim_annotations[gene_id][1]
@@ -270,6 +300,7 @@ def load_gene_models():
                 gene['full_gene_name'] = dbnsfp_info[gene_id][0]
                 gene['other_names'] = dbnsfp_info[gene_id][1]
             db.genes.insert(gene, w=0)
+            gene_names[gene_id] = gene_name
 
     print 'Done loading genes. Took %s seconds' % int(time.time() - start_time)
 
@@ -285,7 +316,10 @@ def load_gene_models():
     # and now transcripts
     start_time = time.time()
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
-        db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file)), w=0)
+        def keep(transcript):
+            transcripts = canonical_transcripts_by_gene_name.get(gene_names[transcript['gene_id']])
+            return transcripts is None or transcript['transcript_id'] in transcripts
+        db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file) if keep(transcript)), w=0)
     print 'Done loading transcripts. Took %s seconds' % int(time.time() - start_time)
 
     start_time = time.time()
