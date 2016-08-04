@@ -566,6 +566,15 @@ def homepage():
     return render_template('homepage.html')
 
 
+@app.route('/robots.txt')
+def robots_txt():
+    return ("""\
+User-agent: *
+Disallow: /
+""",
+            {'Content-Type': 'text/plain'})
+
+
 @app.route('/autocomplete/<query>')
 def awesome_autocomplete(query):
     if not hasattr(g, 'autocomplete_strings'):
