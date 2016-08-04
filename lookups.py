@@ -1,4 +1,5 @@
 import re
+import itertools
 from utils import *
 
 SEARCH_LIMIT = 10000
@@ -34,7 +35,9 @@ def get_variant(db, xpos, ref, alt):
     if variant is None:
         return
     # TODO: clean up
-    variant['nomenclatures'] = sorted(set(eff['Amino_Acid_Change'] for eff in variant['eff_annotations']))
+    variant['nomenclatures'] = sorted(set(itertools.chain(*(
+        [n for n in eff['Amino_Acid_Change'].split('/') if not n.startswith('n.')]
+        for eff in variant['eff_annotations']))))
     if 'rsid' not in variant:
         return variant
     if variant['rsid'] == '.' or variant['rsid'] is None:
@@ -52,6 +55,13 @@ def get_variants_by_rsid(db, rsid):
     except Exception, e:
         return None
     variants = list(db.variants.find({'rsid': rsid}, fields={'_id': False}))
+    add_consequence_to_variants(variants)
+    return variants
+
+
+def get_variants_by_nomenclature(db, nomenclature):
+    # TODO: split Amino_Acid_Change by / ? ask alicia
+    variants = list(db.variants.find({'eff_annotations.Amino_Acid_Change': nomenclature}, fields={'_id': False}))
     add_consequence_to_variants(variants)
     return variants
 
@@ -161,12 +171,10 @@ def get_awesomebar_result(db, query):
     Follow these steps:
     - if query is an ensembl ID, return it
     - if a gene symbol, return that gene's ensembl ID
-    - if an RSID, return that variant's string
-
+    - if an RSID or variant nomenclature, return that variant's string
 
     Finally, note that we don't return the whole object here - only it's identifier.
     This could be important for performance later
-
     """
     query = query.strip()
     print 'Query: %s' % query
@@ -178,10 +186,15 @@ def get_awesomebar_result(db, query):
             return 'variant', variant[0]['variant_id']
         else:
             return 'dbsnp_variant_set', variant[0]['rsid']
+
     variant = get_variants_from_dbsnp(db, query.lower())
     if variant:
         return 'variant', variant[0]['variant_id']
-    # variant = get_variant(db, )
+
+    variant = get_variants_by_nomenclature(db, query)
+    if variant:
+        return 'variant', variant[0]['variant_id']
+
     # TODO - https://github.com/brettpthomas/exac_browser/issues/14
 
     gene = get_gene_by_name(db, query)

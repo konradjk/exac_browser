@@ -50,10 +50,11 @@ def get_base_coverage_from_file(base_coverage_file):
         yield d
 
 
-def get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name=None):
+def get_variants_from_sites_vcf(sites_vcf, all_transcripts, gene_ids_by_name=None):
     """
     Parse exac sites VCF file and return iter of variant dicts
     sites_vcf is a file (gzipped), not file path
+    all_transcripts is a set of string transcript ids
     gene_ids_by_name is a dict mapping gene_name_upper to gene_id
     """
     if not gene_ids_by_name:
@@ -93,6 +94,7 @@ def get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name=None):
             coding_annotations = [ann for ann in annotations if ann.get('Feature', '').startswith('ENST')]
 
             eff_annotations = []
+            transcripts = set()
             for eff in info_field.get('EFF', '').split(','):
                 eff = eff.strip(' )')
                 if not eff:
@@ -100,6 +102,12 @@ def get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name=None):
                 effect, rest = eff.split('(')
                 values = dict(zip(eff_field_names, rest.split('|')))
                 values['Effect'] = effect
+                transcript = values.get('Transcript_ID')
+                if transcript:
+                    if transcript not in all_transcripts:
+                        # this transcript isn't one of ours, so ignore the annotation
+                        continue
+                    transcripts.add(transcript)
                 eff_annotations.append(values)
 
             lof_annotations = [lof.strip(' )(') for lof in info_field.get('LOF', '').split('|')]
@@ -111,6 +119,11 @@ def get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name=None):
             for i, alt_allele in enumerate(alt_alleles):
 
                 vep_annotations = [ann for ann in coding_annotations if int(ann['ALLELE_NUM']) == i + 1]
+
+                transcripts |= {a['Feature'] for a in vep_annotations}
+                if not transcripts & all_transcripts:
+                    # this variant isn't on any of our transcripts, so ignore it
+                    continue
 
                 # Variant is just a dict
                 # Make a copy of the info_field dict - so all the original data remains
@@ -181,9 +194,7 @@ def get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name=None):
                 variant['genes'] = list(
                     {a['Gene'] for a in vep_annotations} |
                     {gene_ids_by_name[a['Gene_Name'].upper()] for a in eff_annotations if a.get('Gene_Name')})
-                variant['transcripts'] = list(
-                    {a['Feature'] for a in vep_annotations} |
-                    {a['Transcript_ID'] for a in eff_annotations if 'Transcript_ID' in a})
+                variant['transcripts'] = list(transcripts)
 
                 if 'DP_HIST' in info_field:
                     hists_all = [info_field['DP_HIST'].split(',')[0], info_field['DP_HIST'].split(',')[i+1]]

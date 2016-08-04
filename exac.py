@@ -154,9 +154,10 @@ def load_base_coverage():
 def load_variants_file():
     db = get_db()
     gene_ids_by_name = {g['gene_name_upper']: g['gene_id'] for g in db.genes.find()}
+    all_transcripts = set(t['transcript_id'] for t in db.transcripts.find({}, {'transcript_id': True}))
 
     def load_variants(files, i, n, db):
-        fn = lambda sites_vcf: get_variants_from_sites_vcf(sites_vcf, gene_ids_by_name)
+        fn = lambda sites_vcf: get_variants_from_sites_vcf(sites_vcf, all_transcripts, gene_ids_by_name)
         variants_generator = parse_tabix_file_subset(files, i, n, fn)
         try:
             db.variants.insert(variants_generator, w=0)
