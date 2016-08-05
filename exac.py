@@ -1,4 +1,5 @@
 import collections
+import glob
 import itertools
 import json
 import os
@@ -1004,4 +1005,4 @@ def health_check():
 
 if __name__ == "__main__":
     runner = Runner(app)  # adds Flask command line options for setting host, port, etc.
-    runner.run()
+    runner.run(extra_files=glob.glob(os.path.join('./templates/*')))
