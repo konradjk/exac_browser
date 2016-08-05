@@ -234,6 +234,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="row">
+{# WHI: No quality details
                         <div class="col-md-8 col-md-offset-1">
                             <div class="panel-group" id="metrics_outer_accordion" role="tablist" aria-multiselectable="true">
                                 <div class="panel panel-default">
@@ -303,6 +304,7 @@
                                 </div>
                             </div>
                         </div>
+#}
                     </div>
                 </div>
             </div>
@@ -316,7 +318,9 @@
                 {% if variant.variant_id %}
                     <div class="section_header">Annotations</div>
                     {% if variant.vep_annotations or variant.eff_annotations %}
+{# WHI: only primary transcript(s)
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
+#}
                         <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
                             <div class="row">
                                 {% if consequences|length > 1 %}
@@ -335,7 +339,9 @@
                                 </div>
                             </div>
                         </div>
+{# WHI: only primary transcript(s)
                         <small><span class="label label-info">Note:</span> This list may not include additional transcripts in the same gene that the variant does not overlap.</small>
+#}
                     {% else %}
                         No annotations were found for this variant.
                     {% endif %}

@@ -1,3 +1,4 @@
+{# WHI: no PolyPhen, SIFT, or LoF in EFF annotations
 {% if consequence == 'missense_variant' %}
     ({{ annotation.HGVS }})<br/>
     &nbsp; &nbsp; &nbsp; Polyphen:
@@ -19,3 +20,4 @@
         <br/>&nbsp; &nbsp; &nbsp; Flag: <span class="bg-warning" data-tooltip="Flagged by LOFTEE (see FAQ)">{{ annotation.LoF_flags }}</span>
     {% endif %}
 {% endif %}
+#}
