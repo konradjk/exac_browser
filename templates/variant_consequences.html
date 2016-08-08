@@ -11,7 +11,7 @@
 <ul>
     {% for gene in consequences[consequence] %}
         <li>
-            <a href="/gene/{{ gene }}">
+            <a href="/awesome?query={{ gene }}">
             {% if consequences[consequence][gene][0].SYMBOL %}
                 {{ consequences[consequence][gene][0].SYMBOL }}
             {% else %}

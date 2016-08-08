@@ -2,42 +2,47 @@
     window.is_gene = typeof window.transcripts_in_gene != 'undefined';
 </script>
 <script type="text/template" id="variant-table-template">
-<span>
-    <a class="btn btn-success hidden-xs" id="export_to_csv">Export table to CSV</a>
-</span>
+{# WHI
 {% if transcripts_in_gene is defined %}
     <div>
         <small>&dagger; denotes a consequence that is for a non-canonical transcript</small>
     </div>
 {% endif %}
-<table id="variant_table" class="tablesorter">
+#}
+<table id="variant_table" class="tablesorter table table-striped table-bordered table-hover">
+    <caption>
+        Variants
+    </caption>
     <thead>
-        <tr>
             <th class="tooltip-table-header omit_csv" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
                 Variant</th>
+{# WHI
             <th class='hidden-xs'>Chrom</th>
             <th class='hidden-xs'>Position</th>
+#}
             <td class="hidden">RSID</td>
             <th class="hidden">Reference</th>
             <th class="hidden">Alternate</th>
-            <th class="hidden-xs tooltip-table-header" data-tooltip="HGVS annotation (protein change, where defined, or transcript change for splice variants, otherwise empty)">Consequence</th>
-            <th class="hidden">Protein Consequence</th>
-            <th class="hidden">Transcript Consequence</th>
+            <th class="hidden tooltip-table-header" data-tooltip="HGVS annotation (protein change, where defined, or transcript change for splice variants, otherwise empty)">Consequence</th>
+            <th class="hidden-xs">HGVSp</th>
+            <th class="hidden-xs">HGVSc</th>
 {# WHI: no filtering
             <th class="hidden-xs tooltip-table-header" data-tooltip="VQSR sensitivity filter & hard filters">Filter</th>
 #}
             <th class="tooltip-table-header" data-tooltip="Variant Effect Predictor (VEP) &#xa; annotation using Gencode 81.&#xa; Worst across all transcripts of this gene.">Annotation</th>
-            <th class="tooltip-table-header" data-tooltip="Various flags (LoF from LOFTEE, MNP) &#xa; that may change annotation/confidence">Flags</th>
-            <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">Allele Count</th>
-            <th class="hidden-xs tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">Allele Number</th>
+            <th class="hidden tooltip-table-header" data-tooltip="Various flags (LoF from LOFTEE, MNP) &#xa; that may change annotation/confidence">Flags</th>
+            <th class="tooltip-table-header" data-tooltip="Alternate allele count in genotypes &#xa;(genotype quality >=20 & depth >=10)">Instances</th>
+            <th class="hidden tooltip-table-header" data-tooltip="Total number of called genotypes &#xa;(genotype quality >= 20 & depth >=10)">Allele Number</th>
+{# WHI
             {% if chrom != 'Y' %}
-                <th class="hidden-xs tooltip-table-header" data-tooltip="Number of homozygous individuals for this alternate allele">Number of Homozygotes</th>
+                <th class="hidden-xs tooltip-table-header" data-tooltip="Number of homozygous individuals for this alternate allele">Homozygotes</th>
             {% endif %}
             {% if chrom == 'X' or chrom == 'Y' %}
-                <th class="hidden-xs tooltip-table-header" data-tooltip="Number of hemizygous individuals for this alternate allele">Number of Hemizygotes</th>
+                <th class="hidden-xs tooltip-table-header" data-tooltip="Number of hemizygous individuals for this alternate allele">Hemizygotes</th>
             {% endif %}
+#}
             <th class="tooltip-table-header allele_frequency_column" data-tooltip="Frequency using only &#xa; high-quality genotypes &#xa; The graphic displays &#xa; allele frequency on a  &#xa; discrete scale: Singletons, &#xa; <1/10,000, <1/1000, <1%, &#xa; <5%, <50%, >50%">
-                Allele Frequency</th>
+                Frequency</th>
             <th class="hidden">Allele Count African</th>
             <th class="hidden">Allele Number African</th>
             <th class="hidden">Homozygote Count African</th>
@@ -68,54 +73,55 @@
             <td class="omit_csv">
                 <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank">
                 <%= variant.chrom %>:<%= variant.pos %>
-                <% if (variant.ref.length > 20) { %>
-                    <%= variant.ref.slice(0,20) %>...
-                <% } else { %>
-                    <%= variant.ref %>
-                <% } %> /
-                <% if (variant.alt.length > 20) { %>
-                    <%= variant.alt.slice(0,20) %>...
-                <% } else { %>
-                    <%= variant.alt %>
-                <% } %>
+                <%= variant.ref %>
+                <%= variant.alt %>
                 <% if (variant.rsid != '.') { %>
                     (<%= variant.rsid %>)
                 <% } %>
                 </a>
             </td>
+{# WHI
             <td class='hidden-xs'> <%= variant.chrom %></td>
             <td class='hidden-xs'> <%= variant.pos %></td>
+#}
             <td class="hidden"><%= variant.rsid %></td>
             <th class="hidden"> <%= variant.ref %></th>
             <th class="hidden"> <%= variant.alt %></th>
-            <td class='hidden-xs'>
+            <td class='hidden'>
                 <% if (variant.HGVS && variant.HGVS != '') { %>
                     <% if (variant.HGVS.length > 20) { %>
                         <%= variant.HGVS.slice(0,20) %>...<% } else { %>
-                        <%= variant.HGVS %><% } %><% if (is_gene & variant.CANONICAL != 'YES') { %><span class="tooltip-table-header" data-tooltip="Annotation is for non-canonical transcript">&dagger;</span><% } %>
+                        <%= variant.HGVS %><% } %>
+{# WHI
+                        <% if (is_gene & variant.CANONICAL != 'YES') { %><span class="tooltip-table-header" data-tooltip="Annotation is for non-canonical transcript">&dagger;</span><% } %>
+#}
                 <% } %>
             </td>
-            <td class='hidden'> <%= variant.HGVSp %></td>
-            <td class='hidden'> <%= variant.HGVSc %></td>
+            <td title='<%= variant.HGVSp %>'> <%= variant.HGVSp %></td>
+            <td title='<%= variant.HGVSc %>'> <%= variant.HGVSc %></td>
 {# WHI: no filtering
-            <td class='hidden-xs'> <%= variant.filter %> </td>
+            <td class='hidden'> <%= variant.filter %> </td>
 #}
             <td class="<%= variant.category %>" data-consequence="<%= variant.major_consequence %>">
-                <b><%= consequence_name(variant.major_consequence) %></b>
-            </td>
-            <td>
+                <%= consequence_name(variant.major_consequence) %>
+             </td>
+            <td class="hidden">
+>>>>>>> new skin: variant table style, cut down and streamline page elements
+>>>>>>> b6e4c62... new skin: variant table style, cut down and streamline page elements
                 <% _.each(variant.flags, function(flag) { %>
                     <% if (flag == 'LoF flag') { span_tag = 'warning' } else { span_tag = 'danger' } %>
                     <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank"><span class="label label-<%= span_tag %> tooltip-table-header" data-tooltip="Variant annotation dubious: &#xa; see variant page for details"><%= flag %></span></a>
                 <% }); %></td>
             <td> <%= variant.allele_count %> </td>
-            <td class='hidden-xs'> <%= variant.allele_num %> </td>
+            <td class='hidden'> <%= variant.allele_num %> </td>
+{# WHI
             {% if chrom != 'Y' %}
                 <td class="hidden-xs"> <%= variant.hom_count %> </td>
             {% endif %}
             {% if chrom == 'X' or chrom == 'Y' %}
                 <td class="hidden-xs"> <%= variant.hemi_count %> </td>
             {% endif %}
+#}
             <td>
                 <% if (variant.allele_freq) { %>
                     <%= variant.allele_freq.toPrecision(4) %>

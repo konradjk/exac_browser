@@ -5,6 +5,7 @@
 </dl>
 #}
 <div id="gene_plot">
+{# WHI
     <span class="hidden-xs">
         <label for="display_coverage_metric_group">
             Display:
@@ -23,6 +24,7 @@
             <input type="checkbox" id="include_utrs_checkbox" value=""> Include UTRs in plot
         </label>
     </span>
+#}
     {# No coverage for WHI data
     {% include 'coverage_selectors.html' %}
     #}
@@ -35,12 +37,12 @@
         {# No coverage for WHI data
         <span id="gene_plot_axis_container" class="hidden-xs" style="width:50px; display: inline-block;"></span>
         #}
-        <span id="gene_plot_container" style="overflow-x:scroll; display: inline-block;"></span>
-        {# No coverage for WHI data
+        <span id="gene_plot_container" style="display: inline-block;"></span>
+        {# WHI
         <a class="btn btn-success" id="coverage_plot_download" target="_blank" download="{{ plot_id }}_coverage">Save coverage plot</a>
-        #}
         <a class="btn btn-success" id="exon_plot_download" target="_blank" download="{{ plot_id }}_exon">Save exon image</a>
         <a class="btn btn-success" id="cnv_plot_download" target="_blank" download="{{ plot_id }}_cnv">Save CNV image</a>
+        #}
     </div>
 </div>
 <style>
@@ -92,6 +94,8 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
         .attr("width", chart_width + cnv_chart_margin.left + cnv_chart_margin.right)
         .attr("height",100 + 40)
         .attr('id', 'cnv_svg')
+        // WHI TODO
+        .attr('style', 'display: none')
         .append("g")
         .attr('id', 'track')
         .attr("transform", "translate(" + cnv_chart_margin.left + "," + 0 + ")");
@@ -418,6 +422,7 @@ function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
 
            // call to separate function to make the CNVs plot.
            var detail = get_plot_detail();
+
            make_cnvs_svg(_cnvs, _transcript, detail, true);
 }
 
@@ -601,7 +606,7 @@ $(document).ready(function() {
     if ($(window).width() < 768) {
         $('#gene_plot_container').css('width', $(window).width() + "px");
     } else {
-        $('#gene_plot_container').css('width', $(window).width()*10/12 + "px");
+        $('#gene_plot_container').css('width', $(window).width()*11/12 + "px");
     }
     precalc_coding_coordinates(window.transcript, window.coverage_stats, 'pos');
     precalc_coding_coordinates(window.transcript, window.variants_in_transcript, 'pos');

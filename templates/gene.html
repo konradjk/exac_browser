@@ -11,171 +11,71 @@
         window.page_name = window.gene.gene_id;
         window.cnvs = {{ cnvs|tojson|safe }};
         window.cnvgenes = {{ cnvgenes|tojson|safe }};
-    </script>
-    <style>
 
-    </style>
-    <script>
         $(document).ready(function() {
             $("#variants_loading").hide();
             $("#variants_table_container").show();
+
+            filtered_variants = _.filter(window.table_variants, function(d) {
+                return d.filter == 'PASS';
+            });
+            $('#number_of_variants').replaceWith(filtered_variants.length);
+            // lof_filtered_variants = _.filter(window.table_variants, function(d) {
+            //     return d.filter == 'PASS' && d.category == 'lof_variant';
+            // });
+            // $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
+            //
+            // var v = window.cnvgenes;
+            // filtered_cnvs = v[0].cnv60;
+            // $('#number_of_cnvs').replaceWith(filtered_cnvs);
+            //
+            // unfiltered_cnvs = v[0].cnv0;
+            // $('#number_all_cnvs').replaceWith(unfiltered_cnvs);
+            //
+            // filtered_dels = v[0].del60;
+            // $('#number_of_dels').replaceWith(filtered_dels);
+            //
+            // unfiltered_dels = v[0].del0;
+            // $('#number_all_dels').replaceWith(unfiltered_dels);
+            //
+            // filtered_dups = v[0].dup60;
+            // $('#number_of_dups').replaceWith(filtered_dups);
+            //
+            // unfiltered_dups = v[0].dup0;
+            // $('#number_all_dups').replaceWith(unfiltered_dups);
+            //
+            // cnv_score = v[0].cnv_score;
+            // $('#cnv_score').replaceWith(cnv_score);
+            //
+            // rank = v[0].rank;
+            // $('#rank').replaceWith(rank);
         });
     </script>
+
     <div class="container-fluid">
-        <div class="col-md-10 col-xs-offset-1 col-md-offset-1">
-            <h1>Gene: {{ gene.gene_name }}</h1>
-            <hr/>
-        </div>
         <div class="row">
-            <div class="col-md-4 col-xs-10 col-xs-offset-1 col-md-offset-0">
-                <dl class="dl-horizontal">
-                    {% if gene.full_gene_name %}
-                        <dt>{{ gene.gene_name }}</dt>
-                        <dd>{{ gene.full_gene_name }}</dd>
-                    {% endif %}
-                    <dt>Number of variants</dt>
-                    <dd><span id="number_of_variants"></span>
-{# WHI: no filtering
-(Including filtered: {{ variants_in_gene|length }})
-#}</dd>
-		    <dt>Number of CNVs</dt>
-		    {% if constraint %}
-		       {% if constraint.n_cnv >= 0 %}
-                         <dd><span id="number_of_cnvs"></span>
-{# WHI: no filtering
- (Including filtered: <span id="number_all_cnvs"></span>)
-#}</dd>
-			 {% else %}
-			 <dd> N/A </dd>
-		         {% endif %}
-		    {% else %}
-			<dd>  N/A </dd>
-		    {% endif %}
-{#                    <dt>Number of LoF variants</dt>#}
-{#                    <dd><span id="number_of_lof_variants"></span> (Including filtered: {{ lof_variants_in_gene|length }})</dd>#}
-                    <script>
-                        filtered_variants = _.filter(window.table_variants, function(d) {
-                            return d.filter == 'PASS';
-                        });
-                        $('#number_of_variants').replaceWith(filtered_variants.length);
-                        lof_filtered_variants = _.filter(window.table_variants, function(d) {
-                            return d.filter == 'PASS' && d.category == 'lof_variant';
-                        });
-                        $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
-
-			var v = window.cnvgenes;
-                        filtered_cnvs = v[0].cnv60;
-                        $('#number_of_cnvs').replaceWith(filtered_cnvs);
-
-{# WHI: no filtering
-                        unfiltered_cnvs = v[0].cnv0;
-                        $('#number_all_cnvs').replaceWith(unfiltered_cnvs);
-#}
-
-                        filtered_dels = v[0].del60;
-                        $('#number_of_dels').replaceWith(filtered_dels);
-
-{# WHI: no filtering
-                        unfiltered_dels = v[0].del0;
-                        $('#number_all_dels').replaceWith(unfiltered_dels);
-#}
-
-                        filtered_dups = v[0].dup60;
-                        $('#number_of_dups').replaceWith(filtered_dups);
-
-{# WHI: no filtering
-                        unfiltered_dups = v[0].dup0;
-                        $('#number_all_dups').replaceWith(unfiltered_dups);
-#}
-
-                        cnv_score = v[0].cnv_score;
-                        $('#cnv_score').replaceWith(cnv_score);
-
-                        rank = v[0].rank;
-                        $('#rank').replaceWith(rank);
-
-                    </script>
-{#                    <dt>LoF rate</dt>#}
-{#                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>#}
-                    <dt class="hidden-xs">UCSC Browser</dt>
-                    <dd class="hidden-xs">
-                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}&hgt.customText=http://personal.broadinstitute.org/ruderfer/exac/exac-final.autosome-1pct-sq60-qc-prot-coding.cnv.bed" target="_blank">
-                            {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
-                    </dd>
-                    <dt class="hidden-xs">GeneCards</dt>
-                    <dd class="hidden-xs">
-                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
-                            {{ gene.gene_name }}
-                            <i class="fa fa-external-link"></i>
-                        </a>
-                    </dd>
-                    {% if gene.omim_accession %}
-                        <dt>OMIM</dt>
-                        <dd>
-                            <a href="http://omim.org/entry/{{ gene.omim_accession }}" target="_blank">
-                                {{ gene.gene_name }}
-                                <i class="fa fa-external-link"></i>
-                            </a>
-                        </dd>
-                    {% endif %}
-                    <dt>Other</dt>
-                    <dd>
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">
-                                External References
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
-                                <li role="presentation" class="visible-xs-block">
-                                    <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                                        UCSC Browser
-                                        <i class="fa fa-external-link"></i>
-                                    </a>
-                                </li>
-                                <li role="presentation" class="visible-xs-block">
-                                    <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
-                                        GeneCards
-                                        <i class="fa fa-external-link"></i>
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
-                                        Ensembl <i class="fa fa-external-link"></i>
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/wiki/{{ gene.gene_name }}" target="_blank">
-                                        Wikipedia <i class="fa fa-external-link"></i>
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
-                                        PubMed Search <i class="fa fa-external-link"></i>
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://www.wikigenes.org/?search={{ gene.gene_name }}" target="_blank">
-                                        Wikigenes <i class="fa fa-external-link"></i>
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
-                                        GTEx (Expression) <i class="fa fa-external-link"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </dd>
-                </dl>
+            <div class="col-md-6">
+                <h1>{{ gene.gene_name }}</h1>
+                {% if gene.full_gene_name %}
+                    <h4>{{ gene.full_gene_name }}</h4>
+                    <h4>{{ gene.canonical_transcript }}</h4>
+                {% endif %}
             </div>
+            <div class="col-md-6">
+                <div class="pull-right">
+                    <h1><span id="number_of_variants"></span></h1>
+                    <h4>variants</h4>
+                </div>
+            </div>
+        </div>
             <div class="col-md-1 hidden-xs">
                 <div class="dropdown">
+                    {# WHI
                     <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
                         Transcripts
                         <span class="caret"></span>
                     </button>
+                    #}
                     <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
                         {% for transcript in transcripts_in_gene %}
                             <li role="presentation">
@@ -190,67 +90,12 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-md-5 col-md-offset-1">
-                {% if constraint %}
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="padding-top: 4px;">Constraint</th>
-                                <th style="padding-top: 4px; width=50%;">Expected <br/>no. variants</th>
-                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Note that these numbers only consider &#xa; rare (AF < 0.001) variation &#xa; Not all variants in the table &#xa; below may be included"><span class="tooltip_hover">Observed <br/>no. variants</span></th>
-                                <th style="padding-top: 4px;" class="tooltip-table-header" data-tooltip="Constraint Metric for each &#xa; category (see FAQ) &#xa; synonymous: Z score &#xa; missense: Z score&#xa; LoF: pLI"><span class="tooltip_hover">Constraint<br/>Metric</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Synonymous</td>
-                                <td>{{ "%0.1f" % constraint.exp_syn }}</td>
-                                <td>{{ "%0.0f" % constraint.n_syn }}</td>
-                                <td>z = {% if constraint.syn_z > 3.71 %}
-                                    <span class="label label-danger" data-tooltip="Synonymous constraint may indicate error mode (see FAQ)">{{ "%0.2f" % constraint.syn_z }}</span>
-                                    {% else %}
-                                        {{ "%0.2f" % constraint.syn_z }}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Missense</td>
-                                <td>{{ "%0.1f" % constraint.exp_mis }}</td>
-                                <td>{{ "%0.0f" % constraint.n_mis }}</td>
-                                <td>z = {% if constraint.mis_z > 3.09 %}
-                                    <span class="label label-warning">{{ "%0.2f" % constraint.mis_z }}</span>
-                                    {% else %}
-                                        {{ "%0.2f" % constraint.mis_z }}
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="tooltip-table-header" data-tooltip="Stop-gained and essential splice site"><span class="tooltip_hover">LoF</span></td>
-                                <td>{{ "%0.1f" % constraint.exp_lof }}</td>
-                                <td>{{ "%0.0f" % constraint.n_lof }}</td>
-                                <td class="tooltip-table-header" data-tooltip="Probability of LoF intolerance (see FAQ)">{% if constraint.pLI > 0.9 %}
-                                        <span class="label label-warning">pLI</span>
-                                    {% else %}
-                                        pLI
-                                    {% endif %} =
-                                    {{ "%0.2f" % constraint.pLI }}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>CNV</td>
-                                <td>{{ "%0.1f" % constraint.exp_cnv }}</td>
-                                <td>{{ "%0.0f" % constraint.n_cnv }}</td>
-                                <td>z = {{ "%0.2f" % constraint.cnv_z }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
         </div>
         <div class="row">
             <div class="col-md-10 col-md-offset-1">
-                <h3>Gene summary</h3>
+{#
                 <h4><a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">Canonical transcript</a>: {{ transcript.transcript_id }}</h4>
+#}
                 <div class="row">
                     {% with plot_id = gene.gene_name %}
                         {% include 'transcript_display.html' %}
@@ -264,6 +109,79 @@
                         No variants in this gene.
                     {% endif %}
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-6 col-md-2 col-md-offset-1">
+            <a class="btn btn-success hidden-xs" id="export_to_csv">Export table to CSV</a>
+        </div>
+        <div class="col-xs-6 col-md-2">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">
+                    External References
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://exac.broadinstitute.org/gene/{{ gene.gene_id }}" target="_blank">
+                            ExAC
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                            GeneCards
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    {% if gene.omim_accession %}
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://omim.org/entry/{{ gene.omim_accession }}" target="_blank">
+                            OMIM
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                            UCSC Browser
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                            GeneCards
+                            <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
+                            Ensembl <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/wiki/{{ gene.gene_name }}" target="_blank">
+                            Wikipedia <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
+                            PubMed Search <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" href="http://www.wikigenes.org/?search={{ gene.gene_name }}" target="_blank">
+                            Wikigenes <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
+                            GTEx (Expression) <i class="fa fa-external-link"></i>
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

@@ -138,10 +138,13 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                <h1><span class="hidden-xs">Variant: </span>{{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}</h1>
-                {% for nom in variant.nomenclatures %}
-                    {{ nom }}<br />
-                {% endfor %}
+                <h1><span class="hidden-xs">Variant: </span>
+                    {% if variant.genes and consequences %}
+                        {{ (consequences.values()|first).keys()|first }}:
+                    {% endif %}
+                    {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+                    {{ variant.nomenclatures|join(', ') }}
+                </h1>
                 {% if variant.mnps %}
                     {% for mnp in variant.mnps %}
                         {% if mnp.category == 'UNCHANGED' %}
@@ -227,6 +230,13 @@
                                 <a href="http://www.ncbi.nlm.nih.gov/clinvar?term={{ variant.rsid }}%5BVariant%20ID%5D" target="_blank">
                             {% endif %}
                                 Click to search for variant in Clinvar
+                                <i class="fa fa-external-link"></i>
+                            </a>
+                        </dd>
+                        <dt>ExAC</dt>
+                        <dd>
+                                <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
+                                {{ variant.variant_id }}
                                 <i class="fa fa-external-link"></i>
                             </a>
                         </dd>
@@ -396,22 +406,22 @@
                                 {% if variant.pop_acs %}
                                 <tfoot>
                                     <tr>
-                                        <td><b>Total</b></td>
-                                        <td><b>{{ variant.pop_acs.values()|sum }}</b></td>
-                                        <td><b>{{ variant.pop_ans.values()|sum }}</b></td>
+                                        <td>Total</td>
+                                        <td>{{ variant.pop_acs.values()|sum }}</td>
+                                        <td>{{ variant.pop_ans.values()|sum }}</td>
                                         {% if chrom != 'Y' %}
-                                            <td><b>{{ variant.pop_homs.values()|sum }}</b></td>
+                                            <td>{{ variant.pop_homs.values()|sum }}</td>
                                         {% endif %}
                                         {% if chrom == 'X' or chrom == 'Y' %}
-                                            <td><b>{{ variant.pop_hemis.values()|sum }}</b></td>
+                                            <td>{{ variant.pop_hemis.values()|sum }}</td>
                                         {% endif %}
-                                        <td><b>
+                                        <td>
                                             {% if variant.allele_freq is not none %}
                                                 {{ '%0.4g' % variant.allele_freq }}
                                             {% else %}
                                                 NA
                                             {% endif %}
-                                        </b></td>
+                                        </td>
                                     </tr>
                                 </tfoot>
                                 {% endif %}

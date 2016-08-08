@@ -4,7 +4,6 @@ Default Theme
 /* overall */
 .tablesorter-default {
 	width: 100%;
-	font: 12px/18px Arial, Sans-serif;
 	color: #333;
 	background-color: #fff;
 	border-spacing: 0;
@@ -15,12 +14,11 @@ Default Theme
 /* header */
 .tablesorter-default th,
 .tablesorter-default thead td {
-	font: bold 12px/18px Arial, Sans-serif;
 	color: #000;
 	background-color: #fff;
 	border-collapse: collapse;
 	border-bottom: #ccc 2px solid;
-	padding: 0;
+	padding: 8px;
 }
 .tablesorter-default tfoot th,
 .tablesorter-default tfoot td {
@@ -33,7 +31,7 @@ Default Theme
 	background-repeat: no-repeat;
 	cursor: pointer;
 	white-space: normal;
-	padding: 4px 20px 4px 4px;
+	padding: 8px 20px 8px 8px;
 }
 .tablesorter-default thead .headerSortUp,
 .tablesorter-default thead .tablesorter-headerSortUp,
@@ -50,7 +48,7 @@ Default Theme
 .tablesorter-default thead .sorter-false {
 	background-image: none;
 	cursor: default;
-	padding: 4px;
+	padding: 8px;
 }
 
 /* tfoot */
@@ -65,7 +63,7 @@ Default Theme
 .tablesorter-default td {
 	background-color: #fff;
 	border-bottom: #ccc 1px solid;
-	padding: 4px;
+	padding: 8px;
 	vertical-align: top;
 }
 
@@ -163,8 +161,8 @@ caption {
 .tablesorter-default .tablesorter-filter {
 	width: 95%;
 	height: auto;
-	margin: 4px;
-	padding: 4px;
+	margin: 8px;
+	padding: 8px;
 	background-color: #fff;
 	border: 1px solid #bbb;
 	color: #333;

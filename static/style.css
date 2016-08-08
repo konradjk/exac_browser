@@ -1,6 +1,15 @@
+body {
+    font-family: Helvetica;
+    font-weight: lighter;
+    font-size: large;
+}
+
+a {
+    color: #98a;
+}
+
 #header {
     background: #222;
-    /*padding: 10px 0;*/
 }
 
 #header-links {
@@ -24,7 +33,7 @@
     background: #eee;
 }
 
-.navbar .navbar-form{
+.navbar .navbar-form {
     padding: 0 15px;
     border: 0;
     -webkit-box-shadow: none;
@@ -82,6 +91,24 @@
   color: #999;
 }
 
+#variant_table {
+    table-layout: fixed;
+}
+
+#variant_table > tbody > tr > td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+#variant_table caption {
+    background-color: #657;
+    color: white;
+    font-size: 24px;
+    padding: 10px;
+}
+
 .lof_variant {
     color: #cd2932 !important;
     fill: #cd2932 !important;
@@ -102,13 +129,11 @@
 }
 
 .section_header {
-    font-weight: bold;
     font-size: 24px;
 }
 
 .d3-tip {
   line-height: 1;
-  font-weight: bold;
   padding: 12px;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
