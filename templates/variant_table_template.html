@@ -100,11 +100,9 @@
 {# WHI: no filtering
             <td class='hidden-xs'> <%= variant.filter %> </td>
 #}
-            <td class="<%= variant.category %>" data-consequence="<%= variant.major_consequence %>"><b>
-                <% if (variant.major_consequence) { %>
-                    <%= variant.major_consequence.replace('_variant', '').replace(/_/g, ' ').replace('utr', 'UTR').replace('3 prime', "3'").replace('5 prime', "5'").replace('nc ', "non-coding ") %>
-                <% } %>
-            </b> </td>
+            <td class="<%= variant.category %>" data-consequence="<%= variant.major_consequence %>">
+                <b><%= consequence_name(variant.major_consequence) %></b>
+            </td>
             <td>
                 <% _.each(variant.flags, function(flag) { %>
                     <% if (flag == 'LoF flag') { span_tag = 'warning' } else { span_tag = 'danger' } %>

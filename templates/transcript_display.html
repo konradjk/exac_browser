@@ -386,13 +386,7 @@ function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
     // show variant category on hover
     var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
         if (d.category) {
-            var csq = d.major_consequence.replace('_variant', '')
-                    .replace('_', ' ')
-                    .replace('utr', 'UTR')
-                    .replace('3 prime', "3'")
-                    .replace('5 prime', "5'")
-                    .replace('nc ', "non-coding ");
-            var output = csq + '<br/>' + d.chrom + ':' + d.pos + ' ' + d.ref + '&#8594;' + d.alt;
+            var output = consequence_name(d.major_consequence) + '<br/>' + d.chrom + ':' + d.pos + ' ' + d.ref + '&#8594;' + d.alt;
             if (d.major_consequence == 'missense_variant' || d.major_consequence == 'synonymous_variant') {
                 output += '<br/>' + d.HGVSp;
             }

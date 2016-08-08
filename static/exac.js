@@ -754,3 +754,15 @@ function set_plot_image(container, index) {
     //convert svg source to URI data scheme.
     return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
 }
+
+function consequence_name(csq) {
+    if (csq) {
+        return csq.replace('_variant', '')
+            .replace(/_/g, ' ')
+            .replace('utr', 'UTR')
+            .replace('3 prime', "3'")
+            .replace('5 prime', "5'")
+            .replace('nc ', "non-coding ");
+    }
+    return '';
+}
