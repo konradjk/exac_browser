@@ -554,22 +554,28 @@ function draw_region_coverage(raw_data, metric, ref) {
 }
 
 function update_variants() {
-    var category = $('.consequence_display_buttons.active').attr('id').replace('consequence_', '').replace('_variant_button', '');
-    var filter = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
-    $('[category]').hide();
-    if (category == 'other') {
-        $('[category]' + filter).show();
-    } else if (category == 'missense') {
-        $('[category=missense_variant]' + filter).show();
+    var active_elem = $('.consequence_display_buttons.active');
+    if (!active_elem.length) {
+        return;
     }
-    $('[category=lof_variant]' + filter).show();
-    if ($('tr[style!="display: none;"]').length == 1) {
-        $('#variants_table_empty').show();
-        $('#variants_table_container').hide();
+    console.log(active_elem);
+
+    var active = active_elem.attr('id').replace('consequence_button_', '');
+    console.log(active);
+    if (active == 'all') {
+        $('tr.table_variant').show();
     } else {
-        $('#variants_table_empty').hide();
-        $('#variants_table_container').show();
+        $('tr.table_variant').hide();
+        $('[consequence=' + active + ']').show();
     }
+
+    // if ($('tr[style!="display: none;"]').length == 1) {
+    //     $('#variants_table_empty').show();
+    //     $('#variants_table_container').hide();
+    // } else {
+    //     $('#variants_table_empty').hide();
+    //     $('#variants_table_container').show();
+    // }
 }
 
 function update_cnvs() {

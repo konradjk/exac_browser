@@ -1,3 +1,7 @@
+/* color scheme: purple:
+ * dark: #657
+ * light: #a9b
+ */
 body {
     font-family: Helvetica;
     font-weight: lighter;
@@ -5,7 +9,7 @@ body {
 }
 
 a {
-    color: #98a;
+    color: #657;
 }
 
 #header {
@@ -103,10 +107,25 @@ a {
 }
 
 #variant_table caption {
-    background-color: #657;
+    background-color: #546;
     color: white;
     font-size: 24px;
     padding: 10px;
+    /* text-align: left; */
+}
+
+.consequence_display_buttons {
+    color: #000 !important;
+    border: 1px solid #ddd !important;
+    cursor: pointer;
+}
+
+.consequence_display_buttons:hover, #variant_table th:hover {
+    background-color: #a9b;
+}
+
+.consequence_display_buttons input {
+    display: none;
 }
 
 .lof_variant {

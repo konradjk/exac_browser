@@ -137,29 +137,28 @@
     </script>
     <div class="container">
         <div class="row">
-            <div class="col-md-6">
-                <h1><span class="hidden-xs">Variant: </span>
-                    {% if variant.genes and consequences %}
-                        {{ (consequences.values()|first).keys()|first }}:
-                    {% endif %}
-                    {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
-                    {{ variant.nomenclatures|join(', ') }}
-                </h1>
-                {% if variant.mnps %}
-                    {% for mnp in variant.mnps %}
-                        {% if mnp.category == 'UNCHANGED' %}
-                            <span class="label label-info">Note:</span>
-                        {% else %}
-                            <h5><span class="label label-warning">Warning!</span>
-                        {% endif %}
-                        This variant is found in phase with <a href="/variant/{{ mnp.site2 }}">{{ mnp.site2 }}</a>
-                        {% if mnp.site3 %}
-                            and <a href="/variant/{{ mnp.site3 }}">{{ mnp.site3 }}</a>
-                        {% endif %}
-                        in {{ mnp.number_samples }} individual{% if mnp.number_samples > 1 %}s{% endif %}{% if mnp.category != 'UNCHANGED' %}, altering its functional interpretation</h5>{% endif %}.
-                    {% endfor %}
+            <h1><span class="hidden">Variant:<br /></span>
+                {% if variant.genes and consequences %}
+                    {{ (consequences.values()|first).keys()|first }}:
                 {% endif %}
-            </div>
+                {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+                <br />
+                {{ variant.nomenclatures|join('<br />')|safe }}
+            </h1>
+            {% if variant.mnps %}
+                {% for mnp in variant.mnps %}
+                    {% if mnp.category == 'UNCHANGED' %}
+                        <span class="label label-info">Note:</span>
+                    {% else %}
+                        <h5><span class="label label-warning">Warning!</span>
+                    {% endif %}
+                    This variant is found in phase with <a href="/variant/{{ mnp.site2 }}">{{ mnp.site2 }}</a>
+                    {% if mnp.site3 %}
+                        and <a href="/variant/{{ mnp.site3 }}">{{ mnp.site3 }}</a>
+                    {% endif %}
+                    in {{ mnp.number_samples }} individual{% if mnp.number_samples > 1 %}s{% endif %}{% if mnp.category != 'UNCHANGED' %}, altering its functional interpretation</h5>{% endif %}.
+                {% endfor %}
+            {% endif %}
             <div class="col-md-6">
             {% if variant.orig_alt_alleles|length > 1 %}
 {# WHI: skip multiallelic info
@@ -451,13 +450,7 @@
 
         <div class="row">
 	    <div class="col-md-12">
-	    <div class="section_header">Reference</div>
-            <p />
-            This interactive <a href="https://github.com/igvteam/igv.js">IGV.js</a> visualization shows the reference genome around this variant.<br>
-            <br><br>
-
-
-
+	    <div class="section_header">Reference genome</div>
 {# We don't expose read data for WHI variants.
         {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] %}
             <center>

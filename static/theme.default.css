@@ -12,12 +12,12 @@ Default Theme
 }
 
 /* header */
-.tablesorter-default th,
-.tablesorter-default thead td {
+.tablesorter-default th {
+/* .tablesorter-default thead td { */
 	color: #000;
 	background-color: #fff;
 	border-collapse: collapse;
-	border-bottom: #ccc 2px solid;
+	/* border-bottom: #ccc 2px solid; */
 	padding: 8px;
 }
 .tablesorter-default tfoot th,
@@ -37,13 +37,13 @@ Default Theme
 .tablesorter-default thead .tablesorter-headerSortUp,
 .tablesorter-default thead .tablesorter-headerAsc {
 	background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7);
-	border-bottom: #000 2px solid;
+	/* border-bottom: #000 2px solid; */
 }
 .tablesorter-default thead .headerSortDown,
 .tablesorter-default thead .tablesorter-headerSortDown,
 .tablesorter-default thead .tablesorter-headerDesc {
 	background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7);
-	border-bottom: #000 2px solid;
+	/* border-bottom: #000 2px solid; */
 }
 .tablesorter-default thead .sorter-false {
 	background-image: none;
@@ -56,13 +56,13 @@ Default Theme
 .tablesorter-default tfoot .tablesorter-headerSortDown,
 .tablesorter-default tfoot .tablesorter-headerAsc,
 .tablesorter-default tfoot .tablesorter-headerDesc {
-	border-top: #000 2px solid;
+	/* border-top: #000 2px solid; */
 }
 
 /* tbody */
 .tablesorter-default td {
 	background-color: #fff;
-	border-bottom: #ccc 1px solid;
+	/* border-bottom: #ccc 1px solid; */
 	padding: 8px;
 	vertical-align: top;
 }

@@ -71,10 +71,23 @@
             type: 'numeric'
         });
 
+        // group and count consequences by number of variants for filter buttons
+        var consequence_to_count = _.countBy(_.map(table_variants, function(v) {
+            return v.major_consequence;
+        }));
+        consequence_counts = _.sortBy(_.map(Object.keys(consequence_to_count), function(csq) {
+            return [csq, consequence_to_count[csq]];
+        }), function(csq_count) {
+            return -csq_count[1];
+        });
+
         $("#variants_loading").hide();
         $("#variants_table_container").show();
         window.variants_template = _.template($('#variant-table-template').html());
-        $('#variants_table_container').html(variants_template({table_variants: table_variants}));
+        $('#variants_table_container').html(variants_template({
+            table_variants: table_variants,
+            consequence_counts: consequence_counts
+        }));
         $("#variant_table").tablesorter({
             sortList: [[1,0], [2,0], [10,1]],
             // Here's where we tell tablesorter to use our new consequence sorter on the 9th column
