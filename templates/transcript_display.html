@@ -204,7 +204,7 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
         .style("font-family", "FontAwesome")
         .html("<a>(view individual CNVs &#xf08e;)</a>")
         .on("click", function() {
-            window.open("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}&hgt.customText=http://www.broadinstitute.org/~ruderfer/exac/exac-final.autosome-1pct-sq60-qc-prot-coding.cnv.bed", "_blank");
+            window.open("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}&hgt.customText=http://personal.broadinstitute.org/ruderfer/exac/exac-final.autosome-1pct-sq60-qc-prot-coding.cnv.bed", "_blank");
         });
 
 
