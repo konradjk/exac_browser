@@ -191,7 +191,23 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
         .attr("text-anchor", "middle")
         .style("font-size", "14px")
         .style("font-weight", "bold")
-        .text("CNV Counts (Individual events can be viewed from UCSC link above)");
+        .text("CNV Counts")
+
+    svg.append("text")
+        .attr("x", (chart_width / 2) + 120)
+        .attr("y", 0 + (cnv_chart_margin.top / 10)*8)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#428bca")
+        .style("font-size", "12px")
+        .style("cursor", "pointer")
+        .style("font-weight", "bold")
+        .style("font-family", "FontAwesome")
+        .html("<a>(view individual CNVs &#xf08e;)</a>")
+        .on("click", function() {
+            window.open("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}&hgt.customText=http://www.broadinstitute.org/~ruderfer/exac/exac-final.autosome-1pct-sq60-qc-prot-coding.cnv.bed", "_blank");
+        });
+
+
 
     //plotting lines underneath bars
         svg.selectAll("bar")
@@ -302,7 +318,6 @@ function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
         .attr("stroke-width", 5)
         .attr("stroke", exon_color);
 
-    console.log(_transcript);
     // plot exon rects
     svg_outer.selectAll("bar")
         .data(_transcript.exons)
