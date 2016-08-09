@@ -95,7 +95,7 @@ a {
   color: #999;
 }
 
-#variant_table {
+#variant_table, #variant_table-sticky {
     table-layout: fixed;
 }
 
@@ -106,7 +106,7 @@ a {
     vertical-align: middle;
 }
 
-#variant_table caption {
+#variant_table caption, #variant_table-sticky caption  {
     background-color: #546;
     color: white;
     font-size: 24px;

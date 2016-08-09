@@ -1,5 +1,7 @@
 {% block variant_table %}
+{#
 {% include 'variant_selectors.html' %}
+#}
 {% include "variant_table_template.html" %}
 <script>
     $(document).ready(function() {
@@ -96,7 +98,8 @@
                 10: {
                     sorter: 'consequence'
                 }
-            }
+            },
+            widgets: ["stickyHeaders"]
         });
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
 {#        if (window.table_variants.length <= 10) {#}
