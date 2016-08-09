@@ -4,43 +4,45 @@
         $('#navbar_form_container').hide();
     </script>
     <div class="container">
-        <h1 id="home-title"><a href="https://www.whi.org/">WHI</a> FLOS(sie) Variant Database</h1>
+        <br />
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-8 col-md-offset-2">
+                <h1 id="home-title">The largest database of variants seen in healthy older women.</h1>
                 <div id="home-searchbox">
                     <form action="/awesome">
                         <input type="submit" style="display: none;"/>
-                        <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search for a gene or variant or region"/>
+                        <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search by gene, variant, or transcript"/>
                         <input type="submit" style="position: absolute; left: -9999px"/>
                     </form>
                     <p class="text-muted">
-                        Examples - Gene: <a href="/awesome?query=BRCA1">BRCA1</a>,
-                        Transcript: <a href="/transcript/ENST00000260947">ENST00000260947</a>,
-                        Variant: <a href="/variant/22-29091121-C-CT">22-29091121-C-CT</a>,
-                        Region: <a href="/region/16-68771128-68869451">chr16:68771128-68869451</a>
+                        Examples:
+                        <a href="/awesome?query=BRCA1">BRCA1</a>,
+                        <a href="/transcript/ENST00000260947">ENST00000260947</a>,
+                        <a href="/variant/22-29091121-C-CT">22-29091121-C-CT</a>,
+                        <a href="/region/16-68771128-68869451">chr16:68771128-68869451</a>
                     </p>
                 </div>
             </div>
         </div>
-        <div class="row" style="font-size: 16px;">
-            <div class="col-md-8">
-                <h3 align="center"> <a href="/about" style="color: black;">About</a></h3>
-                <div>
-                    <p>
-                      TODO
-                    </p>
-                    <p>
-                        <a href="https://www.whi.org/">WHI</a> FLOS(sie) Variant Database. <a href="https://getcolor.com/">Color Genomics</a>.
-                    </p>
-                    <p>
-                        This site uses a modified version of the open source <a href="https://github.com/konradjk/exac_browser">ExAC Browser</a>, developed by <a href="http://broadinstitute.org/">The Broad Institute</a> and distributed <a href="https://github.com/konradjk/exac_browser/blob/master/LICENSE">under the MIT License</a>.
-                    </p>
-                </div>
+
+        <br /><br />
+        <div class="row">
+            <div class="col-md-3 col-md-offset-1" style="text-align: right">
+                <br />
+                <img src="/static/yoga_woman.png" width="201"/>
             </div>
-            <div class="col-md-4">
-                <h3 align="center">Recent News</h3>
-                <h4>October 99, 2016</h4> - ...
+            <div class="col-md-7">
+                <h3 class="home-header">Where do we get our data?</h3>
+                <p>All of the genetic variants found in FLOS(sie) are from women who are older than 70 and have never had cancer. They participated in the Women's Health Initiative (WHI), a long term national health study focused on strategies for preventing heart disease, breast and colorectal cancer, and osteoporotic fractures in postmenopausal women.</p>
+                <p>Researchers at the University of Washington and Color Genomics sequenced the DNA from 10,000 of these "Fine Ladies Over Seventy" to create FLOS(sie).
             </div>
+        </div>
+
+        <br />
+        <div id="logos" class="row" style="text-align: center">
+            <a href="https://www.whi.org/"><img src="/static/whi_logo.jpg" /></a>
+            <a href="http://www.gs.washington.edu/"><img src="/static/uw_medium_2x.png" /></a>
+            <a href="https://getcolor.com/"><img src="/static/color_logo_large_2x.png" /></a>
         </div>
     </div>
 {% endblock %}

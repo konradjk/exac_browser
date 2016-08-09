@@ -8,8 +8,17 @@ body {
     font-size: large;
 }
 
-a {
+a, #home-title, .home-header {
     color: #657;
+}
+
+#logos img {
+    height: 50px;
+    margin: 20px;
+}
+
+a:hover, a:active {
+    color: #a9b;
 }
 
 #header {
@@ -69,6 +78,7 @@ a {
 #home-title {
     text-align: center;
     padding: 30px;
+    font-size: 44px;
 }
 
 #home-searchbox {
