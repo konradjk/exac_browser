@@ -686,14 +686,6 @@ $(document).ready(function() {
         }, 10);
     });
 
-    $('.consequence_display_buttons').change(function () {
-        setTimeout(function() {
-            update_variants();
-            update_cnvs();
-            refresh_links();
-        }, 10);
-    });
-
     $('.display_coverage_metric_buttons').change(function () {
         var detail = $(this).attr('id').replace('display_coverage_', '').replace('_button', '');
         console.log(detail);

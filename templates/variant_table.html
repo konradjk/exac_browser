@@ -172,6 +172,14 @@
             var timestamp = date_format(new Date());
             exportTableToCSV.apply(this, [$('#variant_table'), 'exac_' + output_name + '_' + timestamp + '.csv']);
         });
+
+        $('.consequence_display_buttons').on('change click', function (event) {
+            setTimeout(function() {
+                update_variants();
+                update_cnvs();
+                refresh_links();
+            }, 10);
+        });
     });
 </script>
 <div id="variants_loading">Loading variants...</div>

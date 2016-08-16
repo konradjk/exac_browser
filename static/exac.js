@@ -558,24 +558,14 @@ function update_variants() {
     if (!active_elem.length) {
         return;
     }
-    console.log(active_elem);
 
     var active = active_elem.attr('id').replace('consequence_button_', '');
-    console.log(active);
     if (active == 'all') {
         $('tr.table_variant').show();
     } else {
         $('tr.table_variant').hide();
         $('[consequence=' + active + ']').show();
     }
-
-    // if ($('tr[style!="display: none;"]').length == 1) {
-    //     $('#variants_table_empty').show();
-    //     $('#variants_table_container').hide();
-    // } else {
-    //     $('#variants_table_empty').hide();
-    //     $('#variants_table_container').show();
-    // }
 }
 
 function update_cnvs() {

@@ -15,13 +15,13 @@
         Variants
     </caption>
     <thead>
-        <tr id="variant_consequence_types" class="btn-group tablesorter-ignoreRow" data-toggle="buttons">
-            <td class="btn-primary active consequence_display_buttons" id="consequence_button_all">
+        <tr id="variant_consequence_types" class="btn-group tablesorter-ignoreRow sticky-false" data-toggle="buttons">
+            <td class="btn btn-primary active consequence_display_buttons" id="consequence_button_all">
                 <input type="radio">
                 <nobr>All (<%= table_variants.length %>)</nobr>
             </td>
             <% _.each(consequence_counts, function(csq_count) { %>
-                <td class="btn-primary consequence_display_buttons" id="consequence_button_<%= csq_count[0] %>">
+                <td class="btn btn-primary consequence_display_buttons" id="consequence_button_<%= csq_count[0] %>">
                     <input type="radio">
                     <nobr><%= consequence_name(csq_count[0]) %> (<%= csq_count[1] %>)</nobr>
                 </td>
@@ -120,8 +120,6 @@
                 <%= consequence_name(variant.major_consequence) %>
              </td>
             <td class="hidden">
->>>>>>> new skin: variant table style, cut down and streamline page elements
->>>>>>> b6e4c62... new skin: variant table style, cut down and streamline page elements
                 <% _.each(variant.flags, function(flag) { %>
                     <% if (flag == 'LoF flag') { span_tag = 'warning' } else { span_tag = 'danger' } %>
                     <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank"><span class="label label-<%= span_tag %> tooltip-table-header" data-tooltip="Variant annotation dubious: &#xa; see variant page for details"><%= flag %></span></a>
