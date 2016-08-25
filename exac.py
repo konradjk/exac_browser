@@ -563,10 +563,10 @@ def variant_page(variant_str):
         # available bams and *actual* number of available bams for this variant
         sqlite_db_path = os.path.join(
             app.config["READ_VIZ_DIR"],            
-            "combined_bams"+('_2016_07_01' if chrom in ('22', 'X', 'Y') else ''),
+            "combined_bams", 
             chrom,
             "combined_chr%s_%03d.db" % (chrom, pos % 1000))
-        print(sqlite_db_path)
+        logging.info(sqlite_db_path)
         try:
             read_viz_db = sqlite3.connect(sqlite_db_path)
             if chrom in ('X', 'Y'):
@@ -578,14 +578,13 @@ def variant_page(variant_str):
                     "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hemi')).fetchone()
             else:
                 n_het = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'het')).fetchone()
+                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'het')).fetchone()
                 n_hom = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'hom')).fetchone()
+                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hom')).fetchone()
                 n_hemi = None
-
             read_viz_db.close()
         except Exception, e:
-            logging.debug("Error when accessing sqlite db: %s - %s", sqlite_db_path, e)
+            logging.error("Error when accessing sqlite db: %s - %s", sqlite_db_path, e)
             n_het = n_hom = n_hemi = None
 
         read_viz_dict = {
@@ -600,11 +599,12 @@ def variant_page(variant_str):
             read_viz_dict[het_or_hom_or_hemi]['readgroups'] = [
                 '%(chrom)s-%(pos)s-%(ref)s-%(alt)s_%(het_or_hom_or_hemi)s%(i)s' % locals()
                     for i in range(read_viz_dict[het_or_hom_or_hemi]['n_available'])
+
             ]   #eg. '1-157768000-G-C_hom1',
 
             read_viz_dict[het_or_hom_or_hemi]['urls'] = [
                 #os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
-                os.path.join('combined_bams'+('_2016_07_01' if chrom in ('22', 'X', 'Y') else ''), chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
+                os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
                     for i in range(read_viz_dict[het_or_hom_or_hemi]['n_available'])
             ]
 
