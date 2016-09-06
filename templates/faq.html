@@ -7,7 +7,7 @@
             <li class="media">
                 <div class="media-body">
                     <h4 class="media-heading">How should I cite discoveries made using ExAC data?</h4>
-                    We anticipate the publication of a flagship paper describing this data set in early 2016. Until that is published, please cite the <a href="http://biorxiv.org/content/early/2015/10/30/030338">bioRxiv preprint</a>.
+                    Please cite the ExAC flagship paper available <a href="http://www.nature.com/nature/journal/v536/n7616/full/nature19057.html">here</a>.
                 </div>
             </li>
             <li class="media">
@@ -36,7 +36,7 @@
             <li class="media">
                 <div class="media-body">
                     <h4 class="media-heading">How was the expected number of variants determined?</h4>
-                    We used a depth corrected probability of mutation for each gene to predict the expected variant counts. More details can be found in section 4.1 of the supplement in <a href="http://biorxiv.org/content/early/2015/10/30/030338">Lek et al</a>. Note that the expected variant counts for exons with a median depth < 1 were removed from the totals.
+                    We used a depth corrected probability of mutation for each gene to predict the expected variant counts. More details can be found in section 4.1 of the supplement in <a href="http://www.nature.com/nature/journal/v536/n7616/full/nature19057.html">Lek et al</a>. Note that the expected variant counts for exons with a median depth < 1 were removed from the totals.
                 </div>
             </li>
             <li class="media">
@@ -71,7 +71,7 @@
             <li class="media">
                 <div class="media-body">
                     <h4 class="media-heading">How were CNVs discovered?</h4>
-                    Deletions and duplications were called based on read depth using XHMM (<a href="http://www.sciencedirect.com/science/article/pii/S000292971200417X">Fromer et al.</a>). Explicit methodological details will be provided in Ruderfer et al. to be published soon.
+                    Deletions and duplications were called based on read depth using XHMM (<a href="http://www.sciencedirect.com/science/article/pii/S000292971200417X">Fromer et al.</a>). Explicit methodological details are provided in <a href="http://www.nature.com/ng/journal/vaop/ncurrent/full/ng.3638.html">Ruderfer et al</a>.
                 </div>
             </li>
             <li class="media">
@@ -114,6 +114,12 @@
                     This inevitably adds complexity to otherwise simple variants,
                     and thus when parsing onto the browser, we apply a <a href="http://www.cureffi.org/2014/04/24/converting-genetic-variants-to-their-minimal-representation/">minimal representation</a> script.
                     For instance, a variant whose REF is GC and ALT alleles are TC,G - the first ALT allele is actually a SNP and will be represented in the browser as G->T.
+                </div>
+            </li>
+            <li class="media">
+                <div class="media-body">
+                    <h4 class="media-heading">Why does the allele frequency (AF) found in the ExAC VCF differ from the AF shown on the browser?</h4>
+                    The AF shown in the VCF is AC/AN.  The browser however shows the adjusted allele frequency (AC_adj/AN_adj). The raw counts (AC and AN) refer to the total number of chromosomes with this allele, and total that were able to be called (whether reference or alternate), respectively. Thus, the allele frequency is AC/AN. However, for more stringent applications, we adjusted the allele count to only include individuals with genotype quality (GQ) >= 20 and depth (DP) >= 10, which we term AC_adj (and correspondingly, AN_adj for total number of chromosomes from individuals with those criteria regardless of genotype call).
                 </div>
             </li>
             <li class="media">
@@ -333,6 +339,12 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </li>
+            <li class="media">
+                <div class="media-body">
+                    <h4 class="media-heading">What ethnicities are represented in the "other" population?</h4>
+                   Individuals were classified as "other" if they did not unambiguously cluster with the major populations (i.e. EUR, NFE, AFR, SAS, EAS and AMR) in a principal component analysis (PCA).
                 </div>
             </li>
             <li class="media">
