@@ -434,7 +434,7 @@
                     <br><br>
 
 
-                    {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] or read_viz['hemi']['all_samples_missing'] %}
+                    {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] or (variant.chrom in ('X', 'Y') and read_viz['hemi']['all_samples_missing']) %}
                     <center>
                         <h5 id='missing-data-note' style='margin-right:60%'>
                             <span class="label label-info">Note:</span> &nbsp; Read data is not available for
@@ -601,8 +601,10 @@
                             });
                         }
 
+
+
                         //initialize IGV.js browser
-                        var locus = '{{ variant.chrom }}:{{ variant.pos-150 }}-{{ variant.pos+150 }}';
+                        var locus = '{{ variant.chrom }}:{{ variant.pos-40 }}-{{ variant.pos+40 }}';
                         var options = {
                             showCommandBar: true,
                             genome: 'hg19',

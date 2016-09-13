@@ -116,6 +116,52 @@ window.precalc_coding_coordinates = function(_transcript, objects, key) {
     });
 };
 
+window.get_cnv = function(_cnvs, start, stop, type, filter_status){
+    var r = 0;
+    for (var i=0; i<_cnvs.length; i++) {
+        if(_cnvs[i].start+1 == start || _cnvs[i].stop+1 == stop){
+            if(filter_status)
+		{
+		    accessor = type + '0';
+		}else{
+                accessor = type + '60';
+            }
+            r =  _cnvs[i][accessor];
+        }
+    }
+    return r;
+};
+
+window.get_cnv_pop = function(_cnvs, start, stop, type, filter_status){
+    var r = 0;
+    for (var i=0; i<_cnvs.length; i++) {
+        if(_cnvs[i].start+1 == start || _cnvs[i].stop+1 == stop){
+            if(filter_status)
+		{
+		    accessor = type + 'pop0';
+		}else{
+                accessor = type + 'pop60';
+            }
+            r =  _cnvs[i][accessor];
+        }
+    }
+    return r;
+};
+
+window.get_max_cnv = function(_cnvs, filter_status){
+    var r = 0;
+    for (var i=0; i<_cnvs.length; i++) {
+	if(filter_status){
+	    var m = Math.max(_cnvs[i].del0, _cnvs[i].dup0);
+	}else{
+	    var m = Math.max(_cnvs[i].del60, _cnvs[i].dup60);
+	}
+	if( m > r){
+	        r = m
+		    }
+    }
+    return r;
+};
 
 
 
@@ -527,6 +573,11 @@ function update_variants() {
     }
 }
 
+function update_cnvs() {
+    var filter = $('#filtered_checkbox').is(":checked") ? '[filter_status]' : '[filter_status="PASS"]';
+    console.log($('#filtered_checkbox').is(":checked"));
+}
+
 function get_af_bounds(data) {
     // Removing AC_Adj = 0 cases
     var min_af = d3.min(data, function(d) {
@@ -552,6 +603,13 @@ gene_chart_margin_lower = {top: 5, right: gene_chart_margin.right, bottom: 5, le
 
 lower_gene_chart_height = 50 - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom,
     gene_chart_height = 300 - gene_chart_margin.top - gene_chart_margin.bottom - lower_gene_chart_height - gene_chart_margin_lower.top - gene_chart_margin_lower.bottom;
+
+cnv_chart_margin = {top: 30, right: gene_chart_margin.right, bottom: gene_chart_margin.bottom, left: gene_chart_margin.left};
+if ($(window).width() < 768) {
+    cnv_chart_margin.left = 10;
+
+}
+
 
 function change_track_chart_variant_size(variant_data, change_to, container) {
     var svg_outer = d3.select(container).select('#track');

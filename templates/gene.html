@@ -9,6 +9,8 @@
         window.transcripts_in_gene = {{ transcripts_in_gene|tojson|safe }};
         window.coverage_stats = {{ coverage_stats|tojson|safe }};
         window.page_name = window.gene.gene_id;
+        window.cnvs = {{ cnvs|tojson|safe }};
+        window.cnvgenes = {{ cnvgenes|tojson|safe }};
     </script>
     <style>
 
@@ -33,6 +35,16 @@
                     {% endif %}
                     <dt>Number of variants</dt>
                     <dd><span id="number_of_variants"></span> (Including filtered: {{ variants_in_gene|length }})</dd>
+		    <dt>Number of CNVs</dt>
+		    {% if constraint %}
+		       {% if constraint.n_cnv >= 0 %}
+                         <dd><span id="number_of_cnvs"></span> (Including filtered: <span id="number_all_cnvs"></span>)</dd>
+			 {% else %}
+			 <dd> N/A </dd>
+		         {% endif %}
+		    {% else %}
+			<dd>  N/A </dd>
+		    {% endif %}
 {#                    <dt>Number of LoF variants</dt>#}
 {#                    <dd><span id="number_of_lof_variants"></span> (Including filtered: {{ lof_variants_in_gene|length }})</dd>#}
                     <script>
@@ -44,12 +56,38 @@
                             return d.filter == 'PASS' && d.category == 'lof_variant';
                         });
                         $('#number_of_lof_variants').replaceWith(lof_filtered_variants.length);
+
+			var v = window.cnvgenes;
+                        filtered_cnvs = v[0].cnv60;
+                        $('#number_of_cnvs').replaceWith(filtered_cnvs);
+
+                        unfiltered_cnvs = v[0].cnv0;
+                        $('#number_all_cnvs').replaceWith(unfiltered_cnvs);
+
+                        filtered_dels = v[0].del60;
+                        $('#number_of_dels').replaceWith(filtered_dels);
+
+                        unfiltered_dels = v[0].del0;
+                        $('#number_all_dels').replaceWith(unfiltered_dels);
+
+                        filtered_dups = v[0].dup60;
+                        $('#number_of_dups').replaceWith(filtered_dups);
+
+                        unfiltered_dups = v[0].dup0;
+                        $('#number_all_dups').replaceWith(unfiltered_dups);
+
+                        cnv_score = v[0].cnv_score;
+                        $('#cnv_score').replaceWith(cnv_score);
+
+                        rank = v[0].rank;
+                        $('#rank').replaceWith(rank);
+
                     </script>
 {#                    <dt>LoF rate</dt>#}
 {#                    <dd>{{ '%0.4g' % composite_lof_frequency }}</dd>#}
                     <dt class="hidden-xs">UCSC Browser</dt>
                     <dd class="hidden-xs">
-                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}&hgt.customText=http://personal.broadinstitute.org/ruderfer/exac/exac-final.autosome-1pct-sq60-qc-prot-coding.cnv.bed" target="_blank">
                             {{ gene.chrom }}:{{ gene.start - 1 }}-{{ gene.stop - 1 }}
                             <i class="fa fa-external-link"></i>
                         </a>
@@ -185,6 +223,12 @@
                                     {% endif %} =
                                     {{ "%0.2f" % constraint.pLI }}
                                 </td>
+                            </tr>
+                            <tr>
+                                <td>CNV</td>
+                                <td>{{ "%0.1f" % constraint.exp_cnv }}</td>
+                                <td>{{ "%0.0f" % constraint.n_cnv }}</td>
+                                <td>z = {{ "%0.2f" % constraint.cnv_z }}</td>
                             </tr>
                         </tbody>
                     </table>

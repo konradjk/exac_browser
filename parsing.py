@@ -302,6 +302,91 @@ def get_exons_from_gencode_gtf(gtf_file):
         yield exon
 
 
+def get_cnvs_from_txt(cnv_txt_file):
+    """                                                                                                                                                                                                                                  
+    Parse gencode txt file;                                                                                                                                                                                                              
+    Returns iter of gene dicts                                                                                                                                                                                                           
+    """
+    header = cnv_txt_file.next() # gets rid of the header                                                                                                                                                                                
+    #print header                                                                                                                                                                                                                        
+    for line in cnv_txt_file:
+
+        fields = line.rsplit()
+        transcript = fields[0]
+        gene = fields[1]
+        chrom = fields[2]
+        start = int(fields[3])
+        stop = int(fields[4])
+        del0 = int(fields[5])
+        del60 = int(fields[6])
+        dup0 = int(fields[7])
+        dup60 = int(fields[8])
+        delpop0 = fields[9]
+        delpop60 = fields[10]
+        duppop0 = fields[11]
+        duppop60 = fields[12]
+        
+
+        #find gene from DB.genes, get ID                                                                                                                                                                                                 
+        #find exon of that gene that this CNV referes to from db.exons, get ID                                                                                                                                                           
+        #add the object reference to the cnv dict.                                                                                                                                                                                       
+        cnv = {
+            'transcript': transcript,
+            'gene': gene,
+            'chrom': chrom,
+            'start': start,
+            'stop': stop,
+            'del0': del0,
+            'dup0': dup0,
+            'dup60': dup60,
+            'del60' : del60,
+            'delpop0' : delpop0,
+            'delpop60' : delpop60,
+            'duppop0' : duppop0,
+            'duppop60' : duppop60,
+            'xstart': get_xpos(chrom, start),
+            'xstop': get_xpos(chrom, stop),
+        }
+        yield cnv
+
+
+def get_cnvs_per_gene(cnv_gene_file):
+    header = cnv_gene_file.next() # gets rid of the header                                                                                                                                                                               
+    for line in cnv_gene_file:
+
+        fields = line.rsplit()
+        gene = fields[0]
+        symbol = fields[1]
+        del0 = int(fields[2])
+        dup0 = int(fields[3])
+        cnv0 = int(fields[4])
+        del60 = int(fields[5])
+        dup60 = int(fields[6])
+        cnv60 = int(fields[7])
+        del_score = float(fields[8])
+        dup_score = float(fields[9])
+        cnv_score = float(fields[10])
+        rank = int(fields[11])
+
+        cnv_gene = {
+            'gene': gene,
+            'symbol': symbol,
+            'del0': del0,
+            'dup0': dup0,
+            'cnv0': cnv0,
+            'del60': del60,
+            'dup60': dup60,
+            'cnv60' : cnv60,
+            'del_score': del_score,
+            'dup_score': dup_score,
+            'cnv_score': cnv_score,
+            'rank': rank,
+            }
+        yield cnv_gene
+
+
+
+
 def get_dbnsfp_info(dbnsfp_file):
     """
     Parse dbNSFP_gene file;

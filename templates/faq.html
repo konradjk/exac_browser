@@ -66,6 +66,27 @@
                 </div>
             </li>
         </ul>
+        <h2>Copy Number Variation (CNV)</h2>
+        <ul class="media-list">
+            <li class="media">
+                <div class="media-body">
+                    <h4 class="media-heading">How were CNVs discovered?</h4>
+                    Deletions and duplications were called based on read depth using XHMM (<a href="http://www.sciencedirect.com/science/article/pii/S000292971200417X">Fromer et al.</a>). Explicit methodological details will be provided in Ruderfer et al. to be published soon.
+                </div>
+            </li>
+            <li class="media">
+                <div class="media-body">
+                    <h4 class="media-heading">How were CNV intolerance scores calculated?</h4>
+                    It is not straightforward to model genic CNV rates expected under neutrality in a direct manner, as can be done for SNVs using trinucleotide mutation rates and the s known sequence. To derive expected values, we therefore fit a linear regression model for the observed CNV rate per gene based on gene length, coding sequence length, number of targets, GC content, sequence complexity, genomic localization within pairs of segmental duplications, and sequencing read depth. Intolerances scores were calculated as the normalized and winsorized model residuals, negated such that higher positive values indicate greater intolerance (a lower than expected rate of CNVs for that gene).
+                </div>
+            </li>
+            <li class="media">
+                <div class="media-body">
+                    <h4 class="media-heading">What are the limitations of these data?</h4>
+                    We note several limitations of these data: 1) Making accurate CNV calls from read depth data, in particular from targeted short read sequencing, is difficult and combined with the rarity of these events will add noise to estimates of frequencies and intolerance scores. 2) Complex CNVs such as multi-allelic events or common CNVs have been removed due to methodological limitations. 3) Mutation rates for CNVs are not well quantified making particular regions of known recurrence, such as those within pairs of tandem segmental duplications, more difficult to accurately assess intolerance. 4) Since CNVs often span multiple genes intolerance scores will be correlated over genes nearby.
+                </div>
+            </li>
+        </ul>
         <h2>Technical details</h2>
         <ul class="media-list">
             <li class="media">
@@ -83,7 +104,7 @@
             <li class="media">
                 <div class="media-body">
                     <h4 class="media-heading">What version of Gencode was used to annotate variants?</h4>
-                    Version 19 (annotated with VEP version 77).
+                    Version 19 (annotated with VEP version 81).
                 </div>
             </li>
             <li class="media">

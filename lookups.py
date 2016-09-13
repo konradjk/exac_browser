@@ -1,6 +1,5 @@
 import re
 from utils import *
-import itertools
 
 SEARCH_LIMIT = 10000
 
@@ -117,6 +116,13 @@ def get_constraint_for_transcript(db, transcript):
     return db.constraint.find_one({'transcript': transcript}, fields={'_id': False})
 
 
+def get_exons_cnvs(db, transcript_name):
+   return list(db.cnvs.find({'transcript': transcript_name}, fields={'_id': False}))
+
+def get_cnvs(db, gene_name):
+   return list(db.cnvgenes.find({'gene': gene_name}, fields={'_id': False}))
+
+
 def get_awesomebar_suggestions(g, query):
     """
     This generates autocomplete suggestions when user
@@ -124,9 +130,8 @@ def get_awesomebar_suggestions(g, query):
     If it is the prefix for a gene, return list of gene names
     """
     regex = re.compile('^' + re.escape(query), re.IGNORECASE)
-    results = (r for r in g.autocomplete_strings if regex.match(r))
-    results = itertools.islice(results, 0, 20)
-    return list(results)
+    results = [r for r in g.autocomplete_strings if regex.match(r)][:20]
+    return results
 
 
 # 1:1-1000
