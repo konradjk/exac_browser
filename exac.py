@@ -605,9 +605,9 @@ def variant_page(variant_str):
                     "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hemi')).fetchone()
             else:
                 n_het = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'het')).fetchone()
+                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'het')).fetchone()
                 n_hom = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hom')).fetchone()
+                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'hom')).fetchone()
                 n_hemi = None
             read_viz_db.close()
         except Exception, e:
