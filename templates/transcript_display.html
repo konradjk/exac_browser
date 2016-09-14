@@ -80,12 +80,13 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
         .domain([0, coding_coordinate_params.size])
         .range([0, chart_width]);
 
+    var cnv_x = function(cnv, i) {
+      var x = exon_x_scale(get_coding_coordinate(_transcript, cnv.start, skip_utrs));
+      return Math.min(x, gene_chart_width - 2 * EXON_PADDING);
+    }
 
     var cnv_filter_status = $('#filtered_checkbox').is(":checked");
     var m = get_max_cnv(_cnvs, cnv_filter_status);
-
-    
-
 
     var svg = d3.select('#gene_plot_container').append("svg")
         .attr("width", chart_width + cnv_chart_margin.left + cnv_chart_margin.right)
@@ -106,131 +107,75 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
         .tickFormat(function(d,i){return Math.abs(d)})
         .ticks(5);
 
-    var del_tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
-        var x = get_cnv_pop(_cnvs, d.start, d.stop, 'del', cnv_filter_status)
-                    .replace(/,/g, '<br/>')
-                    .replace(/:/g,': ')
-                    .replace(/\//g,' / ')
-                    .replace('|', '<br/>');
-        return x;
+    var tip = d3.tip().attr('class', 'd3-tip').html(function(cnv) {
+        return (cnv.del60 > 0 ? ('Deletions: ' + cnv.del60 + '<br />') : '') +
+               (cnv.dup60 > 0 ? ('Duplications: ' + cnv.dup60 + '<br />') : '') +
+               'Frequency: ' + (cnv.delpop60 + cnv.duppop60) + '/' +
+                 window.variants_in_transcript[0].allele_num;
     });
-    svg.call(del_tip);
+    svg.call(tip);
 
-    var dup_tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
-        var x =  get_cnv_pop(_cnvs, d.start, d.stop, 'dup', cnv_filter_status)
-                    .replace(/,/g, '<br/>')
-                    .replace(/:/g,': ')
-                    .replace(/\//g,' / ')
-                    .replace('|', '<br/>');
-        return x;
-    });
-    svg.call(dup_tip);
+    var cnv_width = function(cnv, i) {
+      var coords = window.get_coding_coordinates(_transcript, [cnv.start, cnv.stop], skip_utrs);
+      size = coords[1] - coords[0];
+      return exon_x_scale((size > 0 && coords[0] != -100) ? size : 175);
+    }
 
-    //deletions
-        svg.selectAll("bar")
-        .data(_transcript.exons)
+    // deletions
+    svg.selectAll("bar")
+        .data(_cnvs)
             .enter()
             .append("rect")
             .call(yAxis)
             .attr('pointer-events', 'all')
             .on('mouseover', function(d) {
-                del_tip.show(d);
+                tip.show(d);
             })
             .on('mouseout', function(d) {
-                del_tip.hide(d);
+                tip.hide(d);
             })
             .attr('class', 'track_bar')
             .style("fill", "#cd2932")
-            .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
+            .attr("x", function(d, i) { return cnv_x(d); })
             .attr("y", function(d, i) { return cnv_scale(0);})
-            .attr("width", function(d, i) {
-                if (get_coding_coordinate(_transcript, d.start, true) == -100) {
-                    return exon_x_scale(175);
-                }
-                return exon_x_scale(d.stop-d.start+1);
-            })
+            .attr("width", cnv_width)
             .attr("height", function(d, i) {
-                if (d.feature_type == 'CDS') {
-                    return cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'del', cnv_filter_status));
-                }
+                return cnv_scale(0) - cnv_scale(d.delpop60);
             });
 
     // duplications
     svg.selectAll("bar")
-            .data(_transcript.exons)
+            .data(_cnvs)
             .enter()
             .append("rect")
             .attr('pointer-events', 'all')
             .on('mouseover', function(d) {
-                dup_tip.show(d);
+                tip.show(d);
             })
             .on('mouseout', function(d) {
-                dup_tip.hide(d);
+                tip.hide(d);
             })
             .attr('class', 'track_bar')
             .style("fill", "#a96500")
-            .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
-            .attr("y", function(d, i) { return cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));})
+            .attr("x", function(d, i) { return cnv_x(d) })
+            .attr("y", function(d, i) { return cnv_scale(d.dup60);})
 
-            .attr("width", function(d, i) {
-                if (get_coding_coordinate(_transcript, d.start, true) == -100) {
-                    return exon_x_scale(175);
-                }
-                return exon_x_scale(d.stop-d.start+1);
-            })
+            .attr("width", cnv_width)
             .attr("height", function(d, i) {
-                if (d.feature_type == 'CDS') {
-                    console.log(d);
-                    console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
-                    console.log(cnv_scale(0));
-                    console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
-                    console.log(cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status)));
-
-                    return cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
-                }
+                return cnv_scale(0) - cnv_scale(d.duppop60);
             });
-
-
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-
-    svg.append("text")
-        .attr("x", (chart_width / 2))
-        .attr("y", 0 + (cnv_chart_margin.top / 10)*8)
-        .attr("text-anchor", "middle")
-        .style("font-size", "14px")
-        .style("font-weight", "bold")
-        .text("CNV Counts")
-
-    svg.append("text")
-        .attr("x", (chart_width / 2) + 120)
-        .attr("y", 0 + (cnv_chart_margin.top / 10)*8)
-        .attr("text-anchor", "middle")
-        .attr("fill", "#428bca")
-        .style("font-size", "12px")
-        .style("cursor", "pointer")
-        .style("font-weight", "bold")
-        .style("font-family", "FontAwesome")
-        .html("<a>(view individual CNVs &#xf08e;)</a>")
-        .on("click", function() {
-            window.open("http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}&hgt.customText=http://personal.broadinstitute.org/ruderfer/exac/exac-final.autosome-1pct-sq60-qc-prot-coding.cnv.bed", "_blank");
-        });
-
 
 
     //plotting lines underneath bars
         svg.selectAll("bar")
-            .data(_transcript.exons)
+            .data(_cnvs)
             .enter()
             .append("rect")
             .attr('class', 'track_bar')
             .style("fill", "white")
             .attr("x", function(d, i) { return exon_x_scale(get_coding_coordinate(_transcript, d.start, skip_utrs)); })
             .attr("y", function(d, i) {
-                if (d.feature_type == 'CDS') {
-                    return cnv_scale(0);
-                }
+                return cnv_scale(0);
             })
             .attr("width", function(d, i) {
                 if (get_coding_coordinate(_transcript, d.start, true) == -100) {
@@ -239,9 +184,7 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
                 return exon_x_scale(d.stop-d.start+1);
             })
             .attr("height", function(d, i) {
-                if (d.feature_type == 'CDS') {
-                    return 1;
-                }
+                return 1;
             });
 }
 
