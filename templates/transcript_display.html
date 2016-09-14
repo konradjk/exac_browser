@@ -94,8 +94,6 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
         .attr("width", chart_width + cnv_chart_margin.left + cnv_chart_margin.right)
         .attr("height",100 + 40)
         .attr('id', 'cnv_svg')
-        // WHI TODO
-        .attr('style', 'display: none')
         .append("g")
         .attr('id', 'track')
         .attr("transform", "translate(" + cnv_chart_margin.left + "," + 0 + ")");
