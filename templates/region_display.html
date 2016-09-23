@@ -127,6 +127,12 @@ function region_chart(data, variant_data) {
         .attr('category', function(d) {
             return " " + d.category;
         })
+        .attr('major_consequence', function(d) {
+            return d.major_consequence;
+        })
+        .attr('indel', function(d) {
+            return d.indel;
+        })
         .on('mouseover', function(d) {
             $('#variant_' + d.variant_id).find('td').addClass('table_hover');
             tip.show(d);
@@ -140,7 +146,7 @@ function region_chart(data, variant_data) {
         //Ellipse
         .append("ellipse")
         .attr("class", function(d) {
-            return "track_variant " + d.category;
+            return "track_variant " + d.major_consequence;
         })
         .style("opacity", 0.5)
         .attr("cx", function(d) { return x(d.pos) })
@@ -235,7 +241,8 @@ $(document).ready(function() {
         }, 10);
     });
 
-    $('.consequence_display_buttons, #filtered_checkbox').change(function () {
+    $('.consequence_display_buttons, #filtered_checkbox, .indel_display_buttons').change(function () {
+        console.log('updating variants')
         setTimeout(update_variants, 10);
     });
 });

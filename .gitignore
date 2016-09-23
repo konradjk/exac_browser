@@ -4,6 +4,10 @@ static/tablesorter-master
 .idea/
 *.pyc
 misc/
-.gitignore
 autocomplete_strings.txt
 gene_cache/
+exac_env/
+*npm-debug.log
+exac_env
+*dist
+*node_modules
