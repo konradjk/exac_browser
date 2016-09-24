@@ -591,16 +591,13 @@ var csq_order = [
   ''
 ]
 
+console.log(csq_order.indexOf('frameshift_variant'))
+console.log(csq_order.indexOf('synonymous_variant'))
+
 var categoryDefinitions = {
   all: csq_order,
-  lof: csq_order.slice(0, csq_order.indexOf('frameshift_variant')),
-  missense: csq_order.slice(0, csq_order.indexOf('synonymous_variant')),
-}
-
-function uniqueMajorConsequences(variants_in_gene) {
-  return _.uniq(variants_in_gene.map(function(variant) {
-    return variant.major_consequence
-  }))
+  lof: csq_order.slice(0, csq_order.indexOf('frameshift_variant') + 1),
+  missense: csq_order.slice(0, csq_order.indexOf('missense_variant') + 1),
 }
 
 function update_variants() {

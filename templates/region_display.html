@@ -146,7 +146,7 @@ function region_chart(data, variant_data) {
         //Ellipse
         .append("ellipse")
         .attr("class", function(d) {
-            return "track_variant " + d.major_consequence;
+            return "track_variant " + d.category;
         })
         .style("opacity", 0.5)
         .attr("cx", function(d) { return x(d.pos) })

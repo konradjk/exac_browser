@@ -75,10 +75,7 @@ def add_consequence_to_variant(variant):
     variant['HGVSc'] = get_transcript_hgvs(worst_csq)
     variant['HGVS'] = get_proper_hgvs(worst_csq)
     variant['CANONICAL'] = worst_csq['CANONICAL']
-    if len(variant['ref']) > 1 or len(variant['alt']) > 1:
-        variant['indel'] = True
-    else:
-        variant['indel'] = False
+    variant['indel'] = not len(variant['ref']) == len(variant['alt'])
     if csq_order_dict[variant['major_consequence']] <= csq_order_dict["frameshift_variant"]:
         variant['category'] = 'lof_variant'
         for annotation in variant['vep_annotations']:

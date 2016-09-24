@@ -428,7 +428,7 @@ function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
         //Ellipse
         .append("ellipse")
         .attr("class", function(d) {
-            return "track_variant " + d.major_consequence;
+            return "track_variant " + d.category;
         })
         .style("opacity", 0.5)
         .attr("cx",  function(d) {
@@ -739,7 +739,6 @@ $(document).ready(function() {
     });
 
     $('.consequence_display_buttons, #filtered_checkbox, .indel_display_buttons').change(function () {
-      console.log('updating')
         setTimeout(function() {
             update_variants();
             update_cnvs();
