@@ -601,7 +601,6 @@ var categoryDefinitions = {
 }
 categoryDefinitions.missenseAndLof =
     categoryDefinitions.lof.concat(categoryDefinitions.missense)
-console.log(categoryDefinitions)
 
 function update_variants() {
     var category = $('.consequence_display_buttons.active')
