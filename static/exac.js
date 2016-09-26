@@ -591,14 +591,17 @@ var csq_order = [
   ''
 ]
 
-console.log(csq_order.indexOf('frameshift_variant'))
-console.log(csq_order.indexOf('synonymous_variant'))
-
 var categoryDefinitions = {
   all: csq_order,
-  lof: csq_order.slice(0, csq_order.indexOf('frameshift_variant') + 1),
-  missense: csq_order.slice(0, csq_order.indexOf('missense_variant') + 1),
+  lof: csq_order.slice(0, csq_order.indexOf('stop_lost')),
+  missense: csq_order.slice(
+      csq_order.indexOf('stop_lost'),
+      csq_order.indexOf('protein_altering_variant')
+  ),
 }
+categoryDefinitions.missenseAndLof =
+    categoryDefinitions.lof.concat(categoryDefinitions.missense)
+console.log(categoryDefinitions)
 
 function update_variants() {
     var category = $('.consequence_display_buttons.active')
