@@ -62,7 +62,12 @@
     <tbody>
     <% _.each(table_variants, function(variant) { %>
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
-            category="<%= variant.category %>" filter_status="<%= variant.filter %>" frequency="<%= variant.allele_freq %>">
+            category="<%= variant.category %>"
+            filter_status="<%= variant.filter %>"
+            frequency="<%= variant.allele_freq %>"
+            major_consequence="<%= variant.major_consequence %>"
+            indel="<%= variant.indel %>"
+          >
             <td class="omit_csv">
                 <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank">
                 <%= variant.chrom %>:<%= variant.pos %>

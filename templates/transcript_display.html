@@ -74,7 +74,7 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
     var cnv_filter_status = $('#filtered_checkbox').is(":checked");
     var m = get_max_cnv(_cnvs, cnv_filter_status);
 
-    
+
 
 
     var svg = d3.select('#gene_plot_container').append("svg")
@@ -170,11 +170,11 @@ var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
             })
             .attr("height", function(d, i) {
                 if (d.feature_type == 'CDS') {
-                    console.log(d);
-                    console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
-                    console.log(cnv_scale(0));
-                    console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
-                    console.log(cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status)));
+                    <!-- console.log(d); -->
+                    <!-- console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status)); -->
+                    <!-- console.log(cnv_scale(0)); -->
+                    <!-- console.log(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status)); -->
+                    <!-- console.log(cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status))); -->
 
                     return cnv_scale(0) - cnv_scale(get_cnv(_cnvs, d.start, d.stop, 'dup', cnv_filter_status));
                 }
@@ -405,6 +405,12 @@ function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
         })
         .attr('category', function(d) {
             return d.category;
+        })
+        .attr('major_consequence', function(d) {
+            return d.major_consequence;
+        })
+        .attr('indel', function(d) {
+            return d.indel;
         })
         .attr('variant_id', function(d) {
             return d.variant_id;
@@ -732,7 +738,7 @@ $(document).ready(function() {
         }, 10);
     });
 
-    $('.consequence_display_buttons, #filtered_checkbox').change(function () {
+    $('.consequence_display_buttons, #filtered_checkbox, .indel_display_buttons').change(function () {
         setTimeout(function() {
             update_variants();
             update_cnvs();
@@ -767,7 +773,7 @@ $(document).ready(function() {
         $("#cnv_svg").remove();
         var include_utrs = $('#include_utrs_checkbox').is(':checked');
         var detail = get_plot_detail();
-        
+
         make_cnvs_svg(window.cnvs, window.transcript, detail, !include_utrs);
 
     });
