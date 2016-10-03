@@ -20,6 +20,30 @@
             $("#variants_loading").hide();
             $("#variants_table_container").show();
         });
+
+        var isCtrl = false;
+        $(document).keyup(function (e) {
+            if(e.which == 17) isCtrl=false;
+            }).keydown(function (e) {
+                if(e.which == 17) isCtrl=true;
+                if(e.which == 76 && isCtrl == true) { // ctrl-L
+                    $('#consequence_lof_variant_button').click();
+                } else if (e.which == 77 && isCtrl == true) { // ctrl-M
+                    $('#consequence_missenseAndLof_variant_button').click();
+                } else if (e.which == 68 && isCtrl == true) { // ctrl-D
+                    $('#display_coverage_detail_button').click();
+                } else if (e.which == 79 && isCtrl == true) { // ctrl-O
+                    $('#display_coverage_overview_button').click();
+                } else if (e.which == 65 && isCtrl == true) { // ctrl-A
+                    var sorting = [[12,1]];
+                    $("#variant_table").trigger("sorton",[sorting]);
+                } else if (e.which == 82 && isCtrl == true) { // ctrl-R
+                    $('#display_coverage_overview_button').click();
+                    $('#consequence_all_variant_button').click();
+                    var sorting = [[1,0], [2,0], [10,1]];
+                    $("#variant_table").trigger("sorton",[sorting]);
+                }
+        });
     </script>
     <div class="container-fluid">
         <div class="col-md-10 col-xs-offset-1 col-md-offset-1">
