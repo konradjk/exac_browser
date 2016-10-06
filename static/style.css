@@ -6,6 +6,11 @@ body {
     font-family: Helvetica;
     font-weight: lighter;
     font-size: large;
+    background-color: #eee;
+}
+
+div.row {
+    background-color: #fff;
 }
 
 a, #home-title, .home-header {
@@ -39,8 +44,12 @@ a:hover, a:active {
     font-weight: bold;
 }
 
+.dropdown-toggle.btn-default {
+    border: 0;
+}
+
 .navbar {
-    margin-bottom: 0px;
+    margin-bottom: 20px;
     border-radius: 0px;
     border-color: #ccc;
     background: #eee;
@@ -105,11 +114,11 @@ a:hover, a:active {
   color: #999;
 }
 
-#variant_table, #variant_table-sticky {
+.table {
     table-layout: fixed;
 }
 
-#variant_table > tbody > tr > td, #variant_table-sticky > tbody > tr > td {
+.table > tbody > tr > td {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -124,7 +133,7 @@ a:hover, a:active {
     font-size: large;
 }
 
-#variant_table caption, #variant_table-sticky caption  {
+.table caption {
     background-color: #546;
     color: white;
     font-size: 24px;
@@ -137,7 +146,7 @@ a:hover, a:active {
     cursor: pointer;
 }
 
-.consequence_display_buttons:hover, #variant_table th:hover {
+.consequence_display_buttons:hover, .table th:hover {
     background-color: #a9b;
 }
 
@@ -165,7 +174,25 @@ a:hover, a:active {
 }
 
 .section_header {
+    margin-top: 20px;
     font-size: 24px;
+}
+
+#variant-header {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+#variant-nomenclatures {
+    float: left;
+}
+
+#variant-misc {
+    float: left;
+}
+
+.gray {
+    color: #aaaaaa;
 }
 
 .d3-tip {

@@ -88,6 +88,10 @@
                 }
             });
 
+            $('#annotation_table').tablesorter({
+                stringTo: 'bottom',
+            });
+
             if (window.variant != null && 'genotype_depths' in window.variant) {
                 draw_quality_histogram(window.variant.genotype_depths[1], '#quality_display_container', false, 'Depth', 'Variant Carriers');
                 $('.quality_display_buttons').change(function() {
@@ -136,15 +140,59 @@
         });
     </script>
     <div class="container">
-        <div class="row">
-            <h1><span class="hidden">Variant:<br /></span>
+        <div id="variant-header" class="row">
+            <h1 class="pull-left">
                 {% if variant.genes and consequences %}
-                    {{ (consequences.values()|first).keys()|first }}:
+                    <span id="variant-gene" class="gray">
+                      {{ (consequences.values()|first).keys()|first }} |
+                    </span>
                 {% endif %}
                 {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
-                <br />
-                {{ variant.nomenclatures|join('<br />')|safe }}
+                <span class="gray"> | </span>
+                {{ variant.nomenclatures|join('<span class="gray"> | </span>')|safe }}
             </h1>
+
+            <div class="pull-right">
+            <h2>
+                {% if variant.allele_freq %}
+                  {{ '%0.4g' % variant.allele_freq }}
+                {% else %}
+                  NA
+                {% endif %}
+            </h2>
+            <small>Allele Frequency</small>
+            <br />
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">
+                    Additional resources
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
+                    <li role="presentation" class="visible-xs-block">
+                        {% if variant.rsid and variant.rsid != "." %}
+                            <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">dbSNP</a>
+                        {% else %}
+                            Not found in dbSNP
+                        {% endif %}
+                    </li>
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
+                            ExAC
+                        </a>
+                    </li>
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
+                            UCSC
+                        </a>
+                    </li>
+                    <li role="presentation" class="visible-xs-block">
+                        <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
+                            ClinVar
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
             {% if variant.mnps %}
                 {% for mnp in variant.mnps %}
                     {% if mnp.category == 'UNCHANGED' %}
@@ -176,7 +224,10 @@
             {% endif %}
             </div>
         </div>
-        <hr/>
+      </div>
+
+      <hr class="clearfix" />
+
 {#      Upper display #}
         {% if variant.variant_id %}
             <!-- TODO use db.variant.count() instead -->
@@ -187,167 +238,112 @@
                 <hr/>
             {% endif %}
 #}
-            <div class="row">
-                <div class="col-md-6">
-                    <dl class="dl-horizontal" style="margin-bottom: 0px;">
-{# WHI: everything passes filters
-                        <dt>
-                            {% if variant.filter != "PASS" %}
-                                <span class="label label-danger">Filter Status</span>
-                            {% else %}
-                                Filter Status
-                            {% endif %}
-                        </dt>
-                        <dd>{{ variant.filter }}</dd>
-#}
-                        <dt>dbSNP</dt>
-                        {% if variant.rsid and variant.rsid != "." %}
-                            <dd><a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">{{ variant.rsid }}</a></dd>
-                        {% else %}
-                            <dd>Not found in dbSNP</dd>
-                        {% endif %}
-                        <dt>Allele Frequency</dt>
-                        <dd>{% if variant.allele_freq %}{{ '%0.4g' % variant.allele_freq }}{% else %}NA (Allele Number = 0){% endif %}</dd>
-                        <dt>Allele Count</dt>
-                        {% if variant.allele_count and variant.allele_num %}
-                          <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
-                        {% else %}
-                            <dd>Unknown</dd>
-                        {%endif %}
-                        <dt>UCSC</dt>
-                        <dd>
-                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
-                                {{ variant.variant_id }}
-                                <i class="fa fa-external-link"></i>
-                            </a>
-                        </dd>
-                        <dt>ClinVar</dt>
-                        <dd>
-                            {% if not variant.rsid or variant.rsid == "." %}
-                                <a href="http://www.ncbi.nlm.nih.gov/clinvar?term=({{ variant.chrom }}%5BChromosome%5D)%20AND%20{{ variant.pos }}%5BBase%20Position%20for%20Assembly%20GRCh37%5D" target="_blank">
-                            {% else %}
-                                <a href="http://www.ncbi.nlm.nih.gov/clinvar?term={{ variant.rsid }}%5BVariant%20ID%5D" target="_blank">
-                            {% endif %}
-                                Click to search for variant in Clinvar
-                                <i class="fa fa-external-link"></i>
-                            </a>
-                        </dd>
-                        <dt>ExAC</dt>
-                        <dd>
-                                <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
-                                {{ variant.variant_id }}
-                                <i class="fa fa-external-link"></i>
-                            </a>
-                        </dd>
-                    </dl>
-                </div>
-                <div class="col-md-6">
-                    <div class="row">
-{# WHI: No quality details
-                        <div class="col-md-8 col-md-offset-1">
-                            <div class="panel-group" id="metrics_outer_accordion" role="tablist" aria-multiselectable="true">
-                                <div class="panel panel-default">
-                                    <div class="panel-heading" role="tab" id="gt_quality_collapse_heading"   style="height: auto">
-                                        <div class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordion" href="#gt_quality_collapse" aria-expanded="false" aria-controls="gt_quality_collapse">
-                                                <small>Genotype Quality Metrics</small>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div id="gt_quality_collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="gt_quality_collapse_heading">
-                                        <div class="row">
-                                            <div class="col-md-10 col-md-offset-1">
-                                                <div id="quality_metrics_container">
-                                                    <span class="btn-group" data-toggle="buttons" id="quality_full_site_button_group">
-                                                        <button class="btn btn-primary btn-sm active quality_full_site_buttons" id="variant_carriers_button"
-                                                                data-tooltip="Show metric for only individuals with this allele.">
-                                                            <input type="radio"> Variant carriers
-                                                        </button>
-                                                        <button class="btn btn-primary btn-sm quality_full_site_buttons" id="variant_site_button"
-                                                                data-tooltip="Show metric for all individuals (at this site, whether or not they have this allele).">
-                                                            <input type="radio" > All individuals
-                                                        </button>
-                                                    </span>
-                                                    <div id="quality_display_container" class="d3_graph"></div>
-                                                    <small><span class="label label-info">Note:</span> Plot may include low-quality genotypes that were excluded from allele counts in the table above</small>
-                                                    <span class="btn-group" data-toggle="buttons" id="quality_display_button_group" >
-                                                        <button class="btn btn-primary btn-sm active quality_display_buttons" id="genotype_depths_button"
-                                                                data-tooltip="Per sample depth. Capped at 100X">
-                                                            <input type="radio"> Depth
-                                                        </button>
-                                                        <button class="btn btn-primary btn-sm quality_display_buttons" id="genotype_qualities_button"
-                                                                data-tooltip="Per sample genotype quality.">
-                                                            <input type="radio" > Genotype Quality
-                                                        </button>
-                                                    </span>
-                                                </div>
-                                                <br/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="panel panel-default">
-                                    <div class="panel-heading" role="tab" id="quality_collapse_heading"   style="height: auto">
-                                        <div class="panel-title">
-                                            <a data-toggle="collapse" data-parent="#accordion" href="#quality_collapse" aria-expanded="false" aria-controls="quality_collapse">
-                                                <small>Site Quality Metrics</small>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div id="quality_collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="quality_collapse_heading">
-                                        <div class="row">
-                                            <div class="col-md-10 col-md-offset-1">
-                                                <div id="quality_metric_container"></div>
-                                                <small><div id="site_quality_note"></div></small>
-                                                <small><span class="label label-info">Note:</span> These are site-level quality metrics: they may be unpredictable for multi-allelic sites.</small>
-                                                <select id="quality_metric_select" class="form-control">
-                                                    <option><small>Site Quality: {{ variant.site_quality }}</small></option>
-                                                    {% for metric in variant.quality_metrics %}
-                                                        <option><small>{{ metric }}: {{ variant.quality_metrics[metric] }}</small></option>
-                                                    {% endfor %}
-                                                </select>
-                                                <br/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-#}
-                    </div>
-                </div>
-            </div>
-            <hr/>
+
         {% endif %}
 
 {#          Lower display#}
         <div class="row">
-            <div class="col-md-6">
-                <div id="annotation_container">
+            <div class="col-md-8">
+                {% with chrom = variant.chrom %}
+                <table id="frequency_table" class="tablesorter table table-bordered table-hover">
+                    <caption>
+                      Population frequencies
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Population</th>
+                            <th>Count</th>
+                            <!-- <th>Total</th> -->
+                            {% if chrom != 'Y' %}
+                                <th>Hom</th>
+                            {% endif %}
+                            {% if chrom == 'X' or chrom == 'Y' %}
+                                <th>Hemi</th>
+                            {% endif %}
+                            <th>Freq</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pop in variant.pop_acs %}
+                            <tr>
+                                <td>{{ pop }}</td>
+                                <td>{{ variant.pop_acs[pop] }}</td>
+                                <!-- <td>{{ variant.pop_ans[pop] }}</td> -->
+                                {% if chrom != 'Y' %}
+                                    <td>{{ variant.pop_homs[pop] }}</td>
+                                {% endif %}
+                                {% if chrom == 'X' or chrom == 'Y' %}
+                                    <td>{{ variant.pop_hemis[pop] }}</td>
+                                {% endif %}
+                                {% if variant.pop_ans[pop] > 0 %}
+                                    <td>{{ '%0.4g' % (variant.pop_acs[pop]/variant.pop_ans[pop]) }}</td>
+                                {% else %}
+                                    <td>NA</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if variant.pop_acs %}
+                    <tfoot>
+                        <tr>
+                            <td>Total</td>
+                            <td>{{ variant.pop_acs.values()|sum }}</td>
+                            <td>{{ variant.pop_ans.values()|sum }}</td>
+                            {% if chrom != 'Y' %}
+                                <td>{{ variant.pop_homs.values()|sum }}</td>
+                            {% endif %}
+                            {% if chrom == 'X' or chrom == 'Y' %}
+                                <td>{{ variant.pop_hemis.values()|sum }}</td>
+                            {% endif %}
+                            <td>
+                                {% if variant.allele_freq is not none %}
+                                    {{ '%0.4g' % variant.allele_freq }}
+                                {% else %}
+                                    NA
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tfoot>
+                    {% endif %}
+                </table>
+                {% endwith %}
+{# No coverage for WHI
+                {% if any_covered %}
+                    <div class="row">
+                        <span class="section_header">Coverage</span>
+                        {% if base_coverage|length > 1 %}
+                            {% include 'coverage_selectors.html' %}
+                        {% endif %}
+                    </div>
+                    <div id="region_coverage"></div>
+                {% else %}
+                {% endif %}
+#}
+            </div>
+
+            <div class="col-md-4">
                 {% if variant.variant_id %}
-                    <div class="section_header">Annotations</div>
                     {% if variant.vep_annotations or variant.eff_annotations %}
 {# WHI: only primary transcript(s)
                         <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
 #}
-                        <div class="panel-group" id="annotation_accordion" style="margin-bottom: 0px;">
-                            <div class="row">
-                                {% if consequences|length > 1 %}
-                                    <div class="col-md-6" style="border-right: 1px dashed #AAA;">
-                                {% else %}
-                                    <div class="col-md-6">
-                                {% endif %}
-                                {% for consequence in consequences.keys()[:(((consequences|length + 1) / 2)|int)] %}
-                                    {% include 'variant_consequences.html' %}
-                                {% endfor %}
-                                </div>
-                                <div class="col-md-6">
-                                {% for consequence in consequences.keys()[(((consequences|length + 1) / 2)|int):(consequences|length)] %}
-                                    {% include 'variant_consequences.html' %}
-                                {% endfor %}
-                                </div>
-                            </div>
-                        </div>
+                <table id="annotation_table" class="tablesorter table table-bordered table-hover">
+                    <caption>
+                      Annotations
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for consequence in consequences %}
+                            {% include 'variant_consequences.html' %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+
 {# WHI: only primary transcript(s)
                         <small><span class="label label-info">Note:</span> This list may not include additional transcripts in the same gene that the variant does not overlap.</small>
 #}
@@ -361,87 +357,6 @@
                 <div id="browser_container">
                 </div>
             </div>
-
-            <div class="col-md-6">
-                    <div id="frequency_info_container">
-                        <div class="section_header">Population Frequencies</div>
-                        <div id="frequency_table_container" class="frequency_displays">
-                            {% with chrom = variant.chrom %}
-                            <table id="frequency_table">
-                                <thead>
-                                    <tr>
-                                        <th>Population</th>
-                                        <th>Allele Count</th>
-                                        <th>Allele Number</th>
-                                        {% if chrom != 'Y' %}
-                                            <th>Number of Homozygotes</th>
-                                        {% endif %}
-                                        {% if chrom == 'X' or chrom == 'Y' %}
-                                            <th>Number of Hemizygotes</th>
-                                        {% endif %}
-                                        <th>Allele Frequency</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for pop in variant.pop_acs %}
-                                        <tr>
-                                            <td>{{ pop }}</td>
-                                            <td>{{ variant.pop_acs[pop] }}</td>
-                                            <td>{{ variant.pop_ans[pop] }}</td>
-                                            {% if chrom != 'Y' %}
-                                                <td>{{ variant.pop_homs[pop] }}</td>
-                                            {% endif %}
-                                            {% if chrom == 'X' or chrom == 'Y' %}
-                                                <td>{{ variant.pop_hemis[pop] }}</td>
-                                            {% endif %}
-                                            {% if variant.pop_ans[pop] > 0 %}
-                                                <td>{{ '%0.4g' % (variant.pop_acs[pop]/variant.pop_ans[pop]) }}</td>
-                                            {% else %}
-                                                <td>NA</td>
-                                            {% endif %}
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                                {% if variant.pop_acs %}
-                                <tfoot>
-                                    <tr>
-                                        <td>Total</td>
-                                        <td>{{ variant.pop_acs.values()|sum }}</td>
-                                        <td>{{ variant.pop_ans.values()|sum }}</td>
-                                        {% if chrom != 'Y' %}
-                                            <td>{{ variant.pop_homs.values()|sum }}</td>
-                                        {% endif %}
-                                        {% if chrom == 'X' or chrom == 'Y' %}
-                                            <td>{{ variant.pop_hemis.values()|sum }}</td>
-                                        {% endif %}
-                                        <td>
-                                            {% if variant.allele_freq is not none %}
-                                                {{ '%0.4g' % variant.allele_freq }}
-                                            {% else %}
-                                                NA
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                                {% endif %}
-                            </table>
-                            {% endwith %}
-                        </div>
-                    </div>
-{# No coverage for WHI
-                    {% if any_covered %}
-                        <div class="row">
-                            <span class="section_header">Coverage</span>
-                            {% if base_coverage|length > 1 %}
-                                {% include 'coverage_selectors.html' %}
-                            {% endif %}
-                        </div>
-                        <div id="region_coverage"></div>
-                    {% else %}
-                    {% endif %}
-#}
-            </div>
-        </div>
 
 
         {#% if read_viz|length > 0  %#}
@@ -662,6 +577,7 @@
     </div>
   </div>
  </div>
+</div>
 
 {#% endif %#}
 {% endblock %}
