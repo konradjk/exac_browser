@@ -13,7 +13,7 @@ div.row {
     background-color: #fff;
 }
 
-a, #home-title, .home-header {
+a, .home-header {
     color: #657;
 }
 
@@ -88,10 +88,33 @@ a:hover, a:active {
     text-align: center;
     padding: 30px;
     font-size: 44px;
+    color: #fff;
+}
+
+#home-splash {
+    height: 400px;
+    background-image: url('/static/home_banner@2x.png');
+    background-position: center;
+    background-size: auto 100%;
+}
+
+#home-splash a {
+    color: #a15eb6;
 }
 
 #home-searchbox {
+    width: 490px;
     margin: 20px 0;
+}
+
+#home-searchbox form, #home-examples {
+    background-color: #fff;
+}
+
+#home-examples {
+    padding-left: 1em;
+    padding-bottom: 8px;
+    font-size: small;
 }
 
 .twitter-typeahead {
