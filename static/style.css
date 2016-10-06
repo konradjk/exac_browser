@@ -3,7 +3,7 @@
  * light: #a9b
  */
 body {
-    font-family: Helvetica;
+    font-family: Gotham, Helvetica;
     font-weight: lighter;
     font-size: large;
     background-color: #eee;
@@ -11,11 +11,6 @@ body {
 
 div.row {
     background-color: #fff;
-}
-
-#logos img {
-    height: 50px;
-    margin: 20px;
 }
 
 a, a:hover {
@@ -50,6 +45,9 @@ a, a:hover {
 }
 
 .navbar {
+    height: 80px;
+    padding-left: 40px;
+    padding-right: 40px;
     margin-bottom: 20px;
     border: 0;
     border-bottom: 1px;
@@ -62,10 +60,11 @@ a, a:hover {
     border: 0;
     -webkit-box-shadow: none;
     box-shadow: none;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .navbar-brand {
-    height: 80px;
     vertical-align: bottom;
 }
 
@@ -73,17 +72,22 @@ a, a:hover {
     color: #888;
 }
 
+.navbar * {
+    height: 100%;
+}
+
 .navbar-brand a:hover {
     text-decoration: none;
 }
 
-.navbar-brand img {
-    height: 100%;
+#navbar_form_container {
+    margin-left: -50px;
+    margin-top: 30px;
 }
 
-#navbar_form_container {
-    height: 100%;
-    vertical-align: middle;
+.navbar-form {
+    text-align: center;
+    height: 40px;
 }
 
 #navbar-searchbox-input, .twitter-typeahead {
@@ -97,10 +101,11 @@ a, a:hover {
 #navbar_links {
     height: 100%;
     float: right;
-    margin: 25px;
+    margin-top: 40px;
 }
 
 #navbar_links a {
+    vertical-align: bottom;
     font-variant: all-small-caps;
     font-weight: bold;
 }
@@ -123,7 +128,7 @@ a, a:hover {
 
 #home-splash {
     height: 400px;
-    background-image: url('/static/home_banner@2x.png');
+    background-image: url('/static/homePage_headerImage@2x.png');
     background-position: center;
     background-size: auto 100%;
 }
@@ -141,6 +146,33 @@ a, a:hover {
     padding-left: 1em;
     padding-bottom: 8px;
     font-size: small;
+}
+
+.card {
+    margin-top: 20px;
+    padding: 40px;
+}
+
+#genes * {
+    text-align: left;
+}
+
+.card *, #genes h1, #logos {
+    text-align: center;
+}
+
+#genes table {
+    border-collapse: separate;
+    border-spacing: 10px;
+    font-style: italic;
+}
+
+.card h1, .card h2, .card h3 {
+    margin-bottom: 40px;
+}
+
+#logos {
+    margin-top: 40px;
 }
 
 .twitter-typeahead {

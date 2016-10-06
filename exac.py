@@ -903,34 +903,14 @@ def error_page(query):
     ), 404
 
 
-@app.route('/downloads')
-def downloads_page():
-    return render_template('downloads.html')
-
-
 @app.route('/about')
 def about_page():
     return render_template('about.html')
 
 
-@app.route('/participants')
-def participants_page():
-    return render_template('about.html')
-
-
-@app.route('/terms')
-def terms_page():
-    return render_template('terms.html')
-
-
-@app.route('/contact')
-def contact_page():
-    return render_template('contact.html')
-
-
-@app.route('/faq')
+@app.route('/mission')
 def faq_page():
-    return render_template('faq.html')
+    return render_template('mission.html')
 
 
 @app.route('/text')

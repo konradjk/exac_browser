@@ -31,15 +31,10 @@
         <div class="row">
             <div id="home-text" class="col-md-8 col-md-offset-2">
                 <h3 id="home-header">Where do we get our data?</h3>
-                <p>All of the genetic variants here are from women who are older than 70 and have never had cancer. Researchers at the <a href="http://www.gs.washington.edu/">University of Washington</a> and <a href="https://www.color.com/">Color Genomics</a> sequenced the DNA from 10,000 participatants in the <a href="https://www.whi.org/">Women's Health Initiative</a> (WHI), a long term national health study focused on strategies for preventing heart disease, breast and colorectal cancer, and osteoporotic fractures in postmenopausal women.</p>
+                {% include 'about_text.html' %}
             </div>
-        </div>
-
-        <br />
-        <div id="logos" class="row" style="text-align: center">
-            <a href="https://www.whi.org/"><img src="/static/whi_logo.jpg" /></a>
-            <a href="http://www.gs.washington.edu/"><img src="/static/uw_medium_2x.png" /></a>
-            <a href="https://www.color.com/"><img src="/static/color_logo_large_2x.png" /></a>
+            <br />
+            {% include 'logos.html' %}
         </div>
     </div>
 {% endblock %}
