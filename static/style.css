@@ -13,17 +13,13 @@ div.row {
     background-color: #fff;
 }
 
-a, .home-header {
-    color: #657;
-}
-
 #logos img {
     height: 50px;
     margin: 20px;
 }
 
-a:hover, a:active {
-    color: #a9b;
+a, a:hover {
+    color: #a15eb6;
 }
 
 #header {
@@ -50,21 +46,39 @@ a:hover, a:active {
 
 .navbar {
     margin-bottom: 20px;
+    border: 0;
+    border-bottom: 1px;
     border-radius: 0px;
     border-color: #ccc;
-    background: #eee;
+    background: #fff;
 }
 
 .navbar .navbar-form {
-    padding: 0 15px;
     border: 0;
     -webkit-box-shadow: none;
     box-shadow: none;
 }
 
 .navbar-brand {
-    font-size: 24px;
-    color: #666;
+    height: 80px;
+    vertical-align: bottom;
+}
+
+.navbar a {
+    color: #888;
+}
+
+.navbar-brand a:hover {
+    text-decoration: none;
+}
+
+.navbar-brand img {
+    height: 100%;
+}
+
+#navbar_form_container {
+    height: 100%;
+    vertical-align: middle;
 }
 
 #navbar-searchbox-input, .twitter-typeahead {
@@ -72,7 +86,18 @@ a:hover, a:active {
 }
 
 #navbar-searchbox-input {
-    min-width: 600px;
+    min-width: 400px;
+}
+
+#navbar_links {
+    height: 100%;
+    float: right;
+    margin: 25px;
+}
+
+#navbar_links a {
+    font-variant: all-small-caps;
+    font-weight: bold;
 }
 
 .nav>li>a {
@@ -96,10 +121,6 @@ a:hover, a:active {
     background-image: url('/static/home_banner@2x.png');
     background-position: center;
     background-size: auto 100%;
-}
-
-#home-splash a {
-    color: #a15eb6;
 }
 
 #home-searchbox {
