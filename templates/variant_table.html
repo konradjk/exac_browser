@@ -170,7 +170,7 @@
         $("#export_to_csv").on('click', function (event) {
             var output_name = window.page_name === undefined ? 'export' : window.page_name;
             var timestamp = date_format(new Date());
-            exportTableToCSV.apply(this, [$('#variant_table'), 'exac_' + output_name + '_' + timestamp + '.csv']);
+            exportTableToCSV.apply(this, [$('#variant_table'), 'whi_' + output_name + '_' + timestamp + '.csv']);
         });
 
         $('.consequence_display_buttons').on('change click', function (event) {

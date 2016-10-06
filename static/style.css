@@ -42,6 +42,11 @@ a, a:hover {
 
 .dropdown-toggle.btn-default {
     border: 0;
+    border-radius: 0;
+}
+
+.dropdown-menu {
+    border: 0;
 }
 
 .navbar {
