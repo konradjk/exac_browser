@@ -48,7 +48,7 @@ a, a:hover {
     height: 80px;
     padding-left: 40px;
     padding-right: 40px;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
     border: 0;
     border-bottom: 1px;
     border-radius: 0px;
@@ -119,6 +119,12 @@ a, a:hover {
     border-radius: 0;
 }
 
+.container.home {
+  margin-left: 0;
+  margin-right: 0;
+  width: auto;
+}
+
 #home-title {
     text-align: center;
     padding: 30px;
@@ -134,8 +140,8 @@ a, a:hover {
 }
 
 #home-searchbox {
-    width: 490px;
-    margin: 20px 0;
+    width: 500px;
+    margin: 20px 0 20px 40px;
 }
 
 #home-searchbox form, #home-examples {
@@ -149,7 +155,8 @@ a, a:hover {
 }
 
 .card {
-    margin-top: 20px;
+    margin-top: 40px;
+    margin-bottom: 40px;
     padding: 40px;
 }
 
@@ -157,7 +164,7 @@ a, a:hover {
     text-align: left;
 }
 
-.card *, #genes h1, #logos {
+.card *, #home-text, #genes h1, #logos {
     text-align: center;
 }
 

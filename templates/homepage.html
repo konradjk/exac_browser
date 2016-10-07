@@ -3,12 +3,11 @@
     <script>
         $('#navbar_form_container').hide();
     </script>
-    <div class="container">
-        <br />
+    <div class="container home">
         <div id="home-splash" class="row">
-          <h1 class="col-md-10 col-md-offset-1" id="home-title">
-            The largest database of variants seen in healthy older women.
-          </h1>
+            <h1 class="col-md-8 col-md-offset-2" id="home-title">
+                The largest database of variants seen in healthy older women.
+            </h1>
             <div class="col-md-6 col-md-offset-3">
                 <div id="home-searchbox">
                     <form action="/awesome">
@@ -27,14 +26,15 @@
             </div>
         </div>
 
-        <br />
         <div class="row">
-            <div id="home-text" class="col-md-8 col-md-offset-2">
-                <h3 id="home-header">Where do we get our data?</h3>
+            {% include 'logos.html' %}
+        </div>
+
+        <div id="home-text" class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <br />
                 {% include 'about_text.html' %}
             </div>
-            <br />
-            {% include 'logos.html' %}
         </div>
     </div>
 {% endblock %}
