@@ -10,6 +10,7 @@ POPS = {
     'AFR': 'African',
     'AMR': 'Latino',
     'EAS': 'East Asian',
+    'EUR': 'European',
     'FIN': 'European (Finnish)',
     'NFE': 'European (Non-Finnish)',
     'SAS': 'South Asian',
@@ -117,7 +118,6 @@ def get_variants_from_sites_vcf(sites_vcf, all_transcripts, gene_ids_by_name=Non
 
             # different variant for each alt allele
             for i, alt_allele in enumerate(alt_alleles):
-
                 vep_annotations = [ann for ann in coding_annotations if int(ann['ALLELE_NUM']) == i + 1]
 
                 transcripts |= {a['Feature'] for a in vep_annotations}
@@ -171,12 +171,13 @@ def get_variants_from_sites_vcf(sites_vcf, all_transcripts, gene_ids_by_name=Non
                     else:
                         variant['allele_freq'] = None
 
-                pop = POPS.keys()[0]
-                if ('AC_%s' % pop in info_field and 'AN_%s' % pop in info_field and 'Hom_%s' % pop in info_field):
-                    variant['pop_acs'] = dict([(POPS[x], int(info_field['AC_%s' % x].split(',')[i])) for x in POPS])
-                    variant['pop_ans'] = dict([(POPS[x], int(info_field['AN_%s' % x])) for x in POPS])
-                    variant['pop_homs'] = dict([(POPS[x], int(info_field['Hom_%s' % x].split(',')[i])) for x in POPS])
-                    variant['hom_count'] = sum(variant['pop_homs'].values())
+                for field in 'AC', 'AN', 'Hom':
+                    pops = variant['pop_%ss' % field.lower()] = {}
+                    for code, desc in POPS.items():
+                        val = info_field.get('%s_%s' % (field, code))
+                        if val:
+                            pops[desc] = int(val)
+                variant['hom_count'] = sum(variant.get('pop_homs', {}).values())
 
                 if ('AC_MALE' in info_field and 'AC_FEMALE' in info_field and
                     'AN_MALE' in info_field and 'AN_FEMALE' in info_field):
@@ -186,10 +187,10 @@ def get_variants_from_sites_vcf(sites_vcf, all_transcripts, gene_ids_by_name=Non
                     variant['an_female'] = info_field['AN_FEMALE']
 
                 if variant['chrom'] in ('X', 'Y') and 'Hemi_%s' % pop in info_field:
-                    variant['pop_hemis'] = dict([(POPS[x], int(info_field['Hemi_%s' % x].split(',')[i])) for x in POPS])
+                    variant['pop_hemis'] = {desc: int(info_field['Hemi_%s' % x].split(',')[i]) for code, desc in POPS.items()}
                     variant['hemi_count'] = sum(variant['pop_hemis'].values())
 
-                variant['quality_metrics'] = dict([(x, info_field[x]) for x in METRICS if x in info_field])
+                variant['quality_metrics'] = {x: info_field[x] for x in METRICS if x in info_field}
 
                 variant['genes'] = list(
                     {a['Gene'] for a in vep_annotations} |
