@@ -140,7 +140,7 @@
         });
     </script>
     <div class="container">
-        <div id="variant-header" class="row">
+        <div id="variant-header" class="row card">
             <h1 class="pull-left">
                 {% if variant.genes and consequences %}
                     <span id="variant-gene" class="gray">
@@ -224,6 +224,10 @@
             {% endif %}
             </div>
         </div>
+
+          <div class="col-md-12 banner">
+              <p>Data collected is from participants in the <a href="https://www.whi.org/">WHI</a> and analyzed and sequenced at the <a href="http://www.gs.washington.edu/">University of Washington</a>. <a href="/about"><i class="fa fa-question-circle fa-24px"></i></a></p>
+          </div>
       </div>
 
       <hr class="clearfix" />
@@ -243,7 +247,7 @@
 
 {#          Lower display#}
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 {% with chrom = variant.chrom %}
                 <table id="frequency_table" class="tablesorter table table-bordered table-hover">
                     <caption>
@@ -288,7 +292,7 @@
                         <tr>
                             <td>Total</td>
                             <td>{{ variant.pop_acs.values()|sum }}</td>
-                            <td>{{ variant.pop_ans.values()|sum }}</td>
+                            <!-- <td>{{ variant.pop_ans.values()|sum }}</td> -->
                             {% if chrom != 'Y' %}
                                 <td>{{ variant.pop_homs.values()|sum }}</td>
                             {% endif %}
@@ -321,7 +325,7 @@
 #}
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 {% if variant.variant_id %}
                     {% if variant.vep_annotations or variant.eff_annotations %}
 {# WHI: only primary transcript(s)

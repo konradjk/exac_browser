@@ -3,98 +3,92 @@
 <div class="container">
     <div id="about" class="row card">
         <div class="col-md-8 col-md-offset-2">
-            <h1>All variants in the Color Research database meet the highest quality standards.</h1>
-            {% include 'about_text.html' %}
+            <h1>About FLOSsies’ inspiration, participants, and sequencing.</h1>
         </div>
         {% include 'logos.html' %}
     </div>
 
-    <div id="genes" class="row card">
         <div class="col-md-12">
-            <h1>Genes analyzed</h1>
-        </div>
-        <div class="col-md-6 col-md-offset-3">
-            <table>
-                <tr>
-                    <td>APC</td>
-                    <td>ATM</td>
-                    <td>BAP1</td>
-                    <td>BARD1</td>
-                </tr><tr>
-                    <td>BMPR1A</td>
-                    <td>BRCA1</td>
-                    <td>BRCA2</td>
-                    <td>BRIP1</td>
-                </tr><tr>
-                    <td>CDH1</td>
-                    <td>CDK4*</td>
-                    <td>CDKN2A(p14ARF)</td>
-                    <td>CDKN2A(p16INK4a)</td>
-                </tr><tr>
-                    <td>CHEK2</td>
-                    <td>EPCAM*</td>
-                    <td>GREM1*</td>
-                </tr><tr>
-                    <td>MITF*</td>
-                    <td>MLH1</td>
-                    <td>MSH2</td>
-                    <td>MSH6</td>
-                </tr><tr>
-                    <td>MUTYH</td>
-                    <td>NBN</td>
-                    <td>PALB2</td>
-                    <td>PMS2*</td>
-                </tr><tr>
-                    <td>POLD1*</td>
-                    <td>POLE*</td>
-                    <td>PTEN</td>
-                    <td>RAD51C</td>
-                </tr><tr>
-                    <td>RAD51D</td>
-                    <td>SMAD4</td>
-                    <td>STK11</td>
-                    <td>TP53</td>
-                </tr>
-            </table>
-            <br />
-        </div>
+            <p style="text-align: left">
+The FLOSSIES sequencing project was inspired by the need for more information about the frequency of genomic variants from appropriate controls for breast cancer genetics studies. Existing public databases are large, but not stratified by sex or age. The FLOSSIES project includes allele frequencies of all classes of variants at known and candidate genes among women who are cancer free and older than 70. The participants are Fabulous Ladies Over Seventy (FLOSsies).</p>
 
-        <div class="col-md-12">
-            <p style="text-align: left">The majority of these genes are assessed for variants within all coding exons (+/- 20bp in the nearby flanking regions). Exons 12-15 of <em>PMS2</em> and homopolymer regions outside of the coding regions cannot be reliably assessed with standard target enrichment protocols. For the <em>CDK4</em>, <em>MITF</em>, <em>POLD1</em> and <em>POLE</em> genes, the elevated risk of cancer is associated with distinct functional genomic regions. The complete coding sequences of these genes are not reported, but instead only the following regions: <em>CDK4</em> - chr12:g.58145429-58145431 (codon 24), <em>MITF</em> - chr3:g.70014091 (including c.952G>A), <em>POLD1</em> - chr19:g.50909713 (including c.1433G>A) and <em>POLE</em> - chr12:g.133250250 (including c.1270C>G). In <em>EPCAM</em>, only large deletions and duplications including the 3’ end of the gene are reported. These are the only variants known to silence the <em>MSH2</em> gene and therefore increase risk of associated cancer. <em>GREM1</em> is only analyzed for duplications in the upstream regulatory region.
-            </p>
-            <p>The 10,000 participants were split into two halves of 5,000 participants each. The two halves were sequenced in different labs, and covered slightly different regions of some genes with slightly different coverage statistics.
-            </p>
-            <p>
-            </p>
-            <h3>Coverage and read depth</h3>
-            <ul>
-                <li>Full sequencing and large rearrangements of all genes analyzed</li>
-                <li>Minimum read depth: 20X (>99% at >50X)</li>
-                <li>Median read depth: 250X (up to >1000X)</li>
-                <li>Intronic coverage: +/- 20bp, as well as intronic tiling</li>
-            </ul>
-            <h3>Reference genome</h3>
-            <p>After alignment to reference genome GRCh37.p12 (hg19), low quality and duplicate reads are removed, remaining reads are aligned with BWA, and variants are detected with GATK Haplotypecaller. Structural variants (CNVs) are called based on a read depth analysis over the whole reported panel, along with any split reads detected.
-            </p>
-            <h3>What is detected?</h3>
-            <p>Single nucleotide substitutions, small deletions and insertions, copy number variations and inversions located in the DNA coding sequences, nearby flanking regions (+/- 20bp) and known splice regions in the genes targeted by the Color panel.
-            </p>
-            <h3>What isn't detected?</h3>
-            <p>Chromosomal aneuploidy or complex gene rearrangements such as translocations and large insertions. Mosaicism not reliably detected. The sensitivity to detect deletions, insertions, and inversions between approximately 40-250bp might be reduced.
+<h3>Participants</h3>
+
+<p>FLOSSY participants are women who joined the <a href="https://www.whi.org/SitePages/WHI%20Home.aspx">Women’s Health Initiative</a> (WHI) between 1993 and 2005. All participants were 50-79 years old and had no history of cancer at enrollment. More than 160,000 women enrolled in WHI, contributed DNA at enrollment, and have been followed ever since. From the WHI participants who are now older than 70 and have remained cancer-free, 10,000 women were selected at random for this sequencing project: 7,000 who self-identified as European American and 3,000 who self-identified as African American. Ancestries were confirmed with 500 ancestry-informative markers.</p>
+
+<h3>Genes</h3>
+
+<p>Genes analyzed include established breast cancer genes, both high and moderate penetrance, and genes that have been suggested to predispose to breast cancer when mutant. Strength of evidence varies for these candidate genes. The genes are:</p>
+
+<table>
+    <tr>
+        <td>APC</td>
+        <td>ATM</td>
+        <td>BAP1</td>
+        <td>BARD1</td>
+    </tr><tr>
+        <td>BMPR1A</td>
+        <td>BRCA1</td>
+        <td>BRCA2</td>
+        <td>BRIP1</td>
+    </tr><tr>
+        <td>CDH1</td>
+        <td>CDK4*</td>
+        <td>CDKN2A(p14ARF)</td>
+        <td>CDKN2A(p16INK4a)</td>
+    </tr><tr>
+        <td>CHEK2</td>
+        <td>EPCAM*</td>
+        <td>GREM1*</td>
+    </tr><tr>
+        <td>MITF*</td>
+        <td>MLH1</td>
+        <td>MSH2</td>
+        <td>MSH6</td>
+    </tr><tr>
+        <td>MUTYH</td>
+        <td>NBN</td>
+        <td>PALB2</td>
+        <td>PMS2*</td>
+    </tr><tr>
+        <td>POLD1*</td>
+        <td>POLE*</td>
+        <td>PTEN</td>
+        <td>RAD51C</td>
+    </tr><tr>
+        <td>RAD51D</td>
+        <td>SMAD4</td>
+        <td>STK11</td>
+        <td>TP53</td>
+    </tr>
+</table>
+
+<p>For each gene, rare and common variants in coding regions, 5’UTR, 3’UTR, donor splice sites with 6 flanking bp, and acceptor splice sites with 20 flanking bp are included. Point mutations, small indels, and CNVs are included (although CNV calls are still incomplete in v1).</p>
+
+<h3>Sequencing</h3>
+
+<p>Sequencing was carried out in the <a href="http://www.gs.washington.edu/faculty/king.htm">King Lab</a> at the <a href="http://www.gs.washington.edu/">University of Washington</a>, Seattle, and by <a href="https://www.color.com/">Color Genomics</a> on an Illumina HiSeq with 2x100 bp paired-end reads (King lab) or NextSeq with 2x150 bp paired-end reads (Color) using modified versions of the BROCA panel (Walsh et al. PNAS 107:12629-33, 2010). Median coverage per sample was >250x.</p>
+
+<p>Paired-end sequence reads were aligned to the human reference genome (hg19) using Burrows-Wheeler Aligner 0.7.9a. Removal of PCR duplicates, sorting, and indexing were carried out with SAMtools v0.1.19. Data was excluded for 3 samples with low coverage and 2 samples with low quality. For quality control, WHI included 105 duplicates and 20 triplicates, blinded to the sequencing teams. These duplicates and triplicates were all identified and removed.</p>
+
+<p>Indel realignments and base quality score recalibration were based on with Genome Analysis Tool Kit (GATK; v3.0-0) using recommended parameters. Variants were detected with GATK Unified Genotyper. Variants were included if variant fraction was at least 0.25. Copy number variants were identified using our read-depth-based in-house pipeline.</p>
+
+<h3>Ancestry confirmation</h3>
+
+<p>Ancestry of each sample was confirmed using 500 ancestry-informative markers and principal components analysis (Wang C et al. Am J Hum Genet 96:926-37, 2015), calibrating to genotypes from Human Genome Diversity Panel (Li JZ et al. Science 319:1100-04, 2008).</p>
+
+<p>Each sample was assigned to the population with highest estimated likelihood of ancestry.</p>
+
+<p>Ancestry analysis yielded estimates of 7325 women of European American ancestry and 2559 women of African American ancestry. 14 samples from women of South Asian or East Asian ancestry were excluded.
             </p>
         </div>
     </div>
 
     <div id="exac" class="row card">
-        <div class="col-md-8">
+        <div class="col-md-8 col-md-offset-2">
             <br />
             <p>This site uses <a href="https://github.com/ColorGenomics/exac_browser">a modified version</a> of the open source <a href="https://github.com/konradjk/exac_browser">ExAC Browser</a>, developed by <a href="http://broadinstitute.org/">The Broad Institute</a> and distributed <a href="https://github.com/konradjk/exac_browser/blob/master/LICENSE">under the MIT License</a>.
             </p>
-        </div>
-        <div class="col-md-4">
-            <a href="http://broadinstitute.org/">
-                <img src="/static/broad-logo.jpg" width="354"></img>
-            </a>
         </div>
     </div>
 </div>

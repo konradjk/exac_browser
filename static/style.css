@@ -64,6 +64,12 @@ a, a:hover {
     margin-right: 20px;
 }
 
+.navbar-brand a {
+    height: 80px;
+    font-size: 24px;
+    color: #666;
+}
+
 .navbar-brand {
     vertical-align: bottom;
 }
@@ -74,10 +80,6 @@ a, a:hover {
 
 .navbar * {
     height: 100%;
-}
-
-.navbar-brand a:hover {
-    text-decoration: none;
 }
 
 #navbar_form_container {
@@ -164,7 +166,7 @@ a, a:hover {
     text-align: left;
 }
 
-.card *, #home-text, #genes h1, #logos {
+.card *, #home-text, #genes h1, #logos, .banner {
     text-align: center;
 }
 
@@ -180,6 +182,10 @@ a, a:hover {
 
 #logos {
     margin-top: 40px;
+}
+
+.banner i {
+    color: gray;
 }
 
 .twitter-typeahead {
@@ -204,6 +210,10 @@ a, a:hover {
 
 .table {
     table-layout: fixed;
+}
+
+#annotation_table {
+    table-layout: auto;
 }
 
 .table > tbody > tr > td {

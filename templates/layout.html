@@ -1,6 +1,6 @@
 <!doctype html>
 <head>
-    <title>Color Research</title>
+    <title>FLOSsies</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='typeaheadjs.css') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
@@ -73,15 +73,11 @@
                 <span class="icon-bar"></span>
             </button>
             <div class="navbar-brand">
-              <a href="/">
-                <img id="color-logo" src="/static/colorResearch_logo@2x.png" />
-              </a>
+                <a href="/">FLOSsies</a>
             </div>
         </div>
         <div id="navbar_links">
           <a href="/about">ABOUT</a>
-          &nbsp;
-          <a href="/mission">MISSION</a>
         </div>
         <div id="navbar_form_container">
             <form action="/awesome" class="navbar-form" role="search">
@@ -94,6 +90,12 @@
         </div>
     </div><!-- /.container-fluid -->
 </nav>
+
+<div class="row banner">
+    <div class="col-md-12">
+        <p>FLOSsies was developed in partnership between the <a href="http://www.gs.washington.edu/faculty/king.htm">King Lab</a> and <a href="https://www.color.com/">Color Genomics</a>. <a href="/about"><i class="fa fa-question-circle fa-24px"></i></a></p>
+    </div>
+</div>
 {% block body %}{% endblock %}
 
 </body>

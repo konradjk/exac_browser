@@ -910,11 +910,6 @@ def about_page():
     return render_template('about.html')
 
 
-@app.route('/mission')
-def faq_page():
-    return render_template('mission.html')
-
-
 @app.route('/text')
 def text_page():
     db = get_db()
