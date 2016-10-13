@@ -5,7 +5,6 @@ static/tablesorter-master
 *.pyc
 misc/
 .gitignore
-autocomplete_strings.txt
 gene_cache/
 data/
 database/

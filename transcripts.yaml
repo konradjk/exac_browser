@@ -1,0 +1,303 @@
+# Transcript information is taken from https://docs.google.com/a/getcolor.com/spreadsheets/d/1hXfuBogbL-jlqxoaRIRpSufa4MBzPpS98_J9QQKdsTA/edit#gid=1237516977
+# The file is structured as:
+# gene_name:
+#   transcript_class:
+#     ensembl_transcript: ncbi_transcript
+# ...
+#
+# Note: ncbi_transcript value can be False if no corresponding NCBI transcript is found for the Ensembl transcript.
+atm:
+  primary_transcripts:
+    ENST00000278616: NM_000051.3
+  secondary_transcripts:
+    ENST00000452508: False
+
+bard1:
+  primary_transcripts:
+    ENST00000260947: NM_000465.3
+
+brca1:
+  primary_transcripts:
+    ENST00000357654: NM_007294.3
+  secondary_transcripts:
+    ENST00000471181: NM_007300
+    ENST00000468300: NM_007299
+    ENST00000491747: NM_007298
+
+brca2:
+  primary_transcripts:
+    ENST00000544455: NM_000059.3
+
+brip1:
+  primary_transcripts:
+    ENST00000259008: NM_032043.2
+
+cdh1:
+  primary_transcripts:
+    ENST00000261769: NM_004360.3
+
+chek2:
+  primary_transcripts:
+    ENST00000328354: NM_007194.3
+  secondary_transcripts:
+    ENST00000382580: NM_001005735
+    ENST00000382580: NM_001005735
+
+epcam:
+  primary_transcripts:
+    ENST00000263735: NM_002354.2
+
+mlh1:
+  primary_transcripts:
+    ENST00000231790: NM_000249.3
+  secondary_transcripts:
+    ENST00000536378: NM_001258273
+
+msh2:
+  primary_transcripts:
+    ENST00000233146: NM_000251.2
+  secondary_transcripts:
+    ENST00000406134: False
+
+msh6:
+  primary_transcripts:
+    ENST00000234420: NM_000179.2
+
+nbn:
+  primary_transcripts:
+    ENST00000265433: NM_002485.4
+
+palb2:
+  primary_transcripts:
+    ENST00000261584: NM_024675.3
+
+pms2:
+  primary_transcripts:
+    ENST00000265849: NM_000535.5
+
+pten:
+  primary_transcripts:
+    ENST00000371953: NM_000314.4
+
+rad51c:
+  primary_transcripts:
+    ENST00000337432: NM_058216.2
+
+rad51d:
+  primary_transcripts:
+    ENST00000345365: NM_002878.3
+  secondary_transcripts:
+    ENST00000590016: NM_001142571
+
+stk11:
+  primary_transcripts:
+    ENST00000326873: NM_000455.4
+
+tp53:
+  primary_transcripts:
+    ENST00000269305: NM_000546.5
+  secondary_transcripts:
+    ENST00000590016: NM_001142571
+    ENST00000445888: NM_001126112
+    ENST00000455263: NM_001126113
+    ENST00000420246: NM_001126114
+
+# Mini-BROCA genes outside our 30-gene panel. Extracted from
+# low_freq_transcript_cp.tsv from https://getcolor.atlassian.net/browse/BIOINF-1573
+atr:
+  primary_transcripts:
+    ENST00000350721: _
+
+chek1:
+  primary_transcripts:
+    ENST00000438015: _
+
+ctnna1:
+  primary_transcripts:
+    ENST00000302763: _
+
+fam175a:
+  primary_transcripts:
+    ENST00000321945: _
+
+fancm:
+  primary_transcripts:
+    ENST00000267430: _
+
+gen1:
+  primary_transcripts:
+    ENST00000317402: _
+
+mre11a:
+  primary_transcripts:
+    ENST00000323929: _
+
+rad51b:
+  primary_transcripts:
+    ENST00000487270: _
+
+recql:
+  primary_transcripts:
+    ENST00000444129: _
+
+ppm1d:
+  primary_transcripts:
+    ENST00000305921: _
+
+rint1:
+  primary_transcripts:
+    ENST00000257700: _
+
+slx4:
+  primary_transcripts:
+    ENST00000294008: _
+
+xrcc2:
+  primary_transcripts:
+    ENST00000359321: _
+
+
+# For new tests, transcript information taken from https://docs.google.com/a/getcolor.com/spreadsheets/d/1BrJLYkgoilW1Pfc8nJH-mhrShzHtUAPMAK26YChHYNk/edit?usp=sharing.
+# Commented out genes not covered in the WHI study.
+# mutyh:
+#   primary_transcripts:
+#     ENST00000450313: NM_001128425
+
+# smad4:
+#   primary_transcripts:
+#     ENST00000342988: NM_005359
+
+# apc:
+#   primary_transcripts:
+#     ENST00000257430: NM_000038
+#   secondary_transcripts:
+#     ENST00000508376: NM_001127510
+
+# bmpr1a:
+#   primary_transcripts:
+#     ENST00000372037: NM_004329
+
+# cdkn2a:
+#   primary_transcripts:
+#     ENST00000304494: NM_000077
+#     ENST00000579755: NM_058195
+
+# cdk4:
+#   primary_transcripts:
+#     ENST00000257904: NM_000075
+
+bap1:
+  primary_transcripts:
+    ENST00000460680: NM_004656
+
+# mitf:
+#   primary_transcripts:
+#     ENST00000394351: NM_000248
+
+# pole:
+#   primary_transcripts:
+#     ENST00000320574: NM_006231
+
+# pold1:
+#   primary_transcripts:
+#     ENST00000440232: NM_001256849
+
+# vhl:
+#   primary_transcripts:
+#     ENST00000256474: NM_000551
+
+# men1:
+#   primary_transcripts:
+#     ENST00000443283: NM_000244
+#   secondary_transcripts:
+#     ENST00000312049: NM_130799
+
+# hoxb13:
+#   primary_transcripts:
+#     ENST00000290295: NM_006361
+
+# fh:
+#   primary_transcripts:
+#     ENST00000366560: NM_000143
+
+# dicer1:
+#   primary_transcripts:
+#     ENST00000343455: NM_177438
+
+# fancc:
+#   primary_transcripts:
+#     ENST00000289081: NM_000136
+
+# flcn:
+#   primary_transcripts:
+#     ENST00000285071: NM_144997
+
+# nf1:
+#   primary_transcripts:
+#     ENST00000358273: NM_001042492
+#   secondary_transcripts:
+#     ENST00000356175: NM_000267
+
+# rb1:
+#   primary_transcripts:
+#     ENST00000267163: NM_000321
+
+# ret:
+#   primary_transcripts:
+#     ENST00000355710: NM_020975
+#   secondary_transcripts:
+#     ENST00000340058: NM_020630
+
+# sdha:
+#   primary_transcripts:
+#     ENST00000264932: NM_004168
+
+# sdhaf2:
+#   primary_transcripts:
+#     ENST00000301761: NM_017841
+
+# sdhb:
+#   primary_transcripts:
+#     ENST00000375499: NM_003000
+
+# sdhc:
+#   primary_transcripts:
+#     ENST00000367975: NM_003001
+
+# sdhd:
+#   primary_transcripts:
+#     ENST00000375549: NM_003002
+
+# smarca4:
+#   primary_transcripts:
+#     ENST00000358026: NM_001128849
+
+# tmem127:
+#   primary_transcripts:
+#     ENST00000258439: NM_017849
+
+# tsc1:
+#   primary_transcripts:
+#     ENST00000298552: NM_000368
+
+# tsc2:
+#   primary_transcripts:
+#     ENST00000219476: NM_000548
+
+# psen1:
+#   primary_transcripts:
+#     ENST00000324501: NM_000021
+
+# psen2:
+#   primary_transcripts:
+#     ENST00000366783: NM_000447
+
+# apoe:
+#   primary_transcripts:
+#     ENST00000252486: NM_000041
+
+# app:
+#   primary_transcripts:
+#     ENST00000346798: NM_000484
+#   secondary_transcripts:
+#     ENST00000440126: NM_001136016
