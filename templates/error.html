@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 {% block body %}
-    <div class="container">
-        <br><br>
-        <center>
-        <h2>Error</h2>
-        <h4>This page does not exist.</h4><br>
-        <img class="error_image" src="{{ url_for('static', filename='images/exac_404_ripped_page.jpg') }}" />
-        <br><br>
-        To report a bug, please file an issue on <a href="https://github.com/konradjk/exac_browser/issues">Github</a>.<br>
-        </center>
+<div class="container card">
+    <div id="about" class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h1>This variant, gene, or transcript is not found in the database.</h1>
+            <p><a href="/about">Learn more.</a>
+            {% include 'about_text.html' %}
+            {% include 'logos.html' %}
+        </div>
     </div>
+</div>
 
 {% endblock %}

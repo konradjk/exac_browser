@@ -734,6 +734,8 @@ def get_gene_page_content(gene_id):
         t = cache.get(cache_key)
         if t is None:
             variants_in_gene = lookups.get_variants_in_gene(db, gene)
+            if not variants_in_gene:
+                abort(404)
             transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
             # Get some canonical transcript and corresponding info
