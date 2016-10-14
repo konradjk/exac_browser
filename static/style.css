@@ -64,22 +64,22 @@ a, a:hover {
     margin-right: 20px;
 }
 
-.navbar-brand a {
-    height: 80px;
-    font-size: 24px;
-    color: #666;
-}
-
-.navbar-brand {
-    vertical-align: bottom;
-}
-
 .navbar a {
     color: #888;
 }
 
 .navbar * {
     height: 100%;
+}
+
+.navbar-brand {
+    margin-top: 30px;
+}
+
+.navbar-brand a {
+    vertical-align: bottom;
+    font-size: 36px;
+    color: #a15eb6;
 }
 
 #navbar_form_container {
@@ -184,6 +184,11 @@ a, a:hover {
     margin-top: 40px;
 }
 
+.banner > div {
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
 .banner i {
     color: gray;
 }
@@ -236,6 +241,7 @@ a, a:hover {
     color: white;
     font-size: 24px;
     padding: 10px;
+    font-variant: all-small-caps;
 }
 
 .consequence_display_buttons {
