@@ -10,14 +10,8 @@ from utils import *
 
 
 POPS = {
-    'AFR': 'African',
-    'AMR': 'Latino',
-    'EAS': 'East Asian',
-    'EUR': 'European',
-    'FIN': 'European (Finnish)',
-    'NFE': 'European (Non-Finnish)',
-    'SAS': 'South Asian',
-    'OTH': 'Other'
+    'AFR': 'African American',
+    'EUR': 'European American',
 }
 POP_NUM = {
     'African American': 2530,
