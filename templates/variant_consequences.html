@@ -22,7 +22,6 @@
     {% if consequences[consequence][gene][0].Exon_Rank %}
         exon {{ consequences[consequence][gene][0].Exon_Rank }}
     {% endif %}
-only primary transcript(s)
     {% if consequences[consequence][gene]|length > 1 %}
         <span class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
@@ -45,7 +44,7 @@ only primary transcript(s)
         </span>
     {% else %}
         {% set annotation = consequences[consequence][gene][0] %}
-         - <a href="/transcript/{{ annotation.Feature }}">
+        <a href="/transcript/{{ annotation.Feature }}">
             {{ annotation.Feature }}
             {% if annotation.CANONICAL == 'YES' %}
                 *

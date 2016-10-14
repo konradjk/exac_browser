@@ -10,6 +10,7 @@
     <!-- ALREADY LOADED BY layout.html: link rel="stylesheet" type="text/css" href='//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css' / -->
 {% endblock %}
 {% block body %}
+{% include 'site_banner.html' %}
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
         window.variant = {{ variant|tojson|safe }};
@@ -141,18 +142,32 @@
     </script>
     <div class="container">
         <div id="variant-header" class="row card">
-            <h1 class="pull-left">
+            <div class="pull-left">
+            <h1>
                 {% if variant.genes and consequences %}
                     <span id="variant-gene" class="gray">
-                      {{ (consequences.values()|first).keys()|first }} |
+                      {{ (consequences.values()|first).keys()|first }}
                     </span>
                 {% endif %}
-                {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
-                <span class="gray"> | </span>
-                {{ variant.nomenclatures|join('<span class="gray"> | </span>')|safe }}
+                {% if variant.HGVSc %}
+                    <span class="gray"> | </span>
+                    {{ variant.HGVSc }}
+                {% endif %}
+                {% if variant.HGVSp %}
+                    <span class="gray"> | </span>
+                    {{ variant.HGVSp }}
+                {% endif %}
             </h1>
+            {% for nom in variant.nomenclatures %}
+                {% if nom and nom != variant.HGVSc and nom != variant.HGVSp %}
+                    {{ nom }}
+                    <span class="gray"> | </span>
+                {% endif %}
+            {% endfor %}
+            {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+            </div>
 
-            <div class="pull-right">
+            <div id="variant-misc" class="pull-right">
             <h2>
                 {% if variant.allele_freq %}
                   {{ '%0.4g' % variant.allele_freq }}
@@ -224,10 +239,6 @@
             {% endif %}
             </div>
         </div>
-
-          <div class="col-md-12 banner">
-              <p>Data collected is from participants in the <a href="https://www.whi.org/">WHI</a> and analyzed and sequenced at the <a href="http://www.gs.washington.edu/">University of Washington</a>. <a href="/about"><i class="fa fa-question-circle fa-20px"></i></a></p>
-          </div>
       </div>
 
       <hr class="clearfix" />
@@ -247,7 +258,7 @@
 
 {#          Lower display#}
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-7">
                 {% with chrom = variant.chrom %}
                 <table id="frequency_table" class="tablesorter table table-bordered table-hover">
                     <caption>
@@ -256,18 +267,36 @@
                     <thead>
                         <tr>
                             <th>Population</th>
-                            <th>Count</th>
+                            <th>Count title="Allele count"</th>
                             <!-- <th>Total</th> -->
                             {% if chrom != 'Y' %}
-                                <th>Hom</th>
+                                <th title="Homozygotes">Hom</th>
                             {% endif %}
                             {% if chrom == 'X' or chrom == 'Y' %}
                                 <th>Hemi</th>
                             {% endif %}
-                            <th>Freq</th>
+                            <th title="Allele frequency">Freq</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <tr>
+                            <td>All</td>
+                            <td>{{ variant.pop_acs.values()|sum }}</td>
+                            <!-- <td>{{ variant.pop_ans.values()|sum }}</td> -->
+                            {% if chrom != 'Y' %}
+                                <td>{{ variant.pop_homs.values()|sum }}</td>
+                            {% endif %}
+                            {% if chrom == 'X' or chrom == 'Y' %}
+                                <td>{{ variant.pop_hemis.values()|sum }}</td>
+                            {% endif %}
+                            <td>
+                                {% if variant.allele_freq is not none %}
+                                    {{ '%0.4g' % variant.allele_freq }}
+                                {% else %}
+                                    NA
+                                {% endif %}
+                            </td>
+                        </tr>
                         {% for pop in variant.pop_acs %}
                             <tr>
                                 <td>{{ pop }}</td>
@@ -288,26 +317,6 @@
                         {% endfor %}
                     </tbody>
                     {% if variant.pop_acs %}
-                    <tfoot>
-                        <tr>
-                            <td>Total</td>
-                            <td>{{ variant.pop_acs.values()|sum }}</td>
-                            <!-- <td>{{ variant.pop_ans.values()|sum }}</td> -->
-                            {% if chrom != 'Y' %}
-                                <td>{{ variant.pop_homs.values()|sum }}</td>
-                            {% endif %}
-                            {% if chrom == 'X' or chrom == 'Y' %}
-                                <td>{{ variant.pop_hemis.values()|sum }}</td>
-                            {% endif %}
-                            <td>
-                                {% if variant.allele_freq is not none %}
-                                    {{ '%0.4g' % variant.allele_freq }}
-                                {% else %}
-                                    NA
-                                {% endif %}
-                            </td>
-                        </tr>
-                    </tfoot>
                     {% endif %}
                 </table>
                 {% endwith %}
@@ -325,7 +334,7 @@
 #}
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-5">
                 {% if variant.variant_id %}
                     {% if variant.vep_annotations or variant.eff_annotations %}
 {# WHI: only primary transcript(s)
@@ -369,6 +378,7 @@
 
         <div class="row">
 	    <div class="col-md-12">
+{# Skip this for now
 	    <div class="section_header">Reference genome</div>
 {# We don't expose read data for WHI variants.
         {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] %}
@@ -394,7 +404,7 @@
             </center><br>
 
         {% endif %}
-#}
+# }
             <div id="igv-container"></div>
             <br><br>
 
@@ -407,7 +417,7 @@
                 </center>
             {% endif %}
             <br>
-#}
+# }
 
             <!-- IGV dependencies -->
 
@@ -578,6 +588,7 @@
                     border-bottom: 1px solid #cccccc;
                 }
             </style>
+#}
     </div>
   </div>
  </div>

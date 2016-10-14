@@ -1,7 +1,3 @@
-/* color scheme: purple:
- * dark: #657
- * light: #a9b
- */
 body {
     font-family: Gotham, Helvetica;
     font-weight: lighter;
@@ -9,11 +5,7 @@ body {
     background-color: #eee;
 }
 
-div.row {
-    background-color: #fff;
-}
-
-a, a:hover {
+a, a:hover, .dropdown-toggle {
     color: #a15eb6;
 }
 
@@ -92,6 +84,10 @@ a, a:hover {
     height: 40px;
 }
 
+#navbar-awesomebar {
+    margin-left: -10%;
+}
+
 #navbar-searchbox-input, .twitter-typeahead {
     background: #fff;
 }
@@ -157,16 +153,18 @@ a, a:hover {
 }
 
 .card {
-    margin-top: 40px;
-    margin-bottom: 40px;
-    padding: 40px;
+    margin-top: 20px;
+    padding: 20px;
+}
+.card, #site-banner {
+    background-color: #fff;
 }
 
 #genes * {
     text-align: left;
 }
 
-.card *, #home-text, #genes h1, #logos, .banner {
+.about .card *, #home-text, #genes h1, #logos, .banner {
     text-align: center;
 }
 
@@ -176,8 +174,16 @@ a, a:hover {
     font-style: italic;
 }
 
-.card h1, .card h2, .card h3 {
+.about .card h1, .about .card h2, .about .card h3 {
     margin-bottom: 40px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 10px;
+}
+
+.pull-right {
+    text-align: right;
 }
 
 #logos {
@@ -217,7 +223,7 @@ a, a:hover {
     table-layout: fixed;
 }
 
-#annotation_table {
+#frequency_table, #annotation_table {
     table-layout: auto;
 }
 
@@ -287,12 +293,12 @@ a, a:hover {
     padding-right: 1em;
 }
 
-#variant-nomenclatures {
-    float: left;
+#variant-misc > * {
+    margin-bottom: 0;
 }
 
-#variant-misc {
-    float: left;
+#variant-misc > .dropdown {
+    margin-right: -10px;
 }
 
 .gray {

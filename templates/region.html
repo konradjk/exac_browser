@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
+{% include 'site_banner.html' %}
     <script type="text/javascript">
         window.coverage_stats = {{ coverage|tojson|safe }};
         window.genes = {{ genes_in_region|tojson|safe }};

@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
+{% include 'site_banner.html' %}
     <!-- Render context vars in JS here -->
     <script type="text/javascript">
         window.transcript = {{ transcript_json|safe }};
