@@ -640,13 +640,8 @@ def variant_page(variant_str):
         variant = lookups.get_variant(db, xpos, ref, alt)
 
         if variant is None:
-            variant = {
-                'chrom': chrom,
-                'pos': pos,
-                'xpos': xpos,
-                'ref': ref,
-                'alt': alt
-            }
+            abort(404)
+
         consequences = OrderedDict()
         if 'vep_annotations' in variant or 'eff_annotations' in variant:
             add_consequence_to_variant(variant)
@@ -662,6 +657,7 @@ def variant_page(variant_str):
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
+        variant['nomenclatures'] = filter(None, variant['nomenclatures'])
 
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant
@@ -774,14 +770,17 @@ def transcript_page(transcript_id):
     db = get_db()
     try:
         transcript = lookups.get_transcript(db, transcript_id)
+        if not transcript:
+            abort(404)
 
         cache_key = 't-transcript-{}'.format(transcript_id)
         t = cache.get(cache_key)
         if t is None:
-
             gene = lookups.get_gene(db, transcript['gene_id'])
             gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
             variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+            if not variants_in_transcript:
+                abort(404)
             cnvs_in_transcript = lookups.get_exons_cnvs(db, transcript_id)
             cnvs_per_gene = lookups.get_cnvs(db, transcript['gene_id'])
             coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
