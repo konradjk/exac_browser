@@ -4,7 +4,7 @@
     <dd><span id="avg_coverage"></span></dd>
 </dl>
 #}
-<div id="gene_plot">
+<div id="gene_plot" class="row card">
 {# WHI
     <span class="hidden-xs">
         <label for="display_coverage_metric_group">
@@ -28,43 +28,19 @@
     {# No coverage for WHI data
     {% include 'coverage_selectors.html' %}
     #}
-    <br/>
+    <div id="col-md-12" class="caption">Gene Summary</div>
     <div id="gene_plot_container_container">
         <div id="loading_coverage">
-            Loading coverage...
+            Loading...
             <br/><br/>
         </div>
-        {# No coverage for WHI data
-        <span id="gene_plot_axis_container" class="hidden-xs" style="width:50px; display: inline-block;"></span>
-        #}
         <span id="gene_plot_container" style="display: inline-block;"></span>
-        {# WHI
-        <a class="btn btn-success" id="coverage_plot_download" target="_blank" download="{{ plot_id }}_coverage">Save coverage plot</a>
-        <a class="btn btn-success" id="exon_plot_download" target="_blank" download="{{ plot_id }}_exon">Save exon image</a>
-        <a class="btn btn-success" id="cnv_plot_download" target="_blank" download="{{ plot_id }}_cnv">Save CNV image</a>
-        #}
     </div>
 </div>
-<style>
-  .chart div {
-  font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
-  }
-</style>
+
 <div class="chart"></div>
-<div id="not_covered" style="display: none;">
-{# No coverage for WHI data
-    No coverage for this transcript.
-#}
-</div>
-<br/>
+
 <script>
-
-
 var make_cnvs_svg = function(_cnvs, _transcript, scale_type, skip_utrs)
 {
 // plot CNVs as separate function
@@ -631,7 +607,6 @@ $(document).ready(function() {
         $('#loading_coverage').hide();
     } else {
         $('#gene_plot').hide();
-        $('#not_covered').show();
     }
     // Change coverage plot
     $('.coverage_metric_buttons').change(function () {

@@ -241,8 +241,6 @@
         </div>
       </div>
 
-      <hr class="clearfix" />
-
 {#      Upper display #}
         {% if variant.variant_id %}
             <!-- TODO use db.variant.count() instead -->
@@ -374,11 +372,9 @@
 
         {#% if read_viz|length > 0  %#}
 
-        <hr/>
-
+{# Skip this for now
         <div class="row">
 	    <div class="col-md-12">
-{# Skip this for now
 	    <div class="section_header">Reference genome</div>
 {# We don't expose read data for WHI variants.
         {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] %}
@@ -588,9 +584,9 @@
                     border-bottom: 1px solid #cccccc;
                 }
             </style>
-#}
     </div>
   </div>
+#}
  </div>
 </div>
 

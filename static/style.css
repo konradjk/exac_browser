@@ -154,8 +154,10 @@ a, a:hover, .dropdown-toggle {
 
 .card {
     margin-top: 20px;
+    margin-bottom: 20px;
     padding: 20px;
 }
+
 .card, #site-banner {
     background-color: #fff;
 }
@@ -242,7 +244,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: large;
 }
 
-.table caption {
+.table caption, .caption {
     background-color: #546;
     color: white;
     font-size: 24px;
@@ -288,16 +290,16 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 24px;
 }
 
-#variant-header {
+#gene-header, #variant-header {
     padding-left: 1em;
     padding-right: 1em;
 }
 
-#variant-misc > * {
+#gene-misc > *, #variant-misc > * {
     margin-bottom: 0;
 }
 
-#variant-misc > .dropdown {
+#gene-misc > .dropdown, #variant-misc > .dropdown {
     margin-right: -10px;
 }
 
@@ -325,6 +327,11 @@ h1, h2, h3, h4, h5, h6 {
 
 th.allele_frequency_column {
     width: 150px;
+}
+
+/* Temporary! */
+#cnv_svg {
+    display: none;
 }
 
 /* tooltips - based on http://cbracco.me/a-simple-css-tooltip/ */

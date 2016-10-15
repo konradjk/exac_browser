@@ -53,127 +53,91 @@
         });
     </script>
 
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6">
+    <div class="container">
+        <div id="gene-header" class="row card">
+            <div class="pull-left">
                 <h1>{{ gene.gene_name }}</h1>
                 {% if gene.full_gene_name %}
                     <h4>{{ gene.full_gene_name }}</h4>
                     <h4>{{ gene.canonical_transcript }}</h4>
                 {% endif %}
             </div>
-            <div class="col-md-6">
-                <div class="pull-right">
-                    <h1><span id="number_of_variants"></span></h1>
-                    <h4>variants</h4>
-                    <div class="col-xs-6 col-md-2">
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">
-                                Additional resources
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
-                                <li role="presentation" class="visible-xs-block">
-                                    <a href="http://exac.broadinstitute.org/gene/{{ gene.gene_id }}" target="_blank">
-                                        ExAC
-                                    </a>
-                                </li>
-                                <li role="presentation" class="visible-xs-block">
-                                    <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
-                                        GeneCards
-                                    </a>
-                                </li>
-                                {% if gene.omim_accession %}
-                                <li role="presentation" class="visible-xs-block">
-                                    <a href="http://omim.org/entry/{{ gene.omim_accession }}" target="_blank">
-                                        OMIM
-                                    </a>
-                                </li>
-                                {% endif %}
-                                <li role="presentation" class="visible-xs-block">
-                                    <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                                        UCSC Browser
-                                    </a>
-                                </li>
-                                <li role="presentation" class="visible-xs-block">
-                                    <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
-                                        GeneCards
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
-                                        Ensembl
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/wiki/{{ gene.gene_name }}" target="_blank">
-                                        Wikipedia
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
-                                        PubMed Search
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://www.wikigenes.org/?search={{ gene.gene_name }}" target="_blank">
-                                        Wikigenes
-                                    </a>
-                                </li>
-                                <li role="presentation">
-                                    <a role="menuitem" tabindex="-1" href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
-                                        GTEx (Expression)
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-            <div class="col-md-1 hidden-xs">
+            <div id="gene-misc" class="pull-right">
+                <h1><span id="number_of_variants"></span></h1>
+                variants
                 <div class="dropdown">
-                    {# WHI
-                    <button class="btn btn-default dropdown-toggle" type="button" id="transcript_dropdown" data-toggle="dropdown">
-                        Transcripts
+                    <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">
+                        Additional resources
                         <span class="caret"></span>
                     </button>
-                    #}
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="transcript_dropdown">
-                        {% for transcript in transcripts_in_gene %}
-                            <li role="presentation">
-                                <a role="menuitem" tabindex="-1" href="/transcript/{{ transcript.transcript_id }}" target="_blank">
-                                    {{ transcript.transcript_id }}
-                                    {% if transcript.transcript_id == gene.canonical_transcript %}
-                                        *
-                                    {% endif %}
-                                </a>
-                            </li>
-                        {% endfor %}
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
+                        <li role="presentation" class="visible-xs-block">
+                            <a href="http://exac.broadinstitute.org/gene/{{ gene.gene_id }}" target="_blank">
+                                ExAC
+                            </a>
+                        </li>
+                        <li role="presentation" class="visible-xs-block">
+                            <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                                GeneCards
+                            </a>
+                        </li>
+                        {% if gene.omim_accession %}
+                        <li role="presentation" class="visible-xs-block">
+                            <a href="http://omim.org/entry/{{ gene.omim_accession }}" target="_blank">
+                                OMIM
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li role="presentation" class="visible-xs-block">
+                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                                UCSC Browser
+                            </a>
+                        </li>
+                        <li role="presentation" class="visible-xs-block">
+                            <a href="http://www.genecards.org/cgi-bin/carddisp.pl?gene={{ gene.gene_name }}" target="_blank">
+                                GeneCards
+                            </a>
+                        </li>
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
+                                Ensembl
+                            </a>
+                        </li>
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/wiki/{{ gene.gene_name }}" target="_blank">
+                                Wikipedia
+                            </a>
+                        </li>
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
+                                PubMed Search
+                            </a>
+                        </li>
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="http://www.wikigenes.org/?search={{ gene.gene_name }}" target="_blank">
+                                Wikigenes
+                            </a>
+                        </li>
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
+                                GTEx (Expression)
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-{#
-                <h4><a href="http://www.ensembl.org/Help/Glossary?id=346" target="_blank">Canonical transcript</a>: {{ transcript.transcript_id }}</h4>
-#}
-                <div class="row">
-                    {% with plot_id = gene.gene_name %}
-                        {% include 'transcript_display.html' %}
-                    {% endwith %}
-                </div>
-                <div class="row">
-                    {% if variants_in_transcript %}
-                        {% set chrom = variants_in_transcript[0].chrom %}
-                        {% include 'variant_table.html' %}
-                    {% else %}
-                        No variants in this gene.
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+
+        {% with plot_id = gene.gene_name %}
+        {% include 'transcript_display.html' %}
+        {% endwith %}
+        {% if variants_in_transcript %}
+            {% set chrom = variants_in_transcript[0].chrom %}
+            {% include 'variant_table.html' %}
+        {% else %}
+            No variants in this gene.
+        {% endif %}
+
     </div>
 
     <div class="row">
