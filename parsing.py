@@ -1,10 +1,13 @@
 """
 Utils for reading flat files that are loaded into database
 """
+import copy
+import csv
 import re
 import traceback
+
 from utils import *
-import copy
+
 
 POPS = {
     'AFR': 'African',
@@ -16,6 +19,16 @@ POPS = {
     'SAS': 'South Asian',
     'OTH': 'Other'
 }
+POP_NUM = {
+    'African American': 2530,
+    'European American': 7239,
+}
+POP_NUM_RECQL = {
+    'African American': 1260,
+    'European American': 3578,
+}
+ALLELE_NUM = sum(POP_NUM.values())
+ALLELE_NUM_RECQL = sum(POP_NUM_RECQL.values())
 
 
 def get_base_coverage_from_file(base_coverage_file):
@@ -209,6 +222,91 @@ def get_variants_from_sites_vcf(sites_vcf, all_transcripts, gene_ids_by_name=Non
             print("Error parsing vcf line: " + line)
             traceback.print_exc()
             raise
+
+
+def get_variants_from_whi_tsv(tsv_file, all_transcripts, gene_ids_by_name=None):
+    """
+    Parse a TSV variant file for the WHI project, returns iter of variant dicts.
+
+    sites_tsv is a file object, not file path
+    all_transcripts is a set of string transcript ids
+    gene_ids_by_name is a dict mapping gene_name_upper to gene_id
+    """
+    if not gene_ids_by_name:
+        gene_ids_by_name = {}
+
+    types = {  # maps line['Type'] to utils.csq_order
+        'UTR3': '3_prime_UTR_variant',
+        'UTR5': '5_prime_UTR_variant',
+        'delFS': 'frameshift_deletion',
+        'delIF': 'inframe_deletion',
+        'insFS': 'frameshift_insertion',
+        'insIF': 'inframe_insertion',
+        'intronic': 'intron_variant',
+        'missense': 'missense_variant',
+        'stoploss': 'stop_lost',
+        # 'nonsense': '',
+        # 'silent': '',
+        # 'splice': '',
+    }
+
+    for line in csv.DictReader(tsv_file, dialect='excel-tab'):
+        # normalize '-' to blank or 0
+        numeric = {'Start', 'All carrier count', 'Homoz', 'AA', 'EA',
+                   'Max_qual', 'Max_MQ'}
+        line = {k: (0 if k in numeric else '') if v == '-' else v
+                for k, v in line.items()}
+
+        variant = {
+            'genes': [gene_ids_by_name[line['Gene']]],
+            'chrom': line['Chr'],
+            'pos': int(line['Start'].replace(',', '')),
+            'rsid': '.',
+            'ref': line['Ref'],
+            'alt': line['Var'],
+            'eff_annotations' : [{
+                'Gene_Name' : line['Gene'],
+                'Amino_Acid_Change' : '/'.join(
+                    line[nom] for nom in ('Protein', 'cDNA') if line[nom]),
+                'Effect' : types.get(line['Type']) or line['Type'],
+                # 'Transcript_BioType' : 'protein_coding',
+                # 'Gene_Coding' : 'CODING',
+                # 'Transcript_ID' : 'ENST00000345108',
+                # 'Amino_Acid_length' : '321',
+                # 'Effect_Impact' : 'MODIFIER',
+            }],
+            'allele_count': int(line['All carrier count']),
+            'allele_num': ALLELE_NUM,
+            'hom_count': int(line['Homoz']),
+            'pop_acs': {
+                'African American': int(line['AA']),
+                'European American': int(line['EA']),
+            },
+            'pop_ans': POP_NUM,
+            'quality_metrics': {'MQ': float(line['Max_MQ'])},
+            'site_quality': float(line['Max_qual']),
+            'transcripts': [line['Isoform']],
+            'filter': 'PASS',
+        }
+
+        if line['Gene'] == 'RECQL':
+            variant.update({
+                'allele_num': ALLELE_NUM_RECQL,
+                'pop_ans': POP_NUM_RECQL,
+            })
+
+
+        xpos = get_xpos(variant['chrom'], variant['pos'])
+        variant.update({
+            'variant_id': '-'.join((variant['chrom'], str(variant['pos']),
+                                    variant['ref'], variant['alt'])),
+            'allele_freq': float(variant['allele_count']) / variant['allele_num'],
+            'xpos': xpos,
+            'xstart': xpos,
+            'xstop': xpos + len(variant['alt']) - len(variant['ref']),
+        })
+
+        yield variant
 
 
 def get_mnp_data(mnp_file):

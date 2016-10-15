@@ -55,6 +55,7 @@ app.config.update(dict(
     SECRET_KEY='development key',
     LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
     SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'whi_merged.vcf.gz')),
+    VARIANTS_TSV=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'whi_variants.tsv'),
     GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     CANONICAL_TRANSCRIPTS_YAML=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'transcripts.yaml'),
@@ -194,6 +195,26 @@ def load_variants_file():
     return procs
 
     #print 'Done loading variants. Took %s seconds' % int(time.time() - start_time)
+
+
+def load_variants_tsv():
+    db = get_db()
+    gene_ids_by_name = {g['gene_name_upper']: g['gene_id'] for g in db.genes.find()}
+    all_transcripts = set(t['transcript_id'] for t in db.transcripts.find({}, {'transcript_id': True}))
+
+    db.variants.drop()
+    print("Dropped db.variants")
+
+    db.variants.ensure_index('xpos')
+    db.variants.ensure_index('xstart')
+    db.variants.ensure_index('xstop')
+    db.variants.ensure_index('rsid')
+    db.variants.ensure_index('genes')
+    db.variants.ensure_index('transcripts')
+
+    with open(app.config['VARIANTS_TSV']) as f:
+        variants = get_variants_from_whi_tsv(f, all_transcripts, gene_ids_by_name)
+        db.variants.insert(variants, w=0)
 
 
 def load_constraint_information():

@@ -167,6 +167,8 @@ csq_order = ["transcript_ablation",
 "splice_donor_variant",
 "stop_gained",
 "frameshift_variant",
+"frameshift_insertion",
+"frameshift_deletion",
 "stop_lost",
 "start_lost",  # new in v81
 "initiator_codon_variant",  # deprecated

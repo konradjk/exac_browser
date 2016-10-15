@@ -26,6 +26,16 @@ def load_variants_file():
 
 
 @manager.command
+def load_variants_file():
+    exac.load_variants_file()
+
+
+@manager.command
+def load_variants_tsv():
+    exac.load_variants_tsv()
+
+
+@manager.command
 def reload_variants():
     exac.load_variants_file()
     exac.load_mnps()
