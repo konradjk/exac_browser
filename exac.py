@@ -757,8 +757,8 @@ def get_gene_page_content(gene_id):
                 constraint=constraint_info,
                 uw_fields=UW_FIELDS,
             )
-            cache.set(cache_key, t, timeout=1000*60)
-        print 'Rendering gene: %s' % gene_id
+            cache.set(cache_key, t)
+            print 'Rendering gene: %s' % gene_id
         return t
     except Exception, e:
         print 'Failed on gene:', gene_id, ';Error=', traceback.format_exc()
@@ -803,7 +803,7 @@ def transcript_page(transcript_id):
                 cnvgenes_json=json.dumps(cnvs_per_gene),
                 uw_fields=UW_FIELDS,
             )
-            cache.set(cache_key, t, timeout=1000*60)
+            cache.set(cache_key, t)
         print 'Rendering transcript: %s' % transcript_id
         return t
     except Exception, e:
