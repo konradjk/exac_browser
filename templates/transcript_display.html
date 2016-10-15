@@ -4,7 +4,9 @@
     <dd><span id="avg_coverage"></span></dd>
 </dl>
 #}
-<div id="gene_plot" class="row card">
+
+<div class="row caption">Gene Summary</div>
+<div id="gene_plot" class="row card captioned">
 {# WHI
     <span class="hidden-xs">
         <label for="display_coverage_metric_group">
@@ -28,7 +30,6 @@
     {# No coverage for WHI data
     {% include 'coverage_selectors.html' %}
     #}
-    <div id="col-md-12" class="caption">Gene Summary</div>
     <div id="gene_plot_container_container">
         <div id="loading_coverage">
             Loading...

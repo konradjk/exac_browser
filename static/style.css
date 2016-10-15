@@ -132,7 +132,9 @@ a, a:hover, .dropdown-toggle {
 
 #home-splash {
     height: 400px;
-    background-image: url('/static/homePage_headerImage@2x.png');
+    padding-top: 50px;
+    background-color: #546;
+    /* background-image: url('/static/homePage_headerImage@2x.png'); */
     background-position: center;
     background-size: auto 100%;
 }
@@ -158,6 +160,11 @@ a, a:hover, .dropdown-toggle {
     padding: 20px;
 }
 
+.card.captioned {
+    margin-top: 0;
+    padding-top: 0;
+}
+
 .card, #site-banner {
     background-color: #fff;
 }
@@ -166,7 +173,7 @@ a, a:hover, .dropdown-toggle {
     text-align: left;
 }
 
-.about .card *, #home-text, #genes h1, #logos, .banner {
+#about-intro *, #exac, #home-text, #genes h1, #logos, .banner {
     text-align: center;
 }
 
@@ -246,9 +253,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .table caption, .caption {
     background-color: #546;
+    text-align: left;
     color: white;
     font-size: 24px;
     padding: 10px;
+    padding-left: 20px;
     font-variant: all-small-caps;
 }
 
