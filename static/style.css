@@ -177,6 +177,11 @@ a, a:hover, .dropdown-toggle {
     text-align: center;
 }
 
+#home-text {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
 #genes table {
     border-collapse: separate;
     border-spacing: 10px;
@@ -237,7 +242,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .table > tbody > tr > td {
-    overflow: hidden;
+    overflow: auto;
     text-overflow: ellipsis;
     white-space: nowrap;
     vertical-align: middle;
@@ -259,6 +264,12 @@ h1, h2, h3, h4, h5, h6 {
     padding: 10px;
     padding-left: 20px;
     font-variant: all-small-caps;
+}
+
+.table caption a {
+    color: white;
+    font-size: large;
+    font-variant: normal;
 }
 
 .consequence_display_buttons {
@@ -310,6 +321,14 @@ h1, h2, h3, h4, h5, h6 {
 
 #gene-misc > .dropdown, #variant-misc > .dropdown {
     margin-right: -10px;
+}
+
+#frequency_table_container {
+    padding-left: 0;
+}
+
+#annotation_table_container {
+    padding-right: 0;
 }
 
 .gray {

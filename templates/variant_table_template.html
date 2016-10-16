@@ -13,6 +13,9 @@
 <table id="variant_table" class="tablesorter table table-striped table-bordered table-hover">
     <caption>
         Variants
+        <a id="export_to_csv" class="pull-right" href="">
+            <i class="fa fa-arrow-right fa-20px"></i> Export table to CSV
+        </a>
     </caption>
     <thead>
         <tr id="variant_consequence_types" class="btn-group tablesorter-ignoreRow sticky-false" data-toggle="buttons">
@@ -85,7 +88,7 @@
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
             category="<%= variant.category %>" consequence="<%= variant.major_consequence %>" frequency="<%= variant.allele_freq %>">
             <td class="omit_csv">
-                <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank">
+                <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>">
                 <%= variant.chrom %>:<%= variant.pos %>
                 <%= variant.ref %>
                 <%= variant.alt %>
@@ -122,7 +125,7 @@
             <td class="hidden">
                 <% _.each(variant.flags, function(flag) { %>
                     <% if (flag == 'LoF flag') { span_tag = 'warning' } else { span_tag = 'danger' } %>
-                    <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>" target="_blank"><span class="label label-<%= span_tag %> tooltip-table-header" data-tooltip="Variant annotation dubious: &#xa; see variant page for details"><%= flag %></span></a>
+                    <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>"><span class="label label-<%= span_tag %> tooltip-table-header" data-tooltip="Variant annotation dubious: &#xa; see variant page for details"><%= flag %></span></a>
                 <% }); %></td>
             <td> <%= variant.allele_count %> </td>
             <td class='hidden'> <%= variant.allele_num %> </td>

@@ -1,40 +1,39 @@
 {% extends "layout.html" %}
 {% block body %}
-    <script>
-        $('#navbar_form_container').hide();
-    </script>
-    <div class="container home">
-        <div id="home-splash" class="row">
-            <h1 class="col-md-8 col-md-offset-2" id="home-title">
-                A database of germline genomic variation in healthy older women.
-            </h1>
-            <div class="col-md-6 col-md-offset-3">
-                <div id="home-searchbox">
-                    <form action="/awesome">
-                        <input type="submit" style="display: none;"/>
-                        <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search by gene, variant, or transcript"/>
-                        <input type="submit" style="position: absolute; left: -9999px"/>
-                    </form>
-                    <p id="home-examples" class="text-muted">
-                        Ex:
-                        <a href="/awesome?query=BRCA1">BRCA1</a>,
-                        <a href="/transcript/ENST00000260947">ENST00000260947</a>,
-                        <a href="/variant/22-29091121-C-CT">22-29091121-C-CT</a>,
-                        <a href="/region/16-68771128-68869451">chr16:68771128</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            {% include 'logos.html' %}
-        </div>
-
-        <div id="home-text" class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <br />
-                {% include 'about_text.html' %}
+<script>
+    $('#navbar_form_container').hide();
+</script>
+<div class="container home">
+    <div id="home-splash" class="row">
+        <h1 class="col-md-8 col-md-offset-2" id="home-title">
+            A database of germline genomic variation in healthy older women.
+        </h1>
+        <div class="col-md-6 col-md-offset-3">
+            <div id="home-searchbox">
+                <form action="/awesome">
+                    <input type="submit" style="display: none;"/>
+                    <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search by gene, variant, or transcript"/>
+                    <input type="submit" style="position: absolute; left: -9999px"/>
+                </form>
+                <p id="home-examples" class="text-muted">
+                    Ex:
+                    <a href="/awesome?query=BRCA1">BRCA1</a>,
+                    <a href="/transcript/ENST00000260947">ENST00000260947</a>,
+                    <a href="/variant/22-29091121-C-CT">22-29091121-C-CT</a>,
+                    <a href="/region/16-68771128-68869451">chr16:68771128</a>
+                </p>
             </div>
         </div>
     </div>
+
+    <div class="row">
+        {% include 'logos.html' %}
+    </div>
+
+    <div id="home-text" class="row">
+        <div class="col-md-8 col-md-offset-2">
+            {% include 'about_text.html' %}
+        </div>
+    </div>
+</div>
 {% endblock %}
