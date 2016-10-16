@@ -199,9 +199,6 @@ def load_variants_file():
 
 def load_variants_tsv():
     db = get_db()
-    gene_ids_by_name = {g['gene_name_upper']: g['gene_id'] for g in db.genes.find()}
-    all_transcripts = set(t['transcript_id'] for t in db.transcripts.find({}, {'transcript_id': True}))
-
     db.variants.drop()
     print("Dropped db.variants")
 
@@ -212,8 +209,9 @@ def load_variants_tsv():
     db.variants.ensure_index('genes')
     db.variants.ensure_index('transcripts')
 
+    genes = {g['gene_name_upper']: g for g in db.genes.find()}
     with open(app.config['VARIANTS_TSV']) as f:
-        variants = get_variants_from_whi_tsv(f, all_transcripts, gene_ids_by_name)
+        variants = get_variants_from_whi_tsv(f, genes)
         db.variants.insert(variants, w=0)
 
 

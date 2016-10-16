@@ -118,7 +118,7 @@ protein_letters_1to3 = {
 
 def get_proper_hgvs(csq):
     # Needs major_consequence
-    if csq['major_consequence'] in ('splice_donor_variant', 'splice_acceptor_variant', 'splice_region_variant'):
+    if csq['major_consequence'].startswith('splice'):
         return get_transcript_hgvs(csq)
     else:
         return get_protein_hgvs(csq)
@@ -163,6 +163,7 @@ def get_protein_hgvs(annotation):
 
 # Note that this is the current as of v81 with some included for backwards compatibility (VEP <= 75)
 csq_order = ["transcript_ablation",
+"splice",
 "splice_acceptor_variant",
 "splice_donor_variant",
 "stop_gained",
@@ -177,6 +178,7 @@ csq_order = ["transcript_ablation",
 "inframe_deletion",
 "missense_variant",
 "protein_altering_variant",  # new in v79
+"nonsense",
 "splice_region_variant",
 "incomplete_terminal_codon_variant",
 "stop_retained_variant",
@@ -188,6 +190,7 @@ csq_order = ["transcript_ablation",
 "non_coding_transcript_exon_variant",
 "non_coding_exon_variant",  # deprecated
 "intron_variant",
+"silent",
 "NMD_transcript_variant",
 "non_coding_transcript_variant",
 "nc_transcript_variant",  # deprecated

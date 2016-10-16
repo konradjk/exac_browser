@@ -23,6 +23,7 @@ POP_NUM = {
     'African American': 2530,
     'European American': 7239,
 }
+# RECQL was only sequenced by UW, so its population sizes are different
 POP_NUM_RECQL = {
     'African American': 1260,
     'European American': 3578,
@@ -224,18 +225,15 @@ def get_variants_from_sites_vcf(sites_vcf, all_transcripts, gene_ids_by_name=Non
             raise
 
 
-def get_variants_from_whi_tsv(tsv_file, all_transcripts, gene_ids_by_name=None):
+def get_variants_from_whi_tsv(tsv_file, genes):
     """
     Parse a TSV variant file for the WHI project, returns iter of variant dicts.
 
     sites_tsv is a file object, not file path
-    all_transcripts is a set of string transcript ids
-    gene_ids_by_name is a dict mapping gene_name_upper to gene_id
+    genes is a dict of mongo gene objects, keyed by gene_name_upper
     """
-    if not gene_ids_by_name:
-        gene_ids_by_name = {}
-
-    types = {  # maps line['Type'] to utils.csq_order
+    # maps line['Type'] to utils.csq_order
+    types = {
         'UTR3': '3_prime_UTR_variant',
         'UTR5': '5_prime_UTR_variant',
         'delFS': 'frameshift_deletion',
@@ -245,9 +243,9 @@ def get_variants_from_whi_tsv(tsv_file, all_transcripts, gene_ids_by_name=None):
         'intronic': 'intron_variant',
         'missense': 'missense_variant',
         'stoploss': 'stop_lost',
-        # 'nonsense': '',
-        # 'silent': '',
-        # 'splice': '',
+        'nonsense': 'nonsense',
+        'silent': 'silent',
+        'splice': 'splice',
     }
 
     for line in csv.DictReader(tsv_file, dialect='excel-tab'):
@@ -257,27 +255,50 @@ def get_variants_from_whi_tsv(tsv_file, all_transcripts, gene_ids_by_name=None):
         line = {k: (0 if k in numeric else '') if v == '-' else v
                 for k, v in line.items()}
 
+        gene = genes[line['Gene']]
+        nomenclatures = []
+        if line['Protein']:
+            nomenclatures.append('p.%s' % line['Protein'])
+        if line['cDNA']:
+            nomenclatures.append(line['cDNA'])
+
+        annotations = [{
+            'Gene_Name' : line['Gene'],
+            'Amino_Acid_Change' : '/'.join(nomenclatures),
+            'Effect' : types[line['Type']],
+            'Transcript_ID' : gene['canonical_transcript'],
+            'Transcript_ID_NM' : line['Isoform'],
+        }]
+
+        # TODO: show these somewhere on the variant page
+        # if line['Isoforms']:
+        #     for iso in line['Isoforms'].split(';'):
+        #         nm, hgvsc, hgvsp = iso.split(':')
+        #         annotations.extend([{
+        #             'Gene_Name' : line['Gene'],
+        #             'Amino_Acid_Change' : '%s/%s' % (hgvsc, hgvsp),
+        #             'Transcript_ID_NM' : nm,
+        #             'Effect' : '',
+        #             'Transcript_ID' : '',
+        #         }])
+
         variant = {
-            'genes': [gene_ids_by_name[line['Gene']]],
+            'genes': [gene['gene_id']],
+            # line['Isoform'] has this in NM notation
+            'transcripts': [gene['canonical_transcript']],
             'chrom': line['Chr'],
             'pos': int(line['Start'].replace(',', '')),
             'rsid': '.',
             'ref': line['Ref'],
             'alt': line['Var'],
-            'eff_annotations' : [{
-                'Gene_Name' : line['Gene'],
-                'Amino_Acid_Change' : '/'.join(
-                    line[nom] for nom in ('Protein', 'cDNA') if line[nom]),
-                'Effect' : types.get(line['Type']) or line['Type'],
-                # 'Transcript_BioType' : 'protein_coding',
-                # 'Gene_Coding' : 'CODING',
-                # 'Transcript_ID' : 'ENST00000345108',
-                # 'Amino_Acid_length' : '321',
-                # 'Effect_Impact' : 'MODIFIER',
-            }],
+            'eff_annotations' : annotations,
+            'vep_annotations': [],
+            'lof_annotations': [],
+            'nmd_annotations': [],
             'allele_count': int(line['All carrier count']),
             'allele_num': ALLELE_NUM,
             'hom_count': int(line['Homoz']),
+            'pop_homs': {},
             'pop_acs': {
                 'African American': int(line['AA']),
                 'European American': int(line['EA']),
@@ -285,17 +306,17 @@ def get_variants_from_whi_tsv(tsv_file, all_transcripts, gene_ids_by_name=None):
             'pop_ans': POP_NUM,
             'quality_metrics': {'MQ': float(line['Max_MQ'])},
             'site_quality': float(line['Max_qual']),
-            'transcripts': [line['Isoform']],
             'filter': 'PASS',
         }
 
+        # RECQL was only sequenced by UW, so its total population size is different
         if line['Gene'] == 'RECQL':
             variant.update({
                 'allele_num': ALLELE_NUM_RECQL,
                 'pop_ans': POP_NUM_RECQL,
             })
 
-
+        # derived fields
         xpos = get_xpos(variant['chrom'], variant['pos'])
         variant.update({
             'variant_id': '-'.join((variant['chrom'], str(variant['pos']),
