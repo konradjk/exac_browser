@@ -31,6 +31,41 @@ POP_NUM_RECQL = {
 ALLELE_NUM = sum(POP_NUM.values())
 ALLELE_NUM_RECQL = sum(POP_NUM_RECQL.values())
 
+UW_FIELDS = (
+    'Chr',
+    'Start',
+    'Ref',
+    'Var',
+    'Type',
+    'Gene',
+    'Protein',
+    'cDNA',
+    'Splice change (MaxEnt)',
+    'Isoform',
+    'PPH2',
+    'Gerp',
+    '1000G EA',
+    '1000G AA',
+    'Exac counts',
+    'Max all reads',
+    'Max var reads',
+    'Max prop',
+    'Hets',
+    'Homoz',
+    'EA',
+    'AA',
+    'All carrier count',
+    'MAF EA',
+    'MAF AA',
+    'HWE',
+    'Max qual',
+    'Max MQ',
+    'GATK filter',
+    'ExAC max MAF',
+    'ExAC pop (max MAF)',
+    'Isoforms',
+)
+
 
 def get_base_coverage_from_file(base_coverage_file):
     """
@@ -248,7 +283,8 @@ def get_variants_from_whi_tsv(tsv_file, genes):
         'splice': 'splice',
     }
 
-    for line in csv.DictReader(tsv_file, dialect='excel-tab'):
+    reader = csv.DictReader(tsv_file, dialect='excel-tab')
+    for line in reader:
         # normalize '-' to blank or 0
         numeric = {'Start', 'All carrier count', 'Homoz', 'AA', 'EA',
                    'Max_qual', 'Max_MQ'}
@@ -270,7 +306,7 @@ def get_variants_from_whi_tsv(tsv_file, genes):
             'Transcript_ID_NM' : line['Isoform'],
         }]
 
-        # TODO: show these somewhere on the variant page
+        # maybe TODO
         # if line['Isoforms']:
         #     for iso in line['Isoforms'].split(';'):
         #         nm, hgvsc, hgvsp = iso.split(':')
@@ -307,6 +343,7 @@ def get_variants_from_whi_tsv(tsv_file, genes):
             'quality_metrics': {'MQ': float(line['Max_MQ'])},
             'site_quality': float(line['Max_qual']),
             'filter': 'PASS',
+            'uw': [line[field] for field in reader.fieldnames],
         }
 
         # RECQL was only sequenced by UW, so its total population size is different

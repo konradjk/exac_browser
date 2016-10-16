@@ -755,7 +755,8 @@ def get_gene_page_content(gene_id):
                 coverage_stats=coverage_stats,
                 cnvs = cnvs_in_transcript,
                 cnvgenes = cnvs_per_gene,
-                constraint=constraint_info
+                constraint=constraint_info,
+                uw_fields=UW_FIELDS,
             )
             cache.set(cache_key, t, timeout=1000*60)
         print 'Rendering gene: %s' % gene_id
@@ -797,7 +798,8 @@ def transcript_page(transcript_id):
                 cnvs = cnvs_in_transcript,
                 cnvs_json=json.dumps(cnvs_in_transcript),
                 cnvgenes = cnvs_per_gene,
-                cnvgenes_json=json.dumps(cnvs_per_gene)
+                cnvgenes_json=json.dumps(cnvs_per_gene),
+                uw_fields=UW_FIELDS,
             )
             cache.set(cache_key, t, timeout=1000*60)
         print 'Rendering transcript: %s' % transcript_id
@@ -830,7 +832,8 @@ def region_page(region_id):
                     chrom=chrom,
                     start=start,
                     stop=stop,
-                    coverage=None
+                    coverage=None,
+                    uw_fields=UW_FIELDS,
                 )
             if start == stop:
                 start -= 20
@@ -847,7 +850,8 @@ def region_page(region_id):
                 chrom=chrom,
                 start=start,
                 stop=stop,
-                coverage=coverage_array
+                coverage=coverage_array,
+                uw_fields=UW_FIELDS,
             )
         print 'Rendering region: %s' % region_id
         return t
