@@ -75,7 +75,7 @@ a, a:hover, .dropdown-toggle {
 .navbar-brand a {
     vertical-align: bottom;
     font-size: 36px;
-    color: #a15eb6;
+    color: #546;
 }
 
 #navbar_form_container {
@@ -220,6 +220,10 @@ a, a:hover, .dropdown-toggle {
     margin-top: 40px;
 }
 
+#logos a:hover {
+    text-decoration: none;
+}
+
 .banner > div {
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
@@ -250,15 +254,11 @@ a, a:hover, .dropdown-toggle {
 }
 
 .tt-query {
-  color: #000;
+    color: #000;
 }
 
 .tt-hint {
-  color: #999;
-}
-
-.table {
-    table-layout: fixed;
+    color: #999;
 }
 
 #frequency_table, #annotation_table {
@@ -296,7 +296,12 @@ a, a:hover, .dropdown-toggle {
     font-variant: normal;
 }
 
+#variant_table td {
+    max-width: 200px;
+}
+
 .consequence_display_buttons {
+    display: inline;
     color: #000 !important;
     border: 1px solid #ddd !important;
     cursor: pointer;

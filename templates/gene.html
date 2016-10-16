@@ -12,6 +12,7 @@
         window.page_name = window.gene.gene_id;
         window.cnvs = {{ cnvs|tojson|safe }};
         window.cnvgenes = {{ cnvgenes|tojson|safe }};
+        window.uw_fields = {{ uw_fields|tojson|safe }};
 
         $(document).ready(function() {
             $("#variants_loading").hide();
