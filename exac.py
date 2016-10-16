@@ -596,33 +596,32 @@ def variant_page(variant_str):
         logging.info(sqlite_db_path)
         try:
             read_viz_db = sqlite3.connect(sqlite_db_path)
-            if chrom in ('X', 'Y'):
-                n_het = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'het')).fetchone()
-                n_hom = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hom')).fetchone()
-                n_hemi = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hemi')).fetchone()
-            else:
-                n_het = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'het')).fetchone()
-                n_hom = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
-                    "where chrom=? and pos=? and ref=? and alt=? and het_or_hom=?", (chrom, pos, ref, alt, 'hom')).fetchone()
-                n_hemi = None
+            n_het = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
+                                        "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'het')).fetchone()
+            n_hom = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
+                                        "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hom')).fetchone()
+            n_hemi = read_viz_db.execute("select n_expected_samples, n_available_samples from t "
+                                         "where chrom=? and pos=? and ref=? and alt=? and het_or_hom_or_hemi=?", (chrom, pos, ref, alt, 'hemi')).fetchone()
             read_viz_db.close()
         except Exception, e:
             logging.error("Error when accessing sqlite db: %s - %s", sqlite_db_path, e)
             n_het = n_hom = n_hemi = None
 
         read_viz_dict = {
-            'het': {'n_expected': n_het[0] if n_het is not None and n_het[0] is not None else -1, 'n_available': n_het[1] if n_het and n_het[1] else 0,},
-            'hom': {'n_expected': n_hom[0] if n_hom is not None and n_hom[0] is not None else -1, 'n_available': n_hom[1] if n_hom and n_hom[1] else 0,},
-            'hemi': {'n_expected': n_hemi[0] if n_hemi is not None and n_hemi[0] is not None else -1, 'n_available': n_hemi[1] if n_hemi and n_hemi[1] else 0,},
+            'het': {'n_expected': n_het[0] if n_het is not None and n_het[0] is not None else 0, 
+                    'n_available': n_het[1] if n_het is not None and n_het[1] is not None else 0,},
+            'hom': {'n_expected': n_hom[0] if n_hom is not None and n_hom[0] is not None else 0, 
+                    'n_available': n_hom[1] if n_hom is not None  and n_hom[1] is not None else 0,},
+            'hemi': {'n_expected': n_hemi[0] if n_hemi is not None and n_hemi[0] is not None else 0, 
+                     'n_available': n_hemi[1] if n_hemi is not None and n_hemi[1] is not None else 0,},
         }
 
+        total_available = 0
+        total_expected = 0
         for het_or_hom_or_hemi in ('het', 'hom', 'hemi'):
-            #read_viz_dict[het_or_hom_or_hemi]['some_samples_missing'] = (read_viz_dict[het_or_hom_or_hemi]['n_expected'] > 0)    and (read_viz_dict[het_or_hom_or_hemi]['n_expected'] - read_viz_dict[het_or_hom_or_hemi]['n_available'] > 0)
-            read_viz_dict[het_or_hom_or_hemi]['all_samples_missing'] = (read_viz_dict[het_or_hom_or_hemi]['n_expected'] != 0) and (read_viz_dict[het_or_hom_or_hemi]['n_available'] == 0)
+            total_available += read_viz_dict[het_or_hom_or_hemi]['n_available']
+            total_expected += read_viz_dict[het_or_hom_or_hemi]['n_expected']
+
             read_viz_dict[het_or_hom_or_hemi]['readgroups'] = [
                 '%(chrom)s-%(pos)s-%(ref)s-%(alt)s_%(het_or_hom_or_hemi)s%(i)s' % locals()
                     for i in range(read_viz_dict[het_or_hom_or_hemi]['n_available'])
@@ -634,6 +633,9 @@ def variant_page(variant_str):
                 os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
                     for i in range(read_viz_dict[het_or_hom_or_hemi]['n_available'])
             ]
+
+        read_viz_dict['total_available'] = total_available
+        read_viz_dict['total_expected'] = total_expected
 
 
         print 'Rendering variant: %s' % variant_str
@@ -893,8 +895,6 @@ def read_viz_files(path):
     if not full_path.startswith(app.config["READ_VIZ_DIR"]):
         return "Invalid path: %s" % path
 
-    logging.info("path: " + full_path)
-
     # handle igv.js Range header which it uses to request a subset of a .bam
     range_header = request.headers.get('Range', None)
     if not range_header:
@@ -918,7 +918,7 @@ def read_viz_files(path):
     rv = Response(data, 206, mimetype="application/octet-stream", direct_passthrough=True)
     rv.headers.add('Content-Range', 'bytes {0}-{1}/{2}'.format(offset, offset + length - 1, size))
 
-    logging.info("GET range request: %s-%s %s" % (m.group(1), m.group(2), full_path))
+    logging.info("readviz: range request: %s-%s %s" % (m.group(1), m.group(2), full_path))
     return rv
 
 

@@ -414,47 +414,28 @@
             </div>
         </div>
 
+        {% if read_viz['total_expected'] > 0 %}
 
-        <hr/>
+            <hr/>
 
             <div class="row">
                 <div class="col-md-12">
                     <div class="section_header">Read Data</div>
                     <p/>
+                    {% if read_viz['total_available'] == 0 %}
+                    <h5 id='missing-data-note' style='margin-right:60%'>
+                      <span class="label label-danger">Error:</span> &nbsp; Read data not available for this variant.
+                    </h5>
+                    <br><br>
+                    {% else %}
                     This interactive <a href="https://github.com/igvteam/igv.js">IGV.js</a> visualization shows reads
                     that went into calling this variant.<br>
-                    {% if read_viz['het']['n_available'] > 0 or read_viz['hom']['n_available'] > 0 or read_viz['hemi']['n_available'] > 0 %}
                     <small><span class="label label-info">Note:</span> These are reassembled reads produced by
                         <a href="https://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_haplotypecaller_HaplotypeCaller.php#--bamOutput">
                             GATK HaplotypeCaller --bamOutput
                         </a> so they accurately represent what HaplotypeCaller was seeing when it called this variant.
                     </small>
-                    {% endif %}
-
                     <br><br>
-
-
-                    {% if read_viz['het']['all_samples_missing'] or read_viz['hom']['all_samples_missing'] or (variant.chrom in ('X', 'Y') and read_viz['hemi']['all_samples_missing']) %}
-                    <center>
-                        <h5 id='missing-data-note' style='margin-right:60%'>
-                            <span class="label label-info">Note:</span> &nbsp; Read data is not available for
-                            {% if read_viz['het']['n_available'] == 0 and read_viz['hom']['n_available'] == 0 %} this variant.
-                            {% elif read_viz['het']['all_samples_missing'] %} heterozygous samples.
-                            {% elif read_viz['hom']['all_samples_missing'] %} homozygous samples.
-                            {% elif variant.chrom in ('X', 'Y') and read_viz['hemi']['all_samples_missing'] %} hemizygous samples.
-                            {% endif %}
-
-                        </h5>
-
-                        <!--
-                        <h5 id='missing-additional-data-note' style='display:none; margin-right:60%' >
-                            <span class="label label-info">Note:</span> &nbsp; Oops! Additional read data is not available yet.
-                        </h5>
-                        -->
-                    </center>
-                    <br>
-
-                    {% else %}
 
                     <div id="igv-container"></div>
                     <br><br>
@@ -653,6 +634,7 @@
                     {% endif %}
                 </div>
             </div>
+	    {% endif %}
         </div>
 
 {#% endif %#}
