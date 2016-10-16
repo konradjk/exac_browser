@@ -1,3 +1,7 @@
+/* purple colors
+ * light: #a15eb6
+ * rich: #546
+ */
 body {
     font-family: Gotham, Helvetica;
     font-weight: lighter;
@@ -173,8 +177,16 @@ a, a:hover, .dropdown-toggle {
     text-align: left;
 }
 
-#about-intro *, #exac, #home-text, #genes h1, #logos, .banner {
+#about-intro {
+    margin-top: 0;
+}
+
+#about-intro *, #home-text, #genes h1, #logos, .banner {
     text-align: center;
+}
+
+.about a, #home-text a {
+    white-space: nowrap;
 }
 
 #home-text {
@@ -188,13 +200,17 @@ a, a:hover, .dropdown-toggle {
     font-style: italic;
 }
 
-.about .card h1, .about .card h2, .about .card h3 {
+.about .card h1 {
     margin-bottom: 40px;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    margin-top: 10px;
+.about .card h3 {
+    margin-top: 40px;
 }
+
+/* h1, h2, h3, h4, h5, h6 { */
+/*     margin-top: 10px; */
+/* } */
 
 .pull-right {
     text-align: right;
@@ -211,6 +227,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .banner i {
     color: gray;
+}
+
+#footnotes {
+    padding-left: 0;
+}
+
+#footnotes li {
+    list-style: none;
 }
 
 .twitter-typeahead {
@@ -310,7 +334,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 24px;
 }
 
-#gene-header, #variant-header {
+.card-header {
     padding-left: 1em;
     padding-right: 1em;
 }

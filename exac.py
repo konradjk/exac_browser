@@ -621,10 +621,8 @@ def awesome():
         return redirect('/region/{}'.format(identifier))
     elif datatype == 'dbsnp_variant_set':
         return redirect('/dbsnp/{}'.format(identifier))
-    elif datatype == 'error':
+    elif datatype in ('error', 'not_found'):
         return redirect('/error/{}'.format(identifier))
-    elif datatype == 'not_found':
-        return redirect('/not_found/{}'.format(identifier))
     else:
         raise Exception
 
