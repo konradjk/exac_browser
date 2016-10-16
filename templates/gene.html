@@ -129,6 +129,14 @@
             </div>
         </div>
 
+        {% if gene.gene_name == 'RECQL' %}
+        <div id="gene-banner" class="row card">
+            <div class="col-md-12">
+                RECQL was only sequenced for 4838 participants. Variant frequency data reflects this.
+            </div>
+        </div>
+        {% endif %}
+
         {% with plot_id = gene.gene_name %}
         {% include 'transcript_display.html' %}
         {% endwith %}

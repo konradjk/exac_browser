@@ -754,6 +754,7 @@ def get_gene_page_content(gene_id):
                 cnvgenes = cnvs_per_gene,
                 constraint=constraint_info,
                 uw_fields=UW_FIELDS,
+                recql_num=ALLELE_NUM_RECQL,
             )
             cache.set(cache_key, t)
             print 'Rendering gene: %s' % gene_id

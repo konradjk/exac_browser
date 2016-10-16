@@ -229,8 +229,10 @@ a, a:hover, .dropdown-toggle {
     border-bottom: 1px solid #ccc;
 }
 
-.banner i {
-    color: gray;
+#gene-banner {
+    background-color: #ccc;
+    margin-top: -20px;
+    padding: 10px;
 }
 
 #footnotes {
