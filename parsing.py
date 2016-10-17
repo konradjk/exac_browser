@@ -31,22 +31,15 @@ POP_NUM_RECQL = {
 ALLELE_NUM = sum(POP_NUM.values())
 ALLELE_NUM_RECQL = sum(POP_NUM_RECQL.values())
 
+# Fields from UW to display verbatim
 UW_FIELDS = (
-    'Chr',
-    'Start',
-    'Ref',
-    'Var',
     'Type',
-    'Gene',
     'Protein',
     'cDNA',
     'Splice change (MaxEnt)',
     'Isoform',
     'PPH2',
     'Gerp',
-    '1000G EA',
-    '1000G AA',
-    'Exac counts',
     'Max all reads',
     'Max var reads',
     'Max prop',
@@ -58,11 +51,9 @@ UW_FIELDS = (
     'MAF EA',
     'MAF AA',
     'HWE',
-    'Max qual',
-    'Max MQ',
+    'Max_qual',
+    'Max_MQ',
     'GATK filter',
-    'ExAC max MAF',
-    'ExAC pop (max MAF)',
     'Isoforms',
 )
 
@@ -343,7 +334,7 @@ def get_variants_from_whi_tsv(tsv_file, genes):
             'quality_metrics': {'MQ': float(line['Max_MQ'])},
             'site_quality': float(line['Max_qual']),
             'filter': 'PASS',
-            'uw': [line[field] for field in reader.fieldnames],
+            'uw': [line[field] for field in UW_FIELDS],
         }
 
         # RECQL was only sequenced by UW, so its total population size is different
