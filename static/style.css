@@ -1,6 +1,6 @@
 /* purple colors
  * light: #a15eb6
- * rich: #546
+ * rich/dark: #6766a4
  */
 body {
     font-family: Gotham A, Helvetica;
@@ -71,7 +71,7 @@ a, a:hover, .dropdown-toggle {
 .navbar-brand a {
     vertical-align: bottom;
     font-size: 36px;
-    color: #546;
+    color: #6766a4;
 }
 
 #navbar_form_container {
@@ -133,7 +133,7 @@ a, a:hover, .dropdown-toggle {
 #home-splash {
     height: 400px;
     padding-top: 50px;
-    background-color: #546;
+    background-color: #6766a4;
     /* background-image: url('/static/homePage_headerImage@2x.png'); */
     background-position: center;
     background-size: auto 100%;
@@ -279,7 +279,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .table caption, .caption {
-    background-color: #546;
+    background-color: #6766a4;
     text-align: left;
     color: white;
     text-transform: uppercase;
