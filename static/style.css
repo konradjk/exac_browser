@@ -3,7 +3,7 @@
  * rich: #546
  */
 body {
-    font-family: Helvetica;
+    font-family: Gotham A, Helvetica;
     font-weight: lighter;
     font-size: large;
     background-color: #eee;
@@ -171,10 +171,6 @@ a, a:hover, .dropdown-toggle {
 
 #genes * {
     text-align: left;
-}
-
-#about-intro {
-    margin-top: 0;
 }
 
 #about-intro *, #home-text, #genes h1, #logos, .banner {
