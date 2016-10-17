@@ -64,10 +64,6 @@ a, a:hover, .dropdown-toggle {
     color: #888;
 }
 
-.navbar * {
-    height: 100%;
-}
-
 .navbar-brand {
     margin-top: 20px;
 }
