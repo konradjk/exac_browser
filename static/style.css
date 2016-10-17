@@ -3,7 +3,7 @@
  * rich/dark: #6766a4
  */
 body {
-    font-family: Gotham A, Helvetica;
+    font-family: "Gotham A", "Gotham B", sans-serif;
     font-weight: lighter;
     font-size: large;
     background-color: #eee;
@@ -364,6 +364,10 @@ h1, h2, h3, h4, h5, h6 {
 .synonymous_variant {
     color: #157e28 !important;
     fill: #157e28 !important;
+}
+
+#gene_plot {
+    overflow: auto;
 }
 
 .tooltip_hover {

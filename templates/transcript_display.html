@@ -578,10 +578,11 @@ function refresh_links() {
 }
 
 $(document).ready(function() {
+    // Also handling this with overflow: auto on containing div.
     if ($(window).width() < 768) {
         $('#gene_plot_container').css('width', $(window).width() + "px");
     } else {
-        $('#gene_plot_container').css('width', $(window).width()*11/12 + "px");
+        $('#gene_plot_container').css('width', "100%");
     }
     precalc_coding_coordinates(window.transcript, window.coverage_stats, 'pos');
     precalc_coding_coordinates(window.transcript, window.variants_in_transcript, 'pos');
