@@ -45,10 +45,8 @@
             <th class="hidden">Reference</th>
             <th class="hidden">Alternate</th>
 
-            <th>Type</th>
-
-            <% _.each(uw_fields.slice(6), function(field) { %>
-                <th><%= field %></th>
+            <% _.each(uw_fields, function(field) { %>
+                <th><%= field.replace('_', ' ') %></th>
             <% }); %>
 
 {# Old ExAC fields. We're now using exactly UW's fields.
@@ -119,9 +117,7 @@
             <td class="hidden"> <%= variant.ref %></th>
             <td class="hidden"> <%= variant.alt %></th>
 
-            <td> <%= variant.uw[4] %></td>
-
-            <% _.each(variant.uw.slice(6), function(val) { %>
+            <% _.each(variant.uw, function(val) { %>
                 <td title="<%= val %>"> <%= val %></td>
             <% }); %>
 

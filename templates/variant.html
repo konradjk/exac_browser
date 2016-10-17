@@ -268,7 +268,7 @@
                         <tr>
                             <th>Population</th>
                             <th title="Allele count">Count</th>
-                            <!-- <th>Total</th> -->
+                            <th>Total</th>
                             <!-- {% if chrom != 'Y' %} -->
                             <!--     <th title="Homozygotes">Hom</th> -->
                             <!-- {% endif %} -->
@@ -283,7 +283,7 @@
                             <tr>
                                 <td>{{ pop }}</td>
                                 <td>{{ variant.pop_acs[pop] }}</td>
-                                <!-- <td>{{ variant.pop_ans[pop] }}</td> -->
+                                <td>{{ variant.pop_ans[pop] }}</td>
                                 <!-- {% if chrom != 'Y' %} -->
                                 <!--     <td>{{ variant.pop_homs[pop] }}</td> -->
                                 <!-- {% endif %} -->
@@ -302,7 +302,7 @@
                         <tr>
                             <td>All</td>
                             <td>{{ variant.pop_acs.values()|sum }}</td>
-                            <!-- <td>{{ variant.pop_ans.values()|sum }}</td> -->
+                            <td>{{ variant.pop_ans.values()|sum }}</td>
                             <!-- {% if chrom != 'Y' %} -->
                             <!--     <td>{{ variant.pop_homs.values()|sum }}</td> -->
                             <!-- {% endif %} -->
