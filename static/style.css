@@ -204,9 +204,9 @@ a, a:hover, .dropdown-toggle {
     text-align: center;
 }
 
-/* h1, h2, h3, h4, h5, h6 { */
-/*     margin-top: 10px; */
-/* } */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: inherit;
+}
 
 .pull-right {
     text-align: right;
