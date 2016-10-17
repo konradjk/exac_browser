@@ -304,6 +304,8 @@ a, a:hover, .dropdown-toggle {
 }
 
 #variant_table {
+    display: block;
+    overflow-x: auto;
     margin-top: 0;
 }
 
