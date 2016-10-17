@@ -3,7 +3,7 @@
  * rich/dark: #6766a4
  */
 body {
-    font-family: "Gotham A", "Gotham B", sans-serif;
+    font-family: "Gotham A", "Gotham B", Helvetica, Arial, sans-serif;
     font-weight: lighter;
     font-size: large;
     background-color: #eee;
@@ -19,7 +19,7 @@ a, a:hover, .dropdown-toggle {
 
 #header-links {
     float: right;
-    color: white;
+    color: #fff;
 }
 
 #transcript_dropdown {
@@ -27,7 +27,7 @@ a, a:hover, .dropdown-toggle {
 }
 
 #header-links a {
-    color: white;
+    color: #fff;
     font-weight: bold;
 }
 
@@ -303,7 +303,7 @@ h1, h2, h3, h4, h5, h6 {
 .table caption, .caption {
     background-color: #6766a4;
     text-align: left;
-    color: white;
+    color: #fff;
     text-transform: uppercase;
     font-size: large;
     padding: 10px;
@@ -336,19 +336,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .consequence_display_buttons {
-    display: inline;
-    color: #000 !important;
     border: 1px solid #ddd !important;
-    cursor: pointer;
 }
 
 .consequence_display_buttons:hover, .table th:hover,
 .table > thead > tr > td.consequence_display_buttons.active {
-    background-color: #a9b;
-}
-
-.consequence_display_buttons input {
-    display: none;
+    color: #fff;
+    background-color: #6766a4;
 }
 
 .lof_variant {
