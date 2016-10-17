@@ -3,7 +3,7 @@
  * rich: #546
  */
 body {
-    font-family: Gotham A, Helvetica;
+    font-family: Helvetica;
     font-weight: lighter;
     font-size: large;
     background-color: #eee;
@@ -290,20 +290,29 @@ a, a:hover, .dropdown-toggle {
     background-color: #546;
     text-align: left;
     color: white;
-    font-size: 24px;
+    text-transform: uppercase;
+    font-size: large;
     padding: 10px;
     padding-left: 20px;
-    font-variant: all-small-caps;
+    font-variant: all-caps;
 }
 
-.table caption a {
-    color: white;
+.table caption a, .caption a {
+    color: #fff;
     font-size: large;
-    font-variant: normal;
+    text-transform: none;
 }
 
 #variant_table td {
     max-width: 200px;
+}
+
+#variant_table {
+    margin-top: 0;
+}
+
+#consequence-buttons {
+    margin-bottom: 0;
 }
 
 .consequence_display_buttons {
@@ -313,7 +322,8 @@ a, a:hover, .dropdown-toggle {
     cursor: pointer;
 }
 
-.consequence_display_buttons:hover, .table th:hover {
+.consequence_display_buttons:hover, .table th:hover,
+.table > thead > tr > td.consequence_display_buttons.active {
     background-color: #a9b;
 }
 
