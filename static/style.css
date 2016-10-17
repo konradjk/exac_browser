@@ -41,7 +41,7 @@ a, a:hover, .dropdown-toggle {
 }
 
 .navbar {
-    height: 80px;
+    height: 90px;
     padding-left: 40px;
     padding-right: 40px;
     margin-bottom: 0px;
@@ -64,14 +64,25 @@ a, a:hover, .dropdown-toggle {
     color: #888;
 }
 
+.navbar a:hover{
+    text-decoration: none;
+   	color: #A15EB6;
+}
+
 .navbar-brand {
     margin-top: 20px;
 }
 
 .navbar-brand a {
     vertical-align: bottom;
-    font-size: 36px;
+    font-size: 32px;
+    font-weight: bold;
     color: #6766a4;
+}
+
+.navbar navbar-default{
+    display: inline-block;
+    vertical-align: middle;
 }
 
 #navbar_form_container {
@@ -105,7 +116,7 @@ a, a:hover, .dropdown-toggle {
 #navbar_links a {
     vertical-align: bottom;
     font-variant: all-small-caps;
-    font-weight: bold;
+    font-weight: lighter;
 }
 
 .nav>li>a {
@@ -132,7 +143,7 @@ a, a:hover, .dropdown-toggle {
 
 #home-splash {
     height: 400px;
-    padding-top: 50px;
+    padding-top: 30px;
     background-color: #6766a4;
     /* background-image: url('/static/homePage_headerImage@2x.png'); */
     background-position: center;
@@ -141,7 +152,7 @@ a, a:hover, .dropdown-toggle {
 
 #home-searchbox {
     width: 500px;
-    margin: 20px 0 20px 40px;
+    margin: auto;
 }
 
 #home-searchbox form, #home-examples {
@@ -169,6 +180,11 @@ a, a:hover, .dropdown-toggle {
     background-color: #fff;
 }
 
+#site-banner {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 #genes * {
     text-align: left;
 }
@@ -182,6 +198,7 @@ a, a:hover, .dropdown-toggle {
 }
 
 #home-text {
+    font-size: 16px;
     margin-top: 40px;
     margin-bottom: 40px;
 }
@@ -190,6 +207,11 @@ a, a:hover, .dropdown-toggle {
     border-collapse: separate;
     border-spacing: 10px;
     font-style: italic;
+}
+
+h1 {
+	font-size: 32px;
+	line-height: 1.3;
 }
 
 .about .card h1 {
@@ -299,9 +321,9 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 200px;
 }
 
-#variant_table {
+#variant_table, #consequence-buttons {
     display: block;
-    overflow-x: auto;
+    overflow-x: scroll;
     margin-top: 0;
 }
 
