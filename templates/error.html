@@ -1,9 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="container card">
-    <div id="about" class="row">
+    <div id="not-found" class="row">
         <div class="col-md-8 col-md-offset-2">
-            <h1>This variant, gene, or transcript is not found in the database.</h1>
+            <h1>This variant, gene, or transcript was not found in the FLOSSIES data set.</h1>
+            <br>
+            <p>This most likely means that it was not sequenced and analyzed, or is not present in the population of people within this data set.</p>
+            <br>
             {% include 'about_text.html' %}
             {% include 'logos.html' %}
         </div>

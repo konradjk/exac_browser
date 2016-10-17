@@ -69,7 +69,7 @@ a, a:hover, .dropdown-toggle {
 }
 
 .navbar-brand {
-    margin-top: 30px;
+    margin-top: 20px;
 }
 
 .navbar-brand a {
@@ -80,7 +80,7 @@ a, a:hover, .dropdown-toggle {
 
 #navbar_form_container {
     margin-left: -50px;
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
 .navbar-form {
@@ -103,7 +103,7 @@ a, a:hover, .dropdown-toggle {
 #navbar_links {
     height: 100%;
     float: right;
-    margin-top: 40px;
+    margin-top: 35px;
 }
 
 #navbar_links a {
@@ -206,6 +206,10 @@ a, a:hover, .dropdown-toggle {
 
 .about .card h3 {
     margin-top: 40px;
+}
+
+#not-found {
+    text-align: center;
 }
 
 /* h1, h2, h3, h4, h5, h6 { */
