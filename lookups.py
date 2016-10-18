@@ -221,7 +221,9 @@ def get_awesomebar_result(db, query):
         # Transcript
         transcript = get_transcript(db, query)
         if transcript:
-            return 'transcript', transcript['transcript_id']
+            return 'gene', transcript['gene_id']
+            # not supporting transcript or region pages right now
+            # return 'transcript', transcript['transcript_id']
 
     # From here on out, only region queries
     if query.startswith('CHR'):
