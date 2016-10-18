@@ -101,15 +101,13 @@
     <% _.each(table_variants, function(variant) { %>
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
             category="<%= variant.category %>" consequence="<%= variant.major_consequence %>" frequency="<%= variant.allele_freq %>">
-            <td><b><%= variant.uw['cDNA'] %></b></td>
-            <td><%= variant.uw['Protein'] %></td>
+            <% var path = '/variant/' + variant.chrom + '-' + variant.pos + '-' + variant.ref + '-' + variant.alt %>
+            <td><a href="<%= path %>"><b><%= variant.uw['cDNA'] %></b></a></td>
+            <td><a href="<%= path %>"><%= variant.uw['Protein'] %></a></td>
 
             <td class="omit_csv">
                 <% var display = variant.chrom + ':' + variant.pos + ' ' + variant.ref + (variant.alt ? ' > ' + variant.alt : '') %>
-                <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>"
-                   title="<%= display %>">
-                <%= display %>
-                </a>
+                <a href="<%= path %>" title="<%= display %>"><%= display %></a>
             </td>
 
             <td class='hidden'><%= variant.chrom %></td>
