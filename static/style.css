@@ -226,6 +226,7 @@ h3 {
 
 h4{
     font-size: 16px;
+    font-weight: 400;
 }
 
 .about .card h1 {
@@ -317,8 +318,7 @@ h4{
     text-transform: uppercase;
     font-size: 14px;
     font-weight: 500;
-    padding: 10px;
-    padding-left: 30px;
+    padding: 10px 30px;
     font-variant: all-caps;
 }
 
