@@ -175,15 +175,6 @@
             </div>
 
             <div id="variant-misc" class="pull-right">
-            <h2>
-                {% if variant.allele_freq %}
-                  {{ '%0.4g' % variant.allele_freq }}
-                {% else %}
-                  NA
-                {% endif %}
-            </h2>
-            <small>Allele Frequency</small>
-            <br />
             <div class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">
                     Additional resources
@@ -273,14 +264,14 @@
                         <tr>
                             <th>Population</th>
                             <th title="Allele count">Count</th>
-                            <th>Total</th>
+                            <th>Total Subjects</th>
                             <!-- {% if chrom != 'Y' %} -->
                             <!--     <th title="Homozygotes">Hom</th> -->
                             <!-- {% endif %} -->
                             <!-- {% if chrom == 'X' or chrom == 'Y' %} -->
                             <!--     <th>Hemi</th> -->
                             <!-- {% endif %} -->
-                            <th title="Allele frequency">Freq</th>
+                            <th>Frequency</th>
                         </tr>
                     </thead>
                     <tbody>
