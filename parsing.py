@@ -299,7 +299,8 @@ def get_variants_from_whi_tsv(tsv_file, genes):
         gene = genes[line['Gene']]
         nomenclatures = []
         if line['Protein']:
-            nomenclatures.append('p.%s' % line['Protein'])
+            line['Protein'] = 'p.' + line['Protein']
+            nomenclatures.append(line['Protein'])
         if line['cDNA']:
             nomenclatures.append(line['cDNA'])
 
