@@ -107,7 +107,7 @@
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
             category="<%= variant.category %>" consequence="<%= variant.major_consequence %>" frequency="<%= variant.allele_freq %>">
             <% var path = '/variant/' + variant.chrom + '-' + variant.pos + '-' + variant.ref + '-' + variant.alt %>
-            <td><a href="<%= path %>"><b><%= variant.uw['cDNA'] %></b></a></td>
+            <td><a href="<%= path %>"><%= variant.uw['cDNA'] %></a></td>
             <td><a href="<%= path %>"><%= variant.uw['Protein'] %></a></td>
 
             <td class="omit_csv">
