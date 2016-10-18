@@ -587,15 +587,6 @@ def homepage():
     return render_template('homepage.html')
 
 
-@app.route('/robots.txt')
-def robots_txt():
-    return ("""\
-User-agent: *
-Disallow: /
-""",
-            {'Content-Type': 'text/plain'})
-
-
 @app.route('/autocomplete/<query>')
 def awesome_autocomplete(query):
     if not hasattr(g, 'autocomplete_strings'):
@@ -613,14 +604,15 @@ def awesome():
     print "Searched for %s: %s" % (datatype, identifier)
     if datatype == 'gene':
         return redirect('/gene/{}'.format(identifier))
-    elif datatype == 'transcript':
-        return redirect('/transcript/{}'.format(identifier))
+    # not supporting transcript or region pages right now
+    # elif datatype == 'transcript':
+    #     return redirect('/transcript/{}'.format(identifier))
     elif datatype == 'variant':
         return redirect('/variant/{}'.format(identifier))
-    elif datatype == 'region':
-        return redirect('/region/{}'.format(identifier))
-    elif datatype == 'dbsnp_variant_set':
-        return redirect('/dbsnp/{}'.format(identifier))
+    # elif datatype == 'region':
+    #     return redirect('/region/{}'.format(identifier))
+    # elif datatype == 'dbsnp_variant_set':
+    #     return redirect('/dbsnp/{}'.format(identifier))
     elif datatype in ('error', 'not_found'):
         return redirect('/error/{}'.format(identifier))
     else:
@@ -766,6 +758,9 @@ def get_gene_page_content(gene_id):
 
 @app.route('/transcript/<transcript_id>')
 def transcript_page(transcript_id):
+    # not supporting transcript or region pages right now
+    abort(404)
+
     db = get_db()
     try:
         transcript = lookups.get_transcript(db, transcript_id)
@@ -813,6 +808,9 @@ def transcript_page(transcript_id):
 
 @app.route('/region/<region_id>')
 def region_page(region_id):
+    # not supporting transcript or region pages right now
+    abort(404)
+
     db = get_db()
     try:
         region = region_id.split('-')
@@ -866,6 +864,9 @@ def region_page(region_id):
 
 @app.route('/dbsnp/<rsid>')
 def dbsnp_page(rsid):
+    # not supporting transcript or region or dbsnp pages right now
+    abort(404)
+
     db = get_db()
     try:
         variants = lookups.get_variants_by_rsid(db, rsid)
@@ -913,6 +914,9 @@ def about_page():
 
 @app.route('/text')
 def text_page():
+    # not supporting transcript or region or text pages right now
+    abort(404)
+
     db = get_db()
     query = request.args.get('text')
     datatype, identifier = lookups.get_awesomebar_result(db, query)
@@ -934,6 +938,9 @@ http://omim.org/entry/%(omim_accession)s''' % gene
 
 @app.route('/read_viz/<path:path>')
 def read_viz_files(path):
+    # not needed for FLOSSIES right now
+    abort(404)
+
     full_path = os.path.abspath(os.path.join(app.config["READ_VIZ_DIR"], path))
 
     # security check - only files under READ_VIZ_DIR should be accessible
