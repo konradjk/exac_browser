@@ -60,8 +60,12 @@ def get_variants_by_rsid(db, rsid):
 
 
 def get_variants_by_nomenclature(db, nomenclature):
-    # TODO: split Amino_Acid_Change by / ? ask alicia
-    variants = list(db.variants.find({'eff_annotations.Amino_Acid_Change': nomenclature}, fields={'_id': False}))
+    variants = list(db.variants.find({
+        '$or': [
+            {'eff_annotations.Amino_Acid_Change': nomenclature},
+            {'uw.Protein': nomenclature},
+            {'uw.cDNA': nomenclature},
+        ]}, fields={'_id': False}))
     add_consequence_to_variants(variants)
     return variants
 
@@ -153,7 +157,7 @@ R1 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)-(\d+)$')
 R2 = re.compile(r'^(\d+|X|Y|M|MT)\s*:\s*(\d+)$')
 R3 = re.compile(r'^(\d+|X|Y|M|MT)$')
 # R4 = re.compile(r'^(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)-([ATCG]+)-([ATCG]+)$')
-R4 = re.compile(r'^\s*(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)[-:\s]*([ATCG]+)\s*[-:/]\s*([ATCG]+)\s*$')
+R4 = re.compile(r'^\s*(\d+|X|Y|M|MT)\s*[-:]\s*(\d+)[-:\s]*([ATCG]+)\s*[-:/>]\s*([ATCG]+)\s*$')
 
 
 def get_awesomebar_result(db, query):
