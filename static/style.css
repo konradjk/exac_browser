@@ -98,6 +98,7 @@ a, a:hover, .dropdown-toggle {
 #navbar-awesomebar {
     margin-left: -10%;
     width: 36%;
+    border: 1px solid #DDDDDD;
 }
 
 #navbar-searchbox-input, .twitter-typeahead {
@@ -150,7 +151,7 @@ a, a:hover, .dropdown-toggle {
 #home-title {
     text-align: center;
     padding: 30px;
-    font-size: 44px;
+    font-size: 32px;
     color: #fff;
 }
 
@@ -244,6 +245,11 @@ h4{
     font-weight: 400;
 }
 
+h5{
+    font-size: 14px;
+    font-weight: 400;
+}
+
 p{
     line-height: 1.5em;
 }
@@ -261,7 +267,8 @@ p{
 }
 
 .transcript{
-  margin-top: -10px;
+  margin-top: -15px;
+  font-size: 14px;
 }
 
 #logos {
@@ -422,7 +429,7 @@ p{
 }
 
 #gene-misc > .dropdown, #variant-misc > .dropdown {
-    margin-right: -10px;
+  margin: 15px -10px 0 0;
 }
 
 #frequency_table_container {
