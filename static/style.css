@@ -4,8 +4,8 @@
  */
 body {
     font-family: "Gotham A", "Gotham B", Helvetica, Arial, sans-serif;
-    font-weight: lighter;
-    font-size: large;
+    font-weight: 400;
+    font-size: 16px;
     background-color: #eee;
 }
 
@@ -212,6 +212,20 @@ a, a:hover, .dropdown-toggle {
 h1 {
 	font-size: 32px;
 	line-height: 1.3;
+	font-weight: 500;
+    	color: #6766A4;
+}
+
+h2 {
+    font-size: 16px;
+}
+
+h3 {
+    font-size: 14px;
+}
+
+h4{
+    font-size: 16px;
 }
 
 .about .card h1 {
@@ -224,10 +238,6 @@ h1 {
 
 #not-found {
     text-align: center;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-weight: inherit;
 }
 
 .pull-right {
@@ -305,15 +315,17 @@ h1, h2, h3, h4, h5, h6 {
     text-align: left;
     color: #fff;
     text-transform: uppercase;
-    font-size: large;
+    font-size: 14px;
+    font-weight: 500;
     padding: 10px;
-    padding-left: 20px;
+    padding-left: 30px;
     font-variant: all-caps;
 }
 
 .table caption a, .caption a {
     color: #fff;
-    font-size: large;
+    font-size: 14px;
+    font-weight: 400;
     text-transform: none;
 }
 
@@ -374,8 +386,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card-header {
-    padding-left: 1em;
-    padding-right: 1em;
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
 #gene-misc > *, #variant-misc > * {
