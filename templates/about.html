@@ -11,7 +11,7 @@
 <div class="col-md-8 col-md-offset-2">
 <!-- <h1>FLOSSIES’ inspiration, participants, and sequencing.</h1> -->
 <br />
-<p>The FLOSSIES sequencing project was inspired by the need for frequencies of genomic variants from appropriate controls for breast cancer genetics studies. Existing public databases are large but not stratified by gender or age. The FLOSSIES project includes allele frequencies of all classes of variants at known and candidate genes among women who are cancer free and older than age 70. The participants are Fabulous Ladies Over Seventy. We hope this data will be useful as controls for breast cancer genetics studies by many groups.</p>
+<p>The FLOSSIES sequencing project was inspired by the need for frequencies of genomic variants from appropriate controls for breast cancer genetics studies. Existing public databases are large but not stratified by gender or age. The FLOSSIES project includes allele frequencies of all classes of variants at known and candidate genes for breast cancer susceptibility among women who are cancer free and older than age 70. The participants are Fabulous Ladies Over Seventy. We hope this data will be useful as controls for breast cancer genetics studies by many groups.</p>
 </div>
 
 {% include 'logos.html' %}
@@ -22,7 +22,7 @@
 
 <div class="about-paragraph">
 <h3>Participants</h3>
-<p>Participants in this sequencing project are women who joined the <a href="https://www.whi.org/SitePages/WHI%20Home.aspx">Women’s Health Initiative</a> (WHI) between 1993 and 2005. All participants were 50-79 years old and without any history of cancer at enrollment. More than 160,000 women enrolled in WHI, contributed DNA at enrollment, and have been followed ever since. From the WHI participants who are now older than age 70 years and have remained cancer-free, approximately 10,000 women were selected at random for this sequencing project: approximately 7,000 women who self-identified as European American and 3,000 women who identified as African American ancestry. Ancestries were estimated with more than 500 ancestry-informative markers.</p>
+<p>Participants in this sequencing project are women who joined the <a href="https://www.whi.org/SitePages/WHI%20Home.aspx" target="_blank">Women’s Health Initiative</a> (WHI) between 1993 and 2005. All participants were 50-79 years old and without any history of cancer at enrollment. More than 160,000 women enrolled in WHI, contributed DNA at enrollment, and have been followed ever since. From the WHI participants who are now older than age 70 years and have remained cancer-free, approximately 10,000 women were selected at random for this sequencing project: approximately 7,000 women who self-identified as European American and 3,000 women who identified as African American ancestry. Ancestries were estimated with more than 500 ancestry-informative markers.</p>
 </div>
 
 <div class="about-paragraph">
@@ -52,7 +52,7 @@
 <a href="/awesome?query=RAD51C">RAD51C</a>,
 <a href="/awesome?query=RAD51D">RAD51D</a>,
 <a href="/awesome?query=RECQL">RECQL</a>,
-<a href="/awesome?query=RINT 1">1</a>,
+<a href="/awesome?query=RINT 1">RINT1</a>,
 <a href="/awesome?query=SLX4">SLX4</a>,
 <a href="/awesome?query=STK11">STK11</a>,
 <a href="/awesome?query=TP53">TP53</a>,
@@ -64,16 +64,16 @@
 
 <div class="about-paragraph">
 <h3>Sequencing</h3>
-<p>Sequencing was carried out in the <a href="http://www.gs.washington.edu/faculty/king.htm">King Lab</a> at the <a href="http://www.gs.washington.edu/">University of Washington</a>, Seattle, and by <a href="https://www.color.com/">Color Genomics</a> on an <a href="http://www.illumina.com/">Illumina</a> HiSeq with 2x100 bp paired-end reads (King Lab) or NextSeq with 2x150 bp paired-end reads (Color) using modified versions of the BROCA panel<a id="1" href="#footnotes"><sup>1</sup></a>. Median coverage per sample was >250x.</p>
+<p>Sequencing was carried out in the <a href="http://www.gs.washington.edu/faculty/king.htm" target="_blank">King Lab</a> at the <a href="http://www.gs.washington.edu/" target="_blank">University of Washington</a>, Seattle, and by <a href="https://www.color.com/" target="_blank">Color Genomics</a> on an Illumina HiSeq with 2x100 bp paired-end reads (King Lab) or NextSeq with 2x150 bp paired-end reads (Color) using modified versions of the BROCA panel<a id="1" href="#footnotes"><sup>1</sup></a>. Median coverage per sample was >250x.</p>
 
-<p>Paired-end sequence reads were aligned to the human reference genome (hg19) using <a href="http://bio-bwa.sourceforge.net/">Burrows-Wheeler Aligner</a> <a href="https://github.com/lh3/bwa/releases/tag/0.7.9a">0.7.9a</a>. Removal of PCR duplicates, sorting, and indexing were carried out with <a href="http://www.htslib.org/">SAMtools</a> <a href="https://github.com/samtools/samtools/releases/tag/0.1.19">v0.1.19</a>. Data was excluded for 3 samples with low coverage and 2 samples with low quality. For quality control, WHI included 105 duplicates and 20 triplicates, blinded to the sequencing teams. These duplicates and triplicates were all identified and removed.</p>
+<p>Paired-end sequence reads were aligned to the human reference genome (hg19) using <a href="http://bio-bwa.sourceforge.net/" target="_blank">Burrows-Wheeler Aligner</a> <a href="https://github.com/lh3/bwa/releases/tag/0.7.9a" target="_blank">0.7.9a</a>. Removal of PCR duplicates, sorting, and indexing were carried out with <a href="http://www.htslib.org/" target="_blank">SAMtools</a> <a href="https://github.com/samtools/samtools/releases/tag/0.1.19" target="_blank">v0.1.19</a>. Data was excluded for 3 samples with low coverage and 2 samples with low quality. For quality control, WHI included 105 duplicates and 20 triplicates, blinded to the sequencing teams. These duplicates and triplicates were all identified and removed.</p>
 
-<p>Indel realignments and base quality score recalibration were based on with <a href="https://www.broadinstitute.org/gatk/">Genome Analysis Tool Kit</a> (GATK) <a href="https://software.broadinstitute.org/gatk/guide/version-history#id3928">v3.0</a> using recommended parameters. Variants were detected with <a href="https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_genotyper_UnifiedGenotyper.php">GATK Unified Genotyper</a>. Variants were included if variant fraction was at least 0.25. Copy number variants were identified using our read-depth-based in-house pipeline.</p>
+<p>Indel realignments and base quality score recalibration were based on with <a href="https://www.broadinstitute.org/gatk/" target="_blank">Genome Analysis Tool Kit</a> (GATK; <a href="https://software.broadinstitute.org/gatk/guide/version-history#id3928" target="_blank">v3.0-0</a>) using recommended parameters. Variants were detected with <a href="https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_genotyper_UnifiedGenotyper.php" target="_blank">GATK Unified Genotyper</a>. Variants were included if variant fraction was at least 0.25. Copy number variants were identified using our read-depth-based in-house pipeline.</p>
 </div>
 
 <div class="about-paragraph">
 <h3>Ancestry</h3>
-<p>Ancestry of each sample was estimated using more than 500 ancestry-informative markers and principal components analysis<a id="2" href="#footnotes"><sup>2</sup></a>, calibrating to genotypes from the <a href="http://www.hagsc.org/hgdp/">Human Genome Diversity Project</a><a id="3" href="#footnotes"><sup>3</sup></a>.</p>
+<p>Ancestry of each sample was estimated using more than 500 ancestry-informative markers and principal components analysis<a id="2" href="#footnotes"><sup>2</sup></a>, calibrating to genotypes from the <a href="http://www.hagsc.org/hgdp/" target="_blank">Human Genome Diversity Project</a><a id="3" href="#footnotes"><sup>3</sup></a>.</p>
 
 <p>Each sample was assigned to the population with highest estimated likelihood of ancestry.</p>
 
@@ -81,22 +81,21 @@
 </div>
 
 <div class="about-paragraph">
-<p>This site uses <a href="https://github.com/ColorGenomics/exac_browser">a modified version</a> of the open source <a href="https://github.com/konradjk/exac_browser">ExAC Browser</a>, developed by <a href="http://broadinstitute.org/">The Broad Institute</a> (Konrad Karczewski, Daniel MacArthur, Brett Thomas, Ben Weisburd) and distributed <a href="https://github.com/konradjk/exac_browser/blob/master/LICENSE">under the MIT License</a>.</p>
+<p>This site uses <a href="https://github.com/ColorGenomics/exac_browser" target="_blank">a modified version</a> of the open source <a href="https://github.com/konradjk/exac_browser" target="_blank">ExAC Browser</a>, developed by <a href="http://broadinstitute.org/" target="_blank">The Broad Institute</a> (Konrad Karczewski, Daniel MacArthur, Brett Thomas, Ben Weisburd) and distributed <a href="https://github.com/konradjk/exac_browser/blob/master/LICENSE" target="_blank">under the MIT License</a>.</p>
 </div>
+</div>
+
 </div>
 
 <div class="row card">
-<div class="col-md-12">
 <h4 style="font-weight: 500">REFERENCES</h4>
-<ul id="footnotes">
-<li><a href="#1"><sup>1</sup></a> Walsh T, Lee MK, Casadei S, et al. Detection of inherited mutations for breast and ovarian cancer using genomic capture and massively parallel sequencing. Proc Natl Acad Sci USA. 2010;107(28):12629-33.</li>
-<li><a href="#2"><sup>2</sup></a> Wang C, Zhan X, Liang L, Abecasis GR, Lin X. Improved ancestry estimation for both genotyping and sequencing data using projection procrustes analysis and genotype imputation. Am J Hum Genet. 2015;96(6):926-37.</li>
-<li><a href="#3"><sup>3</sup></a> Li JZ, Absher DM, Tang H, et al. Worldwide human relationships inferred from genome-wide patterns of variation. Science. 2008;319(5866):1100-4.</li>
-</ul>
-</div>
+  <ul id="footnotes">
+    <li><a href="#1"><sup>1</sup></a> Walsh T, Lee MK, Casadei S, et al. Detection of inherited mutations for breast and ovarian cancer using genomic capture and massively parallel sequencing. Proc Natl Acad Sci USA. 2010;107(28):12629-33.</li>
+    <li><a href="#2"><sup>2</sup></a> Wang C, Zhan X, Liang L, Abecasis GR, Lin X. Improved ancestry estimation for both genotyping and sequencing data using projection procrustes analysis and genotype imputation. Am J Hum Genet. 2015;96(6):926-37.</li>
+    <li><a href="#3"><sup>3</sup></a> Li JZ, Absher DM, Tang H, et al. Worldwide human relationships inferred from genome-wide patterns of variation. Science. 2008;319(5866):1100-4.</li>
+  </ul>
 </div>
 
-</div>
 </div>
 </div>
 {% endblock %}
