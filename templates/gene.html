@@ -59,8 +59,10 @@
             <div class="pull-left">
                 <h1>{{ gene.gene_name }}</h1>
                 {% if gene.full_gene_name %}
-                    <h4>{{ gene.full_gene_name }}</h4>
-                    <h4>{{ gene.canonical_transcript }}</h4>
+                    <div class="transcript">
+                      <h4>{{ gene.full_gene_name }}</h4>
+                      <h4>{{ gene.canonical_transcript }}</h4>
+                    </div>
                 {% endif %}
             </div>
             <div id="gene-misc" class="pull-right">

@@ -181,7 +181,7 @@ a, a:hover, .dropdown-toggle {
 .card {
     margin-top: 20px;
     margin-bottom: 20px;
-    padding: 50px 40px 50px 40px;
+    padding: 50px 40px 30px 40px;
 }
 
 .card.captioned {
@@ -258,6 +258,10 @@ p{
 
 .pull-right {
     text-align: right;
+}
+
+.transcript{
+  margin-top: -10px;
 }
 
 #logos {

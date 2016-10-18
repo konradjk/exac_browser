@@ -160,13 +160,15 @@
                     {{ variant.HGVSp }}
                 {% endif %}
             </h1>
-            {% for nom in variant.nomenclatures %}
-                {% if nom and nom != variant.HGVSc and nom != variant.HGVSp %}
-                    {{ nom }}
-                    <span class="gray"> | </span>
-                {% endif %}
-            {% endfor %}
-            {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+            <div class="transcript">
+              {% for nom in variant.nomenclatures %}
+                  {% if nom and nom != variant.HGVSc and nom != variant.HGVSp %}
+                      {{ nom }}
+                      <span class="gray"> | </span>
+                  {% endif %}
+              {% endfor %}
+              {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+            </div>
             </div>
 
             <div id="variant-misc" class="pull-right">
@@ -433,7 +435,7 @@
 
                 var get_bam_track_config = function(read_viz_data, het_or_hom, i) {
                     return {
-                        type: 'bam',   
+                        type: 'bam',
                         indexed: true,
                         alignmentShading: 'strand',
                         url: '/read_viz/' + read_viz_data[het_or_hom]['urls'][i],
@@ -444,10 +446,10 @@
                         readgroup: read_viz_data[het_or_hom]['readgroups'][i],  //readgroup: '1-157768000-G-C_hom10',
                     };
                 };
- 
+
                 // global igv settings
                 igv.CoverageMap.threshold=0.1;
-                
+
                 // temporary implementation of filtering IGV BamTracks by a user-specified ReadGroup
                 igv.BamReader.prototype.readFeatures_original = igv.BamReader.prototype.readFeatures;
                 igv.BamReader.prototype.readFeatures = function(chr, min, max, continuation, task) {
@@ -497,7 +499,7 @@
                     ["het", "hom"].forEach(function (het_or_hom) {
                         var n = read_viz_data[het_or_hom]['n_available'];
                         for(var i = 0; i < n; i+=1) {
-                            tracks.push(get_bam_track_config(read_viz_data, het_or_hom, i)); 
+                            tracks.push(get_bam_track_config(read_viz_data, het_or_hom, i));
                             tracks_counter[het_or_hom] += 1;
                         }
                     });
