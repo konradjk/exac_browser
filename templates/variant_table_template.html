@@ -37,17 +37,18 @@
 <table id="variant_table" class="tablesorter table table-striped table-bordered table-hover">
     <thead>
         <tr>
-            <th class="tooltip-table-header omit_csv" data-tooltip="chr:pos reference/alternate &#xa;(dbSNP135 rsID)">
-                Variant</th>
-
-            <th class='hidden'>Chrom</th>
-            <th class='hidden'>Position</th>
+            <th class="hidden">Chrom</th>
+            <th class="hidden">Position</th>
             <th class="hidden">Reference</th>
             <th class="hidden">Alternate</th>
 
-            <% _.each(uw_fields, function(field) { %>
-                <th><%= field.replace('_', ' ') %></th>
-            <% }); %>
+            <th>cHGVS</th>
+            <th>pHGVS</th>
+            <th>gHGVS</th>
+            <th>Annotation</th>
+            <th title="European American">EA ({{ pop_num['European American'] }})</th>
+            <th title="African American">AA ({{ pop_num['African American'] }})</th>
+            <th>Overall Frequency</th>
 
 {# Old ExAC fields. We're now using exactly UW's fields.
 # }
@@ -100,26 +101,26 @@
     <% _.each(table_variants, function(variant) { %>
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
             category="<%= variant.category %>" consequence="<%= variant.major_consequence %>" frequency="<%= variant.allele_freq %>">
+            <td><b><%= variant.uw['cDNA'] %></b></td>
+            <td><%= variant.uw['Protein'] %></td>
+
             <td class="omit_csv">
+                <% var display = variant.chrom + ':' + variant.pos + ' ' + variant.ref + (variant.alt ? ' > ' + variant.alt : '') %>
                 <a href="/variant/<%= variant.chrom %>-<%= variant.pos %>-<%= variant.ref %>-<%= variant.alt %>"
-                   title="<%= variant.chrom %>:<%= variant.pos %> <%= variant.ref %> <%= variant.alt %>">
-                <%= variant.chrom %>:<%= variant.pos %>
-                <%= variant.ref %>
-                <%= variant.alt %>
-                <% if (variant.rsid != '.') { %>
-                    (<%= variant.rsid %>)
-                <% } %>
+                   title="<%= display %>">
+                <%= display %>
                 </a>
             </td>
 
-            <td class='hidden'> <%= variant.chrom %></td>
-            <td class='hidden'> <%= variant.pos %></td>
-            <td class="hidden"> <%= variant.ref %></th>
-            <td class="hidden"> <%= variant.alt %></th>
+            <td class='hidden'><%= variant.chrom %></td>
+            <td class='hidden'><%= variant.pos %></td>
+            <td class="hidden"><%= variant.ref %></th>
+            <td class="hidden"><%= variant.alt %></th>
 
-            <% _.each(variant.uw, function(val) { %>
-                <td title="<%= val %>"> <%= val %></td>
-            <% }); %>
+            <td><%= variant.uw['Annotation'] %></td>
+            <td><%= variant.uw['EA'] %></td>
+            <td><%= variant.uw['AA'] %></td>
+            <td><%= variant.allele_freq.toPrecision(4) %></td>
 
 {# Old ExAC fields. We're now using exactly UW's fields.
             <td class="hidden"><%= variant.rsid %></td>

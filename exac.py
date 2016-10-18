@@ -753,8 +753,8 @@ def get_gene_page_content(gene_id):
                 cnvs = cnvs_in_transcript,
                 cnvgenes = cnvs_per_gene,
                 constraint=constraint_info,
-                uw_fields=UW_FIELDS,
-                recql_num=ALLELE_NUM_RECQL,
+                total_num=uw_total_num(gene),
+                pop_num=uw_pop_num(gene),
             )
             cache.set(cache_key, t)
             print 'Rendering gene: %s' % gene_id
@@ -800,7 +800,8 @@ def transcript_page(transcript_id):
                 cnvs_json=json.dumps(cnvs_in_transcript),
                 cnvgenes = cnvs_per_gene,
                 cnvgenes_json=json.dumps(cnvs_per_gene),
-                uw_fields=UW_FIELDS,
+                total_num=uw_total_num(gene),
+                pop_num=uw_pop_num(gene),
             )
             cache.set(cache_key, t)
         print 'Rendering transcript: %s' % transcript_id
@@ -834,7 +835,8 @@ def region_page(region_id):
                     start=start,
                     stop=stop,
                     coverage=None,
-                    uw_fields=UW_FIELDS,
+                    total_num=uw_total_num(gene),
+                    pop_num=uw_pop_num(gene),
                 )
             if start == stop:
                 start -= 20
@@ -852,7 +854,8 @@ def region_page(region_id):
                 start=start,
                 stop=stop,
                 coverage=coverage_array,
-                uw_fields=UW_FIELDS,
+                total_num=uw_total_num(gene),
+                pop_num=uw_pop_num(gene),
             )
         print 'Rendering region: %s' % region_id
         return t

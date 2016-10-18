@@ -12,7 +12,6 @@
         window.page_name = window.gene.gene_id;
         window.cnvs = {{ cnvs|tojson|safe }};
         window.cnvgenes = {{ cnvgenes|tojson|safe }};
-        window.uw_fields = {{ uw_fields|tojson|safe }};
 
         $(document).ready(function() {
             $("#variants_loading").hide();
@@ -134,7 +133,7 @@
         {% if gene.gene_name == 'RECQL' %}
         <div id="gene-banner" class="row card">
             <div class="col-md-12">
-                RECQL was only sequenced for 4838 participants. Variant frequency data reflects this.
+                RECQL was only sequenced for {{ pop_num }} participants. Variant frequency data reflects this.
             </div>
         </div>
         {% endif %}

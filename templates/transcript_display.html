@@ -5,9 +5,9 @@
 </dl>
 #}
 
+{# WHI
 <div class="row caption">Gene Summary</div>
 <div id="gene_plot" class="row card captioned">
-{# WHI
     <span class="hidden-xs">
         <label for="display_coverage_metric_group">
             Display:
@@ -26,10 +26,9 @@
             <input type="checkbox" id="include_utrs_checkbox" value=""> Include UTRs in plot
         </label>
     </span>
-#}
     {# No coverage for WHI data
     {% include 'coverage_selectors.html' %}
-    #}
+    # }
     <div id="gene_plot_container_container">
         <div id="loading_coverage">
             Loading...
@@ -215,7 +214,7 @@ function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
-#}
+# }
 
     svg.selectAll("circle")
         .data(data)
@@ -267,8 +266,8 @@ function gene_chart(data, new_data, variant_data, _transcript, _cnvs) {
                 return lower_gene_chart_height/4;
             }
         })
-{#        .attr("rx", 6)#}
-{#        .attr("ry", 6)#}
+{#        .attr("rx", 6)# }
+{#        .attr("ry", 6)# }
         .attr("width", function(d, i) {
             if (get_coding_coordinate(_transcript, d.start, true) == -100) {
                 return exon_x_scale(175);
@@ -444,7 +443,7 @@ function change_coverage_chart(data, new_data, variant_data, _transcript, scale_
             return (metric in d) ? y(d[metric]) : gene_chart_height;
         });
 
-{#    var new_data = create_new_data(data);#}
+{#    var new_data = create_new_data(data);# }
     var path = svg.selectAll("path")
         .datum(new_data)
         .transition()
@@ -531,12 +530,12 @@ function create_new_data(data, coords) {
         var x = {'has_coverage': false};
         x[coords] = i;
         //Check the previous base to see if this is the beginning of an exon
-{#        if (i in data_object && data_object[i].has_coverage && !(i-1 in data_object && data_object[i-1].has_coverage)) {#}
+{#        if (i in data_object && data_object[i].has_coverage && !(i-1 in data_object && data_object[i-1].has_coverage)) {# }
         if (i in data_object && !(i-1 in data_object)) {
             new_data.push(x);
         }
         //Check the previous base to see if this is the end of an exon
-{#        if (!(i in data_object && data_object[i].has_coverage) && i-1 in data_object && data_object[i-1].has_coverage) {#}
+{#        if (!(i in data_object && data_object[i].has_coverage) && i-1 in data_object && data_object[i-1].has_coverage) {# }
         if (!(i in data_object) && i-1 in data_object) {
             x[coords] = i-1;
             new_data.push(x);
@@ -677,12 +676,12 @@ $(document).ready(function() {
         change_coverage_chart(window.coverage_stats, plot_data, window.variants_in_transcript, window.transcript, detail, v, !include_utrs, '#gene_plot_container');
     });
 
-{#    $("#coverage_plot_download").on('click', function() {#}
-{#        window.location.href = set_plot_image('gene_plot_container', 0);#}
-{#    });#}
+{#    $("#coverage_plot_download").on('click', function() {# }
+{#        window.location.href = set_plot_image('gene_plot_container', 0);# }
+{#    });# }
 {#    $("#exon_plot_download").on('click', function() {#}
-{#        window.location.href = set_plot_image('gene_plot_container', 1);#}
-{#    });#}
+{#        window.location.href = set_plot_image('gene_plot_container', 1);# }
+{#    });# }
     //change CNVs svg
     $('#filtered_checkbox').change(function () {
         $("#cnv_svg").remove();
@@ -696,3 +695,4 @@ $(document).ready(function() {
     refresh_links();
 });
 </script>
+#}

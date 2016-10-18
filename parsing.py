@@ -50,6 +50,22 @@ UW_FIELDS = (
     'GATK filter',
     'Isoforms',
 )
+# maps line['Type'] to annotation name
+UW_ANNOTATION_NAMES = {
+    'UTR3': "3' UTR",
+    'UTR5': "5' UTR",
+    'delFS': 'frameshift deletion',
+    'delIF': 'inframe deletion',
+    'insFS': 'frameshift insertion',
+    'insIF': 'inframe insertion',
+    'missense': 'missense',
+    'stoploss': 'stop loss',
+    'intronic': 'intronic',
+    'nonsense': 'nonsense',
+    'silent': 'silent',
+    'splice': 'splice',
+}
+
 
 
 def get_base_coverage_from_file(base_coverage_file):
@@ -276,6 +292,10 @@ def get_variants_from_whi_tsv(tsv_file, genes):
         line = {k: (0 if k in numeric else '') if v == '-' else v
                 for k, v in line.items()}
 
+        # strip ' (exon XX)' from cDNA
+        if line['cDNA']:
+            line['cDNA'] = line['cDNA'].split()[0]
+
         gene = genes[line['Gene']]
         nomenclatures = []
         if line['Protein']:
@@ -290,6 +310,8 @@ def get_variants_from_whi_tsv(tsv_file, genes):
             'Transcript_ID' : gene['canonical_transcript'],
             'Transcript_ID_NM' : line['Isoform'],
         }]
+        uw = {field: val for field, val in line.items() if field in UW_FIELDS}
+        uw['Annotation'] = UW_ANNOTATION_NAMES[line['Type']]
 
         # maybe TODO
         # if line['Isoforms']:
@@ -328,7 +350,7 @@ def get_variants_from_whi_tsv(tsv_file, genes):
             'quality_metrics': {'MQ': float(line['Max_MQ'])},
             'site_quality': float(line['Max_qual']),
             'filter': 'PASS',
-            'uw': [line[field] for field in UW_FIELDS],
+            'uw': uw,
         }
 
         # RECQL was only sequenced by UW, so its total population size is different
@@ -350,6 +372,13 @@ def get_variants_from_whi_tsv(tsv_file, genes):
         })
 
         yield variant
+
+def uw_pop_num(gene):
+    return POP_NUM_RECQL if gene['gene_name'] == 'RECQL' else POP_NUM
+
+
+def uw_total_num(gene):
+    return ALLELE_NUM_RECQL if gene['gene_name'] == 'RECQL' else ALLELE_NUM
 
 
 def get_mnp_data(mnp_file):
