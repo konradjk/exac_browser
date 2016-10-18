@@ -76,7 +76,7 @@ a, a:hover, .dropdown-toggle {
 .navbar-brand a {
     vertical-align: bottom;
     font-size: 32px;
-    font-weight: bold;
+    font-weight: 500;
     color: #6766a4;
 }
 
@@ -115,8 +115,8 @@ a, a:hover, .dropdown-toggle {
 
 #navbar_links a {
     vertical-align: bottom;
-    font-variant: all-small-caps;
-    font-weight: lighter;
+    font-weight: 500;
+    font-size: 14px;
 }
 
 .nav>li>a {
