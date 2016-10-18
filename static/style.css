@@ -105,6 +105,7 @@ a, a:hover, .dropdown-toggle {
 
 #navbar-searchbox-input {
     min-width: 400px;
+    height: 46px;
 }
 
 #navbar_links {
@@ -143,7 +144,7 @@ a, a:hover, .dropdown-toggle {
 
 #home-splash {
     height: 400px;
-    padding-top: 30px;
+    padding-top: 20px;
     background-color: #6766a4;
     /* background-image: url('/static/homePage_headerImage@2x.png'); */
     background-position: center;
@@ -163,6 +164,10 @@ a, a:hover, .dropdown-toggle {
     padding-left: 1em;
     padding-bottom: 8px;
     font-size: small;
+}
+
+#home-text{
+    background-color: #fff;
 }
 
 .card {
