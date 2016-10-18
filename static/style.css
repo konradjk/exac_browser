@@ -217,8 +217,8 @@ h1 {
 }
 
 h2 {
-    font-size: 16px;
-    font-weight: 400;
+    font-size: 24px;
+    font-weight: 500;
 }
 
 h3 {
@@ -391,6 +391,7 @@ h4{
 .card-header {
     padding-left: 30px;
     padding-right: 30px;
+    padding-top: 10px;
 }
 
 #gene-misc > *, #variant-misc > * {
