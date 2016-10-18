@@ -22,12 +22,12 @@
     <div class="btn-group">
         <button type="button" class="btn btn-default dropdown-toggle"
                 id="filter-dropdown" data-toggle="dropdown" area-expanded="false">
-            <nobr>all (<%= table_variants.length %>)</nobr>
+            <nobr>all annotations(<%= table_variants.length %>)</nobr>
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
             <li class="active consequence_display_buttons" id="consequence_button_all">
-                <a><nobr>all (<%= table_variants.length %>)</nobr></a>
+                <a><nobr>all annotations (<%= table_variants.length %>)</nobr></a>
             </li>
             <% _.each(consequence_counts, function(csq_count) { %>
               <li class="consequence_display_buttons <%= csq_count[1] ? '' : 'disabled' %>"
