@@ -37,7 +37,7 @@ a:focus {
 	background-repeat: no-repeat;
 	cursor: pointer;
 	white-space: normal;
-	padding: 8px 20px 8px 8px;
+	padding: 13px 20px;
 }
 .tablesorter-default thead .headerSortUp,
 .tablesorter-default thead .tablesorter-headerSortUp,
