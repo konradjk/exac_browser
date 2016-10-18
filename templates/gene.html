@@ -60,13 +60,13 @@
                 <h1>{{ gene.gene_name }}</h1>
                 {% if gene.full_gene_name %}
                     <div class="transcript">
-                      <h5>{{ gene.full_gene_name }}</h5>
+                      <h5 style="text-transform: capitalize";>{{ gene.full_gene_name }}</h5>
                       <h5>{{ gene.canonical_transcript }}</h5>
                     </div>
                 {% endif %}
             </div>
             <div id="gene-misc" class="pull-right">
-                <h2><span id="number_of_variants"></span></h2>
+                <h2 style="color:#6766A4"><span id="number_of_variants"></span></h2>
                 variants
                 <div class="dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="external_ref_dropdown" data-toggle="dropdown">

@@ -251,7 +251,7 @@ h5{
 }
 
 p{
-    line-height: 1.5em;
+    line-height: 1.6em;
 }
 
 #about-full .about-paragraph{
@@ -285,9 +285,10 @@ p{
 }
 
 #gene-banner {
-    background-color: #ccc;
+    background-color: #E9E9E9;
     margin-top: -20px;
     padding: 10px;
+    font-size: 14px;
 }
 
 #footnotes {
