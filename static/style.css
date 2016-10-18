@@ -356,9 +356,12 @@ p{
 }
 
 #variant_table, #consequence-buttons {
+    margin-top: 0;
+}
+
+#consequence-buttons {
     display: block;
     overflow-x: scroll;
-    margin-top: 0;
 }
 
 .tablesorter-sticky-visible {
