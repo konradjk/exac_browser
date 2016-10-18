@@ -337,7 +337,7 @@ p{
     position: unset;
     float: unset;
     font-weight: lighter;
-    font-size: large;
+    padding: 5px;
 }
 
 .table caption, .caption {
@@ -368,7 +368,7 @@ p{
 
 #consequence-buttons {
     display: block;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .tablesorter-sticky-visible {

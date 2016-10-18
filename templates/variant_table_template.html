@@ -22,10 +22,11 @@
         <tr id="variant_consequence_types" class="btn-group tablesorter-ignoreRow sticky-false" data-toggle="buttons">
             <td class="btn active consequence_display_buttons" id="consequence_button_all">
                 <input type="radio">
-                <nobr>All (<%= table_variants.length %>)</nobr>
+                <nobr>all (<%= table_variants.length %>)</nobr>
             </td>
             <% _.each(consequence_counts, function(csq_count) { %>
-                <td class="btn consequence_display_buttons" id="consequence_button_<%= csq_count[0] %>">
+                <td class="btn consequence_display_buttons <%= csq_count[1] ? '' : 'disabled' %>"
+                    id="consequence_button_<%= csq_count[0] %>">
                     <input type="radio">
                     <nobr><%= consequence_name(csq_count[0]) %> (<%= csq_count[1] %>)</nobr>
                 </td>

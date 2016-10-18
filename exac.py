@@ -747,6 +747,7 @@ def get_gene_page_content(gene_id):
                 constraint=constraint_info,
                 total_num=uw_total_num(gene),
                 pop_num=uw_pop_num(gene),
+                annotations=UW_ANNOTATION_NAMES.values(),
             )
             cache.set(cache_key, t)
             print 'Rendering gene: %s' % gene_id
