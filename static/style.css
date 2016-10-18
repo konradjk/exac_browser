@@ -108,6 +108,17 @@ a, a:hover, .dropdown-toggle {
     height: 46px;
 }
 
+.search-button {
+    display: inline-block;
+    height: 46px;
+    margin: 0;
+    float: right;
+    background-color: #F5A623;
+    outline: none;
+    border: none;
+    width: 12%;
+}
+
 #navbar_links {
     height: 100%;
     float: right;
@@ -280,7 +291,7 @@ h4{
 }
 
 .twitter-typeahead {
-    width: 100%;
+    width: 88%;
 }
 
 .link {
