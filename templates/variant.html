@@ -167,7 +167,10 @@
                       <span class="gray"> | </span>
                   {% endif %}
               {% endfor %}
-              {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }} / {{ variant.alt }}
+              {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }}
+              {% if variant.alt %}
+                  > {{ variant.alt }}
+              {% endif %}
             </div>
             </div>
 
