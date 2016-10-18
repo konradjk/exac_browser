@@ -181,7 +181,7 @@ a, a:hover, .dropdown-toggle {
 .card {
     margin-top: 20px;
     margin-bottom: 20px;
-    padding: 20px;
+    padding: 50px 40px 50px 40px;
 }
 
 .card.captioned {
@@ -235,8 +235,8 @@ h2 {
 }
 
 h3 {
-    font-size: 14px;
-    font-weight: 400;
+    font-size: 16px;
+    font-weight: 500;
 }
 
 h4{
@@ -244,12 +244,12 @@ h4{
     font-weight: 400;
 }
 
-.about .card h1 {
-    margin-bottom: 40px;
+p{
+    line-height: 1.5em;
 }
 
-.about .card h3 {
-    margin-top: 40px;
+#about-full .about-paragraph{
+  margin-bottom: 40px;
 }
 
 #not-found {
@@ -281,10 +281,13 @@ h4{
 
 #footnotes {
     padding-left: 0;
+    color: #7f8686;
+    font-size: 14px;
 }
 
 #footnotes li {
     list-style: none;
+    margin-bottom: 10px;
 }
 
 .twitter-typeahead {
