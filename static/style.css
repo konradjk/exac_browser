@@ -97,6 +97,7 @@ a, a:hover, .dropdown-toggle {
 
 #navbar-awesomebar {
     margin-left: -10%;
+    width: 36%;
 }
 
 #navbar-searchbox-input, .twitter-typeahead {
