@@ -12,45 +12,21 @@
 <!-- <h1>FLOSSIES’ inspiration, participants, and sequencing.</h1> -->
 <br />
 <p>The FLOSSIES sequencing project was inspired by the need for frequencies of genomic variants from appropriate controls for breast cancer genetics studies. Existing public databases are large but not stratified by gender or age. The FLOSSIES project includes allele frequencies of all classes of variants at known and candidate genes among women who are cancer free and older than age 70. The participants are Fabulous Ladies Over Seventy. We hope this data will be useful as controls for breast cancer genetics studies by many groups.</p>
+</div>
 
 {% include 'logos.html' %}
-</div>
 </div>
 
 <div id="about-full" class="row card">
 <div class="col-md-12">
-<<<<<<< HEAD
-    <div class="about-paragraph">
-      <h3>Participants</h3>
-      <p>Participants in this sequencing project are women who joined the <a href="https://www.whi.org/SitePages/WHI%20Home.aspx">Women’s Health Initiative</a> (WHI) between 1993 and 2005. All participants were 50-79 years old and without any history of cancer at enrollment. More than 160,000 women enrolled in WHI, contributed DNA at enrollment, and have been followed ever since. From the WHI participants who are now older than age 70 years and have remained cancer-free, approximately 10,000 women were selected at random for this sequencing project: approximately 7,000 women who self-identified as European American and 3,000 women who identified as African American ancestry. Ancestries were estimated with more than 500 ancestry-informative markers.</p>
-    </div>
-    <div class="about-paragraph">
-      <h3>Genes</h3>
-      <p>Genes analyzed include established breast cancer genes, both high and moderate penetrance, and genes that have been suggested to predispose to breast cancer when mutant. Strength of evidence varies for these candidate genes. The genes are:</p>
-      <p><em>BRCA1, BRCA2, ATM, ATR, BAP1, BARD1, BRIP1, CDH1, CHEK1, CHEK2, CTNNA1, FAM175A, FANCM, GEN1, MRE11A, NBN, PALB2, PTEN, RAD51B, RAD51C, RAD51D, RECQL, RINT 1, SLX4, STK11, TP53, XRCC2</em></p>
-      <p>For each gene, rare and common variants in coding regions, 5’UTR, 3’UTR, donor splice sites with 6 flanking bp, and acceptor splice sites with 20 flanking bp are included. Point mutations, small indels, and CNVs are included (although CNV calls are still incomplete in v1).</p>
-    </div>
-    <div class="about-paragraph">
-      <h3>Sequencing</h3>
-      <p>Sequencing was carried out in the <a href="http://www.gs.washington.edu/faculty/king.htm">King Lab</a> at the <a href="http://www.gs.washington.edu/">University of Washington</a>, Seattle, and by <a href="https://www.color.com/">Color Genomics</a> on an Illumina HiSeq with 2x100 bp paired-end reads (King Lab) or NextSeq with 2x150 bp paired-end reads (Color) using modified versions of the BROCA panel<a id="1" href="#footnotes"><sup>1</sup></a>. Median coverage per sample was >250x.</p>
-      <p>Paired-end sequence reads were aligned to the human reference genome (hg19) using Burrows-Wheeler Aligner 0.7.9a. Removal of PCR duplicates, sorting, and indexing were carried out with SAMtools v0.1.19. Data was excluded for 3 samples with low coverage and 2 samples with low quality. For quality control, WHI included 105 duplicates and 20 triplicates, blinded to the sequencing teams. These duplicates and triplicates were all identified and removed.</p>
-      <p>Indel realignments and base quality score recalibration were based on with Genome Analysis Tool Kit (GATK; v3.0-0) using recommended parameters. Variants were detected with GATK Unified Genotyper. Variants were included if variant fraction was at least 0.25. Copy number variants were identified using our read-depth-based in-house pipeline.</p>
-    </div>
-    <div class="about-paragraph">
-      <h3>Ancestry</h3>
-      <p>Ancestry of each sample was estimated using more than 500 ancestry-informative markers and principal components analysis<a id="2" href="#footnotes"><sup>2</sup></a>, calibrating to genotypes from Human Genome Diversity Panel<a id="3" href="#footnotes"><sup>3</sup></a>.</p>
-      <p>Each sample was assigned to the population with highest estimated likelihood of ancestry. Ancestry analysis yielded estimates of 7,239 women of European American ancestry and 2,530 women of African American ancestry.</p>
-    </div>
-    <div class="about-paragraph">
-      <p>This site uses <a href="https://github.com/ColorGenomics/exac_browser">a modified version</a> of the open source <a href="https://github.com/konradjk/exac_browser">ExAC Browser</a>, developed by <a href="http://broadinstitute.org/">The Broad Institute</a> and distributed <a href="https://github.com/konradjk/exac_browser/blob/master/LICENSE">under the MIT License</a>.</p>
-    </div>
-=======
+
+<div class="about-paragraph">
 <h3>Participants</h3>
-
 <p>Participants in this sequencing project are women who joined the <a href="https://www.whi.org/SitePages/WHI%20Home.aspx">Women’s Health Initiative</a> (WHI) between 1993 and 2005. All participants were 50-79 years old and without any history of cancer at enrollment. More than 160,000 women enrolled in WHI, contributed DNA at enrollment, and have been followed ever since. From the WHI participants who are now older than age 70 years and have remained cancer-free, approximately 10,000 women were selected at random for this sequencing project: approximately 7,000 women who self-identified as European American and 3,000 women who identified as African American ancestry. Ancestries were estimated with more than 500 ancestry-informative markers.</p>
+</div>
 
+<div class="about-paragraph">
 <h3>Genes</h3>
-
 <p>Genes analyzed include established breast cancer genes, both high and moderate penetrance, and genes that have been suggested to predispose to breast cancer when mutant. Strength of evidence varies for these candidate genes. The genes are:</p>
 
 <p><em>
@@ -84,26 +60,28 @@
 </em></p>
 
 <p>For each gene, rare and common variants in coding regions, 5’UTR, 3’UTR, donor splice sites with 6 flanking bp, and acceptor splice sites with 20 flanking bp are included. Point mutations, small indels, and CNVs are included (although CNV calls are still incomplete in v1).</p>
+</div>
 
+<div class="about-paragraph">
 <h3>Sequencing</h3>
-
 <p>Sequencing was carried out in the <a href="http://www.gs.washington.edu/faculty/king.htm">King Lab</a> at the <a href="http://www.gs.washington.edu/">University of Washington</a>, Seattle, and by <a href="https://www.color.com/">Color Genomics</a> on an <a href="http://www.illumina.com/">Illumina</a> HiSeq with 2x100 bp paired-end reads (King Lab) or NextSeq with 2x150 bp paired-end reads (Color) using modified versions of the BROCA panel<a id="1" href="#footnotes"><sup>1</sup></a>. Median coverage per sample was >250x.</p>
 
 <p>Paired-end sequence reads were aligned to the human reference genome (hg19) using <a href="http://bio-bwa.sourceforge.net/">Burrows-Wheeler Aligner</a> <a href="https://github.com/lh3/bwa/releases/tag/0.7.9a">0.7.9a</a>. Removal of PCR duplicates, sorting, and indexing were carried out with <a href="http://www.htslib.org/">SAMtools</a> <a href="https://github.com/samtools/samtools/releases/tag/0.1.19">v0.1.19</a>. Data was excluded for 3 samples with low coverage and 2 samples with low quality. For quality control, WHI included 105 duplicates and 20 triplicates, blinded to the sequencing teams. These duplicates and triplicates were all identified and removed.</p>
 
 <p>Indel realignments and base quality score recalibration were based on with <a href="https://www.broadinstitute.org/gatk/">Genome Analysis Tool Kit</a> (GATK) <a href="https://software.broadinstitute.org/gatk/guide/version-history#id3928">v3.0</a> using recommended parameters. Variants were detected with <a href="https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_genotyper_UnifiedGenotyper.php">GATK Unified Genotyper</a>. Variants were included if variant fraction was at least 0.25. Copy number variants were identified using our read-depth-based in-house pipeline.</p>
+</div>
 
+<div class="about-paragraph">
 <h3>Ancestry</h3>
-
 <p>Ancestry of each sample was estimated using more than 500 ancestry-informative markers and principal components analysis<a id="2" href="#footnotes"><sup>2</sup></a>, calibrating to genotypes from the <a href="http://www.hagsc.org/hgdp/">Human Genome Diversity Project</a><a id="3" href="#footnotes"><sup>3</sup></a>.</p>
 
 <p>Each sample was assigned to the population with highest estimated likelihood of ancestry.</p>
 
 <p>Ancestry analysis yielded estimates of 7,239 women of European American ancestry and 2,530 women of African American ancestry.</p>
+</div>
 
-<br>
+<div class="about-paragraph">
 <p>This site uses <a href="https://github.com/ColorGenomics/exac_browser">a modified version</a> of the open source <a href="https://github.com/konradjk/exac_browser">ExAC Browser</a>, developed by <a href="http://broadinstitute.org/">The Broad Institute</a> (Konrad Karczewski, Daniel MacArthur, Brett Thomas, Ben Weisburd) and distributed <a href="https://github.com/konradjk/exac_browser/blob/master/LICENSE">under the MIT License</a>.</p>
->>>>>>> origin/whi_skin
 </div>
 </div>
 
