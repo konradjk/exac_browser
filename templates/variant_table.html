@@ -189,6 +189,13 @@
         });
 
         $('.consequence_display_buttons').on('change click', function (event) {
+            target = $(event.currentTarget);
+            if (target.hasClass('disabled')) return;
+
+            $('.consequence_display_buttons.active').removeClass('active');
+            target.addClass('active');
+            $('#filter-dropdown').text(target.text());
+
             setTimeout(function() {
                 update_variants();
                 // update_cnvs();

@@ -358,35 +358,25 @@ p{
     text-transform: none;
 }
 
+#filter-bar {
+    padding: 10px 30px;
+    background-color: #fff;
+}
+
 #variant_table td {
     max-width: 200px;
 }
 
-#variant_table, #consequence-buttons {
+#variant_table {
     margin-top: 0;
-}
-
-#consequence-buttons {
-    display: block;
-    overflow-x: auto;
 }
 
 .tablesorter-sticky-visible {
     overflow: hidden;
 }
 
-#consequence-buttons {
-    margin-bottom: 0;
-}
-
-.consequence_display_buttons {
-    border: 1px solid #ddd !important;
-}
-
-.consequence_display_buttons:hover, .table th:hover,
-.table > thead > tr > td.consequence_display_buttons.active {
-    color: #fff;
-    background-color: #6766a4;
+.consequence_display_buttons a {
+    cursor: pointer;
 }
 
 .lof_variant {

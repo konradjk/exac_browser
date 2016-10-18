@@ -566,6 +566,8 @@ function update_variants() {
         $('tr.table_variant').hide();
         $('[consequence=' + active + ']').show();
     }
+
+    $('filter_dropdown').text($(active_elem).text());
 }
 
 function update_cnvs() {
