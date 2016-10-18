@@ -376,6 +376,7 @@ h4{
 
 #gene_plot {
     overflow: auto;
+    padding: 40px 0 40px 30px;
 }
 
 .tooltip_hover {
