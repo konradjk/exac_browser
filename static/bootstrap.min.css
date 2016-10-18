@@ -3070,13 +3070,13 @@ input[type="button"].btn-block {
 }
 .caret {
     display: inline-block;
-    width: 0;
-    height: 0;
-    margin-left: 2px;
+    width: 10px;
+    height: 10px;
+    margin: 2px;
     vertical-align: middle;
-    border-top: 4px solid;
-    border-right: 4px solid transparent;
-    border-left: 4px solid transparent
+  	background-repeat: no-repeat;
+    background-image: url(/static/dropdown_downArrow_purple@2x.png);
+    background-size: 10px;
 }
 .dropdown {
     position: relative
@@ -3116,12 +3116,12 @@ input[type="button"].btn-block {
 }
 .dropdown-menu>li>a {
     display: block;
-    padding: 3px 20px;
+    padding: 10px 20px;
     clear: both;
     font-weight: normal;
     line-height: 1.42857143;
     color: #333;
-    white-space: nowrap
+    white-space: nowrap;
 }
 .dropdown-menu>li>a:hover,
 .dropdown-menu>li>a:focus {
@@ -3132,10 +3132,8 @@ input[type="button"].btn-block {
 .dropdown-menu>.active>a,
 .dropdown-menu>.active>a:hover,
 .dropdown-menu>.active>a:focus {
-    color: #fff;
     text-decoration: none;
     outline: 0;
-    background-color: #428bca
 }
 .dropdown-menu>.disabled>a,
 .dropdown-menu>.disabled>a:hover,
@@ -3299,7 +3297,7 @@ input[type="button"].btn-block {
     box-shadow: none
 }
 .btn .caret {
-    margin-left: 0
+    margin-left: 3px;
 }
 .btn-lg .caret {
     border-width: 5px 5px 0;
