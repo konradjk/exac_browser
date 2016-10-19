@@ -115,7 +115,7 @@
             <td><a href="<%= path %>"><%= variant.uw['cDNA'] %></a></td>
             <td><a href="<%= path %>"><%= variant.uw['Protein'] %></a></td>
 
-            <td class="omit_csv">
+            <td>
                 <% var display = variant.chrom + ':' + variant.pos + ' ' + variant.ref + (variant.alt ? ' > ' + variant.alt : '') %>
                 <a href="<%= path %>" title="<%= display %>"><%= display %></a>
             </td>
