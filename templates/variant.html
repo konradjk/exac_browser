@@ -12,6 +12,7 @@
 {% block body %}
 {% include 'site_banner.html' %}
     <!-- Render context vars in JS here -->
+{# No coverage for WHI
     <script type="text/javascript">
         window.variant = {{ variant|tojson|safe }};
         window.base_coverage = {{ base_coverage|tojson|safe }};
@@ -41,6 +42,7 @@
             });
         });
     </script>
+#}
     <style>
     .d3_graph {
         font: 10px sans-serif;
