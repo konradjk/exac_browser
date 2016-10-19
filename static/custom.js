@@ -3,15 +3,16 @@ $(document).ready(function() {
 
   // Home page search binds to hide presuggestions when overridden by typeahead
   $("#home-searchbox-input").bind("focus", function() {
-    $(".suggestions").show()
+    $(".suggestions").clearQueue().queue(function() {
+      $(".suggestions").show()
+    })
   })
   $("#home-searchbox-input").bind("blur", function() {
-    $(".suggestions").delay(300).queue(function() {
+    $(".suggestions").clearQueue().delay(200).queue(function() {
       $(".suggestions").hide()
     })
   })
   $("#home-searchbox-input").bind("keyup", function() {
-    console.log($(this).val())
     if($(this).val() != "") {
       $(".suggestions").hide()
     } else {
