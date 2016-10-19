@@ -124,12 +124,7 @@
             <td><%= variant.uw['Isoform'] %></td>
 
             <td style="text-transform: capitalize"><%= variant.uw['Annotation'] %></td>
-            <td>
-                <% if (variant.uw['Splice change (MaxEnt)']) { %>
-                    <% var splice = variant.uw['Splice change (MaxEnt)'].split(' ')[0].split(':'); %>
-                    <%= splice[0].replace('Donor', 'don').toLowerCase() %>:<%= splice[3] %>
-                <% } %>
-            </td>
+            <td><%= variant.splice_change %></td>
 
             <td><%= variant.uw['EA'] %></td>
             <td><%= variant.uw['AA'] %></td>
