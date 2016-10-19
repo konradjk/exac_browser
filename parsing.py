@@ -328,8 +328,8 @@ def get_variants_from_whi_tsv(tsv_file, genes):
 
         variant = {
             'genes': [gene['gene_id']],
-            # line['Isoform'] has this in NM notation
             'transcripts': [gene['canonical_transcript']],
+            'transcript_nm': gene['canonical_transcript_nm'],
             'chrom': line['Chr'],
             'pos': int(line['Start'].replace(',', '')),
             'rsid': '.',
@@ -360,6 +360,11 @@ def get_variants_from_whi_tsv(tsv_file, genes):
                 'allele_num': ALLELE_NUM_RECQL,
                 'pop_ans': POP_NUM_RECQL,
             })
+
+        # CHEK2 has two transcripts we use
+        if gene['gene_name'] == 'CHEK2' and line['Isoform'].split('.')[0] == 'NM_001005735':
+            variant['transcripts'] = ['ENST00000382580']
+            variant['transcript_nm'] = line['Isoform']
 
         # derived fields
         xpos = get_xpos(variant['chrom'], variant['pos'])

@@ -266,7 +266,7 @@ def load_gene_models():
         for gene, transcript in get_canonical_transcripts(canonical_transcript_file):
             canonical_transcripts_by_gene_id[gene] = transcript
 
-    canonical_transcripts_by_gene_name = {}  # value is ordered list of transcript ids
+    canonical_transcripts_by_gene_name = {}  # value is (Ensembl ID, NCBI ID)
     if os.path.isfile(app.config['CANONICAL_TRANSCRIPTS_YAML']):
         # Expected format:
         #
@@ -284,7 +284,7 @@ def load_gene_models():
         with open(app.config['CANONICAL_TRANSCRIPTS_YAML']) as f:
             for gene, categories in yaml.load(f).items():
                 canonical_transcripts_by_gene_name[gene.upper()] = \
-                    categories.get('primary_transcripts', {}).keys()
+                    categories['primary_transcripts'].items()[0]
                     # + categories.get('secondary_transcripts', {}).keys())
 
     omim_annotations = {}
@@ -311,7 +311,9 @@ def load_gene_models():
             gene_id = gene['gene_id']
             gene_name = gene['gene_name_upper']
             if gene_name in canonical_transcripts_by_gene_name:
-                gene['canonical_transcript'] = canonical_transcripts_by_gene_name[gene_name][0]
+                enst, nm = canonical_transcripts_by_gene_name[gene_name]
+                gene['canonical_transcript'] = enst
+                gene['canonical_transcript_nm'] = nm
             elif gene_id in canonical_transcripts_by_gene_id:
                 gene['canonical_transcript'] = canonical_transcripts_by_gene_id[gene_id]
             if gene_id in omim_annotations:
@@ -339,7 +341,7 @@ def load_gene_models():
     with gzip.open(app.config['GENCODE_GTF']) as gtf_file:
         def keep(transcript):
             transcripts = canonical_transcripts_by_gene_name.get(gene_names[transcript['gene_id']])
-            return transcripts is None or transcript['transcript_id'] in transcripts
+            return transcripts is None or transcript['transcript_id'] == transcripts[0]
         db.transcripts.insert((transcript for transcript in get_transcripts_from_gencode_gtf(gtf_file) if keep(transcript)), w=0)
     print 'Done loading transcripts. Took %s seconds' % int(time.time() - start_time)
 
