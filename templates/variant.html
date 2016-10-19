@@ -161,21 +161,20 @@
                 {% endif %}
             </h1>
             <div class="transcript">
-              {% for nom in variant.nomenclatures %}
+              <h5>{% for nom in variant.nomenclatures %}
                   {% if nom and nom != variant.HGVSc and nom != variant.HGVSp %}
                       {{ nom }}
                       <span class="gray"> | </span>
                   {% endif %}
               {% endfor %}
-              chr{{ variant.chrom }}.GRCh37:
+              chr{{ variant.chrom }}.GRCh37
               {{ variant.pos }} {{ variant.ref }}
               {% if variant.alt %}
-                  > {{ variant.alt }}
+                  > {{ variant.alt }}</h5>
               {% endif %}
-              <br>
-              <span class="annotation">{{ variant.uw['Annotation'] }}</span>
+              </h5><span class="annotation">{{ variant.uw['Annotation'] }}</span>
               | {{ variant.uw['Isoform'] }}
-              | {{ variant.transcripts[0] }}
+              | {{ variant.transcripts[0] }}</h5>
             </div>
             </div>
 
