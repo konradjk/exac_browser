@@ -635,6 +635,7 @@ TODO: come up with a better way to position tooltip
     -webkit-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
     -moz-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
     box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
+    z-index: 1;
 }
 .suggestions__title {
     text-transform: uppercase;
