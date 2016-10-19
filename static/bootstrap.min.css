@@ -3865,7 +3865,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     padding-bottom: 10px;
     line-height: 20px
 }
-@media (max-width: 767px) {
+/*@media (max-width: 767px) {
     .navbar-nav .open .dropdown-menu {
         position: static;
         float: none;
@@ -3886,7 +3886,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     .navbar-nav .open .dropdown-menu>li>a:focus {
         background-image: none
     }
-}
+}*/
 @media (min-width: 768px) {
     .navbar-nav {
         float: left;
@@ -3957,11 +3957,11 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
         top: 0
     }
 }
-@media (max-width: 767px) {
+/*@media (max-width: 767px) {
     .navbar-form .form-group {
         margin-bottom: 5px
     }
-}
+}*/
 @media (min-width: 768px) {
     .navbar-form {
         width: auto;
@@ -4067,7 +4067,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     background-color: #e7e7e7;
     color: #555
 }
-@media (max-width: 767px) {
+/*@media (max-width: 767px) {
     .navbar-default .navbar-nav .open .dropdown-menu>li>a {
         color: #777
     }
@@ -4088,7 +4088,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
         color: #ccc;
         background-color: transparent
     }
-}
+}*/
 .navbar-default .navbar-link {
     color: #777
 }
@@ -4150,7 +4150,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
     background-color: #080808;
     color: #fff
 }
-@media (max-width: 767px) {
+/*@media (max-width: 767px) {
     .navbar-inverse .navbar-nav .open .dropdown-menu>.dropdown-header {
         border-color: #080808
     }
@@ -4177,7 +4177,7 @@ select[multiple].input-group-sm>.input-group-btn>.btn {
         color: #444;
         background-color: transparent
     }
-}
+}*/
 .navbar-inverse .navbar-link {
     color: #999
 }
@@ -5754,7 +5754,7 @@ button.close {
 .visible-lg {
     display: none !important
 }
-@media (max-width: 767px) {
+/*@media (max-width: 767px) {
     .visible-xs {
         display: block !important
     }
@@ -5768,7 +5768,7 @@ button.close {
     td.visible-xs {
         display: table-cell !important
     }
-}
+}*/
 @media (min-width: 768px) and (max-width: 991px) {
     .visible-sm {
         display: block !important
@@ -5814,11 +5814,11 @@ button.close {
         display: table-cell !important
     }
 }
-@media (max-width: 767px) {
+/*@media (max-width: 767px) {
     .hidden-xs {
         display: none !important
     }
-}
+}*/
 @media (min-width: 768px) and (max-width: 991px) {
     .hidden-sm {
         display: none !important

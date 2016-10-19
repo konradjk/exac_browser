@@ -2,6 +2,14 @@
  * light: #a15eb6
  * rich/dark: #6766a4
  */
+
+.body_ {
+  min-width: 768px;
+  margin: 0 auto;
+  position: relative;
+  background: #eee; /* Fills the page */
+}
+
 body {
     font-family: "Gotham A", "Gotham B", Helvetica, Arial, sans-serif;
     font-weight: 400;
@@ -41,6 +49,7 @@ a, a:hover, .dropdown-toggle {
 }
 
 .navbar {
+    min-width: 768px;
     height: 90px;
     padding-left: 40px;
     padding-right: 40px;
@@ -73,6 +82,15 @@ a, a:hover, .dropdown-toggle {
     margin-top: 20px;
 }
 
+.navbar-header {
+    float: left
+}
+
+/* Always hide hamburger button */
+.navbar-toggle {
+    display: none
+}
+
 .navbar-brand a {
     vertical-align: bottom;
     font-size: 32px;
@@ -86,7 +104,6 @@ a, a:hover, .dropdown-toggle {
 }
 
 #navbar_form_container {
-    margin-left: -50px;
     margin-top: 25px;
 }
 
