@@ -174,8 +174,8 @@
               {% endif %}
               </h5>
               <span class="annotation">{{ variant.uw['Annotation'] }}</span>
-              {% if variant.splice_change %}
-                  | {{ variant.splice_change }}
+              {% if variant.uw['Splice change (MaxEnt)'] %}
+                  | {{ variant.uw['Splice change (MaxEnt)'] }}
               {% endif %}
               | {{ variant.transcript_nm }}
               | {{ variant.transcripts[0] }}
