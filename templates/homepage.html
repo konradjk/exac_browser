@@ -1,9 +1,8 @@
 {% extends "layout.html" %}
+
+{% block body_class %}homepage{% endblock %}
+
 {% block body %}
-<script>
-    $('#navbar_form_container').hide();
-</script>
-<body style="background-color:white">
 <div class="container home">
     <div id="home-splash" class="row">
         <h1 class="col-md-8 col-md-offset-2" id="home-title" style="font-weight:400">
@@ -39,5 +38,4 @@
         </div>
     </div>
 </div>
-</body>
 {% endblock %}

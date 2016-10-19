@@ -15,6 +15,14 @@ body {
     background-color: #eee;
 }
 
+body.homepage {
+    background-color: #fff;
+}
+
+.homepage #navbar_form_container {
+    display: none;
+}
+
 a, a:hover, .dropdown-toggle {
     color: #a15eb6;
 }
