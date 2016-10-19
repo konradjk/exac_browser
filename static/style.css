@@ -3,7 +3,7 @@
  * rich/dark: #6766a4
  */
 
-.body_ {
+.body__wrapper {
   min-width: 768px;
   margin: 0 auto;
   position: relative;
