@@ -167,12 +167,15 @@
                       <span class="gray"> | </span>
                   {% endif %}
               {% endfor %}
-              {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }}
+              chr{{ variant.chrom }}.GRCh37:
+              {{ variant.pos }} {{ variant.ref }}
               {% if variant.alt %}
                   > {{ variant.alt }}
               {% endif %}
               <br>
               <span class="annotation">{{ variant.uw['Annotation'] }}</span>
+              | {{ variant.uw['Isoform'] }}
+              | {{ variant.transcripts[0] }}
             </div>
             </div>
 
