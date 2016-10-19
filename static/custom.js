@@ -6,7 +6,9 @@ $(document).ready(function() {
     $(".suggestions").show()
   })
   $("#home-searchbox-input").bind("blur", function() {
-    $(".suggestions").hide()
+    $(".suggestions").delay(300).queue(function() {
+      $(".suggestions").hide()
+    })
   })
   $("#home-searchbox-input").bind("keyup", function() {
     console.log($(this).val())
