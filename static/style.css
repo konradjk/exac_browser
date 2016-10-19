@@ -378,7 +378,7 @@ p{
 
 #variant_table td {
     min-width: 40px;
-    max-width: 230px;
+    max-width: 190px;
     overflow: hidden; /* don't allow hoz scroll on cells */
 }
 
