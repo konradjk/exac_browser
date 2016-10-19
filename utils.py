@@ -194,6 +194,7 @@ csq_order = ["transcript_ablation",
 "non_coding_transcript_exon_variant",
 "non_coding_exon_variant",  # deprecated
 "intron_variant",
+"intergenic",
 "intronic",
 "silent",
 "upstream",
