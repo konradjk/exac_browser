@@ -74,6 +74,11 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
+                                Ensembl
+                            </a>
+                        </li>
                         <li role="presentation" class="visible-xs-block">
                             <a href="http://exac.broadinstitute.org/gene/{{ gene.gene_id }}" target="_blank">
                                 ExAC
@@ -84,6 +89,11 @@
                                 GeneCards
                             </a>
                         </li>
+                        <li role="presentation">
+                            <a role="menuitem" tabindex="-1" href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
+                                GTEx (Expression)
+                            </a>
+                        </li>
                         {% if gene.omim_accession %}
                         <li role="presentation" class="visible-xs-block">
                             <a href="http://omim.org/entry/{{ gene.omim_accession }}" target="_blank">
@@ -91,24 +101,14 @@
                             </a>
                         </li>
                         {% endif %}
-                        <li role="presentation" class="visible-xs-block">
-                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
-                                UCSC Browser
-                            </a>
-                        </li>
-                        <li role="presentation">
-                            <a role="menuitem" tabindex="-1" href="http://grch37.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.gene_id }}" target="_blank">
-                                Ensembl
-                            </a>
-                        </li>
-                        <li role="presentation">
-                            <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/wiki/{{ gene.gene_name }}" target="_blank">
-                                Wikipedia
-                            </a>
-                        </li>
                         <li role="presentation">
                             <a role="menuitem" tabindex="-1" href="http://www.ncbi.nlm.nih.gov/pubmed?term={{ gene.gene_name }}" target="_blank">
                                 PubMed Search
+                            </a>
+                        </li>
+                        <li role="presentation" class="visible-xs-block">
+                            <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ gene.chrom }}%3A{{ gene.start - 1 }}-{{ gene.stop - 1 }}" target="_blank">
+                                UCSC Browser
                             </a>
                         </li>
                         <li role="presentation">
@@ -117,8 +117,8 @@
                             </a>
                         </li>
                         <li role="presentation">
-                            <a role="menuitem" tabindex="-1" href="http://www.gtexportal.org/home/gene/{{ gene.gene_name }}" target="_blank">
-                                GTEx (Expression)
+                            <a role="menuitem" tabindex="-1" href="http://en.wikipedia.org/wiki/{{ gene.gene_name }}" target="_blank">
+                                Wikipedia
                             </a>
                         </li>
                     </ul>

@@ -187,11 +187,9 @@
                 </button>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
                     <li role="presentation" class="visible-xs-block">
-                        {% if variant.rsid and variant.rsid != "." %}
-                            <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">dbSNP</a>
-                        {% else %}
-                            Not found in dbSNP
-                        {% endif %}
+                        <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
+                            ClinVar
+                        </a>
                     </li>
                     <li role="presentation" class="visible-xs-block">
                         <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
@@ -201,11 +199,6 @@
                     <li role="presentation" class="visible-xs-block">
                         <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
                             UCSC
-                        </a>
-                    </li>
-                    <li role="presentation" class="visible-xs-block">
-                        <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
-                            ClinVar
                         </a>
                     </li>
                 </ul>
