@@ -96,6 +96,11 @@ a, a:hover, .dropdown-toggle {
     color: #6766a4;
 }
 
+.navbar-brand a:hover{
+    text-decoration: none;
+    color: #6766a4;
+}
+
 .navbar navbar-default{
     display: inline-block;
     vertical-align: middle;
