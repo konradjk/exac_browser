@@ -7,7 +7,7 @@
   min-width: 768px;
   margin: 0 auto;
   position: relative;
-  background: #eee; /* Fills the page */
+  background: #fff; /* Fills the page */
 }
 
 body {
@@ -358,7 +358,8 @@ p{
 }
 
 #variant_table td {
-    min-width: 50px;
+    min-width: 40px;
+    max-width: 230px;
 }
 
 #variant_table {
@@ -601,7 +602,12 @@ TODO: come up with a better way to position tooltip
     border: none;
     width: 12%;
 }
-
+// IE11 hack to get the button height correct
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    .search-button {
+        height: 52px;
+    }
+}
 
 .suggestions {
     display: none;
