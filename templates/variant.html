@@ -186,7 +186,7 @@
                 </button>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
                     <li role="presentation" class="visible-xs-block">
-                        <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
+                        <a href="http://www.ncbi.nlm.nih.gov/clinvar?term=({{ variant.chrom }}%5BChromosome%5D)%20AND%20{{ variant.pos }}%5BBase%20Position%20for%20Assembly%20GRCh37%5D" target="_blank">
                             ClinVar
                         </a>
                     </li>
