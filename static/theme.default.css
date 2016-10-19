@@ -33,28 +33,35 @@ a:focus {
 }
 .tablesorter-default .header,
 .tablesorter-default .tablesorter-header {
+	background-image: url(/static/dropdown_downArrow@2x.png);
+	background-size: 10px;
 	background-position: center right 20px;
 	background-repeat: no-repeat;
 	cursor: pointer;
 	white-space: normal;
 	padding: 13px 20px;
+	border-bottom: 5px solid #C5BEC7;
 }
 .tablesorter-default thead .headerSortUp,
 .tablesorter-default thead .tablesorter-headerSortUp,
 .tablesorter-default thead .tablesorter-headerAsc {
 	background-image: url(/static/dropdown_upArrow@2x.png);
-	background-size: 10px;}
+	background-size: 10px;
+	border-bottom: 5px solid #6766A4;
+}
+
 /*.tablesorter-default thead .headerSortDown,
 .tablesorter-default thead .tablesorter-headerSortDown,*/
 .tablesorter-default thead .tablesorter-headerDesc {
 	background-image: url(/static/dropdown_downArrow@2x.png);
 	background-size: 10px;
+	border-bottom: 5px solid #6766A4;
 }
-.tablesorter-default thead .sorter-false {
+/.tablesorter-default thead .sorter-false {
 	background-image: none;
 	cursor: default;
 	padding: 8px;
-}
+}*/
 
 /* tfoot */
 .tablesorter-default tfoot .tablesorter-headerSortUp,
