@@ -16,16 +16,13 @@
                     <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search by variant, gene, or transcript"/>
                     <button type="submit" class="search-button"><img src="/static/searchIcon@2x.png" style="width: 25px;"></button>
                 </form>
-
-                    <!-- <a href="/transcript/ENST00000260947"></a>, -->
-
-                <p id="home-examples" class="text-muted">
-                    Ex:
-                    <a href="/awesome?query=BRCA1">BRCA1</a>,
-                    <a href="/awesome?query=c.G661T">c.G661T</a>,
-                    <a href="/awesome?query=p.A221S">p.A221S</a>,
-                    <a href="/awesome?query=17:41247872 C>A">17:41247872 C>A</a>
-                </p>
+                <div class="suggestions">
+                    <div class="suggestions__title">Search Suggestions</div>
+                    <a class="suggestions__link" href="/awesome?query=BRCA1">BRCA1</a>
+                    <a class="suggestions__link" href="/awesome?query=c.G661T">c.G661T</a>
+                    <a class="suggestions__link" href="/awesome?query=p.A221S">p.A221S</a>
+                    <a class="suggestions__link" href="/awesome?query=17:41247872 C>A">17:41247872 C>A</a>
+                </div>
             </div>
         </div>
     </div>

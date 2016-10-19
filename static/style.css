@@ -101,26 +101,6 @@ a, a:hover, .dropdown-toggle {
     border: 1px solid #DDDDDD;
 }
 
-#navbar-searchbox-input, .twitter-typeahead {
-    background: #fff;
-}
-
-#navbar-searchbox-input {
-    min-width: 400px;
-    height: 46px;
-}
-
-.search-button {
-    display: inline-block;
-    height: 46px;
-    margin: 0;
-    float: right;
-    background-color: #F5A623;
-    outline: none;
-    border: none;
-    width: 12%;
-}
-
 #navbar_links {
     height: 100%;
     float: right;
@@ -169,14 +149,8 @@ a, a:hover, .dropdown-toggle {
     margin: auto;
 }
 
-#home-searchbox form, #home-examples {
+#home-searchbox form {
     background-color: #fff;
-}
-
-#home-examples {
-    padding-left: 1em;
-    padding-bottom: 8px;
-    font-size: small;
 }
 
 .card {
@@ -300,10 +274,6 @@ p{
 #footnotes li {
     list-style: none;
     margin-bottom: 10px;
-}
-
-.twitter-typeahead {
-    width: 88%;
 }
 
 .link {
@@ -536,4 +506,88 @@ TODO: come up with a better way to position tooltip
     -webkit-transform: translate(-5px, 7px);
     -moz-transform:    translate(-5px, 7px);
     transform:         translate(-5px, 7px);
+}
+
+
+/* Suggestions box on home page / Twitter typeahead / homepage search box */
+#navbar-searchbox-input, .suggestions, .twitter-typeahead {
+    background: #FFFFFF;
+}
+.suggestions, .twitter-typeahead {
+    width: 88%;
+}
+
+#navbar-searchbox-input {
+    min-width: 400px;
+    height: 46px;
+}
+
+.search-button {
+    display: inline-block;
+    height: 46px;
+    margin: 0;
+    float: right;
+    background-color: #F5A623;
+    outline: none;
+    border: none;
+    width: 12%;
+}
+
+
+.suggestions {
+    display: none;
+    -webkit-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
+    -moz-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
+    box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
+}
+    .suggestions__title {
+        text-transform: uppercase;
+        font-size: 12px;
+        font-weight: 500;
+        color: #888;
+        padding: 10px 18px;
+    }
+    .suggestions__link {
+        display: block;
+        font-size: 14px;
+        color: #333;
+        padding: 8px 18px 9px;
+        white-space: nowrap;
+    }
+        .suggestions__link:hover {
+            text-decoration: none;
+            outline: 0;
+            color: #333;
+            background-color: #ECECEC;
+        }
+
+.tt-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 440px;
+  background-color: #ffffff;
+  border: none;
+  -webkit-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
+  -moz-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
+  box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
+  font-size: 14px;
+}
+.tt-suggestion > p {
+  display: block;
+  padding: 8px 18px 9px;
+  clear: both;
+  font-weight: normal;
+  white-space: nowrap;
+  margin-bottom: 0;
+}
+.tt-suggestion > p:hover,
+.tt-suggestion > p:focus,
+.tt-suggestion.tt-cursor p {
+  cursor: pointer;
+  text-decoration: none;
+  outline: 0;
+  background-color: #ECECEC;
 }
