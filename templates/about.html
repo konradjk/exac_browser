@@ -59,7 +59,7 @@
 <a href="/awesome?query=XRCC2">XRCC2</a>
 </em></p>
 
-<p>For each gene, rare and common variants in coding regions, 5’UTR, 3’UTR, donor splice sites with 6 flanking bp, and acceptor splice sites with 20 flanking bp are included. Point mutations, small indels, and CNVs are included (although CNV calls are still incomplete in v1).</p>
+<p>For each gene, rare and common variants in coding regions, 5’UTR, 3’UTR, donor splice sites with 6 flanking bp, and acceptor splice sites with 20 flanking bp are included. Point mutations and small indels are included. <!-- and CNVs are included (although CNV calls are still incomplete in v1). --></p>
 </div>
 
 <div class="about-paragraph">
@@ -68,7 +68,8 @@
 
 <p>Paired-end sequence reads were aligned to the human reference genome (hg19) using <a href="http://bio-bwa.sourceforge.net/" target="_blank">Burrows-Wheeler Aligner</a> 0.7.9a. Removal of PCR duplicates, sorting, and indexing were carried out with <a href="http://www.htslib.org/" target="_blank">SAMtools</a> v0.1.19. Data was excluded for 3 samples with low coverage and 2 samples with low quality. For quality control, WHI included 105 duplicates and 20 triplicates, blinded to the sequencing teams. These duplicates and triplicates were all identified and removed.</p>
 
-<p>Indel realignments and base quality score recalibration were based on with <a href="https://www.broadinstitute.org/gatk/" target="_blank">Genome Analysis Tool Kit</a> (GATK v3.0) using recommended parameters. Variants were detected with <a href="https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_genotyper_UnifiedGenotyper.php" target="_blank">GATK Unified Genotyper</a>. Variants were included if variant fraction was at least 0.25. Copy number variants were identified using our read-depth-based in-house pipeline.</p>
+<p>Indel realignments and base quality score recalibration were based on with <a href="https://www.broadinstitute.org/gatk/" target="_blank">Genome Analysis Tool Kit</a> (GATK v3.0) using recommended parameters. Variants were detected with <a href="https://software.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_gatk_tools_walkers_genotyper_UnifiedGenotyper.php" target="_blank">GATK Unified Genotyper</a>. Variants were included if variant fraction was at least 0.25.
+<!-- Copy number variants were identified using our read-depth-based in-house pipeline. --></p>
 </div>
 
 <div class="about-paragraph">
