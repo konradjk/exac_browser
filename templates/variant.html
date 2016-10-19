@@ -202,6 +202,11 @@
                         </a>
                     </li>
                     <li role="presentation" class="visible-xs-block">
+                        <a href="http://gnomad.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
+                            gnomAD
+                        </a>
+                    </li>
+                    <li role="presentation" class="visible-xs-block">
                         <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
                             UCSC
                         </a>
