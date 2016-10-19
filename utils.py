@@ -192,6 +192,7 @@ csq_order = ["transcript_ablation",
 "intron_variant",
 "intronic",
 "silent",
+"upstream",
 "NMD_transcript_variant",
 "non_coding_transcript_variant",
 "nc_transcript_variant",  # deprecated

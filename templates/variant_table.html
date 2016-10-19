@@ -74,7 +74,8 @@
            "splice",
            "intronic",
            "nonsense",
-           "silent"
+           "silent",
+           "upstream"
            ];
         consequence_counts = _.sortBy(_.map(consequences, function(csq) {
             return [csq, consequence_to_count[csq] ? consequence_to_count[csq] : 0];

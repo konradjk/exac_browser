@@ -64,6 +64,7 @@ UW_ANNOTATION_NAMES = {
     'nonsense': 'nonsense',
     'silent': 'silent',
     'splice': 'splice',
+    'upstream': 'upstream',
 }
 
 
@@ -282,6 +283,7 @@ def get_variants_from_whi_tsv(tsv_file, genes):
         'nonsense': 'nonsense',
         'silent': 'silent',
         'splice': 'splice',
+        'upstream': 'upstream',
     }
 
     reader = csv.DictReader(tsv_file, dialect='excel-tab')
@@ -357,8 +359,7 @@ def get_variants_from_whi_tsv(tsv_file, genes):
         splice = line['Splice change (MaxEnt)']
         if splice:
             parts = splice.split(' ')[0].split(':')
-            variant['splice_change'] = ':'.join(
-                (parts[0].lower().replace('donor', 'don'), parts[3]))
+            variant['splice_change'] = ':'.join((parts[0].lower(), parts[3]))
 
         # RECQL was only sequenced by UW, so its total population size is different
         if line['Gene'] == 'RECQL':
