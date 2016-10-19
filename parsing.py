@@ -14,13 +14,13 @@ POPS = {
     'EUR': 'European American',
 }
 POP_NUM = {
-    'African American': 2530,
-    'European American': 7239,
+    'African American': 2559,
+    'European American': 7325,
 }
 # RECQL was only sequenced by UW, so its population sizes are different
 POP_NUM_RECQL = {
-    'African American': 1260,
-    'European American': 3578,
+    'African American': 1283,
+    'European American': 3646,
 }
 ALLELE_NUM = sum(POP_NUM.values())
 ALLELE_NUM_RECQL = sum(POP_NUM_RECQL.values())
