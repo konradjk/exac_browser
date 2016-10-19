@@ -171,6 +171,8 @@
               {% if variant.alt %}
                   > {{ variant.alt }}
               {% endif %}
+              <br>
+              <span class="annotation">{{ variant.uw['Annotation'] }}</span>
             </div>
             </div>
 
@@ -254,7 +256,7 @@
 
 {#          Lower display#}
         <div class="row">
-            <div id="frequency_table_container" class="col-md-7">
+            <div id="frequency_table_container" class="col-md-12">
                 {% with chrom = variant.chrom %}
                 <table id="frequency_table" class="tablesorter table table-bordered table-hover">
                     <caption>
@@ -329,44 +331,6 @@
                 {% endif %}
 #}
             </div>
-
-            <div id="annotation_table_container" class="col-md-5">
-                {% if variant.variant_id %}
-                    {% if variant.vep_annotations or variant.eff_annotations %}
-{# WHI: only primary transcript(s)
-                        <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
-#}
-                <table id="annotation_table" class="tablesorter table table-bordered table-hover">
-                    <caption>
-                      Annotations
-                    </caption>
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for consequence in consequences %}
-                            {% include 'variant_consequences.html' %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-{# WHI: only primary transcript(s)
-                        <small><span class="label label-info">Note:</span> This list may not include additional transcripts in the same gene that the variant does not overlap.</small>
-#}
-                    {% else %}
-                        No annotations were found for this variant.
-                    {% endif %}
-                {% else %}
-                    <h3>This variant is not found in WHI.</h3>
-                {% endif %}
-                </div>
-                <div id="browser_container">
-                </div>
-            </div>
-
 
         {#% if read_viz|length > 0  %#}
 

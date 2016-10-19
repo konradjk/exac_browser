@@ -282,8 +282,12 @@ p{
     color: #000;
 }
 
-#frequency_table, #annotation_table {
+#frequency_table {
     table-layout: auto;
+}
+
+.annotation {
+    text-transform: capitalize;
 }
 
 .table > tbody > tr > td {
@@ -402,10 +406,6 @@ p{
 
 #frequency_table_container {
     padding-left: 0;
-}
-
-#annotation_table_container {
-    padding-right: 0;
 }
 
 .gray {
