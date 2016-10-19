@@ -274,14 +274,10 @@
                         <tr>
                             <th>Population</th>
                             <th>Allele Count</th>
+                            <th>Homozygotes</th>
+                            <th>Heterozygotes</th>
                             <th>Total Subjects</th>
-                            <!-- {% if chrom != 'Y' %} -->
-                            <!--     <th title="Homozygotes">Hom</th> -->
-                            <!-- {% endif %} -->
-                            <!-- {% if chrom == 'X' or chrom == 'Y' %} -->
-                            <!--     <th>Hemi</th> -->
-                            <!-- {% endif %} -->
-                            <th>Overall Frequency</th>
+                            <th>Carrier Frequency</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -289,13 +285,9 @@
                             <tr>
                                 <td>{{ pop }}</td>
                                 <td>{{ variant.pop_acs[pop] }}</td>
+                                <td>{{ variant.pop_homs[pop] }}</td>
+                                <td>{{ variant.pop_hets[pop] }}</td>
                                 <td>{{ variant.pop_ans[pop] }}</td>
-                                <!-- {% if chrom != 'Y' %} -->
-                                <!--     <td>{{ variant.pop_homs[pop] }}</td> -->
-                                <!-- {% endif %} -->
-                                <!-- {% if chrom == 'X' or chrom == 'Y' %} -->
-                                <!--     <td>{{ variant.pop_hemis[pop] }}</td> -->
-                                <!-- {% endif %} -->
                                 {% if variant.pop_ans[pop] > 0 %}
                                     <td>{{ '%0.4g' % (variant.pop_acs[pop]/variant.pop_ans[pop]) }}</td>
                                 {% else %}
@@ -308,13 +300,9 @@
                         <tr>
                             <td>All</td>
                             <td>{{ variant.pop_acs.values()|sum }}</td>
+                            <td>{{ variant.pop_homs.values()|sum }}</td>
+                            <td>{{ variant.pop_hets.values()|sum }}</td>
                             <td>{{ variant.pop_ans.values()|sum }}</td>
-                            <!-- {% if chrom != 'Y' %} -->
-                            <!--     <td>{{ variant.pop_homs.values()|sum }}</td> -->
-                            <!-- {% endif %} -->
-                            <!-- {% if chrom == 'X' or chrom == 'Y' %} -->
-                            <!--     <td>{{ variant.pop_hemis.values()|sum }}</td> -->
-                            <!-- {% endif %} -->
                             <td>
                                 {% if variant.allele_freq is not none %}
                                     {{ '%0.4g' % variant.allele_freq }}

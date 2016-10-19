@@ -346,7 +346,14 @@ def get_variants_from_whi_tsv(tsv_file, genes):
             'allele_count': int(line['All carrier count']),
             'allele_num': ALLELE_NUM,
             'hom_count': int(line['Homoz']),
-            'pop_homs': {},
+            'pop_homs': {
+                'African American': int(line['AA homoz']),
+                'European American': int(line['EA homoz']),
+            },
+            'pop_hets': {
+                'African American': int(line['AA hets']),
+                'European American': int(line['EA hets']),
+            },
             'pop_acs': {
                 'African American': int(line['AA']),
                 'European American': int(line['EA']),
