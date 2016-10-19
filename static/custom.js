@@ -29,7 +29,7 @@ $(document).ready(function() {
     })
     // add gray em dash to empty table cells
     $("#variant_table td").each(function(index) {
-      if($(this).text() == "") {
+      if($(this).text().trim() == "") {
         $(this).append("<span class='empty-cell'></span>")
       }
     })

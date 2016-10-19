@@ -52,6 +52,7 @@
             <th>gHGVS</th>
             <th>Isoform</th>
             <th>Annotation</th>
+            <th>Splice Change</th>
             <th title="European American">European (n={{ pop_num['European American'] }})</th>
             <th title="African American">African (n={{ pop_num['African American'] }})</th>
             <th>Overall Frequency</th>
@@ -107,8 +108,8 @@
     <% _.each(table_variants, function(variant) { %>
         <tr class="table_variant" id="variant_<%= variant.variant_id %>"
             category="<%= variant.category %>" consequence="<%= variant.major_consequence %>" frequency="<%= variant.allele_freq %>">
-            <td class='hidden'><%= variant.chrom %></td>
-            <td class='hidden'><%= variant.pos %></td>
+            <td class="hidden"><%= variant.chrom %></td>
+            <td class="hidden"><%= variant.pos %></td>
             <td class="hidden"><%= variant.ref %></th>
             <td class="hidden"><%= variant.alt %></th>
 
@@ -123,9 +124,16 @@
             <td><%= variant.uw['Isoform'] %></td>
 
             <td style="text-transform: capitalize"><%= variant.uw['Annotation'] %></td>
+            <td>
+                <% if (variant.uw['Splice change (MaxEnt)']) { %>
+                    <% var splice = variant.uw['Splice change (MaxEnt)'].split(' ')[0].split(':'); %>
+                    <%= splice[0].replace('Donor', 'don').toLowerCase() %>:<%= splice[3] %>
+                <% } %>
+            </td>
+
             <td><%= variant.uw['EA'] %></td>
             <td><%= variant.uw['AA'] %></td>
-            <td><%= variant.allele_freq.toPrecision(4) %></td>
+            <td><%= variant.allele_freq.toPrecision(3) %></td>
 
 {# Old ExAC fields. We're now using exactly UW's fields.
             <td class="hidden"><%= variant.rsid %></td>
