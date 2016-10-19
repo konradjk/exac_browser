@@ -550,11 +550,6 @@ TODO: come up with a better way to position tooltip
     border: 1px solid #DDDDDD;
     margin-left: -100px;
 }
-@media (max-width: 768px) {
-    #navbar-awesomebar {
-        margin-left: 0px;
-    }
-}
 #navbar-awesomebar .tt-dropdown-menu {
     width: 351px;
     min-width: 351px;
@@ -568,6 +563,32 @@ TODO: come up with a better way to position tooltip
     min-width: 400px;
     height: 46px;
     padding-left: 18px;
+}
+@media (max-width: 850px) {
+    #navbar-awesomebar {
+        margin-left: -50px;
+    }
+}
+@media (max-width: 768px) {
+    #navbar-awesomebar {
+        margin-left: 0px;
+    }
+}
+@media (max-width: 767px) {
+    #navbar-awesomebar {
+        width: 350px;
+    }
+    #navbar-awesomebar .tt-dropdown-menu {
+        width: 301px;
+        min-width: 301px;
+    }
+    #navbar-searchbox-input {
+        min-width: 350px;
+    }
+    #navbar_form_container {
+        display: inline-block;
+        margin-top: 6px;
+    }
 }
 
 .search-button {
