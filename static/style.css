@@ -343,6 +343,18 @@ p{
     margin-top: 0;
 }
 
+#variant_table tr {
+    cursor: pointer;
+}
+
+#variant_table tr a {
+    color: #333;
+}
+
+#variant_table tr a:hover {
+    text-decoration: none;
+}
+
 .tablesorter-sticky-visible {
     overflow: hidden;
 }

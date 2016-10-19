@@ -1,7 +1,7 @@
 // Custom JS separate from all the components we're currently using
-
-// Home page search binds to hide presuggestions when overridden by typeahead
 $(document).ready(function() {
+
+  // Home page search binds to hide presuggestions when overridden by typeahead
   $("#home-searchbox-input").bind("focus", function() {
     $(".suggestions").show()
   })
@@ -17,5 +17,14 @@ $(document).ready(function() {
     } else {
       $(".suggestions").show()
     }
+  })
+
+  // Make .table_variant row clickable to the first link found
+  // Slight delay is needed because table is dynamically generated, should fix so these events bind once the tables generated
+  $("body").delay(500).queue(function() {
+    $("#variant_table .table_variant").click(function() {
+      var link = $(this).find("a").attr('href')
+      window.location = link
+    })
   })
 })
