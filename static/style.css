@@ -19,6 +19,14 @@ a, a:hover, .dropdown-toggle {
     color: #a15eb6;
 }
 
+#home-text p {
+    margin-bottom: 2em;
+}
+
+.about-paragraph p {
+    margin-bottom: 1.5em;
+}
+
 #header {
     background: #222;
 }
@@ -151,7 +159,7 @@ a, a:hover, .dropdown-toggle {
 
 #home-splash {
     height: 400px;
-    padding-top: 20px;
+    padding-top: 30px;
     background-color: #6766a4;
     /* background-image: url('/static/homePage_headerImage@2x.png'); */
     background-position: center;
