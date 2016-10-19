@@ -9,7 +9,7 @@ Default Theme
 	border-spacing: 0;
 	margin: 10px 0 15px;
 	text-align: left;
-	font-size: 14px;
+	font-size: 13px;
 }
 
 a:focus {
@@ -24,7 +24,7 @@ a:focus {
 	border-collapse: collapse;
 	/* border-bottom: #ccc 2px solid; */
 	padding: 8px;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 400;
 }
 .tablesorter-default tfoot th,
