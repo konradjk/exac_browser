@@ -620,3 +620,11 @@ TODO: come up with a better way to position tooltip
 .tt-hint {
     display: none !important;
 }
+/* add gray em dash to empty table cells */
+.empty-cell:after {
+    content: '—';
+    color: #aaa;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+}
