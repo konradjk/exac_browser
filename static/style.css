@@ -600,8 +600,6 @@ TODO: come up with a better way to position tooltip
     outline: none;
     border: none;
     width: 12%;
-    position: absolute;
-    top: 0;
 }
 // IE11 hack to get the button height correct
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
