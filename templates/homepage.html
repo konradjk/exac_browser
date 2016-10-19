@@ -13,8 +13,10 @@
             <div id="home-searchbox">
                 <form action="/awesome">
                     <input type="submit" style="display: none;"/>
-                    <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search by variant, gene, or transcript"/>
-                    <button type="submit" class="search-button"><img src="/static/searchIcon@2x.png" style="width: 25px;"></button>
+                    <div class="searchbox__wrapper">
+                        <input id="home-searchbox-input" name="query" class="form-control input-lg awesomebar" type="text" placeholder="Search by variant, gene, or transcript"/>
+                        <button type="submit" class="search-button"><img src="/static/searchIcon@2x.png" style="width: 25px;"></button>
+                    </div>
                 </form>
                 <div class="suggestions">
                     <div class="suggestions__title">Search Suggestions</div>
