@@ -175,10 +175,12 @@
                   > {{ variant.alt }}</h5>
               {% endif %}
               </h5>
-              <span class="annotation">{{ variant.uw['Annotation'] }}</span>
-              {% if variant.uw['Splice change (MaxEnt)'] %}
-                  | {{ variant.uw['Splice change (MaxEnt)'] }}
-              {% endif %}
+              <span class="capitalize">
+                  {{ variant.uw['Annotation'] }}
+                  {% if variant.uw['Splice change (MaxEnt)'] %}
+                  | {{ variant.uw['Splice change (MaxEnt)'].replace('Acc', 'Acceptor') }}
+                  {% endif %}
+              </span>
               | {{ variant.transcript_nm }}
               | {{ variant.transcripts[0] }}
             </div>

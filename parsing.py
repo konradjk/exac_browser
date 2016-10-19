@@ -358,8 +358,9 @@ def get_variants_from_whi_tsv(tsv_file, genes):
 
         splice = line['Splice change (MaxEnt)']
         if splice:
-            parts = splice.split(' ')[0].split(':')
-            variant['splice_change'] = ':'.join((parts[0].lower(), parts[3]))
+            type, _, _, distance = splice.split(' ')[0].split(':')
+            type = type.lower().replace('acc', 'acceptor')
+            variant['splice_change'] = ':'.join((type, distance))
 
         # RECQL was only sequenced by UW, so its total population size is different
         if line['Gene'] == 'RECQL':
