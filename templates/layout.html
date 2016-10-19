@@ -38,7 +38,7 @@
 
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.min.css') }}">
     <link rel=stylesheet type=text/css href="https://cloud.typography.com/6941292/631824/css/fonts.css">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}?{{ git_hash('static/style.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='d3.v3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
     <script type="text/javascript" src="{{  url_for('static', filename='exac.js') }}"></script>

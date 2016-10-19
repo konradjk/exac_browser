@@ -586,7 +586,7 @@ def get_db():
 
 @app.route('/')
 def homepage():
-    return render_template('homepage.html')
+    return render_template('homepage.html', git_hash=git_hash)
 
 
 @app.route('/autocomplete/<query>')
@@ -698,6 +698,7 @@ def variant_page(variant_str):
             any_covered=any_covered,
             metrics=metrics,
             read_viz=read_viz_dict,
+            git_hash=git_hash,
         )
     except Exception:
         print 'Failed on variant:', variant_str, ';Error=', traceback.format_exc()
@@ -750,6 +751,7 @@ def get_gene_page_content(gene_id):
                 total_num=uw_total_num(gene),
                 pop_num=uw_pop_num(gene),
                 annotations=UW_ANNOTATION_NAMES.values(),
+                git_hash=git_hash,
             )
             cache.set(cache_key, t)
             print 'Rendering gene: %s' % gene_id
@@ -800,6 +802,7 @@ def transcript_page(transcript_id):
                 cnvgenes_json=json.dumps(cnvs_per_gene),
                 total_num=uw_total_num(gene),
                 pop_num=uw_pop_num(gene),
+                git_hash=git_hash,
             )
             cache.set(cache_key, t)
         print 'Rendering transcript: %s' % transcript_id
@@ -838,6 +841,7 @@ def region_page(region_id):
                     coverage=None,
                     total_num=uw_total_num(gene),
                     pop_num=uw_pop_num(gene),
+                git_hash=git_hash,
                 )
             if start == stop:
                 start -= 20
@@ -857,6 +861,7 @@ def region_page(region_id):
                 coverage=coverage_array,
                 total_num=uw_total_num(gene),
                 pop_num=uw_pop_num(gene),
+                git_hash=git_hash,
             )
         print 'Rendering region: %s' % region_id
         return t
@@ -885,7 +890,8 @@ def dbsnp_page(rsid):
             start=start,
             stop=stop,
             coverage=None,
-            genes_in_region=None
+            genes_in_region=None,
+            git_hash=git_hash,
         )
     except Exception, e:
         print 'Failed on rsid:', rsid, ';Error=', traceback.format_exc()
@@ -897,7 +903,8 @@ def dbsnp_page(rsid):
 def not_found_page(query):
     return render_template(
         'not_found.html',
-        query=query
+        query=query,
+        git_hash=git_hash,
     ), 404
 
 
@@ -906,13 +913,14 @@ def not_found_page(query):
 def error_page(query):
     return render_template(
         'error.html',
-        query=query
+        query=query,
+        git_hash=git_hash,
     ), 404
 
 
 @app.route('/about')
 def about_page():
-    return render_template('about.html')
+    return render_template('about.html', git_hash=git_hash)
 
 
 @app.route('/text')
