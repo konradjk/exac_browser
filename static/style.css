@@ -351,8 +351,14 @@ p{
     font-size: 14px;
 }
 
+@media (max-width: 768px) {
+    #variant_table {
+        table-layout: fixed;
+    }
+}
+
 #variant_table td {
-    max-width: 200px;
+    min-width: 50px;
 }
 
 #variant_table {
