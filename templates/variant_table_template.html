@@ -50,6 +50,7 @@
             <th>cHGVS</th>
             <th>pHGVS</th>
             <th>gHGVS</th>
+            <th>Isoform</th>
             <th>Annotation</th>
             <th title="European American">European (n={{ pop_num['European American'] }})</th>
             <th title="African American">African (n={{ pop_num['African American'] }})</th>
@@ -119,6 +120,7 @@
                 <% var display = variant.chrom + ':' + variant.pos + ' ' + variant.ref + (variant.alt ? ' > ' + variant.alt : '') %>
                 <a href="<%= path %>" title="<%= display %>"><%= display %></a>
             </td>
+            <td><%= variant.uw['Isoform'] %></td>
 
             <td style="text-transform: capitalize"><%= variant.uw['Annotation'] %></td>
             <td><%= variant.uw['EA'] %></td>
