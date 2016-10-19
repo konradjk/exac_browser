@@ -167,10 +167,15 @@
                       <span class="gray"> | </span>
                   {% endif %}
               {% endfor %}
-              {{ variant.chrom }}:{{ variant.pos }} {{ variant.ref }}
+              chr{{ variant.chrom }}.GRCh37:
+              {{ variant.pos }} {{ variant.ref }}
               {% if variant.alt %}
                   > {{ variant.alt }}
               {% endif %}
+              <br>
+              <span class="annotation">{{ variant.uw['Annotation'] }}</span>
+              | {{ variant.uw['Isoform'] }}
+              | {{ variant.transcripts[0] }}
             </div>
             </div>
 
@@ -182,11 +187,9 @@
                 </button>
                 <ul class="dropdown-menu" role="menu" aria-labelledby="external_ref_dropdown">
                     <li role="presentation" class="visible-xs-block">
-                        {% if variant.rsid and variant.rsid != "." %}
-                            <a href="http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ variant.rsid }}" target="_blank">dbSNP</a>
-                        {% else %}
-                            Not found in dbSNP
-                        {% endif %}
+                        <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
+                            ClinVar
+                        </a>
                     </li>
                     <li role="presentation" class="visible-xs-block">
                         <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
@@ -196,11 +199,6 @@
                     <li role="presentation" class="visible-xs-block">
                         <a href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&highlight=hg19.chr{{ variant.chrom }}%3A{{ variant.pos }}-{{ variant.pos + variant.ref|length - 1 }}&position=chr{{ variant.chrom }}%3A{{ variant.pos - 25 }}-{{ variant.pos + variant.ref|length - 1 + 25 }}" target="_blank">
                             UCSC
-                        </a>
-                    </li>
-                    <li role="presentation" class="visible-xs-block">
-                        <a href="http://exac.broadinstitute.org/variant/{{ variant.variant_id }}" target="_blank">
-                            ClinVar
                         </a>
                     </li>
                 </ul>
@@ -254,7 +252,7 @@
 
 {#          Lower display#}
         <div class="row">
-            <div id="frequency_table_container" class="col-md-7">
+            <div id="frequency_table_container" class="col-md-12">
                 {% with chrom = variant.chrom %}
                 <table id="frequency_table" class="tablesorter table table-bordered table-hover">
                     <caption>
@@ -263,7 +261,7 @@
                     <thead>
                         <tr>
                             <th>Population</th>
-                            <th title="Allele count">Count</th>
+                            <th>Allele Count</th>
                             <th>Total Subjects</th>
                             <!-- {% if chrom != 'Y' %} -->
                             <!--     <th title="Homozygotes">Hom</th> -->
@@ -271,7 +269,7 @@
                             <!-- {% if chrom == 'X' or chrom == 'Y' %} -->
                             <!--     <th>Hemi</th> -->
                             <!-- {% endif %} -->
-                            <th>Frequency</th>
+                            <th>Overall Frequency</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -329,44 +327,6 @@
                 {% endif %}
 #}
             </div>
-
-            <div id="annotation_table_container" class="col-md-5">
-                {% if variant.variant_id %}
-                    {% if variant.vep_annotations or variant.eff_annotations %}
-{# WHI: only primary transcript(s)
-                        <p>This variant falls on {{ variant.transcripts|length }} transcripts in {{ variant.genes|length }} genes:</p>
-#}
-                <table id="annotation_table" class="tablesorter table table-bordered table-hover">
-                    <caption>
-                      Annotations
-                    </caption>
-                    <thead>
-                        <tr>
-                            <th>Type</th>
-                            <th>Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for consequence in consequences %}
-                            {% include 'variant_consequences.html' %}
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-{# WHI: only primary transcript(s)
-                        <small><span class="label label-info">Note:</span> This list may not include additional transcripts in the same gene that the variant does not overlap.</small>
-#}
-                    {% else %}
-                        No annotations were found for this variant.
-                    {% endif %}
-                {% else %}
-                    <h3>This variant is not found in WHI.</h3>
-                {% endif %}
-                </div>
-                <div id="browser_container">
-                </div>
-            </div>
-
 
         {#% if read_viz|length > 0  %#}
 

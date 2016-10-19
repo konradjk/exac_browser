@@ -57,22 +57,6 @@
             csq_order_index[c] = i;
         });
 
-        // Here we add a new sort parser - its global identifier is 'consequence'
-        $.tablesorter.addParser({
-            id: 'consequence',
-            is: function(s) {
-                return false;  // don't auto-detect parser
-            },
-            // this is the actual
-            format: function(s, table, cell) {
-                // I added the "original" VEP consequence as a data attribute to the table cell
-                // This is what we use to look up the consequence order
-                var original_csq = $(cell).data('consequence');
-                return csq_order_index[original_csq];
-            },
-            type: 'numeric'
-        });
-
         // group and count consequences by number of variants for filter buttons
         var consequence_to_count = _.countBy(_.map(table_variants, function(v) {
             return v.major_consequence;
@@ -105,17 +89,12 @@
             table_variants: table_variants,
             consequence_counts: consequence_counts
         }));
+
         $("#variant_table").tablesorter({
-            sortList: [[1,0], [2,0], [10,1]],
-            // Here's where we tell tablesorter to use our new consequence sorter on the 9th column
-            // 2-minute minor on Konrad for having hidden columns
-            headers: {
-                10: {
-                    sorter: 'consequence'
-                }
-            },
+            sortList: [[0,0]],  // initial sort is cHGVS ascending
             widgets: ["stickyHeaders"]
         });
+
 {#                .tablesorterPager({container: $("#pager"), positionFixed: false});#}
 {#        if (window.table_variants.length <= 10) {#}
             $('#pager').hide();

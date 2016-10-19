@@ -167,7 +167,7 @@ a, a:hover, .dropdown-toggle {
 .card {
     margin-top: 20px;
     margin-bottom: 20px;
-    padding: 50px 40px 30px 40px;
+    padding: 50px 40px 50px 40px;
 }
 
 .card.captioned {
@@ -198,8 +198,7 @@ a, a:hover, .dropdown-toggle {
 
 #home-text {
     font-size: 16px;
-    margin-top: 40px;
-    margin-bottom: 40px;
+    margin-bottom: 60px;
 }
 
 #genes table {
@@ -247,6 +246,12 @@ p{
     text-align: center;
 }
 
+#not-found h1{
+  font-weight: 400;
+  color: #333;
+  line-height: 1.6em;
+}
+
 .pull-right {
     text-align: right;
 }
@@ -257,7 +262,7 @@ p{
 }
 
 #logos {
-    margin-top: 40px;
+    margin: 40px 0;
 }
 
 #logos a:hover {
@@ -299,8 +304,12 @@ p{
     color: #000;
 }
 
-#frequency_table, #annotation_table {
+#frequency_table {
     table-layout: auto;
+}
+
+.annotation {
+    text-transform: capitalize;
 }
 
 .table > tbody > tr > td {
@@ -404,9 +413,7 @@ p{
 }
 
 .card-header {
-    padding-left: 30px;
-    padding-right: 30px;
-    padding-top: 10px;
+    padding: 10px 30px 30px 30px;
 }
 
 #gene-misc > *, #variant-misc > * {
@@ -419,10 +426,6 @@ p{
 
 #frequency_table_container {
     padding-left: 0;
-}
-
-#annotation_table_container {
-    padding-right: 0;
 }
 
 .gray {
