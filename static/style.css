@@ -95,12 +95,6 @@ a, a:hover, .dropdown-toggle {
     height: 40px;
 }
 
-#navbar-awesomebar {
-    margin-left: -10%;
-    width: 36%;
-    border: 1px solid #DDDDDD;
-}
-
 #navbar_links {
     height: 100%;
     float: right;
@@ -286,10 +280,6 @@ p{
 
 .tt-query {
     color: #000;
-}
-
-.tt-hint {
-    color: #999;
 }
 
 #frequency_table, #annotation_table {
@@ -525,6 +515,21 @@ TODO: come up with a better way to position tooltip
 #navbar-searchbox-input, .suggestions, .twitter-typeahead {
     background: #FFFFFF;
 }
+#navbar-awesomebar {
+    width: 400px;
+    border: 1px solid #DDDDDD;
+    margin-left: -100px;
+}
+@media (max-width: 768px) {
+    #navbar-awesomebar {
+        margin-left: 0px;
+    }
+}
+#navbar-awesomebar .tt-dropdown-menu {
+    width: 351px;
+    min-width: 351px;
+}
+
 .suggestions, .twitter-typeahead {
     width: 88%;
 }
@@ -532,6 +537,7 @@ TODO: come up with a better way to position tooltip
 #navbar-searchbox-input {
     min-width: 400px;
     height: 46px;
+    padding-left: 18px;
 }
 
 .search-button {
@@ -548,6 +554,7 @@ TODO: come up with a better way to position tooltip
 
 .suggestions {
     display: none;
+    border: 1px solid #DDDDDD;
     -webkit-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
     -moz-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
     box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
@@ -586,6 +593,8 @@ TODO: come up with a better way to position tooltip
   -moz-box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
   box-shadow: 0px 6px 10px 0px rgba(0,0,0,0.31);
   font-size: 14px;
+  text-align: left;
+  border: 1px solid #DDDDDD;
 }
 .tt-suggestion > p {
   display: block;
@@ -602,4 +611,8 @@ TODO: come up with a better way to position tooltip
   text-decoration: none;
   outline: 0;
   background-color: #ECECEC;
+}
+/* typeahead hint in the awesemebar, hide for now per Kelly */
+.tt-hint {
+    display: none !important;
 }
