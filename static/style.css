@@ -203,11 +203,7 @@ a, a:hover, .dropdown-toggle {
     padding-right: 0;
 }
 
-#genes * {
-    text-align: left;
-}
-
-#about-intro *, #home-text, #genes h1, #logos, .banner {
+#about-intro *, #home-text, #logos, .banner {
     text-align: center;
 }
 
@@ -220,17 +216,11 @@ a, a:hover, .dropdown-toggle {
     margin-bottom: 60px;
 }
 
-#genes table {
-    border-collapse: separate;
-    border-spacing: 10px;
-    font-style: italic;
-}
-
 h1 {
-	font-size: 32px;
-	line-height: 1.3;
-	font-weight: 500;
-  color: #6766A4;
+    font-size: 32px;
+    line-height: 1.3;
+    font-weight: 500;
+    color: #6766A4;
 }
 
 h2 {
@@ -372,18 +362,18 @@ table .caption a {
 }
 
 @media (max-width: 768px) {
-    #variant_table {
+    .gene-table {
         table-layout: fixed;
     }
 }
 
-#variant_table td {
+.gene-table td {
     min-width: 40px;
     max-width: 190px;
     overflow: hidden; /* don't allow hoz scroll on cells */
 }
 
-#variant_table {
+.gene-table {
     margin-top: 0;
 }
 
@@ -391,11 +381,11 @@ table .caption a {
     cursor: pointer;
 }
 
-#variant_table tr a {
+.gene-table tr a {
     color: #333;
 }
 
-#variant_table tr a:hover {
+.gene-table tr a:hover {
     text-decoration: none;
 }
 
@@ -448,7 +438,7 @@ table .caption a {
   margin: 15px -10px 0 0;
 }
 
-#frequency_table_container {
+#frequency_table_container, #cnv_table_container {
     padding: 0;
 }
 

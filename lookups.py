@@ -140,10 +140,10 @@ def get_constraint_for_transcript(db, transcript):
 
 
 def get_exons_cnvs(db, transcript_name):
-   return list(db.cnvs.find({'transcript': transcript_name}, fields={'_id': False}))
+    return list(db.cnvs.find({'transcript': transcript_name}, fields={'_id': False}))
 
 def get_cnvs(db, gene_name):
-   return list(db.cnvgenes.find({'gene': gene_name}, fields={'_id': False}))
+    return list(db.cnvs.find({'gene_name': gene_name}, fields={'_id': False}))
 
 
 def get_awesomebar_suggestions(g, query):

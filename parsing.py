@@ -3,6 +3,7 @@ Utils for reading flat files that are loaded into database
 """
 import copy
 import csv
+import decimal
 import re
 import traceback
 
@@ -640,6 +641,24 @@ def get_cnvs_per_gene(cnv_gene_file):
         yield cnv_gene
 
 
+def get_cnvs_from_tsv(cnv_tsv_file):
+    """
+    Parse UW WHI CNV tsv file;
+    Returns iter of gene dicts
+    """
+    decimal.getcontext().prec = 4
+    numeric = {'EUR', 'AFR', 'Grand Total'}
+
+    for line in csv.DictReader(cnv_tsv_file, dialect='excel-tab'):
+        # normalize blank to 0
+        line = {k: (0 if not v and k in numeric else v) for k, v in line.items()}
+        total_num = ALLELE_NUM_RECQL if line['Gene'] == 'RECQL' else ALLELE_NUM
+        yield {
+            'gene_name': line['Gene'],
+            'uw': line,
+            'freq': str(decimal.Decimal(line['Grand Total']) /
+                        decimal.Decimal(total_num)),
+        }
 
 
 def get_dbnsfp_info(dbnsfp_file):

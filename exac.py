@@ -384,7 +384,7 @@ def load_gene_models():
 
 def load_cnv_models():
     db = get_db()
-    
+
     db.cnvs.drop()
     print 'Dropped db.cnvs.'
 
@@ -392,10 +392,23 @@ def load_cnv_models():
     with open(app.config['CNV_FILE']) as cnv_txt_file:
         for cnv in get_cnvs_from_txt(cnv_txt_file):
             db.cnvs.insert(cnv, w=0)
-            #progress.update(gtf_file.fileobj.tell())                                                                                                                                                                                    
-        #progress.finish()                                                                                                                                                                                                               
+            #progress.update(gtf_file.fileobj.tell())
+        #progress.finish()
 
     print 'Done loading CNVs. Took %s seconds' % int(time.time() - start_time)
+
+
+def load_cnv_tsv():
+    db = get_db()
+    db.cnvs.drop()
+    print 'Dropped db.cnvs.'
+
+    with open(app.config['CNV_FILE']) as cnv_tsv_file:
+        for cnv in get_cnvs_from_tsv(cnv_tsv_file):
+            db.cnvs.insert(cnv, w=0)
+
+    print 'Done loading CNVs.'
+
 
 def drop_cnv_genes():
     db = get_db()
@@ -791,8 +804,8 @@ def get_gene_page_content(gene_id):
             transcript_id = gene['canonical_transcript']
             transcript = lookups.get_transcript(db, transcript_id)
             variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
-            cnvs_in_transcript = lookups.get_exons_cnvs(db, transcript_id)
-            cnvs_per_gene = lookups.get_cnvs(db, gene_id)
+            # cnvs_in_transcript = lookups.get_exons_cnvs(db, transcript_id)
+            cnvs = lookups.get_cnvs(db, gene['gene_name'])
             coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
             add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
             constraint_info = lookups.get_constraint_for_transcript(db, transcript_id)
@@ -805,8 +818,8 @@ def get_gene_page_content(gene_id):
                 variants_in_transcript=variants_in_transcript,
                 transcripts_in_gene=transcripts_in_gene,
                 coverage_stats=coverage_stats,
-                cnvs = cnvs_in_transcript,
-                cnvgenes = cnvs_per_gene,
+                cnvs = cnvs,
+                cnvgenes = [],
                 constraint=constraint_info,
                 total_num=uw_total_num(gene),
                 pop_num=uw_pop_num(gene),

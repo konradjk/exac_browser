@@ -67,6 +67,7 @@
                           <h5>NM_001005735 | ENST00000382580</h5>
                       {% endif %}
 #}
+                      {% if not cnvs %} No copy number variants {% endif %}
                     </div>
                 {% endif %}
             </div>
@@ -138,6 +139,49 @@
             </div>
         </div>
         {% endif %}
+
+        <!-- CNV table -->
+        <div class="row {% if not cnvs %} hidden {% endif %}">
+        <div id="cnv_table_container" class="col-md-12">
+        <table id="cnv_table" class="tablesorter table table-striped table-bordered table-hover gene-table">
+            <caption>
+              Copy number variants
+              <a id="export_cnvs_to_csv" class="pull-right" href="">
+                  <i class="fa fa-arrow-right fa-20px"></i> Export table to CSV
+              </a>
+            </caption>
+            <thead>
+                <tr>
+                    <th>Region</th>
+                    <th>Class</th>
+                    <th class="hidden omit_csv">Breakpoints</th>
+                    <th title="European American">European (n={{ pop_num['European American'] }})</th>
+                    <th title="African American">African (n={{ pop_num['African American'] }})</th>
+                    <th>Overall Frequency</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cnv in cnvs %}
+                    <tr>
+                        <td class="capitalize">{{ cnv.uw.Region }}</td>
+                        <td class="capitalize">{{ cnv.uw.Class }}</td>
+                        <td class="hidden omit_csv">{{ cnv.uw.Breakpoints }}</th>
+                        <td>{{ cnv.uw.EUR }}</td>
+                        <td>{{ cnv.uw.AFR }}</td>
+                        <td>{{ cnv.freq }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        </div>
+
+        <script>
+        $("#cnv_table").tablesorter({
+            sortList: [[0,0]],
+            widgets: ["stickyHeaders"]
+        });
+        </script>
 
         {% with plot_id = gene.gene_name %}
         {% include 'transcript_display.html' %}

@@ -53,6 +53,11 @@ def load_cnv_models():
 
 
 @manager.command
+def load_cnv_tsv():
+    exac.load_cnv_tsv()
+
+
+@manager.command
 def load_cnv_genes():
     exac.load_cnv_genes()
 
