@@ -21,7 +21,7 @@
             filtered_variants = _.filter(window.table_variants, function(d) {
                 return d.filter == 'PASS';
             });
-            $('#number_of_variants').replaceWith(filtered_variants.length);
+            $('#number_of_variants').replaceWith(filtered_variants.length + cnvs.length);
             // lof_filtered_variants = _.filter(window.table_variants, function(d) {
             //     return d.filter == 'PASS' && d.category == 'lof_variant';
             // });
