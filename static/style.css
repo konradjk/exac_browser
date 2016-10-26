@@ -346,7 +346,7 @@ p{
     padding: 5px;
 }
 
-.table caption, .caption {
+table .caption {
     background-color: #6766a4;
     text-align: left;
     color: #fff;
@@ -357,7 +357,7 @@ p{
     font-variant: all-caps;
 }
 
-.table caption a, .caption a {
+table .caption a {
     color: #fff;
     font-size: 14px;
     font-weight: 400;
@@ -368,6 +368,7 @@ p{
     padding: 10px 30px;
     background-color: #fff;
     font-size: 14px;
+    text-align: left;
 }
 
 @media (max-width: 768px) {

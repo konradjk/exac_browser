@@ -10,36 +10,37 @@
 {% endif %}
 #}
 
-<div class="caption">
-    Variants
-    <a id="export_to_csv" class="pull-right" href="">
-        <i class="fa fa-arrow-right fa-20px"></i> Export table to CSV
-    </a>
-</div>
-
-<div id="filter-bar">
-    Filter by:
-    <div class="btn-group">
-        <button type="button" class="btn btn-default dropdown-toggle capitalize"
-                id="filter-dropdown" data-toggle="dropdown" area-expanded="false">
-            <nobr>all annotations (<%= table_variants.length %>)</nobr>
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu capitalize" role="menu" aria-labelledby="external_ref_dropdown">
-            <li class="active consequence_display_buttons" id="consequence_button_all">
-                <a><nobr>all annotations (<%= table_variants.length %>)</nobr></a>
-            </li>
-            <% _.each(consequence_counts, function(csq_count) { %>
-              <li class="consequence_display_buttons <%= csq_count[1] ? '' : 'disabled' %>"
-                  id="consequence_button_<%= csq_count[0] %>">
-                  <a><nobr><%= consequence_name(csq_count[0]) %> (<%= csq_count[1] %>)</nobr></a>
-              </li>
-            <% }); %>
-        </ul>
-    </div>
-</div>
-
 <table id="variant_table" class="tablesorter table table-striped table-bordered table-hover">
+    <caption>
+    <div class="caption">
+        Variants
+        <a id="export_to_csv" class="pull-right" href="">
+            <i class="fa fa-arrow-right fa-20px"></i> Export table to CSV
+        </a>
+    </div>
+    <div id="filter-bar">
+        Filter by:
+        <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle capitalize"
+                    id="filter-dropdown" data-toggle="dropdown" area-expanded="false">
+                <nobr>all annotations (<%= table_variants.length %>)</nobr>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu capitalize" role="menu" aria-labelledby="external_ref_dropdown">
+                <li class="active consequence_display_buttons" id="consequence_button_all">
+                    <a><nobr>all annotations (<%= table_variants.length %>)</nobr></a>
+                </li>
+                <% _.each(consequence_counts, function(csq_count) { %>
+                <li class="consequence_display_buttons <%= csq_count[1] ? '' : 'disabled' %>"
+                    id="consequence_button_<%= csq_count[0] %>">
+                    <a><nobr><%= consequence_name(csq_count[0]) %> (<%= csq_count[1] %>)</nobr></a>
+                </li>
+                <% }); %>
+            </ul>
+        </div>
+    </div>
+    </caption>
+
     <thead>
         <tr>
             <th class="hidden">Chrom</th>
