@@ -399,10 +399,6 @@ table .caption a {
     text-decoration: none;
 }
 
-.tablesorter-sticky-visible {
-    overflow: hidden;
-}
-
 .tablesorter-header {
     outline: 0;
 }
