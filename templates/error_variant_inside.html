@@ -1,0 +1,7 @@
+{% extends "error.html" %}
+{% block heading %}
+{{ query }} was not found in the FLOSSIES data set.
+{% endblock %}
+{% block description %}
+This most likely means that {{ query }} is not present in the population of people within this data set.
+{% endblock %}

@@ -67,7 +67,7 @@ app.config.update(dict(
     MNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'MNPs_NotFiltered_ForBrowserRelease.txt.gz'),
     CNV_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'whi_cnvs.tsv'),
     CNV_GENE_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'exac-final-cnvs.gene.rank'),
-
+    BED_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'whi.bed'),
     # How to get a dbsnp147.txt.bgz file:
     #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b147_GRCh37p13/database/organism_data/b147_SNPChrPosOnRef_105.bcp.gz
     #   zcat b147_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp147.txt.bgz
@@ -78,6 +78,23 @@ app.config.update(dict(
 
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
+
+
+# load bed file
+COVERED_REGIONS = ()
+if os.path.isfile(app.config['BED_FILE']):
+    with open(app.config['BED_FILE']) as f:
+        COVERED_REGIONS = tuple(tuple(int(val) for val in line)
+                                for line in csv.reader(f, dialect='excel-tab'))
+
+
+def is_covered(chrom, pos, ref, alt):
+    chrom = int(chrom)
+    for chr, start, end in COVERED_REGIONS:
+        if chrom == chr and pos <= end and pos + len(alt) >= start:
+            return True
+
+    return False
 
 
 def connect_db():
@@ -616,7 +633,10 @@ def awesome():
     # elif datatype == 'dbsnp_variant_set':
     #     return redirect('/dbsnp/{}'.format(identifier))
     elif datatype in ('error', 'not_found'):
-        return redirect('/error/{}'.format(identifier))
+        if len(query.split('-')) == 4:
+            return redirect('/variant/{}'.format(identifier))
+        else:
+            return redirect('/error/{}'.format(identifier))
     else:
         raise Exception
 
@@ -632,7 +652,24 @@ def variant_page(variant_str):
         variant = lookups.get_variant(db, xpos, ref, alt)
 
         if variant is None:
-            abort(404)
+            genes = db.genes.find({
+                'chrom': chrom,
+                'xstart': {'$lte': xpos + len(alt)},
+                'xstop': {'$gte': xpos},
+            })
+            gene = next(genes, None)
+            template = (
+                'error_variant_inside.html' if is_covered(chrom, pos, ref, alt)
+                else 'error_variant_outside.html' if gene and gene.get('canonical_transcript_nm')
+                else 'error_gene_variant.html' if gene
+                else 'error.html')
+
+            return render_template(
+                template,
+                query=variant_str,
+                gene=gene,
+                git_hash=git_hash,
+            ), 404
 
         consequences = OrderedDict()
         if 'vep_annotations' in variant or 'eff_annotations' in variant:
@@ -702,7 +739,11 @@ def variant_page(variant_str):
         )
     except Exception:
         print 'Failed on variant:', variant_str, ';Error=', traceback.format_exc()
-        abort(404)
+        return render_template(
+            'error.html',
+            query=variant_str,
+            git_hash=git_hash,
+        ), 404
 
 
 @app.route('/gene/<gene_id>')
@@ -718,13 +759,21 @@ def get_gene_page_content(gene_id):
     try:
         gene = lookups.get_gene(db, gene_id)
         if gene is None:
-            abort(404)
+            return render_template(
+                'error_gene.html',
+                query=gene_id,
+                git_hash=git_hash,
+            ), 404
         cache_key = 't-gene-{}'.format(gene_id)
         t = cache.get(cache_key)
         if t is None:
             variants_in_gene = lookups.get_variants_in_gene(db, gene)
             if not variants_in_gene:
-                abort(404)
+                return render_template(
+                    'error_gene.html',
+                    query=gene['gene_name'],
+                    git_hash=git_hash,
+                ), 404
             transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
 
             # Get some canonical transcript and corresponding info
@@ -758,19 +807,23 @@ def get_gene_page_content(gene_id):
         return t
     except Exception, e:
         print 'Failed on gene:', gene_id, ';Error=', traceback.format_exc()
-        abort(404)
+        return render_template(
+            'error_gene.html',
+            query=gene['gene_name'],
+            git_hash=git_hash,
+        ), 404
 
 
 @app.route('/transcript/<transcript_id>')
 def transcript_page(transcript_id):
     # not supporting transcript or region pages right now
-    abort(404)
+    return error_page()
 
     db = get_db()
     try:
         transcript = lookups.get_transcript(db, transcript_id)
         if not transcript:
-            abort(404)
+            return error_page()
 
         cache_key = 't-transcript-{}'.format(transcript_id)
         t = cache.get(cache_key)
@@ -779,7 +832,7 @@ def transcript_page(transcript_id):
             gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
             variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
             if not variants_in_transcript:
-                abort(404)
+                return error_page()
             cnvs_in_transcript = lookups.get_exons_cnvs(db, transcript_id)
             cnvs_per_gene = lookups.get_cnvs(db, transcript['gene_id'])
             coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
@@ -809,13 +862,13 @@ def transcript_page(transcript_id):
         return t
     except Exception, e:
         print 'Failed on transcript:', transcript_id, ';Error=', traceback.format_exc()
-        abort(404)
+        return error_page()
 
 
 @app.route('/region/<region_id>')
 def region_page(region_id):
     # not supporting transcript or region pages right now
-    abort(404)
+    return error_page()
 
     db = get_db()
     try:
@@ -867,13 +920,13 @@ def region_page(region_id):
         return t
     except Exception, e:
         print 'Failed on region:', region_id, ';Error=', traceback.format_exc()
-        abort(404)
+        return error_page()
 
 
 @app.route('/dbsnp/<rsid>')
 def dbsnp_page(rsid):
     # not supporting transcript or region or dbsnp pages right now
-    abort(404)
+    return error_page()
 
     db = get_db()
     try:
@@ -895,11 +948,10 @@ def dbsnp_page(rsid):
         )
     except Exception, e:
         print 'Failed on rsid:', rsid, ';Error=', traceback.format_exc()
-        abort(404)
+        return error_page()
 
 
 @app.route('/not_found/<query>')
-@app.errorhandler(404)
 def not_found_page(query):
     return render_template(
         'not_found.html',
@@ -909,8 +961,7 @@ def not_found_page(query):
 
 
 @app.route('/error/<query>')
-@app.errorhandler(404)
-def error_page(query):
+def error_page(query=''):
     return render_template(
         'error.html',
         query=query,
@@ -926,7 +977,7 @@ def about_page():
 @app.route('/text')
 def text_page():
     # not supporting transcript or region or text pages right now
-    abort(404)
+    return error_page()
 
     db = get_db()
     query = request.args.get('text')
@@ -950,7 +1001,7 @@ http://omim.org/entry/%(omim_accession)s''' % gene
 @app.route('/read_viz/<path:path>')
 def read_viz_files(path):
     # not needed for FLOSSIES right now
-    abort(404)
+    return error_page()
 
     full_path = os.path.abspath(os.path.join(app.config["READ_VIZ_DIR"], path))
 

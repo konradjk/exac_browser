@@ -1,0 +1,7 @@
+{% extends "error.html" %}
+{% block heading %}
+{{ query }} is in the {{ gene.gene_name }} gene, which we have not sequenced and analyzed.
+{% endblock %}
+{% block description %}
+The FLOSSIES data set is focused on: {% include 'genes.html' %}
+{% endblock %}

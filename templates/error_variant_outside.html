@@ -1,0 +1,7 @@
+{% extends "error.html" %}
+{% block heading %}
+{{ query }} is in a part of the {{ gene.gene_name }} gene we have not sequenced and analyzed.
+{% endblock %}
+{% block description %}
+We have not yet analyzed the section of the {{ gene.gene_name }} gene this variant would be present in.
+{% endblock %}
