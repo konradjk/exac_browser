@@ -9,6 +9,11 @@ def get_gene(db, gene_id):
     return db.genes.find_one({'gene_id': gene_id}, fields={'_id': False})
 
 
+def get_gene_by_transcript_nm(db, transcript_nm):
+    return db.genes.find_one({'canonical_transcript_nm': transcript_nm},
+                             fields={'_id': False})
+
+
 def get_gene_by_name(db, gene_name):
     # try gene_name field first
     gene = db.genes.find_one({'gene_name': gene_name}, fields={'_id': False})
@@ -224,6 +229,12 @@ def get_awesomebar_result(db, query):
             return 'gene', transcript['gene_id']
             # not supporting transcript or region pages right now
             # return 'transcript', transcript['transcript_id']
+
+    # Ensembl formatted transcripts, e.g. NM_000051.3
+    if query.startswith('NM_'):
+        gene = get_gene_by_transcript_nm(db, query)
+        if gene:
+            return 'gene', gene['gene_id']
 
     # From here on out, only region queries
     if query.startswith('CHR'):
