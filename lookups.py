@@ -145,11 +145,11 @@ def get_awesomebar_suggestions(g, query):
     """
     This generates autocomplete suggestions when user
     query is the string that user types
-    If it is the prefix for a gene, return list of gene names
+    If it is the prefix for any suggestions, return list of suggestions
     """
-    regex = re.compile('^' + re.escape(query), re.IGNORECASE)
-    results = [r for r in g.autocomplete_strings if regex.match(r)][:20]
-    return results
+    query = query.upper()
+    return itertools.islice(
+        (s for s in g.autocomplete_strings if s.upper().startswith(query)), 20)
 
 
 # 1:1-1000

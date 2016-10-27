@@ -494,12 +494,23 @@ def create_cache():
     Creates files like autocomplete_entries.txt
     Should be run on every redeploy.
     """
+    db = get_db()
+
     # create autocomplete_entries.txt
-    autocomplete_strings = []
-    for gene in get_db().genes.find():
-        autocomplete_strings.append(gene['gene_name'])
-        if 'other_names' in gene:
-            autocomplete_strings.extend(gene['other_names'])
+    autocomplete_strings = set()
+    for gene in db.genes.find():
+        autocomplete_strings.add(gene['gene_name'])
+        if gene.get('other_names'):
+            autocomplete_strings.update(gene['other_names'])
+        if gene.get('canonical_transcript_nm'):
+            autocomplete_strings.add(gene['canonical_transcript_nm'])
+
+    for variant in db.variants.find():
+        autocomplete_strings.add(variant['variant_id'])
+        for field in 'cDNA', 'Protein':
+            if variant['uw'].get(field):
+                autocomplete_strings.add(variant['uw'][field])
+
     f = open(os.path.join(os.path.dirname(__file__), 'autocomplete_strings.txt'), 'w')
     for s in sorted(autocomplete_strings):
         f.write(s+'\n')
