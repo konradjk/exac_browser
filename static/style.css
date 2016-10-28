@@ -287,13 +287,24 @@ p{
     background-color: #E9E9E9;
     margin-top: -20px;
     padding: 10px;
+}
+
+#references {
     font-size: 14px;
+    color: #bbb;
+}
+
+#references h4 {
+  font-weight: 500;
+}
+
+#references a {
+    color: #d0aeda;
 }
 
 #footnotes {
     padding-left: 0;
-    color: #7f8686;
-    font-size: 14px;
+    font-weight: lighter;
 }
 
 #footnotes li {
