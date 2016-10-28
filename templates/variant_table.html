@@ -175,7 +175,8 @@
 
             $('.consequence_display_buttons.active').removeClass('active');
             target.addClass('active');
-            $('#filter-dropdown').text(target.text());
+            $('#variant_table #filter-dropdown').text(target.text());
+            $('#variant_table-sticky #filter-dropdown').text(target.text());
 
             setTimeout(function() {
                 update_variants();
