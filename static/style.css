@@ -199,3 +199,18 @@ TODO: come up with a better way to position tooltip
   flex-direction: column;
   justify-content: space-between;
 }
+
+.jobs {
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  width: 100%;
+}
+
+.jobs p {
+  margin-bottom: 0px;
+}
+
+.jobs a {
+  color: #428bca;
+}
