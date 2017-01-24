@@ -39,34 +39,35 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
-EXAC_FILES_DIRECTORY = '../exac_data/'
+EXAC_FILES_DIRECTORY = 'gs://exac-gnomad/exac/170122_exacv1_bundle'
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DB_HOST='localhost',
+    # DB_HOST='localhost',
+    DB_HOST='mongo',
     DB_PORT=27017,
-    DB_NAME='exac', 
+    DB_NAME='exac',
     DEBUG=True,
     SECRET_KEY='development key',
     LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
-    SITES_VCFS=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
-    GENCODE_GTF=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
-    CANONICAL_TRANSCRIPT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
-    OMIM_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
-    BASE_COVERAGE_FILES=glob.glob(os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'coverage', 'Panel.*.coverage.txt.gz')),
-    DBNSFP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
-    CONSTRAINT_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'forweb_cleaned_exac_r03_march16_z_data_pLI_CNV-final.txt.gz'),
-    MNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'MNPs_NotFiltered_ForBrowserRelease.txt.gz'),
-    CNV_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'exac-gencode-exon.cnt.final.pop3'),
-    CNV_GENE_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'exac-final-cnvs.gene.rank'),
+    SITES_VCFS=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
+    GENCODE_GTF=os.path.join(EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
+    CANONICAL_TRANSCRIPT_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
+    OMIM_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),
+    BASE_COVERAGE_FILES=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'coverage', 'Panel.*.coverage.txt.gz')),
+    DBNSFP_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'dbNSFP2.6_gene.gz'),
+    CONSTRAINT_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'forweb_cleaned_exac_r03_march16_z_data_pLI_CNV-final.txt.gz'),
+    MNP_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'MNPs_NotFiltered_ForBrowserRelease.txt.gz'),
+    CNV_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'exac-gencode-exon.cnt.final.pop3'),
+    CNV_GENE_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'exac-final-cnvs.gene.rank'),
 
     # How to get a dbsnp142.txt.bgz file:
     #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b142_GRCh37p13/database/organism_data/b142_SNPChrPosOnRef_105.bcp.gz
     #   zcat b142_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
     #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
     DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz'),
-    
+
     READ_VIZ_DIR="/mongo/readviz"
 ))
 
@@ -77,8 +78,8 @@ def connect_db():
     """
     Connects to the specific database.
     """
-    client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
-    return client[app.config['DB_NAME']]
+    client = pymongo.MongoClient("mongodb://mongo:27017")
+    return client["exac"]
 
 
 def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
@@ -301,7 +302,7 @@ def load_gene_models():
 
 def load_cnv_models():
     db = get_db()
-    
+
     db.cnvs.drop()
     print 'Dropped db.cnvs.'
 
@@ -309,8 +310,8 @@ def load_cnv_models():
     with open(app.config['CNV_FILE']) as cnv_txt_file:
         for cnv in get_cnvs_from_txt(cnv_txt_file):
             db.cnvs.insert(cnv, w=0)
-            #progress.update(gtf_file.fileobj.tell())                                                                                                                                                                                    
-        #progress.finish()                                                                                                                                                                                                               
+            #progress.update(gtf_file.fileobj.tell())
+        #progress.finish()
 
     print 'Done loading CNVs. Took %s seconds' % int(time.time() - start_time)
 
@@ -325,8 +326,8 @@ def load_cnv_genes():
     with open(app.config['CNV_GENE_FILE']) as cnv_gene_file:
         for cnvgene in get_cnvs_per_gene(cnv_gene_file):
             db.cnvgenes.insert(cnvgene, w=0)
-            #progress.update(gtf_file.fileobj.tell())                                                                                                                                                                                    
-        #progress.finish()                                                                                                                                                                                                               
+            #progress.update(gtf_file.fileobj.tell())
+        #progress.finish()
 
     print 'Done loading CNVs in genes. Took %s seconds' % int(time.time() - start_time)
 
@@ -589,8 +590,8 @@ def variant_page(variant_str):
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant
         sqlite_db_path = os.path.join(
-            app.config["READ_VIZ_DIR"],            
-            "combined_bams", 
+            app.config["READ_VIZ_DIR"],
+            "combined_bams",
             chrom,
             "combined_chr%s_%03d.db" % (chrom, pos % 1000))
         logging.info(sqlite_db_path)
@@ -608,11 +609,11 @@ def variant_page(variant_str):
             n_het = n_hom = n_hemi = None
 
         read_viz_dict = {
-            'het': {'n_expected': n_het[0] if n_het is not None and n_het[0] is not None else 0, 
+            'het': {'n_expected': n_het[0] if n_het is not None and n_het[0] is not None else 0,
                     'n_available': n_het[1] if n_het is not None and n_het[1] is not None else 0,},
-            'hom': {'n_expected': n_hom[0] if n_hom is not None and n_hom[0] is not None else 0, 
+            'hom': {'n_expected': n_hom[0] if n_hom is not None and n_hom[0] is not None else 0,
                     'n_available': n_hom[1] if n_hom is not None  and n_hom[1] is not None else 0,},
-            'hemi': {'n_expected': n_hemi[0] if n_hemi is not None and n_hemi[0] is not None else 0, 
+            'hemi': {'n_expected': n_hemi[0] if n_hemi is not None and n_hemi[0] is not None else 0,
                      'n_available': n_hemi[1] if n_hemi is not None and n_hemi[1] is not None else 0,},
         }
 
