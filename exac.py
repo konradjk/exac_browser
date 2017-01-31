@@ -39,7 +39,7 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
-EXAC_FILES_DIRECTORY = 'gs://exac-gnomad/exac/170122_exacv1_bundle'
+EXAC_FILES_DIRECTORY = '/var/exac_data/170122_exacv1_bundle'
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable

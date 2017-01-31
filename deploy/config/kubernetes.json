@@ -23,7 +23,7 @@
         "containers": [
           {
             "name": "exac-serve",
-            "image": "macarthurlab/exacserve",
+            "image": "gcr.io/exac-gnomad/exacserve",
             "ports": [
               {
                 "containerPort": 80,
@@ -34,7 +34,15 @@
           },
           {
             "name": "exac-load",
-            "image": "macarthurlab/exacload",
+            "image": "gcr.io/exac-gnomad/exacload",
+            "securityContext": {
+              "privileged": true,
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              }
+            },
             "imagePullPolicy": "Always"
           }
         ],

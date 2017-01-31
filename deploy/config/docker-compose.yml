@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: docker/exacserve.dockerfile
-    image: macarthurlab/exacserve:0.4
+    image: macarthurlab/exacserve
     ports:
       - "80:80"
     networks:
@@ -14,9 +14,7 @@ services:
     build:
       context: .
       dockerfile: docker/exacload.dockerfile
-    image: macarthurlab/exacload:0.4
-    volumes:
-      - ../exac_data/:/exac/exac_data
+    image: macarthurlab/exacload
     networks:
       - exac-network
     depends_on:
