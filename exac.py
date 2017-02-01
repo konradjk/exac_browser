@@ -50,7 +50,7 @@ app.config.update(dict(
     DB_NAME='exac',
     DEBUG=True,
     SECRET_KEY='development key',
-    LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
+    LOAD_DB_PARALLEL_PROCESSES = 24,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
     SITES_VCFS=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
     GENCODE_GTF=os.path.join(EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
@@ -122,8 +122,6 @@ def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
 def load_base_coverage():
     def load_coverage(coverage_files, i, n, db):
         coverage_generator = parse_tabix_file_subset(coverage_files, i, n, get_base_coverage_from_file)
-        print('Coverage generator:')
-        print(coverage_generator)
         try:
             db.base_coverage.insert(coverage_generator, w=0)
         except pymongo.errors.InvalidOperation:
@@ -137,10 +135,11 @@ def load_base_coverage():
 
     procs = []
     coverage_files = app.config['BASE_COVERAGE_FILES']
-    print(coverage_files)
-    print(len(coverage_files))
+
     num_procs = app.config['LOAD_DB_PARALLEL_PROCESSES']
-    print(num_procs)
+    if num_procs > 4:
+        num_procs = 4
+
     random.shuffle(app.config['BASE_COVERAGE_FILES'])
     for i in range(num_procs):
         p = Process(target=load_coverage, args=(coverage_files, i, num_procs, db))
