@@ -50,7 +50,7 @@ app.config.update(dict(
     DB_NAME='exac',
     DEBUG=True,
     SECRET_KEY='development key',
-    LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
+    LOAD_DB_PARALLEL_PROCESSES = 24,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
     SITES_VCFS=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
     GENCODE_GTF=os.path.join(EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
@@ -68,7 +68,8 @@ app.config.update(dict(
     #   tabix -s 2 -b 3 -e 3 dbsnp142.txt.bgz
     DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz'),
 
-    READ_VIZ_DIR="/mongo/readviz"
+    # READ_VIZ_DIR="/mongo/readviz"
+    READ_VIZ_DIR="/var/exac_data/"
 ))
 
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
@@ -196,6 +197,7 @@ def load_constraint_information():
 
     db.constraint.ensure_index('transcript')
     print 'Done loading constraint info. Took %s seconds' % int(time.time() - start_time)
+    return []
 
 
 def load_mnps():
@@ -314,6 +316,7 @@ def load_cnv_models():
         #progress.finish()
 
     print 'Done loading CNVs. Took %s seconds' % int(time.time() - start_time)
+    return []
 
 def drop_cnv_genes():
     db = get_db()
@@ -330,7 +333,7 @@ def load_cnv_genes():
         #progress.finish()
 
     print 'Done loading CNVs in genes. Took %s seconds' % int(time.time() - start_time)
-
+    return []
 
 def load_dbsnp_file():
     db = get_db()
@@ -388,7 +391,8 @@ def load_db():
     """
     # Initialize database
     # Don't need to explicitly create tables with mongo, just indices
-    confirm = raw_input('This will drop the database and reload. Are you sure you want to continue? [no] ')
+    # confirm = raw_input('This will drop the database and reload. Are you sure you want to continue? [no] ')
+    confirm = 'yes'
     if not confirm.startswith('y'):
         print('Exiting...')
         sys.exit(1)
@@ -404,6 +408,7 @@ def load_db():
     print('Done! Creating cache...')
     create_cache()
     print('Done!')
+    sys.exit(0)
 
 
 def create_cache():
@@ -591,7 +596,7 @@ def variant_page(variant_str):
         # available bams and *actual* number of available bams for this variant
         sqlite_db_path = os.path.join(
             app.config["READ_VIZ_DIR"],
-            "combined_bams",
+            "combined_bams_v3",
             chrom,
             "combined_chr%s_%03d.db" % (chrom, pos % 1000))
         logging.info(sqlite_db_path)

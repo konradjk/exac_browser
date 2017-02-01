@@ -22,7 +22,7 @@ RUN echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /et
 
 # Authorize container with service account
 RUN gcloud auth activate-service-account \
-  --key-file=docker/exac-gnomad-98cf40989f01.json
+  --key-file=deploy/keys/exac-gnomad-30ea80400948.json
 
 RUN pip install -r requirements.txt
 

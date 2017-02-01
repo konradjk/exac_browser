@@ -18,11 +18,11 @@ spec:
         - name: mongo
           containerPort: 27017
           hostPort: 27017
-      #   volumeMounts:
-      #       - name: mongo-persistent-storage
-      #         mountPath: /data/db
-      # volumes:
-      #   - name: mongo-persistent-storage
-      #     gcePersistentDisk:
-      #       pdName: mongo-disk
-      #       fsType: ext4
+        volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+          gcePersistentDisk:
+            pdName: mongo-disk
+            fsType: ext4

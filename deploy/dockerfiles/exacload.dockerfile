@@ -16,10 +16,10 @@ RUN mkdir /var/exac_data;
 
 CMD gcsfuse \
   --implicit-dirs \
-  --key-file /var/www/docker/exac-gnomad-98cf40989f01.json \
+  --key-file=/var/www/deploy/keys/exac-gnomad-30ea80400948.json \
   exac /var/exac_data && \
   ls /var/exac_data && \
-  python manage.py load_gene_models
+  python manage.py load_db
 # CMD ["/var/exac_data"]
 
 

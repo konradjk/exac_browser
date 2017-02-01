@@ -7,12 +7,14 @@ set -e
 gcloud config set project exac-gnomad
 
 # Create the cluster
-gcloud container clusters create exac-container-cluster --machine-type f1-micro --zone us-east1-d
+# gcloud container clusters create exac-container-cluster --machine-type f1-micro --zone us-east1-d
 
 # Create the replication controller
-kubectl create -f ../config/mongo-service.yaml
-kubectl create -f ../config/mongo-controller.yaml
-kubectl create -f ../config/kubernetes.json
+kubectl create -f deploy/config/mongo-service.yaml
+kubectl create -f deploy/config/mongo-controller.yaml
+# kubectl create -f deploy/config/kubernetes.json
+kubectl create -f deploy/config/exac-load-pod.json
+kubectl create -f deploy/config/exac-seve-rc.json
 
 # Expose replication controller to the internet
-kubectl expose rc exac-controller --type="LoadBalancer"
+kubectl expose rc exac-serve --type="LoadBalancer"

@@ -7,10 +7,12 @@ set -e
 gcloud config set project exac-gnomad
 
 # Bring down previous replication controller
-kubectl delete service exac-controller
+kubectl delete service exac-serve
 kubectl delete service mongo
 kubectl delete rc mongo-controller
-kubectl delete rc exac-controller
+kubectl delete pod exac-load
+kubectl delete rc exac-serve
+
 
 # Delete the cluster
 gcloud container clusters delete exac-container-cluster --zone us-east1-d

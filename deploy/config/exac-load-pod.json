@@ -1,0 +1,32 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "exac-load",
+    "labels": {
+      "state": "loading"
+    }
+  },
+  "restartPolicy": "Never",
+  "spec": {
+    "containers": [
+      {
+        "name": "exac-load",
+        "image": "gcr.io/exac-gnomad/exacload",
+        "securityContext": {
+          "privileged": true,
+          "capabilities": {
+            "add": [
+              "NET_ADMIN"
+            ]
+          }
+        },
+        "lifecycle": {
+          "preStop": {
+            "command": ["echo", "SUCCESS"]
+          }
+        }
+      }
+    ]
+  }
+}

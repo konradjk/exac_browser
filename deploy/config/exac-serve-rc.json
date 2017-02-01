@@ -2,7 +2,7 @@
   "kind": "ReplicationController",
   "apiVersion": "v1",
   "metadata": {
-    "name": "exac-controller",
+    "name": "exac-serve",
     "labels": {
       "state": "serving"
     }
@@ -30,20 +30,6 @@
                 "protocol": "TCP"
               }
             ],
-            "imagePullPolicy": "Always"
-          },
-          {
-            "name": "exac-load",
-            "image": "gcr.io/exac-gnomad/exacload",
-            "RestartPolicy": "Never",
-            "securityContext": {
-              "privileged": true,
-              "capabilities": {
-                "add": [
-                  "NET_ADMIN"
-                ]
-              }
-            },
             "imagePullPolicy": "Always"
           }
         ],
