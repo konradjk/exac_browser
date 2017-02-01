@@ -7,4 +7,4 @@ set -e
 gcloud config set project exac-gnomad
 
 # Create the disc
-gcloud compute disks create --size=1000GB --zone=us-east1-d mongo-disk
+gcloud compute disks create --size=1000GB --zone=us-east1-d mongo-disk2

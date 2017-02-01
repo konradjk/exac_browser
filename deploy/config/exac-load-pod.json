@@ -7,8 +7,8 @@
       "state": "loading"
     }
   },
-  "restartPolicy": "Never",
   "spec": {
+    "restartPolicy": "Never",
     "containers": [
       {
         "name": "exac-load",
@@ -19,11 +19,6 @@
             "add": [
               "NET_ADMIN"
             ]
-          }
-        },
-        "lifecycle": {
-          "preStop": {
-            "command": ["echo", "SUCCESS"]
           }
         }
       }

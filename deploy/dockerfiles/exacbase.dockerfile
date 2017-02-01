@@ -5,7 +5,10 @@ MAINTAINER MacArthur Lab
 ENV EXAC_DATA=/var/exac_data/ READ_VIZ=/mongo/readviz \
   CLOUD_SDK_REPO=cloud-sdk-jessie GCSFUSE_REPO=gcsfuse-jessie
 
-COPY . /var/www
+COPY requirements.txt /var/www/
+COPY deploy/keys/* /var/www/deploy/keys/
+COPY requirements.txt /var/www/
+
 WORKDIR /var/www
 
 RUN apt-get update && apt-get install -y apt-transport-https
