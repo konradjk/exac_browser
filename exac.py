@@ -639,7 +639,7 @@ def variant_page(variant_str):
 
             read_viz_dict[het_or_hom_or_hemi]['urls'] = [
                 #os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
-                os.path.join('combined_bams', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
+                os.path.join('combined_bams_v3', chrom, 'combined_chr%s_%03d.bam' % (chrom, pos % 1000))
                     for i in range(read_viz_dict[het_or_hom_or_hemi]['n_available'])
             ]
 

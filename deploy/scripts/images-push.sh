@@ -10,3 +10,4 @@ gcloud config set project exac-gnomad
 gcloud docker push gcr.io/exac-gnomad/exacbase
 gcloud docker push gcr.io/exac-gnomad/exacload
 gcloud docker push gcr.io/exac-gnomad/exacserve
+gcloud docker push gcr.io/exac-gnomad/exacprecalculate

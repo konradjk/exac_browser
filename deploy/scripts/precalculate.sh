@@ -9,9 +9,9 @@ gcloud config set project exac-gnomad
 # Create the replication controller
 kubectl create -f deploy/config/mongo-service.yaml
 kubectl create -f deploy/config/mongo-controller.yaml
-sleep 30
-kubectl create -f deploy/config/exac-serve-rc.json
 
-# Expose replication controller to the internet
-kubectl expose rc exac-serve --type="LoadBalancer"
-kubectl autoscale rc exac-serve --min=1 --max=2 --cpu-percent=30
+# Wait for mongo to initialize
+sleep 120
+
+# load data
+kubectl create -f deploy/config/exac-precalculate-pod.json

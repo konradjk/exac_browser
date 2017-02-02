@@ -1,0 +1,27 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "exac-precalculate",
+    "labels": {
+      "state": "loading"
+    }
+  },
+  "spec": {
+    "restartPolicy": "Never",
+    "containers": [
+      {
+        "name": "exac-precalculate",
+        "image": "gcr.io/exac-gnomad/exacprecalculate",
+        "securityContext": {
+          "privileged": true,
+          "capabilities": {
+            "add": [
+              "NET_ADMIN"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
