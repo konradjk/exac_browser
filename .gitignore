@@ -8,3 +8,4 @@ autocomplete_strings.txt
 gene_cache/
 exac_env
 deploy/keys
+static/loader*

@@ -874,6 +874,9 @@ def contact_page():
 def faq_page():
     return render_template('faq.html')
 
+@app.route('/<path:path>')
+def loader_verification(path):
+    return send_from_directory('static', path)
 
 @app.route('/text')
 def text_page():

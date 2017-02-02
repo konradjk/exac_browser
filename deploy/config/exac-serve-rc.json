@@ -8,7 +8,7 @@
     }
   },
   "spec": {
-    "replicas": 1,
+    "replicas": 5,
     "selector": {
       "app": "exac-app"
     },
@@ -30,6 +30,14 @@
                 "protocol": "TCP"
               }
             ],
+            "securityContext": {
+              "privileged": true,
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              }
+            },
             "imagePullPolicy": "Always"
           }
         ],
