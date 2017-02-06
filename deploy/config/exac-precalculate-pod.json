@@ -20,7 +20,8 @@
               "NET_ADMIN"
             ]
           }
-        }
+        },
+        "imagePullPolicy": "Always"
       }
     ]
   }

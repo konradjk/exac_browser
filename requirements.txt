@@ -3,6 +3,7 @@ Flask-Script==2.0.5
 ipython==2.1.0
 pymongo==2.7.1
 pysam
+gunicorn==19.6.0
 flask-runner
 Flask-Compress==1.0.2
 Flask-ErrorMail==0.2.2

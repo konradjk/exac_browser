@@ -13,5 +13,5 @@ sleep 30
 kubectl create -f deploy/config/exac-serve-rc.json
 
 # Expose replication controller to the internet
-kubectl expose rc exac-serve --type="LoadBalancer"
-kubectl autoscale rc exac-serve --min=1 --max=2 --cpu-percent=30
+kubectl expose rc exac-serve --type="LoadBalancer" --load-balancer-ip=35.185.33.81
+kubectl autoscale rc exac-serve --min=1 --max=2 --cpu-percent=80

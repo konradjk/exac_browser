@@ -13,4 +13,4 @@ CMD gcsfuse \
   --key-file=/var/www/deploy/keys/exac-gnomad-30ea80400948.json \
   exac /var/exac_data && \
   ls /var/exac_data && \
-  python exac.py -h 0.0.0.0 -p 80
+  gunicorn --workers 9 --bind 0.0.0.0:80 wsgi --access-logfile -

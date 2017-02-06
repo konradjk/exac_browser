@@ -5,9 +5,7 @@ MAINTAINER MacArthur Lab
 ENV EXAC_DATA=/var/exac_data/ READ_VIZ=/mongo/readviz \
   CLOUD_SDK_REPO=cloud-sdk-jessie GCSFUSE_REPO=gcsfuse-jessie
 
-COPY requirements.txt /var/www/
 COPY deploy/keys/* /var/www/deploy/keys/
-COPY requirements.txt /var/www/
 
 WORKDIR /var/www
 
@@ -27,5 +25,6 @@ RUN echo "deb http://packages.cloud.google.com/apt $GCSFUSE_REPO main" | tee /et
 RUN gcloud auth activate-service-account \
   --key-file=deploy/keys/exac-gnomad-30ea80400948.json
 
+COPY requirements.txt /var/www/
 RUN pip install -r requirements.txt
 
