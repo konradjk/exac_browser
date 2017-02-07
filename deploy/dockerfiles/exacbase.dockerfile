@@ -27,4 +27,3 @@ RUN gcloud auth activate-service-account \
 
 COPY requirements.txt /var/www/
 RUN pip install -r requirements.txt
-

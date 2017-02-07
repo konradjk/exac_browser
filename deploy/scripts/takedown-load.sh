@@ -11,6 +11,5 @@ kubectl delete service mongo
 kubectl delete rc mongo-controller
 kubectl delete pod exac-load
 
-
 # Delete the cluster
 gcloud container clusters delete exac-loading-cluster --zone us-east1-d
