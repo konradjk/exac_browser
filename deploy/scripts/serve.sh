@@ -7,6 +7,7 @@ set -e
 gcloud config set project exac-gnomad
 
 # Create the replication controller
+kubectl config use-context gke_exac-gnomad_us-east1-d_exac-serving-cluster
 kubectl create -f deploy/config/mongo-service.yaml
 kubectl create -f deploy/config/mongo-controller.yaml
 sleep 30

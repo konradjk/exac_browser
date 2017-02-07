@@ -69,7 +69,8 @@ app.config.update(dict(
     DBSNP_FILE=os.path.join(os.path.dirname(__file__), EXAC_FILES_DIRECTORY, 'dbsnp142.txt.bgz'),
 
     # READ_VIZ_DIR="/mongo/readviz"
-    READ_VIZ_DIR="/var/exac_data/"
+    # READ_VIZ_DIR="/var/exac_data/"
+    READ_VIZ_DIR="/readviz"
 ))
 
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')

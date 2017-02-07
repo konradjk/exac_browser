@@ -19,7 +19,16 @@
         }
       },
       "spec": {
-        "volumes": null,
+        "volumes": [
+          {
+            "name": "exacv1-readviz",
+            "gcePersistentDisk": {
+              "pdName": "exacv1-readviz",
+              "fsType": "ext4",
+              "readOnly": true
+            }
+          }
+        ],
         "containers": [
           {
             "name": "exac-serve",
@@ -28,6 +37,12 @@
               {
                 "containerPort": 80,
                 "protocol": "TCP"
+              }
+            ],
+            "volumeMounts": [
+              {
+                "name": "exacv1-readviz",
+                "mountPath": "/readviz"
               }
             ],
             "securityContext": {
