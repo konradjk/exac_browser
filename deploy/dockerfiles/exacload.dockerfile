@@ -11,6 +11,7 @@ CMD gcsfuse \
   --key-file=/var/www/deploy/keys/exac-gnomad-30ea80400948.json \
   exac /var/exac_data && \
   ls /var/exac_data && \
+  gs
   python manage.py load_db
   # python manage.py load_base_coverage
   # python manage.py load_constraint_information

@@ -15,3 +15,7 @@ sleep 120
 
 # load data
 kubectl create -f deploy/config/exac-load-pod.json
+
+# copy readviz files
+kubectl create -f deploy/config/readviz-pod.json
+kubectl create -f deploy/config/readviz-pod.json

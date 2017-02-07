@@ -2,7 +2,7 @@
   "kind": "Pod",
   "apiVersion": "v1",
   "metadata": {
-    "name": "exac-load",
+    "name": "exac-copyreadviz",
     "labels": {
       "state": "loading"
     }
@@ -20,20 +20,7 @@
     ],
     "containers": [
       {
-        "name": "exac-load",
-        "image": "gcr.io/exac-gnomad/exacload",
-        "securityContext": {
-          "privileged": true,
-          "capabilities": {
-            "add": [
-              "NET_ADMIN"
-            ]
-          }
-        },
-        "imagePullPolicy": "Always"
-      },
-      {
-        "name": "exac-load",
+        "name": "exac-copyreadviz",
         "image": "gcr.io/exac-gnomad/copyreadviz",
         "volumeMounts": [
           {
