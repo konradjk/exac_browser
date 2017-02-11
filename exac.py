@@ -80,7 +80,7 @@ def connect_db():
     """
     Connects to the specific database.
     """
-    client = pymongo.MongoClient("mongodb://mongo:27017")
+    client = pymongo.MongoClient("mongodb://exac-mongo:27017")
     return client["exac"]
 
 

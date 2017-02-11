@@ -21,9 +21,9 @@
       "spec": {
         "volumes": [
           {
-            "name": "exacv1-readviz",
+            "name": "exac-readviz-exons-vol",
             "gcePersistentDisk": {
-              "pdName": "exacv1-readviz",
+              "pdName": "exac-readviz-exons-gpd",
               "fsType": "ext4",
               "readOnly": true
             }
@@ -41,7 +41,7 @@
             ],
             "volumeMounts": [
               {
-                "name": "exacv1-readviz",
+                "name": "exac-readviz-exons-vol",
                 "mountPath": "/readviz"
               }
             ],

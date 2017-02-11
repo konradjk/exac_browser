@@ -11,9 +11,9 @@
     "restartPolicy": "Never",
     "volumes": [
       {
-        "name": "exacv1-readviz",
+        "name": "exac-readviz-exons-vol",
         "gcePersistentDisk": {
-          "pdName": "exacv1-readviz",
+          "pdName": "exac-readviz-exons-gpd",
           "fsType": "ext4"
         }
       }
@@ -24,7 +24,7 @@
         "image": "gcr.io/exac-gnomad/copyreadviz",
         "volumeMounts": [
           {
-            "name": "exacv1-readviz",
+            "name": "exac-readviz-exons-vol",
             "mountPath": "/readviz"
           }
         ],

@@ -7,21 +7,24 @@ set -e
 gcloud config set project exac-gnomad
 
 # Create the disk, wait 5 minutes
-gcloud compute disks create --size=3000GB --zone=us-east1-d exacv1-readviz
+gcloud compute disks create --size=1000GB --zone=us-east1-d exac-readviz-exons-gpd
 
-docker build -f deploy/dockerfiles/copyreadviz.dockerfile -t gcr.io/exac-gnomad/copyreadviz .
-gcloud docker push gcr.io/exac-gnomad/copyreadviz
+"$(dirname "$0")"/start-load-cluster.sh
+kubectl config use-context gke_exac-gnomad_us-east1-d_gnomad-loading-cluster
 
-sleep 300
+# docker build -f deploy/dockerfiles/copyreadviz.dockerfile -t gcr.io/exac-gnomad/copyreadviz .
+# gcloud docker push gcr.io/exac-gnomad/copyreadviz
+
+sleep 60
 
 # start pod
 kubectl create -f deploy/config/copyreadviz-pod.json
 
-# takedown pod
-kubectl delete pod exac-copyreadviz
+# takedown pod on finish (about an hour?)
+# kubectl delete pod exac-copyreadviz
 
 # Delete
-gcloud compute disks delete exacv1-readviz --zone=us-east1-d
+# gcloud compute disks delete exacv1-readviz --zone=us-east1-d
 
 # takedown cluster
-"$(dirname "$0")"/takedown-load.sh
+# "$(dirname "$0")"/takedown-load.sh

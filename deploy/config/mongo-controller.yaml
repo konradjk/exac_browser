@@ -2,27 +2,27 @@ apiVersion: v1
 kind: ReplicationController
 metadata:
   labels:
-    name: mongo
-  name: mongo-controller
+    name: exac-mongo
+  name: exac-mongo-controller
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        name: mongo
+        name: exac-mongo
     spec:
       containers:
       - image: mongo
-        name: mongo
+        name: exac-mongo
         ports:
-        - name: mongo
+        - name: exac-mongo
           containerPort: 27017
-          hostPort: 27017
+          # hostPort: 27017
         volumeMounts:
-            - name: mongo-persistent-storage
+            - name: exac-mongo-persistent-storage
               mountPath: /data/db
       volumes:
-        - name: mongo-persistent-storage
+        - name: exac-mongo-persistent-storage
           gcePersistentDisk:
             pdName: mongo-disk
             fsType: ext4
