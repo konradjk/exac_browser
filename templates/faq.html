@@ -118,6 +118,12 @@
             </li>
             <li class="media">
                 <div class="media-body">
+                    <h4 class="media-heading">Why does the allele frequency (AF) found in the ExAC VCF differ from the AF shown on the browser?</h4>
+                    The AF shown in the VCF is AC/AN.  The browser however shows the adjusted allele frequency (AC_adj/AN_adj). The raw counts (AC and AN) refer to the total number of chromosomes with this allele, and total that were able to be called (whether reference or alternate), respectively. Thus, the allele frequency is AC/AN. However, for more stringent applications, we adjusted the allele count to only include individuals with genotype quality (GQ) >= 20 and depth (DP) >= 10, which we term AC_adj (and correspondingly, AN_adj for total number of chromosomes from individuals with those criteria regardless of genotype call).
+                </div>
+            </li>
+            <li class="media">
+                <div class="media-body">
                     <h4 class="media-heading">Are all the individuals in the <a href="http://evs.gs.washington.edu/EVS/">Exome Variant Server</a> included?</h4>
                     No. We were not given permission from dbGaP to include individuals from several of the cohorts included in the NHLBI's Exome Sequencing Project. As a result, genuine rare variants that are present in the EVS may not be observed in ExAC.
                 </div>
