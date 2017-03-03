@@ -39,6 +39,7 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
+DEPLOYMENT_ENVIRONMENT = os.getenv('DEPLOYMENT_ENV', 'development')
 EXAC_FILES_DIRECTORY = '/var/exac_data/170122_exacv1_bundle'
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
@@ -76,12 +77,19 @@ app.config.update(dict(
 GENE_CACHE_DIR = os.path.join(os.path.dirname(__file__), 'gene_cache')
 GENES_TO_CACHE = {l.strip('\n') for l in open(os.path.join(os.path.dirname(__file__), 'genes_to_cache.txt'))}
 
+MONGO_HOST = os.getenv('MONGO_HOST', 'mongo')
+MONGO_PORT = os.getenv('MONGO_PORT', 27017)
+MONGO_URL = 'mongodb://%s:%s' % (MONGO_HOST, MONGO_PORT)
+
 def connect_db():
     """
     Connects to the specific database.
     """
-    client = pymongo.MongoClient("mongodb://exac-mongo:27017")
-    return client["exac"]
+    if DEPLOYMENT_ENVIRONMENT == 'production':
+        client = pymongo.MongoClient(MONGO_URL)
+    elif DEPLOYMENT_ENVIRONMENT == 'development':
+        client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
+    return client[app.config['DB_NAME']]
 
 
 def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
