@@ -922,13 +922,6 @@ def read_viz_files(path):
     return rv
 
 
-@app.after_request
-def apply_caching(response):
-    # prevent click-jacking vulnerability identified by BITs
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-    return response
-
-
 if __name__ == "__main__":
     runner = Runner(app)  # adds Flask command line options for setting host, port, etc.
     runner.run()
