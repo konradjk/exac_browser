@@ -182,6 +182,19 @@ def get_constraint_information(constraint_file):
         transcript_info['transcript'] = transcript.split('.')[0]
         yield transcript_info
 
+def get_af_filter(af_filter_file):
+    af_filter_file.readline()
+    for line in af_filter_file:
+        chrom, pos, ref, alt, af_filter, af_pop = line.strip().split()
+        record = {
+            'chrom': chrom,
+            'xpos': get_xpos(chrom, pos),
+            'ref': ref,
+            'alt': alt,
+            'af_filter': af_filter,
+            'af_pop': af_pop
+        }
+        yield record
 
 def get_canonical_transcripts(canonical_transcript_file):
     for line in canonical_transcript_file:
@@ -303,12 +316,12 @@ def get_exons_from_gencode_gtf(gtf_file):
 
 
 def get_cnvs_from_txt(cnv_txt_file):
-    """                                                                                                                                                                                                                                  
-    Parse gencode txt file;                                                                                                                                                                                                              
-    Returns iter of gene dicts                                                                                                                                                                                                           
     """
-    header = cnv_txt_file.next() # gets rid of the header                                                                                                                                                                                
-    #print header                                                                                                                                                                                                                        
+    Parse gencode txt file;
+    Returns iter of gene dicts
+    """
+    header = cnv_txt_file.next() # gets rid of the header
+    #print header
     for line in cnv_txt_file:
 
         fields = line.rsplit()
@@ -325,11 +338,11 @@ def get_cnvs_from_txt(cnv_txt_file):
         delpop60 = fields[10]
         duppop0 = fields[11]
         duppop60 = fields[12]
-        
 
-        #find gene from DB.genes, get ID                                                                                                                                                                                                 
-        #find exon of that gene that this CNV referes to from db.exons, get ID                                                                                                                                                           
-        #add the object reference to the cnv dict.                                                                                                                                                                                       
+
+        #find gene from DB.genes, get ID
+        #find exon of that gene that this CNV referes to from db.exons, get ID
+        #add the object reference to the cnv dict.
         cnv = {
             'transcript': transcript,
             'gene': gene,
@@ -351,7 +364,7 @@ def get_cnvs_from_txt(cnv_txt_file):
 
 
 def get_cnvs_per_gene(cnv_gene_file):
-    header = cnv_gene_file.next() # gets rid of the header                                                                                                                                                                               
+    header = cnv_gene_file.next() # gets rid of the header
     for line in cnv_gene_file:
 
         fields = line.rsplit()

@@ -196,6 +196,8 @@
                         {% endif %}
                         <dt>Allele Frequency</dt>
                         <dd>{% if variant.allele_freq %}{{ '%0.4g' % variant.allele_freq }}{% else %}NA (Allele Number = 0){% endif %}</dd>
+                        <dt>AF filter</dt>
+                        <dd>{% if variant.af_filter %}{{ '%0.4g' % variant.af_filter }} ({{ variant.af_pop }}){% else %}None{% endif %}</dd>
                         <dt>Allele Count</dt>
                         <dd>{{ variant.allele_count }} / {{ variant.allele_num }}</dd>
                         <dt>UCSC</dt>

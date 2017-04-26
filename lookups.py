@@ -325,3 +325,6 @@ def get_exons_in_transcript(db, transcript_id):
     #      if x['feature_type'] != 'exon'],
     #     key=lambda k: k['start'])
     return sorted(list(db.exons.find({'transcript_id': transcript_id, 'feature_type': { "$in": ['CDS', 'UTR', 'exon'] }}, fields={'_id': False})), key=lambda k: k['start'])
+
+def get_af_filter_for_variant(db, xpos, ref, alt):
+    return db.af_filter.find_one({'xpos': xpos, 'ref': ref, 'alt': alt}, fields={'_id': False})

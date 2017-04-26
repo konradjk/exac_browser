@@ -56,6 +56,10 @@ def load_constraint_information():
     exac.load_constraint_information()
 
 @manager.command
+def load_af_filter():
+    exac.load_af_filter()
+
+@manager.command
 def load_mnps():
     exac.load_mnps()
 

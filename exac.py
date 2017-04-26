@@ -11,7 +11,7 @@ import random
 import sys
 from utils import *
 
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory, make_response
 from flask.ext.compress import Compress
 from flask.ext.runner import Runner
 from flask_errormail import mail_on_500
@@ -40,18 +40,24 @@ app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
 DEPLOYMENT_ENVIRONMENT = os.getenv('DEPLOYMENT_ENV', 'development')
-EXAC_FILES_DIRECTORY = '/var/exac_data/170122_exacv1_bundle'
+
+
+if DEPLOYMENT_ENVIRONMENT == 'production':
+    EXAC_FILES_DIRECTORY = '/var/exac_data/170122_exacv1_bundle'
+elif DEPLOYMENT_ENVIRONMENT == 'development':
+    EXAC_FILES_DIRECTORY = '../exacv1_bundle'
+
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
     # DB_HOST='localhost',
-    DB_HOST='mongo',
+    DB_HOST='localhost',
     DB_PORT=27017,
     DB_NAME='exac',
     DEBUG=True,
     SECRET_KEY='development key',
-    LOAD_DB_PARALLEL_PROCESSES = 24,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
+    LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
     SITES_VCFS=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
     GENCODE_GTF=os.path.join(EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
@@ -62,7 +68,7 @@ app.config.update(dict(
     MNP_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'MNPs_NotFiltered_ForBrowserRelease.txt.gz'),
     CNV_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'exac-gencode-exon.cnt.final.pop3'),
     CNV_GENE_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'exac-final-cnvs.gene.rank'),
-
+    AF_FILTER_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'af_filter_data.tsv.gz'),
     # How to get a dbsnp142.txt.bgz file:
     #   wget ftp://ftp.ncbi.nlm.nih.gov/snp/organisms/human_9606_b142_GRCh37p13/database/organism_data/b142_SNPChrPosOnRef_105.bcp.gz
     #   zcat b142_SNPChrPosOnRef_105.bcp.gz | awk '$3 != ""' | perl -pi -e 's/ +/\t/g' | sort -k2,2 -k3,3n | bgzip -c > dbsnp142.txt.bgz
@@ -90,7 +96,6 @@ def connect_db():
     elif DEPLOYMENT_ENVIRONMENT == 'development':
         client = pymongo.MongoClient(host=app.config['DB_HOST'], port=app.config['DB_PORT'])
     return client[app.config['DB_NAME']]
-
 
 def parse_tabix_file_subset(tabix_filenames, subset_i, subset_n, record_parser):
     """
@@ -213,6 +218,21 @@ def load_constraint_information():
     print 'Done loading constraint info. Took %s seconds' % int(time.time() - start_time)
     return []
 
+def load_af_filter():
+    db = get_db()
+
+    db.af_filter.drop()
+    print 'Dropped db.af_filter.'
+
+    start_time = time.time()
+
+    with gzip.open(app.config['AF_FILTER_FILE']) as af_filter_file:
+        for record in get_af_filter(af_filter_file):
+            db.af_filter.insert(record, w=0)
+
+    db.af_filter.ensure_index('xpos')
+    print 'Done loading load_af_filter info. Took %s seconds' % int(time.time() - start_time)
+    return []
 
 def load_mnps():
     db = get_db()
@@ -603,6 +623,10 @@ def variant_page(variant_str):
         base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
         any_covered = any([x['has_coverage'] for x in base_coverage])
         metrics = lookups.get_metrics(db, variant)
+        af_filter = lookups.get_af_filter_for_variant(db, xpos, ref, alt)
+
+        variant['af_filter'] = float(af_filter['af_filter'])
+        variant['af_pop'] = af_filter['af_pop']
 
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant
@@ -654,7 +678,6 @@ def variant_page(variant_str):
 
         read_viz_dict['total_available'] = total_available
         read_viz_dict['total_expected'] = total_expected
-
 
         print 'Rendering variant: %s' % variant_str
         return render_template(
@@ -949,6 +972,27 @@ def apply_caching(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     return response
 
+@app.route('/api/constraint', methods=["GET", "POST"])
+def api_constraint():
+    if request.method == 'POST':
+        gene_ids = json.loads(request.form['geneids'])
+    else:
+        gene_ids = request.args.get('geneids', '').split(',')
+    db = get_db()
+    constraint_info = {}
+    for gene_id in gene_ids:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None: continue
+        transcript_id = gene['canonical_transcript']
+        constraint_info[gene_id] = lookups.get_constraint_for_transcript(db, transcript_id)
+        if constraint_info[gene_id] is None: continue
+        if 'cnv_z' in constraint_info[gene_id]: del constraint_info[gene_id]['cnv_z']
+        if 'exp_cnv' in constraint_info[gene_id]: del constraint_info[gene_id]['exp_cnv']
+        if 'n_cnv' in constraint_info[gene_id]: del constraint_info[gene_id]['n_cnv']
+    resp = make_response(jsonify(constraint_info), 200)
+    resp.headers.extend({'Access-Control-Allow-Origin': '*'})
+    resp.headers['X-Frame-Options'] = 'ALLOW-FROM'
+    return resp
 
 if __name__ == "__main__":
     runner = Runner(app)  # adds Flask command line options for setting host, port, etc.
