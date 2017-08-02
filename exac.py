@@ -14,8 +14,8 @@ import sys
 from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
-from flask.ext.compress import Compress
-from flask.ext.runner import Runner
+from flask_compress import Compress
+from flask_script import Manager
 from flask_errormail import mail_on_500
 
 from flask import Response
@@ -32,7 +32,7 @@ logging.getLogger().addHandler(logging.StreamHandler())
 logging.getLogger().setLevel(logging.INFO)
 
 ADMINISTRATORS = (
-    'exac.browser.errors@gmail.com',
+    os.getenv('EXAC_ADMIN_EMAIL', 'exac.browser.errors@gmail.com'),
 )
 
 app = Flask(__name__)
@@ -41,13 +41,13 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache(default_timeout=60*60*24)
 
-EXAC_FILES_DIRECTORY = '../exac/exac_data/'
+EXAC_FILES_DIRECTORY = os.getenv('EXAC_DATA_DIR', '../exac/exac_data/')
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DB_HOST='localhost',
-    DB_PORT=27017,
+    DB_HOST=os.getenv('EXAC_DB_HOST', '127.0.0.1'),
+    DB_PORT=os.getenv('EXAC_DB_PORT', 27017),
     DB_NAME='exac', 
     DEBUG=True,
     SECRET_KEY='development key',
@@ -1654,5 +1654,5 @@ def apply_caching(response):
 
 
 if __name__ == "__main__":
-    runner = Runner(app)  # adds Flask command line options for setting host, port, etc.
-    runner.run()
+    manager = Manager(app)  # adds Flask command line options for setting host, port, etc.
+    manager.run('runserver')
