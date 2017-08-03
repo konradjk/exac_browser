@@ -57,7 +57,7 @@ app.config.update(dict(
     DB_NAME='exac',
     DEBUG=True,
     SECRET_KEY='development key',
-    LOAD_DB_PARALLEL_PROCESSES = 4,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
+    LOAD_DB_PARALLEL_PROCESSES = 1,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
     SITES_VCFS=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
     GENCODE_GTF=os.path.join(EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
@@ -593,7 +593,6 @@ def awesome():
     else:
         raise Exception
 
-
 @app.route('/variant/<variant_str>')
 def variant_page(variant_str):
     db = get_db()
@@ -625,8 +624,22 @@ def variant_page(variant_str):
         metrics = lookups.get_metrics(db, variant)
         af_filter = lookups.get_af_filter_for_variant(db, xpos, ref, alt)
 
+        af_pops = {
+            'afr': 'African',
+            'amr': 'Latino',
+            'eas': 'East Asian',
+            'fin': 'European (Finnish)',
+            'nfe': 'European (Non-Finnish)',
+            'sas': 'South Asian',
+            'oth': 'Other',
+            'none': 'None'
+        }
+
         variant['af_filter'] = float(af_filter['af_filter'])
-        variant['af_pop'] = af_filter['af_pop']
+        if af_filter['af_pop']:
+            variant['af_pop'] = af_pops[af_filter['af_pop']]
+        else:
+            variant['af_pop'] = 'None'
 
         # check the appropriate sqlite db to get the *expected* number of
         # available bams and *actual* number of available bams for this variant
