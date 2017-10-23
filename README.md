@@ -113,3 +113,52 @@ For testing, you can open up an interactive shell with:
 
     python manage.py shell
 
+## REST API
+
+###Search
+
+	/rest/awesome?query=<query_str>&service=<optional_service>
+
+###Variant
+
+	/rest/variant/<variant_str>
+	/rest/variant/variant/<variant_str>
+	/rest/variant/base_coverage/<variant_str>
+	/rest/variant/consequences/<variant_str>
+	/rest/variant/any_covered/<variant_str>
+	/rest/variant/ordered_csqs/<variant_str>
+	/rest/variant/metrics/<variant_str>
+
+###Gene
+
+	/rest/gene/<gene_id>
+	/rest/gene/transcript/<gene_id>
+	/rest/gene/variants_in_gene/<gene_id>
+	/rest/gene/variants_in_transcript/<gene_id>
+	/rest/gene/transcripts_in_gene/<gene_id>
+	/rest/gene/coverage_stats/<gene_id>
+
+###Transcript
+
+	/rest/transcript/<transcript_id>
+	/rest/transcript/transcript/<transcript_id>
+	/rest/transcript/variants_in_transcript/<transcript_id>
+	/rest/transcript/coverage_stats/<transcript_id>
+	/rest/transcript/gene/<transcript_id>
+
+###Region
+
+	/rest/region/<region_id>
+	/rest/region/genes_in_region/<region_id>
+	/rest/region/variants_in_region/<region_id>
+	/rest/region/coverage_array/<region_id>
+
+###dbSNP
+
+	/rest/dbsnp/<rsid>
+
+###Bulk variant request
+A JSON Array of variant informaiton in the <variant_str> style needs to be attached as the payload of the call
+
+    POST /rest/bulk/variant
+    POST /rest/bulk/variant/variant

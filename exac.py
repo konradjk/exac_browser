@@ -12,8 +12,8 @@ import sys
 from utils import *
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify, send_from_directory
-from flask.ext.compress import Compress
-from flask.ext.runner import Runner
+from flask_compress import Compress
+from flask_script import Manager
 from flask_errormail import mail_on_500
 
 from flask import Response
@@ -30,7 +30,7 @@ logging.getLogger().addHandler(logging.StreamHandler())
 logging.getLogger().setLevel(logging.INFO)
 
 ADMINISTRATORS = (
-    'exac.browser.errors@gmail.com',
+    os.getenv('EXAC_ADMIN_EMAIL', 'exac.browser.errors@gmail.com'),
 )
 
 app = Flask(__name__)
@@ -39,13 +39,13 @@ Compress(app)
 app.config['COMPRESS_DEBUG'] = True
 cache = SimpleCache()
 
-EXAC_FILES_DIRECTORY = '../exac_data/'
+EXAC_FILES_DIRECTORY = os.getenv('EXAC_DATA_DIR', '../exac/exac_data/')
 REGION_LIMIT = 1E5
 EXON_PADDING = 50
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DB_HOST='localhost',
-    DB_PORT=27017,
+    DB_HOST=os.getenv('EXAC_DB_HOST', '127.0.0.1'),
+    DB_PORT=os.getenv('EXAC_DB_PORT', 27017),
     DB_NAME='exac', 
     DEBUG=True,
     SECRET_KEY='development key',
@@ -531,6 +531,45 @@ def awesome_autocomplete(query):
     return Response(json.dumps([{'value': s} for s in suggestions]),  mimetype='application/json')
 
 
+@app.route('/rest/awesome')
+def restAwesome():
+    db = get_db()
+    query = request.args.get('query')
+    service = request.args.get('service')
+    datatype, identifier = lookups.get_awesomebar_result(db, query)
+
+    print "Searched for %s: %s" % (datatype, identifier)
+    if datatype == 'gene':
+        if service is None:
+            return redirect('/rest/gene/{}'.format(identifier))
+        else:
+            return redirect('/rest/gene/{}/{}'.format(service, identifier))
+    elif datatype == 'transcript':
+        if service is None:
+            return redirect('/rest/transcript/{}'.format(identifier))
+        else:
+            return redirect('/rest/transcript/{}/{}'.format(service, identifier))
+    elif datatype == 'variant':
+        if service is None:
+            return redirect('/rest/variant/{}'.format(identifier))
+        else:
+            return redirect('/rest/variant/{}/{}'.format(service, identifier))
+    elif datatype == 'region':
+        if service is None:
+            return redirect('/rest/region/{}'.format(identifier))
+        else:
+            return redirect('/rest/region/{}/{}'.format(service, identifier))
+    elif datatype == 'dbsnp_variant_set':
+        return redirect('/rest/dbsnp/{}'.format(identifier))
+    elif datatype == 'error':
+        return redirect('/error/{}'.format(identifier))
+    elif datatype == 'not_found':
+        return redirect('/not_found/{}'.format(identifier))
+    else:
+        raise Exception
+
+
+
 @app.route('/awesome')
 def awesome():
     db = get_db()
@@ -652,6 +691,324 @@ def variant_page(variant_str):
         print 'Failed on variant:', variant_str, ';Error=', traceback.format_exc()
         abort(404)
 
+@app.route('/rest/bulk/variant/variant',  methods=['POST']) 
+def variant_variant_bulk():
+    variant_str = ''
+    db = get_db()
+    jsonPayload = request.get_json(force=True, silent=True)
+    try:
+        responseArray = {}
+        for variant_str in jsonPayload:
+            chrom, pos, ref, alt = variant_str.split('-')
+            pos = int(pos)
+            # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+            xpos = get_xpos(chrom, pos)
+            variant = lookups.get_variant(db, xpos, ref, alt)
+
+            if variant is None:
+                variant = {
+                    'chrom': chrom,
+                    'pos': pos,
+                    'xpos': xpos,
+                    'ref': ref,
+                    'alt': alt
+                }
+
+            if 'vep_annotations' in variant:
+                variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+            responseArray[variant_str] = variant
+            print 'Rendering variant: %s' % variant_str
+
+        return Response(response=json.dumps(responseArray),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+
+@app.route('/rest/bulk/variant',  methods=['POST']) 
+def variant_bulk():
+    db = get_db()
+    jsonPayload = request.get_json(force=True, silent=True)
+    try:
+        responseArray = {}
+        for variant_str in jsonPayload:
+            chrom, pos, ref, alt = variant_str.split('-')
+            pos = int(pos)
+            # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+            xpos = get_xpos(chrom, pos)
+            variant = lookups.get_variant(db, xpos, ref, alt)
+
+            if variant is None:
+                variant = {
+                    'chrom': chrom,
+                    'pos': pos,
+                    'xpos': xpos,
+                    'ref': ref,
+                    'alt': alt
+                }
+            consequences = None
+            ordered_csqs = None
+            if 'vep_annotations' in variant:
+                variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+                ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
+                ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
+                consequences = defaultdict(lambda: defaultdict(list))
+                for annotation in variant['vep_annotations']:
+                    annotation['HGVS'] = get_proper_hgvs(annotation)
+                    consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
+            base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
+            any_covered = any([x['has_coverage'] for x in base_coverage])
+            metrics = lookups.get_metrics(db, variant)
+        
+            response = {
+                'variant' : variant,
+                'base_coverage' : base_coverage,
+                'any_covered' : any_covered,
+                'consequence' : consequences,
+                'metrics' : metrics
+            }
+            responseArray[variant_str] = response
+        
+
+            print 'Rendering variant: %s' % variant_str
+            
+        return Response(response=json.dumps(responseArray),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+
+
+@app.route('/rest/variant/<variant_str>')
+def variant_rest(variant_str):
+    db = get_db()
+    try:
+        chrom, pos, ref, alt = variant_str.split('-')
+        pos = int(pos)
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = get_xpos(chrom, pos)
+        variant = lookups.get_variant(db, xpos, ref, alt)
+
+        if variant is None:
+            variant = {
+                'chrom': chrom,
+                'pos': pos,
+                'xpos': xpos,
+                'ref': ref,
+                'alt': alt
+            }
+        consequences = None
+        ordered_csqs = None
+        if 'vep_annotations' in variant:
+            variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+            ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
+            ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
+            consequences = defaultdict(lambda: defaultdict(list))
+            for annotation in variant['vep_annotations']:
+                annotation['HGVS'] = get_proper_hgvs(annotation)
+                consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
+        base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
+        any_covered = any([x['has_coverage'] for x in base_coverage])
+        metrics = lookups.get_metrics(db, variant)
+        
+        response = {
+            'variant' : variant,
+            'base_coverage' : base_coverage,
+            'any_covered' : any_covered,
+            'consequence' : consequences,
+            'metrics' : metrics
+        }
+        
+
+        print 'Rendering variant: %s' % variant_str
+        return Response(response=json.dumps(response),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+
+#variant
+@app.route('/rest/variant/variant/<variant_str>')
+def variant_rest_variant(variant_str):
+    db = get_db()
+    try:
+        chrom, pos, ref, alt = variant_str.split('-')
+        pos = int(pos)
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = get_xpos(chrom, pos)
+        variant = lookups.get_variant(db, xpos, ref, alt)
+
+        if variant is None:
+            variant = {
+                'chrom': chrom,
+                'pos': pos,
+                'xpos': xpos,
+                'ref': ref,
+                'alt': alt
+            }
+
+        if 'vep_annotations' in variant:
+            variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+
+        print 'Rendering variant: %s' % variant_str
+        return Response(response=json.dumps(variant),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+
+
+#base_coverage
+@app.route('/rest/variant/base_coverage/<variant_str>')
+def variant_rest_base_coverage(variant_str):
+    db = get_db()
+    try:
+        chrom, pos, ref, alt = variant_str.split('-')
+        pos = int(pos)
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = get_xpos(chrom, pos)
+
+        base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
+
+        print 'Rendering variant: %s' % variant_str
+        return Response(response=json.dumps(base_coverage),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+        
+#consequences
+@app.route('/rest/variant/consequences/<variant_str>')
+def variant_rest_consequences(variant_str):
+    db = get_db()
+    try:
+        chrom, pos, ref, alt = variant_str.split('-')
+        pos = int(pos)
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = get_xpos(chrom, pos)
+        variant = lookups.get_variant(db, xpos, ref, alt)
+
+        if variant is None:
+            variant = {
+                'chrom': chrom,
+                'pos': pos,
+                'xpos': xpos,
+                'ref': ref,
+                'alt': alt
+            }
+        consequences = None
+        ordered_csqs = None
+        if 'vep_annotations' in variant:
+            variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+            ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
+            ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
+            consequences = defaultdict(lambda: defaultdict(list))
+            for annotation in variant['vep_annotations']:
+                annotation['HGVS'] = get_proper_hgvs(annotation)
+                consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
+
+        print 'Rendering variant: %s' % variant_str
+        return Response(response=json.dumps(consequences),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+        
+#any_covered
+@app.route('/rest/variant/any_covered/<variant_str>')
+def variant_rest_any_covered(variant_str):
+    db = get_db()
+    try:
+        chrom, pos, ref, alt = variant_str.split('-')
+        pos = int(pos)
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = get_xpos(chrom, pos)
+        
+        base_coverage = lookups.get_coverage_for_bases(db, xpos, xpos + len(ref) - 1)
+        any_covered = any([x['has_coverage'] for x in base_coverage])
+
+
+        print 'Rendering variant: %s' % variant_str
+        return Response(response=json.dumps(any_covered),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+        
+#ordered_csqs
+@app.route('/rest/variant/ordered_csqs/<variant_str>')
+def variant_rest_ordered_csqs(variant_str):
+    db = get_db()
+    try:
+        chrom, pos, ref, alt = variant_str.split('-')
+        pos = int(pos)
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = get_xpos(chrom, pos)
+        variant = lookups.get_variant(db, xpos, ref, alt)
+
+        if variant is None:
+            variant = {
+                'chrom': chrom,
+                'pos': pos,
+                'xpos': xpos,
+                'ref': ref,
+                'alt': alt
+            }
+        consequences = None
+        ordered_csqs = None
+        if 'vep_annotations' in variant:
+            variant['vep_annotations'] = order_vep_by_csq(variant['vep_annotations'])  # Adds major_consequence
+            ordered_csqs = [x['major_consequence'] for x in variant['vep_annotations']]
+            ordered_csqs = reduce(lambda x, y: ','.join([x, y]) if y not in x else x, ordered_csqs, '').split(',') # Close but not quite there
+            consequences = defaultdict(lambda: defaultdict(list))
+            for annotation in variant['vep_annotations']:
+                annotation['HGVS'] = get_proper_hgvs(annotation)
+                consequences[annotation['major_consequence']][annotation['Gene']].append(annotation)
+
+
+        print 'Rendering variant: %s' % variant_str
+        return Response(response=json.dumps(ordered_csqs),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
+        
+#metrics
+@app.route('/rest/variant/metrics/<variant_str>')
+def variant_rest_metrics(variant_str):
+    db = get_db()
+    try:
+        chrom, pos, ref, alt = variant_str.split('-')
+        pos = int(pos)
+        # pos, ref, alt = get_minimal_representation(pos, ref, alt)
+        xpos = get_xpos(chrom, pos)
+        variant = lookups.get_variant(db, xpos, ref, alt)
+
+        if variant is None:
+            variant = {
+                'chrom': chrom,
+                'pos': pos,
+                'xpos': xpos,
+                'ref': ref,
+                'alt': alt
+            }
+        metrics = lookups.get_metrics(db, variant)
+
+        print 'Rendering variant: %s' % variant_str
+        return Response(response=json.dumps(metrics),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variant:', variant_str, '; Error=', traceback.format_exc()
+        abort(404)
 
 @app.route('/gene/<gene_id>')
 def gene_page(gene_id):
@@ -702,6 +1059,148 @@ def get_gene_page_content(gene_id):
         print 'Failed on gene:', gene_id, ';Error=', traceback.format_exc()
         abort(404)
 
+@app.route('/rest/gene/<gene_id>')
+def gene_rest(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+
+        variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+        transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
+
+        # Get some canonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']
+        transcript = lookups.get_transcript(db, transcript_id)
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+
+        response = {
+            'gene' : gene,
+            'transcript' : transcript,
+            'variants_in_transcript' : variants_in_transcript,
+            'transcripts_in_gene' : transcripts_in_gene,
+            'coverage_stats' : coverage_stats
+        }
+       
+        print 'Rendering gene: %s' % gene_id
+        
+        return Response(response=json.dumps(response),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on gene:', gene_id, ';Error=', e
+        abort(404)
+
+
+
+#gene_transcript
+@app.route('/rest/gene/transcript/<gene_id>')
+def rest_gene_transcript(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+        
+        # Get some canonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']
+        transcript = lookups.get_transcript(db, transcript_id)
+          
+        print 'Rendering gene transcript: %s' % gene_id
+        return Response(response=json.dumps(transcript),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on gene transcript:', gene_id, ';Error=', e
+        abort(404)
+
+#variants_in_gene
+@app.route('/rest/gene/variants_in_gene/<gene_id>')
+def rest_gene_variants_in_gene(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+       
+        variants_in_gene = lookups.get_variants_in_gene(db, gene_id)
+           
+        print 'Rendering variants in gene: %s' % gene_id
+        return Response(response=json.dumps(variants_in_gene),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variants in gene:', gene_id, ';Error=', e
+        abort(404)
+
+#variants_in_transcript
+@app.route('/rest/gene/variants_in_transcript/<gene_id>')
+def rest_gene_variants_in_transcript(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+            
+        # Get some canonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']                
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)        
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+        
+        print 'Rendering variants_in_transcript: %s' % gene_id
+        return Response(response=json.dumps(variants_in_transcript),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on variants_in_transcript:', gene_id, ';Error=', e
+        abort(404)
+
+
+#transcripts_in_gene
+@app.route('/rest/gene/transcripts_in_gene/<gene_id>')
+def rest_gene_transcripts_in_gene(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+        
+       
+        transcripts_in_gene = lookups.get_transcripts_in_gene(db, gene_id)
+ 
+        print 'Rendering transcripts_in_gene: %s' % gene_id
+        return Response(response=json.dumps(transcripts_in_gene),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on transcripts_in_gene:', gene_id, ';Error=', e
+        abort(404)
+        
+#coverage_stats
+@app.route('/rest/gene/coverage_stats/<gene_id>')
+def rest_gene_coverage_stats(gene_id):
+    db = get_db()
+    try:
+        gene = lookups.get_gene(db, gene_id)
+        if gene is None:
+            abort(404)
+        
+        # Get some canonical transcript and corresponding info
+        transcript_id = gene['canonical_transcript']
+        transcript = lookups.get_transcript(db, transcript_id)
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+
+        
+        print 'Rendering coverage_stats: %s' % gene_id
+        return Response(response=json.dumps(coverage_stats),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on coverage_stats:', gene_id, ';Error=', e
+        abort(404)
 
 @app.route('/transcript/<transcript_id>')
 def transcript_page(transcript_id):
@@ -744,6 +1243,116 @@ def transcript_page(transcript_id):
         print 'Failed on transcript:', transcript_id, ';Error=', traceback.format_exc()
         abort(404)
 
+@app.route('/rest/transcript/<transcript_id>')
+def transcript_rest(transcript_id):
+    db = get_db()
+    try:
+        transcript = lookups.get_transcript(db, transcript_id)
+
+        gene = lookups.get_gene(db, transcript['gene_id'])
+        gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+        
+        response = {
+            'transcript' : transcript,
+            'variants_in_transcript' : variants_in_transcript,
+            'coverage_stats' : coverage_stats,
+            'gene' : gene
+        }
+       
+        print 'Rendering transcript: %s' % transcript_id
+        
+        return Response(response=json.dumps(response),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on transcript:', transcript_id, ';Error=', e
+        abort(404)
+#transcript
+
+@app.route('/rest/transcript/transcript/<transcript_id>')
+def transcript_rest_transcript(transcript_id):
+    db = get_db()
+    try:
+        transcript = lookups.get_transcript(db, transcript_id)
+
+        print 'Rendering transcript: %s' % transcript_id
+        return Response(response=json.dumps(transcript),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on transcript:', transcript_id, ';Error=', e
+        abort(404)
+        
+#variants_in_transcript
+@app.route('/rest/transcript/variants_in_transcript/<transcript_id>')
+def transcript_rest_table_variants(transcript_id):
+    db = get_db()
+    try:
+        transcript = lookups.get_transcript(db, transcript_id)
+
+        gene = lookups.get_gene(db, transcript['gene_id'])
+        gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+
+        print 'Rendering transcript: %s' % transcript_id
+        return Response(response=json.dumps(variants_in_transcript),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on transcript:', transcript_id, ';Error=', e
+        abort(404)
+        
+        
+#coverage_stats
+@app.route('/rest/transcript/coverage_stats/<transcript_id>')
+def transcript_rest_coverage_stats(transcript_id):
+    db = get_db()
+    try:
+        transcript = lookups.get_transcript(db, transcript_id)
+
+
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+
+       
+
+        print 'Rendering transcript: %s' % transcript_id
+        return Response(response=json.dumps(coverage_stats),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on transcript:', transcript_id, ';Error=', e
+        abort(404)
+        
+#gene
+@app.route('/rest/transcript/gene/<transcript_id>')
+def transcript_rest_gene(transcript_id):
+    db = get_db()
+    try:
+        transcript = lookups.get_transcript(db, transcript_id)
+
+        gene = lookups.get_gene(db, transcript['gene_id'])
+        gene['transcripts'] = lookups.get_transcripts_in_gene(db, transcript['gene_id'])
+        variants_in_transcript = lookups.get_variants_in_transcript(db, transcript_id)
+
+        coverage_stats = lookups.get_coverage_for_transcript(db, transcript['xstart'] - EXON_PADDING, transcript['xstop'] + EXON_PADDING)
+
+        add_transcript_coordinate_to_variants(db, variants_in_transcript, transcript_id)
+
+        print 'Rendering transcript: %s' % transcript_id
+        return Response(response=json.dumps(transcript),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on transcript:', transcript_id, ';Error=', e
+        abort(404)
+#FIN        
 
 @app.route('/region/<region_id>')
 def region_page(region_id):
@@ -793,6 +1402,145 @@ def region_page(region_id):
         print 'Failed on region:', region_id, ';Error=', traceback.format_exc()
         abort(404)
 
+@app.route('/rest/region/<region_id>')
+def region_rest(region_id):
+    db = get_db()
+    try:
+        region = region_id.split('-')
+
+        chrom = region[0]
+        start = None
+        stop = None
+        response = None
+        if len(region) == 3:
+            chrom, start, stop = region
+            start = int(start)
+            stop = int(stop)
+        if start is None or stop - start > REGION_LIMIT or stop < start:
+            response = {
+                'genes_in_region' : None,
+                'variants_in_region' : None,
+                'chrom' : chrom,
+                'start' : start,
+                'stop' : stop,
+                'coverage' : None
+            }
+        
+        if start == stop:
+            start -= 20
+            stop += 20
+        genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
+        variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
+        xstart = get_xpos(chrom, start)
+        xstop = get_xpos(chrom, stop)
+        coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
+        response = {
+            'genes_in_region' : genes_in_region,
+            'variants_in_region' : variants_in_region,
+            'chrom' : chrom,
+            'start' : start,
+            'stop' : stop,
+            'coverage' : coverage_array
+        }
+        print 'Rendering region: %s' % region_id
+        
+        return Response(response=json.dumps(response),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on region:', region_id, ';Error=', e
+        abort(404)
+
+
+#genes_in_region
+@app.route('/rest/region/genes_in_region/<region_id>')
+def region_genes_in_region(region_id):
+    db = get_db()
+    try:
+        region = region_id.split('-')
+
+        chrom = region[0]
+        start = None
+        stop = None
+        if len(region) == 3:
+            chrom, start, stop = region
+            start = int(start)
+            stop = int(stop)
+        if start is None or stop - start > REGION_LIMIT or stop < start:
+            abort(404)
+        if start == stop:
+            start -= 20
+            stop += 20
+        genes_in_region = lookups.get_genes_in_region(db, chrom, start, stop)
+       
+        print 'Rendering genes_in_region: %s' % region_id
+        return  Response(response=json.dumps(genes_in_region),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on genes_in_region:', region_id, ';Error=', e
+        abort(404)
+        
+#variants_in_region
+@app.route('/rest/region/variants_in_region/<region_id>')
+def region_variants_in_region(region_id):
+    db = get_db()
+    try:
+        region = region_id.split('-')
+
+        chrom = region[0]
+        start = None
+        stop = None
+        if len(region) == 3:
+            chrom, start, stop = region
+            start = int(start)
+            stop = int(stop)
+        if start is None or stop - start > REGION_LIMIT or stop < start:
+            abort(404)
+        if start == stop:
+            start -= 20
+            stop += 20
+        
+        variants_in_region = lookups.get_variants_in_region(db, chrom, start, stop)
+        print 'Rendering genes_in_region: %s' % region_id
+        return  Response(response=json.dumps(variants_in_region),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on genes_in_region:', region_id, ';Error=', e
+        abort(404)
+        
+#coverage_array
+@app.route('/rest/region/coverage_array/<region_id>')
+def region_coverage_array(region_id):
+    db = get_db()
+    try:
+        region = region_id.split('-')
+
+        chrom = region[0]
+        start = None
+        stop = None
+        if len(region) == 3:
+            chrom, start, stop = region
+            start = int(start)
+            stop = int(stop)
+        if start is None or stop - start > REGION_LIMIT or stop < start:
+            abort(404)
+        if start == stop:
+            start -= 20
+            stop += 20
+
+        xstart = get_xpos(chrom, start)
+        xstop = get_xpos(chrom, stop)
+        coverage_array = lookups.get_coverage_for_bases(db, xstart, xstop)
+       
+        print 'Rendering genes_in_region: %s' % region_id
+        return  Response(response=json.dumps(coverage_array),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on genes_in_region:', region_id, ';Error=', e
+        abort(404)
 
 @app.route('/dbsnp/<rsid>')
 def dbsnp_page(rsid):
@@ -816,6 +1564,24 @@ def dbsnp_page(rsid):
     except Exception, e:
         print 'Failed on rsid:', rsid, ';Error=', traceback.format_exc()
         abort(404)
+
+@app.route('/rest/dbsnp/<rsid>')
+def dbsnp_rest(rsid):
+    db = get_db()
+    try:
+        variants = lookups.get_variants_by_rsid(db, rsid)
+        response = {
+            'rsid' : rsid,
+            'variants_in_region' : variants,
+        }
+        print 'Rendering rsid: %s' % rsid
+        
+        return Response(response=json.dumps(response),
+                    status=200,
+                    mimetype="application/json")
+    except Exception, e:
+        print 'Failed on rsid:', rsid, ';Error=', e
+        abort(404)        
 
 
 @app.route('/not_found/<query>')
@@ -923,5 +1689,5 @@ def read_viz_files(path):
 
 
 if __name__ == "__main__":
-    runner = Runner(app)  # adds Flask command line options for setting host, port, etc.
-    runner.run()
+    manager = Manager(app)  # adds Flask command line options for setting host, port, etc.
+    manager.run('runserver')
