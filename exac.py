@@ -58,7 +58,7 @@ app.config.update(dict(
     DEBUG=True,
     SECRET_KEY='development key',
     LOAD_DB_PARALLEL_PROCESSES = 1,  # contigs assigned to threads, so good to make this a factor of 24 (eg. 2,3,4,6,8)
-    SITES_VCFS=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'ExAC*.vcf.gz')),
+    SITES_VCFS=glob.glob(os.path.join(EXAC_FILES_DIRECTORY, 'ExAC.r1.sites.vep.pcsk9.vcf.gz')),
     GENCODE_GTF=os.path.join(EXAC_FILES_DIRECTORY, 'gencode.gtf.gz'),
     CANONICAL_TRANSCRIPT_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'canonical_transcripts.txt.gz'),
     OMIM_FILE=os.path.join(EXAC_FILES_DIRECTORY, 'omim_info.txt.gz'),

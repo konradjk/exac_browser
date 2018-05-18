@@ -1,4 +1,4 @@
-FROM gcr.io/exac-gnomad/exacbase
+FROM gcr.io/exac-gnomad/exacbase:working
 
 MAINTAINER MacArthur Lab
 
