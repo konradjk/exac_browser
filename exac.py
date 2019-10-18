@@ -421,8 +421,8 @@ def load_cnv_genes():
     with open(app.config['CNV_GENE_FILE']) as cnv_gene_file:
         for cnvgene in get_cnvs_per_gene(cnv_gene_file):
             db.cnvgenes.insert(cnvgene, w=0)
-            #progress.update(gtf_file.fileobj.tell())                                                                                                                                                                                    
-        #progress.finish()                                                                                                                                                                                                               
+            #progress.update(gtf_file.fileobj.tell())
+        #progress.finish()
 
     print 'Done loading CNVs in genes. Took %s seconds' % int(time.time() - start_time)
 
@@ -1072,6 +1072,11 @@ def apply_caching(response):
 @app.route('/health_check')
 def health_check():
     return ''
+
+
+@app.route('/robots.txt')
+def robots_txt_route():
+    return send_from_directory(app.static_folder, request.path[1:])
 
 
 if __name__ == "__main__":

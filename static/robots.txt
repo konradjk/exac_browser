@@ -1,2 +1,10 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /dbsnp/
+Disallow: /error/
+Disallow: /gene/
+Disallow: /read_viz/
+Disallow: /region/
+Disallow: /not_found/
+Disallow: /transcript/
+Disallow: /variant/
