@@ -1,6 +1,6 @@
 git+https://github.com/mitsuhiko/flask.git
 Flask-Script==2.0.5
-ipython==2.1.0
+ipython==7.16.3
 pymongo==2.7.1
 pysam
 flask-runner
